@@ -6,9 +6,9 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 
 export const cta4 = {
-  headLine: 'Why Choose Tasheel for Your Government Services?',
+  headLine: 'Why service teams partner with Tasheel',
   primaryBtn: {
-    children: 'Start Your Application',
+    children: 'Start your application',
     href: '/services'
   },
   profileGroups: {
@@ -19,15 +19,15 @@ export const cta4 = {
       { avatar: '/assets/images/user/avatar4.png' },
       { avatar: '/assets/images/user/avatar5.png' }
     ],
-    review: '50,000+ Satisfied Users (4.8 out of 5)'
+    review: 'Used by public agencies and service consultants across Palestine'
   },
   list: [
-    { primary: '100% Online Process' },
-    { primary: '3-Day Average Processing' },
-    { primary: 'Secure Document Handling' },
-    { primary: '24/7 Support Available' },
-    { primary: 'Real-time Tracking' },
-    { primary: 'Government Approved' }
+    { primary: 'Complete digital intake and assessment' },
+    { primary: 'Transparent status tracking at every step' },
+    { primary: 'Secure document vault & audit trails' },
+    { primary: 'Arabic and English guidance' },
+    { primary: 'Express handling for urgent cases' },
+    { primary: 'Compliance-ready exports' }
   ],
   clientContent: 'Learn More'
 };
@@ -44,15 +44,15 @@ function DescriptionLine() {
 }
 
 export const cta5 = {
-  label: 'Get Started Today',
-  heading: 'Ready to Simplify Your Government Services?',
-  caption: 'Join thousands of citizens who save time with our digital platform.',
+  label: 'Get started today',
+  heading: 'Ready to simplify permits, licenses, and civic services?',
+  caption: 'Tasheel removes the guesswork so you can focus on what matters—your residents, team, or business.',
   primaryBtn: {
-    children: 'Browse Services',
+    children: 'Browse services',
     href: '/services'
   },
   description: <DescriptionLine />,
-  saleData: { count: 50, defaultUnit: 'k+', caption: 'Applications processed monthly' },
+  saleData: { count: 12, defaultUnit: 'k+', caption: 'Applications processed in beta' },
   profileGroups: {
     avatarGroups: [
       { avatar: '/assets/images/user/avatar1.png' },
@@ -61,15 +61,15 @@ export const cta5 = {
       { avatar: '/assets/images/user/avatar4.png' },
       { avatar: '/assets/images/user/avatar5.png' }
     ],
-    review: '98% User Satisfaction Rate'
+    review: 'Teams report 70% faster turnaround times'
   }
 };
 
 export const cta10 = {
   heading: "Can't find the service you need?",
-  caption: 'Let us know what government service you\'re looking for and we\'ll help you find the right solution.',
-  primaryBtn: { children: 'Contact Support', href: '/contact' },
-  secondaryBtn: { children: 'View All Services', href: '/services' },
+  caption: 'Tell us which workflow you want to digitise and our onboarding team will walk you through the next steps.',
+  primaryBtn: { children: 'Contact support', href: '/contact' },
+  secondaryBtn: { children: 'View all services', href: '/services' },
   image: '/assets/images/graphics/ai/graphics15-light.svg',
   profileGroups: {
     avatarGroups: [

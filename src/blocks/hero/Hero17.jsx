@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
 // @mui
-import { useTheme, alpha } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -98,7 +98,7 @@ export default function Hero17({ chip, headLine, captionLine, primaryBtn, second
     <>
       <Box
         sx={{
-          height: { xs: 592, sm: 738, md: 878 },
+          height: { xs: 520, sm: 660, md: 780 },
           position: 'absolute',
           top: 0,
           left: 0,
@@ -110,23 +110,15 @@ export default function Hero17({ chip, headLine, captionLine, primaryBtn, second
           bgcolor: 'grey.100'
         }}
       />
-      <ContainerWrapper sx={{ py: SECTION_COMMON_PY, pb: { xs: 8, sm: 10, md: 12 } }}>
+      <ContainerWrapper sx={{ py: SECTION_COMMON_PY, pb: { xs: 6, sm: 8, md: 9 } }}>
         <Box ref={containerRef}>
           <Box sx={{ pb: { xs: 4, sm: 6, md: 8 } }}>
             <Stack sx={{ alignItems: 'center', gap: 1.5 }}>
               <motion.div
-                initial={{ opacity: 0, scale: 0.6 }}
-                whileInView={{ opacity: 1, scale: [0.6, 1.15, 0.95, 1] }}
-                animate={{
-                  boxShadow: [
-                    `0 0 0px ${alpha(theme.palette.primary.dark, 0)}`,
-                    `0 0 20px ${alpha(theme.palette.primary.main, 0.8)}`,
-                    `0 0 0px ${alpha(theme.palette.primary.dark, 0)}`
-                  ],
-                  borderRadius: '74px'
-                }}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.8, ease: 'linear' }}
+                transition={{ duration: 0.35, delay: 0.1, ease: 'easeOut' }}
               >
                 <Chip
                   variant="outlined"
@@ -141,30 +133,30 @@ export default function Hero17({ chip, headLine, captionLine, primaryBtn, second
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, scale: 0.6 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2, ease: 'linear' }}
+                transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
               >
                 <Typography variant="h1" align="center" sx={{ maxWidth: 800 }}>
                   {headLine}
                 </Typography>
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
+                transition={{ duration: 0.35, delay: 0.25, ease: 'easeOut' }}
               >
                 <Box sx={{ pt: 0.5, pb: 0.75 }}>
                   <Wave />
                 </Box>
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1, delay: 0.3, ease: [0.215, 0.61, 0.355, 1] }}
+                transition={{ duration: 0.4, delay: 0.3, ease: 'easeOut' }}
               >
                 <Typography variant="h6" align="center" sx={{ color: 'text.secondary', maxWidth: 650 }}>
                   {captionLine}
@@ -174,10 +166,10 @@ export default function Hero17({ chip, headLine, captionLine, primaryBtn, second
             <Stack sx={{ alignItems: 'center', gap: 2, mt: { xs: 3, sm: 4, md: 5 } }}>
               <Stack direction="row" spacing={2}>
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  whileHover={{ scale: 1.06 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  whileHover={{ scale: 1.04 }}
                 >
                   <ButtonAnimationWrapper>
                     <Button
@@ -190,10 +182,10 @@ export default function Hero17({ chip, headLine, captionLine, primaryBtn, second
                 </motion.div>
                 {secondaryBtn && (
                   <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1, ease: 'easeInOut' }}
-                    whileHover={{ scale: 1.06 }}
+                    transition={{ duration: 0.25, delay: 0.1, ease: 'easeOut' }}
+                    whileHover={{ scale: 1.04 }}
                   >
                     <Button
                       color="primary"

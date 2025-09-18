@@ -1,10 +1,10 @@
 export const metrics = {
-  heading: 'Trusted by Thousands',
-  caption: 'Delivering efficient government services to citizens and businesses across the nation.',
+  heading: 'Built for high-volume public service delivery',
+  caption: 'Tasheel keeps ministries, service operators, and applicants aligned through one shared workflow.',
   blockDetail: [
-    { animationDelay: 0.1, counter: 50000, defaultUnit: '+', caption: 'Applications Processed' },
-    { animationDelay: 0.2, counter: 25, defaultUnit: '+', caption: 'Service Types' },
-    { animationDelay: 0.3, counter: 98, defaultUnit: '%', caption: 'User Satisfaction' },
-    { animationDelay: 0.4, counter: 24, defaultUnit: '/7', caption: 'Available Support' }
+    { animationDelay: 0.1, counter: 12000, defaultUnit: '+', caption: 'Applications handled in beta' },
+    { animationDelay: 0.2, counter: 45, defaultUnit: '+', caption: 'Service journeys digitised' },
+    { animationDelay: 0.3, counter: 70, defaultUnit: '%', caption: 'Average time saved per case' },
+    { animationDelay: 0.4, counter: 2, defaultUnit: '+', caption: 'Languages supported from day one' }
   ]
 };

@@ -22,7 +22,7 @@ function AnimatedCounter({ startCount, endCount }) {
   const rounded = useTransform(countValue, (value) => Math.round(value));
 
   useEffect(() => {
-    const controls = animate(countValue, endCount, { duration: 5, ease: 'linear' });
+    const controls = animate(countValue, endCount, { duration: 2.5, ease: 'linear' });
 
     return () => controls.stop();
   }, [countValue, endCount]);

@@ -51,13 +51,10 @@ export default function Other1({ heading, description, primaryBtn, sections }) {
     <ContainerWrapper sx={{ py: SECTION_COMMON_PY }}>
       <Stack sx={{ gap: { xs: 3, sm: 4 } }}>
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{
-            duration: 0.5,
-            delay: 0.3
-          }}
+          transition={{ duration: 0.35, delay: 0.15, ease: 'easeOut' }}
         >
           <Typeset {...{ heading, stackProps: { sx: { textAlign: 'center' } } }} />
         </motion.div>
@@ -67,13 +64,10 @@ export default function Other1({ heading, description, primaryBtn, sections }) {
               <GraphicsCard sx={{ overflow: 'hidden' }}>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  initial={{ opacity: 0, y: 25 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{
-                    duration: 0.5,
-                    delay: item.animationDelay
-                  }}
+                  transition={{ duration: 0.4, delay: item.animationDelay ?? 0.1, ease: 'easeOut' }}
                 >
                   <GraphicsCard
                     sx={{
@@ -121,20 +115,20 @@ export default function Other1({ heading, description, primaryBtn, sections }) {
                       }}
                     >
                       <motion.div
-                        initial={{ opacity: 0, y: 25 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.4 }}
+                        transition={{ duration: 0.3, delay: 0.2, ease: 'easeOut' }}
                       >
                         <Typography variant="h4" sx={{ color: 'primary.main' }}>
                           {item.title}
                         </Typography>
                       </motion.div>
                       <motion.div
-                        initial={{ opacity: 0, y: 25 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.6 }}
+                        transition={{ duration: 0.3, delay: 0.3, ease: 'easeOut' }}
                       >
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                           {item.subTitle}
@@ -150,22 +144,19 @@ export default function Other1({ heading, description, primaryBtn, sections }) {
         <Stack sx={{ gap: 2, alignItems: 'center' }}>
           <Typography variant="h6" align="center" sx={{ color: 'text.secondary', width: { xs: 1, sm: '80%', md: '65%' } }}>
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{
-                duration: 0.5,
-                delay: 0.3
-              }}
+              transition={{ duration: 0.35, delay: 0.2, ease: 'easeOut' }}
             >
               {description}
             </motion.div>
           </Typography>
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            whileHover={{ scale: 1.06 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            whileHover={{ scale: 1.04 }}
           >
             <ButtonAnimationWrapper>
               <Button variant="outlined" {...primaryBtn} />

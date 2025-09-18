@@ -13,7 +13,7 @@ export const hero = {
         <Chip
           label={
             <Typography variant="caption" sx={{ color: 'primary.main' }}>
-              Government Services
+              Digital Services Hub
             </Typography>
           }
           sx={{ height: 24, bgcolor: 'primary.lighter', mr: -1, ml: 0.75, '& .MuiChip-label': { px: 1.25 } }}
@@ -30,19 +30,20 @@ export const hero = {
       </>
     )
   },
-  headLine: 'Your Gateway to Government Services',
-  captionLine: 'Simplify your government transactions with our comprehensive digital platform. Apply for permits, licenses, and visas all in one place.',
-  primaryBtn: { children: 'Explore Services', href: '/services' },
+  headLine: 'Faster permits, licenses, and civic services online.',
+  captionLine:
+    'Tasheel guides citizens, residents, and businesses through each step—submit once, track across ministries, and finish without the paperwork chase.',
+  primaryBtn: { children: 'Start an Application', href: '/services' },
   secondaryBtn: { children: 'Track Application', href: '/track' },
   videoSrc: null,
   videoThumbnail: null,
   listData: [
-    { icon: '💼', title: 'Work Permits' },
-    { icon: '🏢', title: 'Business Licenses' },
-    { icon: '🏠', title: 'Residence Visas' },
-    { icon: '🚗', title: 'Driving Licenses' },
-    { icon: '📋', title: 'Document Services' },
-    { icon: '💳', title: 'Online Payments' },
-    { icon: '📊', title: 'Application Tracking' }
+    { icon: '🪪', title: 'Identity & Civil Records' },
+    { icon: '🏢', title: 'Business & Trade Licenses' },
+    { icon: '🛂', title: 'Residency & Visa Services' },
+    { icon: '🚗', title: 'Vehicles & Transport' },
+    { icon: '🏠', title: 'Property & Land Affairs' },
+    { icon: '⚕️', title: 'Health & Safety Clearances' },
+    { icon: '🔔', title: 'Real-time Status Updates' }
   ]
 };

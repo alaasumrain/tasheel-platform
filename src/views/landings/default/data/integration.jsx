@@ -2,12 +2,12 @@
 import SvgIcon from '@/components/SvgIcon';
 
 export const integration = {
-  headLine: 'Integrated Government Departments',
-  captionLine: 'Tasheel connects multiple government departments to provide seamless, unified services for all your needs.',
+  headLine: 'Departments already onboarding to Tasheel',
+  captionLine: 'We unify parallel processes from ministries, municipalities, and regulators so applicants experience one joined-up journey.',
   primaryBtn: {
-    children: 'View All Departments',
+    children: 'Connect your department',
     startIcon: <SvgIcon name="tabler-building-bank" color="background.default" />,
-    href: '/departments',
+    href: '/contact'
   },
   tagList: [
     { label: 'Ministry of Interior' },

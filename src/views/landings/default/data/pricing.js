@@ -2,7 +2,7 @@
 
 export const pricing = {
   heading: 'Transparent Service Fees',
-  caption: 'All government service fees are standardized and clearly displayed before application.',
+  caption: 'Tasheel matches official tariffs and highlights any optional facilitation or courier costs up front.',
   features: [
     { id: 1, label: 'Online Application' },
     { id: 2, label: 'Document Upload' },
@@ -17,26 +17,26 @@ export const pricing = {
   ],
   plans: [
     {
-      title: 'Standard Services',
-      price: 'Varies',
+      title: 'Standard processing',
+      price: 'Official fees',
       active: false,
       featureTitle: 'Includes',
-      content: 'Regular processing times',
-      contentLink: { children: 'View fee schedule', href: '/fees' },
-      exploreLink: { children: 'Browse Services', href: '/services' },
+      content: 'Government tariff only',
+      contentLink: { children: 'See fee breakdown', href: '/services' },
+      exploreLink: { children: 'Browse services', href: '/services' },
       featuresID: [1, 2, 3, 4, 5],
-      description: 'Most services processed within 5-10 business days'
+      description: 'Most services completed within published ministry timelines.'
     },
     {
-      title: 'Express Services',
+      title: 'Accelerated handling',
       active: true,
-      price: '+50%',
-      featureTitle: 'All Standard features plus',
-      content: 'Expedited processing available',
-      contentLink: { children: 'Learn more', href: '/express' },
-      exploreLink: { children: 'Apply for Express', href: '/services?express=true' },
+      price: 'Official + facilitation',
+      featureTitle: 'Adds',
+      content: 'Optional concierge and courier support',
+      contentLink: { children: 'Request express quote', href: '/contact' },
+      exploreLink: { children: 'Apply for express', href: '/services?express=true' },
       featuresID: [6, 7, 8, 9, 10],
-      description: 'Priority processing within 1-3 business days'
+      description: 'Ideal for time-sensitive permits and registrations that need tighter SLAs.'
     }
   ]
 };

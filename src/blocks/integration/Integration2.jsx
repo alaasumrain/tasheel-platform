@@ -53,22 +53,19 @@ export default function Integration2({ headLine, captionLine, primaryBtn, tagLis
   return (
     <ContainerWrapper sx={{ py: SECTION_COMMON_PY }}>
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{
-          duration: 0.5,
-          delay: 0.4
-        }}
+        transition={{ duration: 0.35, delay: 0.15, ease: 'easeOut' }}
       >
         <GraphicsCard>
           <Stack sx={{ alignItems: 'center', p: { xs: 3, sm: 4, md: 5 } }}>
             <Stack sx={{ alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
               <motion.div
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4, ease: [0.215, 0.61, 0.355, 1] }}
+                transition={{ duration: 0.35, delay: 0.2, ease: 'easeOut' }}
               >
                 {headLine && (
                   <Typography align="center" variant="h2">
@@ -86,10 +83,10 @@ export default function Integration2({ headLine, captionLine, primaryBtn, tagLis
               {tagList.map((integration, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.7 }}
+                  initial={{ opacity: 0, scale: 0.85 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, ease: 'easeOut', delay: Math.random() * 0.6 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.06 }}
                 >
                   <IntegrationTag {...integration} />
                 </motion.div>
@@ -97,10 +94,10 @@ export default function Integration2({ headLine, captionLine, primaryBtn, tagLis
             </Stack>
             {primaryBtn && (
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                whileHover={{ scale: 1.06 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                whileHover={{ scale: 1.04 }}
               >
                 <ButtonAnimationWrapper>
                   <Button variant="contained" size="large" {...primaryBtn} />

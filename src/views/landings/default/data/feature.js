@@ -3,160 +3,160 @@ import branding from '@/branding.json';
 import { IconType } from '@/enum';
 
 export const feature20 = {
-  heading: 'All Government Services in One Platform',
-  caption: 'Streamline your government transactions with our comprehensive digital services platform',
-  actionBtn: { children: 'Apply Now', href: '/services' },
-  secondaryBtn: { children: 'Track Application', href: '/track' },
+  heading: 'Everything you need to run public services end to end',
+  caption: 'Tasheel keeps applicants, reviewers, and partner ministries aligned with guided workflows and live status updates.',
+  actionBtn: { children: 'Start an Application', href: '/services' },
+  secondaryBtn: { children: 'Talk to Tasheel', href: '/contact' },
   features: [
     {
-      icon: 'tabler-briefcase',
-      title: 'Work Permits',
-      content: 'Apply for work permits and employment authorizations online with ease.'
+      icon: 'tabler-layout-dashboard',
+      title: 'Unified dashboard',
+      content: 'Monitor every submission across agencies with clear ownership and next steps.'
     },
     {
-      icon: 'tabler-building',
-      title: 'Business Licenses',
-      content: 'Register your business and obtain necessary licenses through our portal.'
+      icon: 'tabler-checklist',
+      title: 'Guided forms',
+      content: 'Applicants see the exact documents, fees, and eligibility rules before they start.'
     },
     {
-      icon: 'tabler-home',
-      title: 'Residence Visas',
-      content: 'Process residence visa applications and renewals digitally.'
+      icon: 'tabler-bell',
+      title: 'Real-time alerts',
+      content: 'Automated email and SMS notifications keep applicants and officers aligned.'
     },
     {
-      icon: 'tabler-car',
-      title: 'Driving Licenses',
-      content: 'Apply for new driving licenses or renew existing ones online.'
+      icon: 'tabler-cloud-lock',
+      title: 'Secure records',
+      content: 'End-to-end encryption and audit trails protect sensitive information by default.'
     },
     {
-      icon: 'tabler-file-text',
-      title: 'Document Services',
-      content: 'Request official documents, certificates, and attestations digitally.'
+      icon: 'tabler-users-group',
+      title: 'Collaboration tools',
+      content: 'Invite inspectors, legal teams, or external reviewers without losing context.'
     },
     {
-      icon: 'tabler-clock',
-      title: 'Fast Processing',
-      content: 'Experience faster processing times with our streamlined digital workflows.'
+      icon: 'tabler-rocket',
+      title: 'Express handling',
+      content: 'Fast-track complex cases with SLA monitoring and escalation playbooks.'
     }
   ]
 };
 
 export const feature18 = {
-  heading: 'Powerful Government Portal',
-  caption: 'Manage citizen services, applications, and workflows with our comprehensive digital platform.',
+  heading: 'One platform for every department you work with',
+  caption: 'Tasheel adapts to each agency’s policy while keeping a consistent experience for applicants.',
   topics: [
     {
       icon: 'tabler-sparkles',
-      title: 'Digital Services',
-      title2: 'Complete Government Services Online',
-      description: 'Access all government services through one unified digital platform',
+      title: 'Digital services',
+      title2: 'Launch new workflows fast',
+      description: 'Use ready-made blueprints for intake, review, approvals, and fulfilment so teams focus on policy—not plumbing.',
       image: '/assets/images/graphics/default/admin-dashboard.png',
       list: [
-        { primary: 'Online Application Processing' },
-        { primary: 'Document Management System' },
-        { primary: 'Real-time Status Tracking' },
-        { primary: 'Secure Payment Gateway' }
+        { primary: 'Reusable service templates' },
+        { primary: 'Document validation rules' },
+        { primary: 'Real-time status tracking' },
+        { primary: 'Built-in payments & receipts' }
       ],
-      actionBtn: { children: 'Apply Now', href: '/services' },
-      actionBtn2: { children: 'Learn More', href: '/guide' }
+      actionBtn: { children: 'Start an application', href: '/services' },
+      actionBtn2: { children: 'See service catalogue', href: '/services' }
     },
     {
       icon: 'tabler-palette',
-      title: 'Multi-Department',
-      title2: 'All Departments in One Place',
-      description: 'Access services from multiple government departments seamlessly.',
+      title: 'Multi-department',
+      title2: 'Collaborate across ministries',
+      description: 'Connect licensing, immigration, municipal, and inspection workflows inside a single shared case file.',
       image: '/assets/images/graphics/default/admin-dashboard-2.png',
       list: [
-        { primary: 'Ministry of Interior Services' },
-        { primary: 'Ministry of Labor' },
-        { primary: 'Ministry of Health' },
-        { primary: 'Ministry of Education' }
+        { primary: 'Shared applicant profiles' },
+        { primary: 'Role-based permissions' },
+        { primary: 'Cross-agency task routing' },
+        { primary: 'Unified notifications' }
       ],
-      actionBtn: { children: 'Browse Services', href: '/services' },
-      actionBtn2: { children: 'Department Guide', href: '/departments' }
+      actionBtn: { children: 'Browse services', href: '/services' },
+      actionBtn2: { children: 'Talk to Tasheel', href: '/contact' }
     },
     {
       icon: 'tabler-rocket',
-      title: 'Fast Processing',
-      title2: 'Reduced Processing Times',
-      description: 'Experience faster service delivery with digital transformation.',
+      title: 'Fast processing',
+      title2: 'Shorten turnaround times',
+      description: 'Automations trigger document checks, approvals, and reminders the moment an application arrives.',
       image: '/assets/images/graphics/default/admin-dashboard-3.png',
       list: [
-        { primary: '70% Faster Processing' },
-        { primary: 'Instant Application Submission' },
-        { primary: 'Automated Verification' },
-        { primary: 'Express Service Options' }
+        { primary: 'Automated eligibility checks' },
+        { primary: 'Instant routing to reviewers' },
+        { primary: 'Deadline monitoring' },
+        { primary: 'Express service configurations' }
       ],
-      actionBtn: { children: 'Start Application', href: '/apply' },
-      actionBtn2: { children: 'Processing Times', href: '/times' }
+      actionBtn: { children: 'Start an application', href: '/services' },
+      actionBtn2: { children: 'Request express setup', href: '/contact' }
     },
     {
       icon: 'tabler-scale',
-      title: 'Secure Platform',
-      title2: 'Bank-Level Security',
-      description: 'Your data is protected with advanced encryption and security protocols.',
+      title: 'Secure platform',
+      title2: 'Protect sensitive decisions',
+      description: 'Bank-grade encryption, Palestinian data residency, and detailed audit logs keep every action accountable.',
       image: '/assets/images/graphics/default/admin-dashboard.png',
       list: [
-        { primary: 'End-to-End Encryption' },
-        { primary: 'Secure Document Storage' },
-        { primary: 'Privacy Protection' },
-        { primary: 'Regular Security Audits' }
+        { primary: 'End-to-end encryption' },
+        { primary: 'Granular audit trails' },
+        { primary: 'Compliance-ready exports' },
+        { primary: 'Routine penetration testing' }
       ],
-      actionBtn: { children: 'View Security', href: '/security' },
-      actionBtn2: { children: 'Privacy Policy', href: '/privacy' }
+      actionBtn: { children: 'View security approach', href: '/privacy-policy' },
+      actionBtn2: { children: 'See privacy policy', href: '/privacy-policy' }
     }
   ]
 };
 
 export const feature21 = {
-  heading: `Experience Digital Excellence with ${branding.brandName}`,
-  caption: 'Access government services with our modern, user-friendly, and accessible digital platform.',
+  heading: `Experience digital public services with ${branding.brandName}`,
+  caption: 'Applicants stay informed, officers stay coordinated, and leadership gains the insight to improve every service.',
   image: '/assets/images/graphics/ai/desktop1-light.svg',
-  primaryBtn: { children: 'Start Now', href: '/register' },
+  primaryBtn: { children: 'Start with Tasheel', href: '/services' },
   secondaryBtn: {
-    children: 'View Demo',
-    href: '/demo'
+    children: 'Talk to our team',
+    href: '/contact'
   },
   features: [
     {
       animationDelay: 0.1,
       icon: 'tabler-components',
-      title: 'All Services'
+      title: 'Multi-agency workflows'
     },
     {
       animationDelay: 0.2,
       icon: 'tabler-moon',
-      title: '24/7 Available'
+      title: '24/7 availability'
     },
     {
       animationDelay: 0.3,
       icon: 'tabler-brightness-auto',
-      title: 'Smart Forms'
+      title: 'Smart forms & validation'
     },
     {
       animationDelay: 0.4,
       icon: 'tabler-accessible',
-      title: 'Accessible'
+      title: 'WCAG-compliant UI'
     },
     {
       animationDelay: 0.1,
       icon: 'tabler-icons',
-      title: 'Multi-Language'
+      title: 'Arabic & English'
     },
     {
       animationDelay: 0.2,
       icon: 'tabler-file-stack',
-      title: 'Digital Docs'
+      title: 'Digital document vault'
     },
     {
       animationDelay: 0.3,
       icon: 'tabler-brand-matrix',
-      title: 'Secure Platform'
+      title: 'Secure infrastructure'
     },
     {
       animationDelay: 0.4,
       icon: 'tabler-click',
-      title: 'Easy Navigation'
+      title: 'Guided journeys'
     }
   ]
 };

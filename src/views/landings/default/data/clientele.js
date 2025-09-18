@@ -2,8 +2,8 @@
 import { DynamicComponentType } from '@/enum';
 
 export const clientele = {
-  title: `Trusted by Government Departments and Citizens`,
-  subtitle: 'Working together to deliver efficient digital services across Palestine',
+  title: `Partnering with public institutions across Palestine`,
+  subtitle: 'Tasheel brings ministries, municipalities, and regulators onto a single operating model for digital services.',
   clienteleList: [
     { 
       name: 'Ministry of Interior',
@@ -29,7 +29,7 @@ export const clientele = {
 };
 
 export const clientele2 = {
-  title: '50,000+ Citizens Served Monthly',
+  title: 'Implementation and advisory partners',
   clienteleList: [
     { image: { component: 'clientele/Techlify', type: DynamicComponentType.IMAGE } },
     { image: { component: 'clientele/Marketly', type: DynamicComponentType.IMAGE } },

@@ -83,24 +83,18 @@ export default function Feature20({ heading, caption, image, features, actionBtn
     <ContainerWrapper sx={{ py: SECTION_COMMON_PY }}>
       <Stack sx={{ gap: { xs: 4, sm: 6, md: 8 } }}>
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{
-            duration: 0.5,
-            delay: 0.3
-          }}
+          transition={{ duration: 0.35, delay: 0.15, ease: 'easeOut' }}
         >
           <Typeset {...{ heading, stackProps: { sx: { maxWidth: { md: 500 }, ...(!image && { maxWidth: 1, textAlign: 'center' }) } } }} />
         </motion.div>
         <motion.div
-          initial={{ opacity: 0, y: 25 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{
-            duration: 0.5,
-            delay: 0.4
-          }}
+          transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
         >
           <GraphicsCard sx={{ position: 'relative', overflow: 'visible' }}>
             {image && (
@@ -136,28 +130,28 @@ export default function Feature20({ heading, caption, image, features, actionBtn
                     <Stack sx={{ gap: { xs: 3, sm: 4 }, height: 1, py: { xs: 1.5, sm: 3, md: 4 }, px: { xs: 0, sm: 3, md: 4 } }}>
                       <Avatar sx={{ width: 60, height: 60, bgcolor: 'grey.300' }}>
                         <motion.div
-                          initial={{ opacity: 0, scale: 0.6 }}
+                          initial={{ opacity: 0, scale: 0.85 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
-                          transition={{ duration: 2, delay: index * 0.1 }}
+                          transition={{ duration: 0.45, delay: index * 0.06, ease: 'easeOut' }}
                         >
                           <SvgIcon {...(typeof item.icon === 'string' ? { name: item.icon } : { ...item.icon })} />
                         </motion.div>
                       </Avatar>
                       <Stack sx={{ gap: { xs: 0.5, md: 1 } }}>
                         <motion.div
-                          initial={{ opacity: 0, y: 25 }}
+                          initial={{ opacity: 0, y: 16 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
-                          transition={{ duration: 0.5, delay: index * 0.2 }}
+                          transition={{ duration: 0.3, delay: index * 0.12, ease: 'easeOut' }}
                         >
                           {item.title && <Typography variant="h4">{item.title}</Typography>}
                         </motion.div>
                         <motion.div
-                          initial={{ opacity: 0, y: 25 }}
+                          initial={{ opacity: 0, y: 16 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
-                          transition={{ duration: 0.5, delay: index * 0.3 }}
+                          transition={{ duration: 0.3, delay: 0.15 + index * 0.12, ease: 'easeOut' }}
                         >
                           {item.content && <Typography sx={{ color: 'text.secondary' }}>{item.content}</Typography>}
                         </motion.div>
@@ -177,25 +171,19 @@ export default function Feature20({ heading, caption, image, features, actionBtn
         <Stack sx={{ alignItems: 'center', gap: 3 }}>
           <Typography variant="h6" sx={{ color: 'text.secondary', maxWidth: { xs: '75%', sm: '45%' }, textAlign: 'center' }}>
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{
-                duration: 0.5,
-                delay: 0.4
-              }}
+              transition={{ duration: 0.35, delay: 0.25, ease: 'easeOut' }}
             >
               {caption}
             </motion.div>
           </Typography>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{
-              duration: 0.5,
-              delay: 0.5
-            }}
+            transition={{ duration: 0.35, delay: 0.3, ease: 'easeOut' }}
           >
             <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
               {secondaryBtn && (

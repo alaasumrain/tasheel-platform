@@ -44,6 +44,12 @@ export const mainMetadata = {
     description,
     url: '/',
     ...ogCommonMetadata
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/assets/images/metadata/og.png']
   }
 };
 

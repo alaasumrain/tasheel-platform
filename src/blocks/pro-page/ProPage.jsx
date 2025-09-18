@@ -4,9 +4,7 @@ import NextLink from 'next/link';
 
 // @mui
 import Button from '@mui/material/Button';
-import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
@@ -16,6 +14,7 @@ import { SECTION_COMMON_PY } from '@/utils/constant';
 import ContainerWrapper from '@/components/ContainerWrapper';
 import GraphicsImage from '@/components/GraphicsImage';
 import SvgIcon from '@/components/SvgIcon';
+import { PAGE_PATH } from '@/path';
 
 export default function ProPage({ image }) {
   return (
@@ -37,13 +36,11 @@ export default function ProPage({ image }) {
               }}
             />
             <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, mt: { xs: 4, md: 7 }, textAlign: 'center' }}>
-              Discover the Components Not Available in the Free Version
+              Need bespoke workflows or department integrations?
             </Typography>
             <Typography variant="body1" color="textSecondary" sx={{ mb: 3, color: 'grey.700', textAlign: 'center' }}>
-              <Link href="https://www.saasable.io/" target="_blank" underline="hover" component={NextLink}>
-                Check out SaasAble PRO
-              </Link>{' '}
-              which offers updated components, auto layout, and Figma new variables, complete with dark mode!
+              Tasheel’s product team can help your ministry launch additional modules, automate paper processes, and tailor dashboards
+              for specialized service lines.
             </Typography>
 
             <Grid container spacing={2} justifyContent="center">
@@ -51,12 +48,11 @@ export default function ProPage({ image }) {
                 <Button
                   variant="outlined"
                   component={NextLink}
-                  href="https://www.figma.com/design/mlkXfeqxUKqIo0GQhPBqPb/SaasAble---UI-Kit---Preview-only?node-id=11-1833&t=JBHOIIEuYZpmN6v8-1"
-                  target="_blank"
+                  href={PAGE_PATH.contactPage}
                   sx={{ minWidth: 215 }}
-                  startIcon={<CardMedia component="img" src="/assets/images/shared/figma.svg" sx={{ width: 16, height: 16 }} alt="figma" />}
+                  startIcon={<SvgIcon name="tabler-message" size={16} stroke={3} />}
                 >
-                  Preview Pro
+                  Talk to our team
                 </Button>
               </Grid>
               <Grid>
@@ -65,11 +61,10 @@ export default function ProPage({ image }) {
                     variant="contained"
                     color="primary"
                     component={NextLink}
-                    href={'https://www.saasable.io/sections'}
-                    target="_blank"
+                    href={PAGE_PATH.aboutPage}
                     startIcon={<SvgIcon name="tabler-sparkles" size={16} stroke={3} color="background.default" />}
                   >
-                    View Pro Component
+                    Learn about Tasheel
                   </Button>
                 </ButtonAnimationWrapper>
               </Grid>
