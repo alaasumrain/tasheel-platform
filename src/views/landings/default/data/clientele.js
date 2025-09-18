@@ -1,5 +1,4 @@
 // @project
-import branding from '@/branding.json';
 import { DynamicComponentType } from '@/enum';
 
 export const clientele = {
