@@ -19,7 +19,6 @@ import Box from '@mui/material/Box';
 import { motion } from 'framer-motion';
 
 // @project
-import branding from '@/branding.json';
 import ContainerWrapper from '@/components/ContainerWrapper';
 import { GraphicsCard } from '@/components/cards';
 import SectionHero from '@/components/SectionHero';

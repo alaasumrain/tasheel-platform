@@ -2,8 +2,6 @@
 import branding from '@/branding.json';
 import { IconType } from '@/enum';
 
-const linkProps = { target: '_blank', rel: 'noopener noreferrer' };
-
 export const feature20 = {
   heading: 'All Government Services in One Platform',
   caption: 'Streamline your government transactions with our comprehensive digital services platform',

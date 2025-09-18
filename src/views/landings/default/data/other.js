@@ -1,11 +1,8 @@
 // @project
-import { PAGE_PATH, SECTION_PATH } from '@/path';
+import branding from '@/branding.json';
 
 // @assets
 const imagePrefix = '/assets/images/presentation';
-
-// @project
-import branding from '@/branding.json';
 
 export const other = {
   heading: `${branding.brandName} Service Categories`,
