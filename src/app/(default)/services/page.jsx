@@ -40,284 +40,239 @@ import { SECTION_COMMON_PY } from '@/utils/constant';
 const serviceCategories = [
   { id: 'all', name: 'All Services', icon: 'tabler-apps' },
   { id: 'identity', name: 'Identity & Civil', icon: 'tabler-id' },
-  { id: 'business', name: 'Business', icon: 'tabler-building' },
-  { id: 'health', name: 'Healthcare', icon: 'tabler-heart-plus' },
-  { id: 'transport', name: 'Transport', icon: 'tabler-car' },
-  { id: 'property', name: 'Property', icon: 'tabler-home' },
-  { id: 'education', name: 'Education', icon: 'tabler-school' },
-  { id: 'finance', name: 'Finance', icon: 'tabler-receipt-tax' }
+  { id: 'business', name: 'Business Services', icon: 'tabler-building' },
+  { id: 'health', name: 'Health & Safety', icon: 'tabler-heart-plus' },
+  { id: 'transport', name: 'Transportation', icon: 'tabler-car' },
+  { id: 'property', name: 'Property & Land', icon: 'tabler-home' },
+  { id: 'education', name: 'Education', icon: 'tabler-school' }
 ];
 
-// Mock Services Data
+// Palestinian Government Services Data
 const servicesData = [
   {
     id: 1,
-    title: 'Work Permit Application',
-    slug: 'work-permit',
-    category: 'business',
-    icon: 'tabler-briefcase',
-    color: 'primary',
-    popular: true,
-    description: 'Apply for work permits and employment authorizations online.',
-    processingTime: '3-5 days',
-    fee: '150',
-    requirements: ['Valid passport', 'Employment contract', 'Medical certificate'],
-    eligibility: 'Foreign nationals with job offers'
-  },
-  {
-    id: 2,
-    title: 'Business License',
-    slug: 'business-license',
-    category: 'business',
-    icon: 'tabler-building-store',
-    color: 'success',
-    popular: true,
-    description: 'Register your business and obtain necessary licenses.',
-    processingTime: '5-7 days',
-    fee: '250',
-    requirements: ['Business plan', 'Proof of address', 'Bank statement'],
-    eligibility: 'Entrepreneurs and business owners'
-  },
-  {
-    id: 3,
-    title: 'National ID Card',
-    slug: 'national-id',
-    category: 'identity',
-    icon: 'tabler-id-badge',
-    color: 'info',
-    popular: true,
-    description: 'Apply for new or renew your national identity card.',
-    processingTime: '2-3 days',
-    fee: '50',
-    requirements: ['Birth certificate', 'Proof of residence', 'Photos'],
-    eligibility: 'All citizens aged 16 and above'
-  },
-  {
-    id: 4,
-    title: 'Driving License',
-    slug: 'driving-license',
-    category: 'transport',
-    icon: 'tabler-license',
-    color: 'warning',
-    popular: true,
-    description: 'Apply for new driving license or convert existing one.',
-    processingTime: '1-2 days',
-    fee: '100',
-    requirements: ['Eye test', 'Theory test pass', 'Valid ID'],
-    eligibility: 'Residents aged 18 and above'
-  },
-  {
-    id: 5,
     title: 'Birth Certificate',
     slug: 'birth-certificate',
     category: 'identity',
     icon: 'tabler-certificate',
-    color: 'secondary',
-    popular: false,
-    description: 'Obtain official birth certificates for newborns or replacements.',
-    processingTime: '1 day',
+    description: 'Issue official birth certificates for Palestinian citizens.',
+    processingTime: '1-2 business days',
     fee: '25',
-    requirements: ['Hospital notification', 'Parents IDs'],
-    eligibility: 'Parents or legal guardians'
+    requirements: ['Hospital birth notification', 'Parents national IDs', 'Marriage certificate'],
+    eligibility: 'Parents of newborns or guardians'
+  },
+  {
+    id: 2,
+    title: 'National ID Card',
+    slug: 'national-id',
+    category: 'identity',
+    icon: 'tabler-id-badge',
+    description: 'Apply for new Palestinian national identity card or renewal.',
+    processingTime: '3-5 business days',
+    fee: '50',
+    requirements: ['Birth certificate', 'Family registry', 'Two passport photos'],
+    eligibility: 'Palestinian citizens aged 16 and above'
+  },
+  {
+    id: 3,
+    title: 'Family Registry Record',
+    slug: 'family-registry',
+    category: 'identity',
+    icon: 'tabler-users',
+    description: 'Update family registry with births, marriages, and address changes.',
+    processingTime: '2-3 business days',
+    fee: '30',
+    requirements: ['Supporting documents', 'National ID', 'Proof of change'],
+    eligibility: 'Family heads and authorized members'
+  },
+  {
+    id: 4,
+    title: 'Business License',
+    slug: 'business-license',
+    category: 'business',
+    icon: 'tabler-building-store',
+    description: 'Register new business or renew existing commercial license.',
+    processingTime: '5-7 business days',
+    fee: '200',
+    requirements: ['Trade name reservation', 'Location permit', 'National ID'],
+    eligibility: 'Palestinian residents and businesses'
+  },
+  {
+    id: 5,
+    title: 'Work Permit',
+    slug: 'work-permit',
+    category: 'business',
+    icon: 'tabler-briefcase',
+    description: 'Employment authorization for foreign workers in Palestine.',
+    processingTime: '7-10 business days',
+    fee: '300',
+    requirements: ['Employment contract', 'Passport copy', 'Medical certificate'],
+    eligibility: 'Foreign nationals with job offers'
   },
   {
     id: 6,
-    title: 'Health Insurance Card',
-    slug: 'health-card',
-    category: 'health',
-    icon: 'tabler-heart-plus',
-    color: 'error',
-    popular: true,
-    description: 'Get your government health insurance card for medical services.',
-    processingTime: '3-5 days',
-    fee: 'Free',
-    requirements: ['National ID', 'Proof of residence', 'Employment letter'],
-    eligibility: 'All citizens and legal residents'
+    title: 'Driving License',
+    slug: 'driving-license',
+    category: 'transport',
+    icon: 'tabler-license',
+    description: 'New driving license application or renewal service.',
+    processingTime: '3-5 business days',
+    fee: '120',
+    requirements: ['Traffic test certificate', 'Medical fitness', 'National ID'],
+    eligibility: 'Residents aged 18 and above'
   },
   {
     id: 7,
-    title: 'Property Registration',
-    slug: 'property-registration',
-    category: 'property',
-    icon: 'tabler-building-skyscraper',
-    color: 'primary',
-    popular: false,
-    description: 'Register property ownership and transfer procedures.',
-    processingTime: '10-15 days',
-    fee: '500',
-    requirements: ['Title deed', 'Purchase agreement', 'Tax clearance'],
-    eligibility: 'Property owners and buyers'
-  },
-  {
-    id: 8,
-    title: 'Marriage Certificate',
-    slug: 'marriage-certificate',
-    category: 'identity',
-    icon: 'tabler-heart',
-    color: 'error',
-    popular: false,
-    description: 'Apply for marriage certificates and registration.',
-    processingTime: '1-2 days',
-    fee: '75',
-    requirements: ['IDs of both parties', 'Witnesses', 'Marriage contract'],
-    eligibility: 'Couples planning to marry'
-  },
-  {
-    id: 9,
-    title: 'School Enrollment',
-    slug: 'school-enrollment',
-    category: 'education',
-    icon: 'tabler-school',
-    color: 'info',
-    popular: false,
-    description: 'Register children for public school enrollment.',
-    processingTime: '2-3 days',
-    fee: 'Free',
-    requirements: ['Birth certificate', 'Vaccination record', 'Proof of residence'],
-    eligibility: 'Parents of school-age children'
-  },
-  {
-    id: 10,
-    title: 'Tax Registration',
-    slug: 'tax-registration',
-    category: 'finance',
-    icon: 'tabler-receipt-tax',
-    color: 'success',
-    popular: false,
-    description: 'Register for personal or business tax identification.',
-    processingTime: '1-2 days',
-    fee: 'Free',
-    requirements: ['National ID', 'Employment contract', 'Bank details'],
-    eligibility: 'Employed individuals and businesses'
-  },
-  {
-    id: 11,
-    title: 'Passport Application',
-    slug: 'passport',
-    category: 'identity',
-    icon: 'tabler-passport',
-    color: 'primary',
-    popular: true,
-    description: 'Apply for new passport or renewal services.',
-    processingTime: '7-10 days',
-    fee: '200',
-    requirements: ['National ID', 'Birth certificate', 'Photos'],
-    eligibility: 'All citizens'
-  },
-  {
-    id: 12,
     title: 'Vehicle Registration',
     slug: 'vehicle-registration',
     category: 'transport',
     icon: 'tabler-car',
-    color: 'warning',
-    popular: false,
     description: 'Register new vehicles or transfer ownership.',
-    processingTime: '1-2 days',
-    fee: '150',
-    requirements: ['Purchase invoice', 'Insurance', 'Inspection certificate'],
-    eligibility: 'Vehicle owners'
+    processingTime: '2-3 business days',
+    fee: '180',
+    requirements: ['Purchase invoice', 'Insurance policy', 'Technical inspection'],
+    eligibility: 'Vehicle owners with valid documents'
+  },
+  {
+    id: 8,
+    title: 'Health Insurance Registration',
+    slug: 'health-insurance',
+    category: 'health',
+    icon: 'tabler-heart-plus',
+    description: 'Enroll in Palestinian government health insurance program.',
+    processingTime: '3-5 business days',
+    fee: 'Free',
+    requirements: ['National ID', 'Employment certificate', 'Residence proof'],
+    eligibility: 'Palestinian citizens and residents'
+  },
+  {
+    id: 9,
+    title: 'Property Registration',
+    slug: 'property-registration',
+    category: 'property',
+    icon: 'tabler-building-skyscraper',
+    description: 'Register property ownership and land transfers.',
+    processingTime: '10-15 business days',
+    fee: '500',
+    requirements: ['Title deed', 'Sale contract', 'Tax clearance certificate'],
+    eligibility: 'Property owners and authorized agents'
+  },
+  {
+    id: 10,
+    title: 'Building Permit',
+    slug: 'building-permit',
+    category: 'property',
+    icon: 'tabler-building',
+    description: 'Construction permits for residential and commercial buildings.',
+    processingTime: '15-20 business days',
+    fee: '400',
+    requirements: ['Architectural plans', 'Land ownership', 'Engineering report'],
+    eligibility: 'Property owners and licensed contractors'
+  },
+  {
+    id: 11,
+    title: 'School Enrollment',
+    slug: 'school-enrollment',
+    category: 'education',
+    icon: 'tabler-school',
+    description: 'Enroll children in Palestinian public schools.',
+    processingTime: '2-3 business days',
+    fee: 'Free',
+    requirements: ['Birth certificate', 'Vaccination record', 'Previous school certificate'],
+    eligibility: 'Parents of school-age children'
+  },
+  {
+    id: 12,
+    title: 'University Transcript',
+    slug: 'university-transcript',
+    category: 'education',
+    icon: 'tabler-certificate',
+    description: 'Official academic transcripts from Palestinian universities.',
+    processingTime: '3-5 business days',
+    fee: '40',
+    requirements: ['Student ID', 'Graduation certificate', 'Request form'],
+    eligibility: 'University graduates and current students'
   }
 ];
 
 // Service Card Component
 const ServiceCard = ({ service, index }) => {
   const theme = useTheme();
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
+      whileHover={{ scale: 1.02 }}
     >
       <GraphicsCard
         sx={{
           height: '100%',
+          minHeight: { xs: 340, sm: 380, md: 400 },
           position: 'relative',
+          overflow: 'hidden',
           transition: 'all 0.3s ease',
           cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
           '&:hover': {
-            transform: 'translateY(-8px)',
-            boxShadow: theme.shadows[8],
-            '& .service-arrow': {
-              transform: 'translateX(4px)'
-            }
+            transform: 'translateY(-4px)',
+            boxShadow: theme.shadows[4]
           }
         }}
       >
-        {service.popular && (
-          <Chip
-            label="Popular"
-            size="small"
-            color="error"
-            sx={{
-              position: 'absolute',
-              top: 16,
-              right: 16,
-              zIndex: 1,
-              fontWeight: 600
-            }}
-          />
-        )}
-        
-        <CardContent sx={{ p: 3, height: '100%' }}>
-          <Stack spacing={3} sx={{ height: '100%' }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 3 }, height: '100%' }}>
+          <Stack spacing={2.5} sx={{ height: '100%' }}>
             {/* Header */}
-            <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Stack spacing={1.5}>
               <Box
                 sx={{
-                  width: 48,
-                  height: 48,
+                  width: 56,
+                  height: 56,
                   borderRadius: 2,
-                  bgcolor: `${service.color}.lighter`,
+                  bgcolor: 'primary.lighter',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
+                  justifyContent: 'center'
                 }}
               >
                 <SvgIcon
                   name={service.icon}
-                  size={24}
-                  color={`${service.color}.main`}
+                  size={28}
+                  color="primary.main"
                 />
               </Box>
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" gutterBottom>
+              <Box>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
                   {service.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                   {service.description}
                 </Typography>
               </Box>
             </Stack>
 
             {/* Details */}
-            <Stack spacing={2} sx={{ flexGrow: 1 }}>
+            <Stack spacing={1.5} sx={{ flexGrow: 1 }}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <SvgIcon name="tabler-clock" size={16} color="text.secondary" />
                 <Typography variant="body2" color="text.secondary">
-                  Processing: {service.processingTime}
+                  {service.processingTime}
                 </Typography>
               </Stack>
-              
+
               <Stack direction="row" spacing={1} alignItems="center">
                 <SvgIcon name="tabler-receipt" size={16} color="text.secondary" />
-                <Typography variant="body2" color="text.secondary" component="span">
-                  Fee: 
-                </Typography>
-                {service.fee === 'Free' ? (
-                  <Chip label="Free" size="small" color="success" sx={{ height: 20 }} />
-                ) : (
-                  <Typography variant="body2" color="text.secondary" component="span">
-                    ${service.fee}
-                  </Typography>
-                )}
-              </Stack>
-              
-              <Stack direction="row" spacing={1} alignItems="flex-start">
-                <SvgIcon name="tabler-users" size={16} color="text.secondary" />
                 <Typography variant="body2" color="text.secondary">
+                  Fee: {service.fee === 'Free' ? 'Free' : `$${service.fee}`}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <SvgIcon name="tabler-users" size={16} color="text.secondary" sx={{ mt: 0.25 }} />
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
                   {service.eligibility}
                 </Typography>
               </Stack>
@@ -327,15 +282,12 @@ const ServiceCard = ({ service, index }) => {
             <Button
               fullWidth
               variant="contained"
-              color={service.color}
-              endIcon={
-                <SvgIcon 
-                  name="tabler-arrow-right" 
-                  size={18}
-                  className="service-arrow"
-                  sx={{ transition: 'transform 0.3s ease' }}
-                />
-              }
+              size="large"
+              sx={{
+                borderRadius: 1.5,
+                fontWeight: 600,
+                py: 1.25
+              }}
             >
               Apply Now
             </Button>
@@ -398,14 +350,15 @@ export default function ServicesPage() {
         <Stack spacing={6}>
           {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35, delay: 0.15, ease: 'easeOut' }}
           >
             <Typeset
-              heading="Government Services Portal"
-              caption="Access all government services in one place. Apply online, track your applications, and receive your documents digitally."
-              stackProps={{ sx: { textAlign: 'center', maxWidth: 800, mx: 'auto' } }}
+              heading="Government Services"
+              caption="Browse digital services available through Tasheel. Apply online, upload documents, and track progress from submission to completion."
+              stackProps={{ sx: { textAlign: 'center', maxWidth: 700, mx: 'auto' } }}
             />
           </motion.div>
 
@@ -512,10 +465,10 @@ export default function ServicesPage() {
           ) : (
             <Fade in={!loading}>
               <Box>
-                <Grid container spacing={3}>
+                <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
                   {filteredServices.length > 0 ? (
                     filteredServices.map((service, index) => (
-                      <Grid item xs={12} sm={6} md={4} lg={4} key={service.id}>
+                      <Grid item xs={12} sm={6} md={4} key={service.id}>
                         <ServiceCard service={service} index={index} />
                       </Grid>
                     ))
@@ -547,49 +500,6 @@ export default function ServicesPage() {
             </Fade>
           )}
 
-          {/* Stats Section */}
-          {!loading && filteredServices.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <GraphicsCard sx={{ p: 3, mt: 4 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={4} md={4}>
-                    <Stack alignItems="center" spacing={1}>
-                      <Typography variant="h3" color="primary.main">
-                        {filteredServices.length}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Available Services
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={4} md={4}>
-                    <Stack alignItems="center" spacing={1}>
-                      <Typography variant="h3" color="success.main">
-                        24/7
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Online Access
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} sm={4} md={4}>
-                    <Stack alignItems="center" spacing={1}>
-                      <Typography variant="h3" color="info.main">
-                        70%
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Faster Processing
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                </Grid>
-              </GraphicsCard>
-            </motion.div>
-          )}
         </Stack>
       </ContainerWrapper>
     </Box>
