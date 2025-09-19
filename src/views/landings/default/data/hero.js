@@ -1,6 +1,3 @@
-// @project
-import branding from '@/branding.json';
-
 export const hero = {
   chip: {
     label: 'Now serving 45+ government services',
