@@ -38,7 +38,8 @@ export const faq = {
     },
     {
       question: 'Is my personal information secure?',
-      answer: 'Yes, we use advanced encryption and security protocols to protect your personal information. All data transmission is encrypted, and we comply with international data protection standards.',
+      answer:
+        'Yes, we use advanced encryption and security protocols to protect your personal information. All data transmission is encrypted, and we comply with international data protection standards.',
       category: 'General'
     },
     {
@@ -78,12 +79,11 @@ export const faq = {
     {
       question: 'How can I track my application status?',
       answer: {
-        content:
-          'You can track your application status through multiple channels:',
+        content: 'You can track your application status through multiple channels:',
         type: 'list',
         data: [
-          { primary: `Online tracking with application number` }, 
-          { primary: `SMS notifications for status updates` }, 
+          { primary: `Online tracking with application number` },
+          { primary: `SMS notifications for status updates` },
           { primary: `Email alerts at each stage` }
         ]
       },
@@ -92,13 +92,12 @@ export const faq = {
     {
       question: 'What if I need help during the application process?',
       answer: {
-        content:
-          'We provide comprehensive support to help you complete your applications:',
+        content: 'We provide comprehensive support to help you complete your applications:',
         type: 'list',
         data: [
-          { primary: `24/7 online chat support` }, 
-          { primary: `Step-by-step application guides` }, 
-          { primary: `Video tutorials for complex processes` }, 
+          { primary: `24/7 online chat support` },
+          { primary: `Step-by-step application guides` },
+          { primary: `Video tutorials for complex processes` },
           { primary: `Phone support during business hours` }
         ]
       },
@@ -106,12 +105,14 @@ export const faq = {
     },
     {
       question: 'Can I save my application and complete it later?',
-      answer: 'Yes, you can save your application progress at any stage and return to complete it later. Your saved application will be available for 30 days.',
+      answer:
+        'Yes, you can save your application progress at any stage and return to complete it later. Your saved application will be available for 30 days.',
       category: 'Application Process'
     },
     {
       question: 'What languages are supported?',
-      answer: 'The platform is available in both Arabic and English. You can switch languages at any time using the language selector in the top menu.',
+      answer:
+        'The platform is available in both Arabic and English. You can switch languages at any time using the language selector in the top menu.',
       category: 'Application Process'
     }
   ],

@@ -123,7 +123,8 @@ export const SEO_CONTENT = {
   },
   featurePage: {
     title: 'Features',
-    description: 'Explore all features of Tasheel digital government services platform. Fast processing, secure documents, real-time tracking, and 24/7 support.'
+    description:
+      'Explore all features of Tasheel digital government services platform. Fast processing, secure documents, real-time tracking, and 24/7 support.'
   },
   blogPage: {
     title: 'News & Updates',
@@ -135,8 +136,7 @@ export const SEO_CONTENT = {
   },
   solutionPage: {
     title: 'Solutions',
-    description:
-      'Comprehensive digital solutions for all your government service needs. From permits to licenses, we have you covered.'
+    description: 'Comprehensive digital solutions for all your government service needs. From permits to licenses, we have you covered.'
   },
 
   about: {

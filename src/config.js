@@ -18,7 +18,7 @@ export let Themes;
 /***************************  CONFIG  ***************************/
 
 const config = {
-  currentTheme: Themes.THEME_DEFAULT
+  currentTheme: Themes.THEME_AI
 };
 
 export default config;

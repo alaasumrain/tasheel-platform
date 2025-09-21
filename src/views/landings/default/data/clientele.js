@@ -5,25 +5,25 @@ export const clientele = {
   title: `Partnering with public institutions across Palestine`,
   subtitle: 'Tasheel brings ministries, municipalities, and regulators onto a single operating model for digital services.',
   clienteleList: [
-    { 
+    {
       name: 'Ministry of Interior',
-      image: { component: 'clientele/Dribbble', type: DynamicComponentType.IMAGE } 
+      image: { component: 'clientele/Dribbble', type: DynamicComponentType.IMAGE }
     },
-    { 
+    {
       name: 'Ministry of Health',
-      image: { component: 'clientele/Reddit', type: DynamicComponentType.IMAGE } 
+      image: { component: 'clientele/Reddit', type: DynamicComponentType.IMAGE }
     },
-    { 
+    {
       name: 'Ministry of Labor',
-      image: { component: 'clientele/Mui', type: DynamicComponentType.IMAGE } 
+      image: { component: 'clientele/Mui', type: DynamicComponentType.IMAGE }
     },
-    { 
+    {
       name: 'Tax Authority',
-      image: { component: 'clientele/Devto', type: DynamicComponentType.IMAGE } 
+      image: { component: 'clientele/Devto', type: DynamicComponentType.IMAGE }
     },
-    { 
+    {
       name: 'Land Registry',
-      image: { component: 'clientele/Envato', type: DynamicComponentType.IMAGE } 
+      image: { component: 'clientele/Envato', type: DynamicComponentType.IMAGE }
     }
   ]
 };

@@ -18,7 +18,7 @@ const initialState = {
 const ConfigContext = createContext(initialState);
 
 function ConfigProvider({ children }) {
-  const [config, setConfig] = useLocalStorage('sass-able-react-mui-next-js-free', initialState);
+  const [config, setConfig] = useLocalStorage('tasheel-platform-config', initialState);
 
   const onChangeCurrentTheme = (currentTheme) => {
     setConfig({

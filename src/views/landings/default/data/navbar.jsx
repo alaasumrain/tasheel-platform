@@ -24,8 +24,8 @@ export const navbar = {
   navItems: [
     { id: 'home', title: 'Home', link: '/' },
     { id: 'services', title: 'Services', link: '/services' },
-    { id: 'guides', title: 'User Guides', link: '/guides' },
-    { id: 'about', title: 'About', link: '/about' },
+    { id: 'guides', title: 'User Guides', link: '/sections' },
+    { id: 'about', title: 'About', link: '/sections/about' },
     { id: 'contact', title: 'Contact', link: '/contact' }
   ]
 };

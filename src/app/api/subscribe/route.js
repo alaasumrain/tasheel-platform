@@ -9,30 +9,45 @@ import axios from 'axios';
 // POST handler for /api/subscribe
 export async function POST(request) {
   try {
-    const { email } = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const email = typeof body?.email === 'string' ? body.email.trim() : '';
+
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
-    // Example: MailerLite API endpoint (replace with your actual MailerLite API URL)
-    const mailerLiteUrl = `${process.env.MAILERLITE_API_ENDPOINT}/subscribers`;
 
-    // Make the Axios POST request to MailerLite (replace 'YOUR_API_KEY' with your actual API key)
+    const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!emailPattern.test(email)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+
+    const endpoint = process.env.MAILERLITE_API_ENDPOINT;
+    const apiKey = process.env.MAILERLITE_API_KEY;
+    if (!endpoint || !apiKey) {
+      console.error('MailerLite configuration is missing');
+      return NextResponse.json({ error: 'Subscription service unavailable' }, { status: 503 });
+    }
+
+    const groups = process.env.MAILERLITE_GROUP?.split(',')
+      .map((group) => group.trim())
+      .filter(Boolean);
+
     await axios.post(
-      mailerLiteUrl,
-      { email, groups: process.env.MAILERLITE_GROUP?.trim().replaceAll(' ', '').split(',') },
+      `${endpoint}/subscribers`,
+      { email, ...(groups?.length ? { groups } : {}) },
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.MAILERLITE_API_KEY}` // Authorization header with MailerLite API key
+          Authorization: `Bearer ${apiKey}`
         }
       }
     );
 
-    // Handle successful response
     return NextResponse.json({ message: 'Subscribed successfully!' }, { status: 200 });
   } catch (error) {
-    // Handle failure response
-    console.error('Error subscribing:', error);
-    return NextResponse.json({ error }, { status: 500 });
+    console.error('Error subscribing to MailerLite', error?.response?.data ?? error?.message ?? error);
+    const message = error?.response?.data?.message || 'Unable to complete subscription';
+
+    return NextResponse.json({ error: message }, { status: error?.response?.status || 500 });
   }
 }
