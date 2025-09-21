@@ -3,7 +3,7 @@ export { contactUS } from './contact-us';
 export { cta4, cta5, cta10 } from './cta';
 export { faq } from './faq';
 export { feature2, feature5, feature18, feature20, feature21 } from './feature';
-export { hero } from './hero';
+export { hero } from './hero.jsx';
 export { integration } from './integration';
 export { metrics } from './metrics';
 export { navbar } from './navbar';
