@@ -41,10 +41,10 @@ const options = { root: null, rootMargin: '0px', threshold: 0.6 };
  */
 
 export default function Hero17({
-  chip,
-  headLine,
-  captionLine,
-  primaryBtn,
+  chip = { label: '' },
+  headLine = '',
+  captionLine = '',
+  primaryBtn = {},
   secondaryBtn,
   videoSrc,
   videoThumbnail,
