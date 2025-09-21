@@ -40,7 +40,16 @@ const options = { root: null, rootMargin: '0px', threshold: 0.6 };
  * - [Hero17 API](https://phoenixcoded.gitbook.io/saasable/ui-kit/development/components/hero/hero17#props-details)
  */
 
-export default function Hero17({ chip, headLine, captionLine, primaryBtn, secondaryBtn, videoSrc, videoThumbnail, listData }) {
+export default function Hero17({
+  chip,
+  headLine,
+  captionLine,
+  primaryBtn,
+  secondaryBtn,
+  videoSrc,
+  videoThumbnail,
+  listData = []
+}) {
   const theme = useTheme();
   const boxRadius = { xs: 24, sm: 32, md: 40 };
 
