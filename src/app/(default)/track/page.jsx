@@ -5,7 +5,7 @@ import { useState } from 'react';
 // @mui
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
@@ -154,7 +154,7 @@ export default function TrackPage() {
                   </Alert>
                 )}
 
-                <Button
+                <TasheelButton
                   type="submit"
                   variant="contained"
                   size="large"
@@ -163,7 +163,7 @@ export default function TrackPage() {
                   startIcon={loading ? <CircularProgress size={20} /> : <SvgIcon name="tabler-search" size={20} />}
                 >
                   {loading ? 'Tracking...' : 'Track Application'}
-                </Button>
+                </TasheelButton>
 
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="caption" color="text.secondary">
@@ -291,14 +291,14 @@ export default function TrackPage() {
                 </Paper>
 
                 <Stack direction="row" spacing={2}>
-                  <Button 
+                  <TasheelButton 
                     variant="outlined" 
                     startIcon={<SvgIcon name="tabler-printer" size={18} />}
                     onClick={() => window.print()}
                   >
                     Print
-                  </Button>
-                  <Button 
+                  </TasheelButton>
+                  <TasheelButton 
                     variant="outlined"
                     startIcon={<SvgIcon name="tabler-refresh" size={18} />}
                     onClick={() => {
@@ -307,7 +307,7 @@ export default function TrackPage() {
                     }}
                   >
                     Track Another
-                  </Button>
+                  </TasheelButton>
                 </Stack>
               </Box>
             )}

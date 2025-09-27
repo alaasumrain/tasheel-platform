@@ -1,5 +1,5 @@
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -45,7 +45,7 @@ function footerData() {
           your product or service needs.
         </Typography>
       </Stack>
-      <Button
+      <TasheelButton
         variant="contained"
         sx={{ display: { xs: 'none', sm: 'inline-flex' }, minWidth: 100, px: { xs: 2 }, py: 1.25 }}
         href={BUY_NOW_URL}
@@ -53,7 +53,7 @@ function footerData() {
         rel="noopener noreferrer"
       >
         Buy Now
-      </Button>
+      </TasheelButton>
     </Stack>
   );
 }

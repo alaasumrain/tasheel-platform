@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import NextLink from 'next/link';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -45,7 +45,7 @@ export default function ProPage({ image }) {
 
             <Grid container spacing={2} justifyContent="center">
               <Grid>
-                <Button
+                <TasheelButton
                   variant="outlined"
                   component={NextLink}
                   href={PAGE_PATH.contactPage}
@@ -53,11 +53,11 @@ export default function ProPage({ image }) {
                   startIcon={<SvgIcon name="tabler-message" size={16} stroke={3} />}
                 >
                   Talk to our team
-                </Button>
+                </TasheelButton>
               </Grid>
               <Grid>
                 <ButtonAnimationWrapper>
-                  <Button
+                  <TasheelButton
                     variant="contained"
                     color="primary"
                     component={NextLink}
@@ -65,7 +65,7 @@ export default function ProPage({ image }) {
                     startIcon={<SvgIcon name="tabler-sparkles" size={16} stroke={3} color="background.default" />}
                   >
                     Learn about Tasheel
-                  </Button>
+                  </TasheelButton>
                 </ButtonAnimationWrapper>
               </Grid>
             </Grid>

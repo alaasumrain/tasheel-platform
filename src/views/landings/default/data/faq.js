@@ -1,124 +1,105 @@
+'use client';
 // @project
 import branding from '@/branding.json';
 
 export const faq = {
   heading: 'Frequently Asked Questions',
-  caption: `Everything you need to know about using ${branding.brandName} for government services.`,
-  defaultExpanded: 'General',
+  caption: `How ${branding.brandName} handles translation today—and how we set the foundation for every future service you need.`,
+  defaultExpanded: 'Services',
   faqList: [
     {
       question: `What is ${branding.brandName}?`,
-      answer: `${branding.brandName} is a comprehensive digital platform for government services in Palestine. It allows citizens and businesses to apply for permits, licenses, visas, and other government services online without visiting government offices.`,
-      category: 'General'
+      answer: `${branding.brandName} is Tasheel's dedicated language services division. We provide document translation, localisation, interpreting, transcription, and multimedia language solutions delivered by certified linguists in 120+ languages.`,
+      category: 'Services'
     },
     {
-      question: `Who can use ${branding.brandName} services?`,
-      answer: `${branding.brandName} is available to all Palestinian citizens, residents, and businesses. Some services may have specific eligibility requirements which will be clearly stated during the application process.`,
-      category: 'General'
-    },
-    {
-      question: `What documents do I need to apply for services?`,
+      question: 'Which services do you offer?',
       answer: {
-        content: `Required documents vary by service type. Generally, you may need:`,
+        content: 'We cover the full spectrum of professional language services:',
         type: 'list',
         data: [
-          { primary: 'Valid ID or passport' },
-          { primary: 'Proof of residence' },
-          { primary: 'Service-specific documents' },
-          { primary: 'Digital photos when required' }
+          { primary: 'Certified document translation (legal, immigration, academic)' },
+          { primary: 'Website, software, and marketing localisation' },
+          { primary: 'On-site, remote, and on-demand interpreting' },
+          { primary: 'Subtitling, voiceover, transcription, and DTP' }
         ]
       },
-      category: 'General'
+      category: 'Services'
     },
     {
-      question: `How long does it take to process applications?`,
+      question: 'Do you provide certified or notarised translations?',
       answer:
-        'Processing times vary by service type. Simple document requests may take 1-2 business days, while complex permits may take 5-10 business days. You can track your application status in real-time through our platform.',
-      category: 'General'
+        'Yes. Certified translations include a signed statement from our linguists and project manager. Notarisation and apostille services are available in supported jurisdictions on request.',
+      category: 'Services'
     },
     {
-      question: 'Is my personal information secure?',
+      question: 'How fast can you deliver?',
       answer:
-        'Yes, we use advanced encryption and security protocols to protect your personal information. All data transmission is encrypted, and we comply with international data protection standards.',
-      category: 'General'
+        'Standard documents complete within 24–48 hours. Complex or high-volume projects are scheduled with dedicated teams and agreed SLAs. Rush and same-day turnarounds are available with express fees.',
+      category: 'Services'
     },
     {
-      question: `What payment methods are accepted?`,
+      question: 'How does pricing work?',
+      answer:
+        'Translation is typically priced per word, interpreting per minute or per day, and multimedia projects by audio minute or deliverable. Every quote clearly outlines scope, turnaround, and any rush or certification fees.',
+      category: 'Pricing & Payment'
+    },
+    {
+      question: 'What payment methods do you accept?',
       answer: {
-        content: 'We accept various payment methods for your convenience:',
+        content: 'We accept the following payment options:',
         type: 'list',
         data: [
-          { primary: `Credit/Debit Cards (Visa, MasterCard)` },
-          { primary: `Bank transfers` },
-          { primary: `Mobile payment platforms` },
-          { primary: `Cash payment at designated centers` }
+          { primary: 'Credit / debit cards (Visa, MasterCard, Amex)' },
+          { primary: 'International bank transfer and ACH' },
+          { primary: 'Invoices with PO for approved enterprises' },
+          { primary: 'Digital wallets upon request' }
         ]
       },
-      category: 'Fees & Payment'
+      category: 'Pricing & Payment'
     },
     {
-      question: `Are there any service fees?`,
+      question: 'Is there a minimum project size?',
+      answer:
+        'Our minimum billing for ad-hoc translation projects starts at $75. Enterprise agreements can bundle requests into monthly retainers or volume-based pricing tiers.',
+      category: 'Pricing & Payment'
+    },
+    {
+      question: 'Do you use machine translation?',
+      answer:
+        'We blend secure neural machine translation with human post-editing when it improves turnaround or cost. Pure human translation is used for certified, legal, and highly sensitive content.',
+      category: 'Operations'
+    },
+    {
+      question: 'How do you protect sensitive information?',
+      answer:
+        'All uploads are encrypted in transit and at rest. Access is role-based, NDAs are standard for linguists, and we can enforce bespoke data residency or on-prem workflows for regulated industries.',
+      category: 'Operations'
+    },
+    {
+      question: 'Which file formats do you support?',
       answer: {
-        content:
-          'Service fees vary depending on the type of application. All fees are clearly displayed before you submit your application. Government fees are standardized and non-negotiable.',
+        content: 'We work with most document, design, and development formats including:',
         type: 'list',
         data: [
-          { primary: `Transparent pricing displayed upfront` },
-          { primary: `No hidden charges` },
-          { primary: `Receipt provided for all payments` }
+          { primary: 'DOCX, XLSX, PPTX, PDF, InDesign, Illustrator' },
+          { primary: 'JSON, YAML, PO, RESX, XLIFF, CSV' },
+          { primary: 'Video/audio links (MP4, MOV, MP3, WAV)' },
+          { primary: 'Subtitles (SRT, VTT, STL) and proprietary formats' }
         ]
       },
-      category: 'Fees & Payment'
+      category: 'Operations'
     },
     {
-      question: 'Can I get a refund if my application is rejected?',
+      question: 'How do we get started?',
       answer:
-        'Processing fees are generally non-refundable as they cover the administrative costs of reviewing your application. However, if your application is rejected due to a system error, you may be eligible for a refund.',
-      category: 'Fees & Payment'
-    },
-    {
-      question: 'How can I track my application status?',
-      answer: {
-        content: 'You can track your application status through multiple channels:',
-        type: 'list',
-        data: [
-          { primary: `Online tracking with application number` },
-          { primary: `SMS notifications for status updates` },
-          { primary: `Email alerts at each stage` }
-        ]
-      },
-      category: 'Application Process'
-    },
-    {
-      question: 'What if I need help during the application process?',
-      answer: {
-        content: 'We provide comprehensive support to help you complete your applications:',
-        type: 'list',
-        data: [
-          { primary: `24/7 online chat support` },
-          { primary: `Step-by-step application guides` },
-          { primary: `Video tutorials for complex processes` },
-          { primary: `Phone support during business hours` }
-        ]
-      },
-      category: 'Application Process'
-    },
-    {
-      question: 'Can I save my application and complete it later?',
-      answer:
-        'Yes, you can save your application progress at any stage and return to complete it later. Your saved application will be available for 30 days.',
-      category: 'Application Process'
-    },
-    {
-      question: 'What languages are supported?',
-      answer:
-        'The platform is available in both Arabic and English. You can switch languages at any time using the language selector in the top menu.',
-      category: 'Application Process'
+        'Share your files and requirements through the quote form or speak with our language desk. We scope the project, align on turnaround and quality expectations, then onboard your dedicated linguist pod.',
+      category: 'Operations'
     }
   ],
   getInTouch: {
-    link: { children: 'Get in Touch', href: branding.company.socialLink.support, target: '_blank', rel: 'noopener noreferrer' }
+    link: { children: 'Talk to an expert', href: '/contact?intent=consult' }
   },
-  categories: ['General', 'Fees & Payment', 'Application Process'],
-  activeCategory: 'General'
+  categories: ['Services', 'Pricing & Payment', 'Operations'],
+  activeCategory: 'Services'
 };

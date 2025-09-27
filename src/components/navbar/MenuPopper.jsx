@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Card from '@mui/material/Card';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Fade from '@mui/material/Fade';
@@ -46,7 +46,7 @@ export default function MenuPopper({
 
   return (
     <>
-      <Button
+      <TasheelButton
         ref={anchorRef}
         aria-describedby={id}
         onClick={handleClick}

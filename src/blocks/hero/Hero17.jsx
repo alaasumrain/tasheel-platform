@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -16,6 +15,7 @@ import { motion, useScroll, useTransform } from 'motion/react';
 
 // @project
 import ButtonAnimationWrapper from '@/components/ButtonAnimationWrapper';
+import TasheelButton from '@/components/TasheelButton';
 import { GraphicsCard } from '@/components/cards';
 import ContainerWrapper from '@/components/ContainerWrapper';
 import GraphicsImage from '@/components/GraphicsImage';
@@ -181,10 +181,9 @@ export default function Hero17({
                   whileHover={{ scale: 1.04 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button
-                      color="primary"
+                    <TasheelButton
                       variant="contained"
-                      startIcon={<SvgIcon name="tabler-sparkles" size={16} stroke={3} color="background.default" />}
+                      startIcon={<SvgIcon name="tabler-sparkles" size={16} stroke={3} color="#fff" />}
                       {...primaryBtn}
                     />
                   </ButtonAnimationWrapper>
@@ -196,11 +195,7 @@ export default function Hero17({
                     transition={{ duration: 0.25, delay: 0.1, ease: 'easeOut' }}
                     whileHover={{ scale: 1.04 }}
                   >
-                    <Button
-                      color="primary"
-                      variant="outlined"
-                      {...secondaryBtn}
-                    />
+                    <TasheelButton variant="outlined" color="primary" {...secondaryBtn} />
                   </motion.div>
                 )}
               </Stack>

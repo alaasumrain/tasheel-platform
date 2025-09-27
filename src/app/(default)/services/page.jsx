@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
@@ -60,18 +60,18 @@ const ServiceCard = ({ service, index }) => {
       <Card
         sx={{
           height: '100%',
-          minHeight: { xs: 320, sm: 360, md: 380 },
+          minHeight: { xs: 320, md: 360 },
           display: 'flex',
           flexDirection: 'column',
-          borderRadius: { xs: 4, sm: 5 },
+          borderRadius: { xs: 3, md: 4 },
           border: '1px solid',
-          borderColor: 'divider',
-          background: `linear-gradient(145deg, ${alpha(theme.palette.background.paper, 0.96)}, ${alpha(theme.palette.primary.lighter, 0.14)})`,
-          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-          boxShadow: '0 16px 40px rgba(28, 72, 119, 0.04)',
+          borderColor: alpha(theme.palette.primary.main, 0.08),
+          background: `linear-gradient(165deg, ${alpha(theme.palette.background.paper, 0.98)}, ${alpha(theme.palette.primary.lighter, 0.18)})`,
+          transition: 'all 0.35s ease',
+          boxShadow: '0 18px 48px rgba(15, 46, 83, 0.08)',
           '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 20px 55px rgba(28, 72, 119, 0.12)'
+            transform: 'translateY(-6px)',
+            boxShadow: '0 28px 60px rgba(15, 46, 83, 0.16)'
           }
         }}
       >
@@ -118,7 +118,7 @@ const ServiceCard = ({ service, index }) => {
               </Stack>
 
               <Stack direction="row" spacing={1} alignItems="flex-start">
-                <SvgIcon name="tabler-users" size={18} color="text.secondary" sx={{ mt: 0.3 }} />
+                <SvgIcon name="tabler-target" size={18} color="text.secondary" sx={{ mt: 0.3 }} />
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                   {service.eligibility}
                 </Typography>
@@ -128,7 +128,7 @@ const ServiceCard = ({ service, index }) => {
 
               <Stack spacing={0.75}>
                 <Typography variant="caption" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, color: 'text.secondary' }}>
-                  Required documents
+                  Engagement essentials
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {service.requirements.slice(0, 3).map((item) => (
@@ -142,9 +142,9 @@ const ServiceCard = ({ service, index }) => {
             </Stack>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mt: 'auto' }}>
-              <Button
+              <TasheelButton
                 component={NextLink}
-                href={`/contact?service=${service.slug}`}
+                href={`/quote?service=${service.slug}`}
                 variant="contained"
                 size="large"
                 fullWidth
@@ -155,11 +155,11 @@ const ServiceCard = ({ service, index }) => {
                 }}
                 endIcon={<SvgIcon name="tabler-arrow-right" size={18} />}
               >
-                Start application
-              </Button>
-              <Button
+                Request a quote
+              </TasheelButton>
+              <TasheelButton
                 component={NextLink}
-                href="/track"
+                href={`/contact?service=${service.slug}&intent=consult`}
                 variant="outlined"
                 size="large"
                 fullWidth
@@ -168,10 +168,10 @@ const ServiceCard = ({ service, index }) => {
                   fontWeight: 600,
                   py: 1.1
                 }}
-                endIcon={<SvgIcon name="tabler-external-link" size={18} />}
+                endIcon={<SvgIcon name="tabler-calendar" size={18} />}
               >
-                Track application
-              </Button>
+                Talk to an expert
+              </TasheelButton>
             </Stack>
           </Stack>
         </CardContent>
@@ -235,49 +235,46 @@ export default function ServicesPage() {
         }
       }}
     >
-      <ContainerWrapper sx={{ py: SECTION_COMMON_PY }}>
+      <ContainerWrapper sx={{ py: { xs: 6, md: 10 } }}>
         <Stack spacing={6}>
           {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: 0.15, ease: 'easeOut' }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <Stack spacing={2.5} sx={{ textAlign: 'center', alignItems: 'center' }}>
-              <Chip
-                label="Tasheel service catalogue"
-                color="primary"
-                sx={{
-                  borderRadius: 999,
-                  px: 1.5,
-                  fontWeight: 600,
-                  bgcolor: alpha(theme.palette.primary.main, 0.12),
-                  color: theme.palette.primary.main
-                }}
-              />
-              <Typeset
-                heading="Launch, manage, and track government services online"
-                caption="Search the service journeys already digitised with Tasheel. Every listing shares processing times, fees, and required documents so your team and applicants stay ready."
-                stackProps={{ sx: { textAlign: 'center', maxWidth: 760, mx: 'auto' } }}
-                headingProps={{ sx: { fontSize: { xs: 32, md: 42 }, fontWeight: 800 } }}
-                captionProps={{ sx: { fontSize: { xs: 16, md: 18 } } }}
-              />
-              <Stack direction="row" spacing={1.5} flexWrap="wrap" justifyContent="center" useFlexGap>
-                {['Identity & civil records', 'Business & trade licenses', 'Residency & visas', 'Vehicles & transport', 'Property & land affairs'].map((item) => (
-                  <Chip
-                    key={item}
-                    label={item}
-                    sx={{
-                      borderRadius: 999,
-                      bgcolor: alpha(theme.palette.primary.lighter, 0.3),
-                      borderColor: 'transparent',
-                      fontWeight: 500
-                    }}
-                  />
-                ))}
+            <Card
+              sx={{
+                borderRadius: 4,
+                px: { xs: 3.5, md: 6 },
+                py: { xs: 4, md: 6 },
+                textAlign: 'center',
+                background: 'linear-gradient(138deg, rgba(15,46,83,0.14), rgba(15,46,83,0))',
+                boxShadow: '0 32px 72px rgba(15,46,83,0.18)'
+              }}
+            >
+              <Stack spacing={2.5} alignItems="center">
+                <Chip
+                  label="Tasheel language services"
+                  color="primary"
+                  sx={{ borderRadius: 999, px: 2.5, py: 0.5, fontWeight: 600 }}
+                />
+                <Typography variant="h3" sx={{ fontWeight: 800, maxWidth: 760 }}>
+                  Pick the translation, localisation, or interpreting programme that fits your launch plan
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 780 }}>
+                  Every service comes with vetted linguists, transparent turnaround windows, and secure storage. Filter by category or search for industry-specific expertise to get started.
+                </Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} flexWrap="wrap" justifyContent="center">
+                  <TasheelButton component={NextLink} href="/quote" variant="contained" size="large" sx={{ borderRadius: 999, px: 3.5 }}>
+                    Start a quote
+                  </TasheelButton>
+                  <TasheelButton component={NextLink} href="/contact?intent=consult" variant="outlined" size="large" sx={{ borderRadius: 999, px: 3.5 }}>
+                    Book a consultation
+                  </TasheelButton>
+                </Stack>
               </Stack>
-            </Stack>
+            </Card>
           </motion.div>
 
           {/* Search Bar */}
@@ -330,34 +327,33 @@ export default function ServicesPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1.5 }}>
               <ToggleButtonGroup
                 value={selectedCategory}
                 exclusive
                 onChange={handleCategoryChange}
                 sx={{
                   flexWrap: 'wrap',
-                  gap: 1,
+                  gap: 1.5,
                   '& .MuiToggleButton-root': {
                     borderRadius: 999,
-                    border: '1px solid',
-                    borderColor: alpha(theme.palette.primary.main, 0.18),
                     textTransform: 'none',
-                    px: 2.25,
-                    py: 1,
-                    bgcolor: alpha(theme.palette.primary.lighter, 0.12),
+                    px: 2.5,
+                    py: 1.05,
+                    minWidth: 200,
+                    border: '1px solid',
+                    borderColor: alpha(theme.palette.primary.main, 0.12),
+                    bgcolor: alpha(theme.palette.primary.main, 0.06),
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       borderColor: theme.palette.primary.main,
-                      bgcolor: alpha(theme.palette.primary.main, 0.14)
+                      bgcolor: alpha(theme.palette.primary.main, 0.1)
                     },
                     '&.Mui-selected': {
                       bgcolor: theme.palette.primary.main,
                       color: theme.palette.primary.contrastText,
                       borderColor: theme.palette.primary.main,
-                      '&:hover': {
-                        bgcolor: theme.palette.primary.dark
-                      }
+                      boxShadow: '0 16px 36px rgba(15,46,83,0.18)'
                     }
                   }
                 }}
@@ -385,7 +381,7 @@ export default function ServicesPage() {
           {loading ? (
             <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
               {[...Array(6)].map((_, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={4} key={index} sx={{ display: 'flex' }}>
+                <Grid xs={12} sm={6} md={4} lg={3} key={index} sx={{ display: 'flex' }}>
                   <Skeleton variant="rounded" height={320} sx={{ flexGrow: 1 }} />
                 </Grid>
               ))}
@@ -397,18 +393,17 @@ export default function ServicesPage() {
                   container
                   spacing={3}
                   sx={{
-                    justifyContent: 'center',
                     alignItems: 'stretch'
                   }}
                 >
                   {filteredServices.length > 0 ? (
                     filteredServices.map((service, index) => (
-                      <Grid item xs={12} sm={6} md={4} key={service.id} sx={{ display: 'flex' }}>
+                      <Grid xs={12} sm={6} md={4} lg={3} key={service.id} sx={{ display: 'flex' }}>
                         <ServiceCard service={service} index={index} />
                       </Grid>
                     ))
                   ) : (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                       <Box sx={{ textAlign: 'center', py: 8 }}>
                         <SvgIcon name="tabler-search-off" size={64} color="text.disabled" />
                         <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
@@ -417,7 +412,7 @@ export default function ServicesPage() {
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                           Try adjusting your search or filter criteria
                         </Typography>
-                        <Button
+                        <TasheelButton
                           variant="outlined"
                           onClick={() => {
                             setSearchQuery('');
@@ -426,7 +421,7 @@ export default function ServicesPage() {
                           sx={{ mt: 3 }}
                         >
                           Clear Filters
-                        </Button>
+                        </TasheelButton>
                       </Box>
                     </Grid>
                   )}

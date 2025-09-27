@@ -7,7 +7,7 @@ import NextLink from 'next/link';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
@@ -143,7 +143,7 @@ export default function Pricing9({ heading, caption, features, plans }) {
                             whileHover={{ scale: 1.01, transition: { duration: 0.3 } }}
                           >
                             <ButtonAnimationWrapper>
-                              <Button
+                              <TasheelButton
                                 variant={plan.active ? 'contained' : 'outlined'}
                                 sx={{ ...(!plan.link && { mb: { sm: 3.25, md: 3.75 } }) }}
                                 fullWidth

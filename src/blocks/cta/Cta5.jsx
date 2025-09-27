@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
@@ -74,7 +74,7 @@ export default function Cta5({ heading, caption, label, input = false, primaryBt
                       <OutlinedInput
                         placeholder={input.placeholder || 'Enter your email address'}
                         endAdornment={
-                          <Button
+                          <TasheelButton
                             color="primary"
                             variant="contained"
                             sx={{ px: 4, minWidth: { xs: 110, md: 120 } }}
@@ -100,7 +100,7 @@ export default function Cta5({ heading, caption, label, input = false, primaryBt
                         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start', justifyContent: 'center' }}>
                           {secondaryBtn && (
                             <ButtonAnimationWrapper>
-                              <Button variant="outlined" sx={{ minWidth: { sm: 170 } }} {...secondaryBtn} />
+                              <TasheelButton variant="outlined" sx={{ minWidth: { sm: 170 } }} {...secondaryBtn} />
                             </ButtonAnimationWrapper>
                           )}
                           {primaryBtn && (
@@ -111,7 +111,7 @@ export default function Cta5({ heading, caption, label, input = false, primaryBt
                               whileHover={{ scale: 1.06 }}
                             >
                               <ButtonAnimationWrapper>
-                                <Button variant="contained" sx={{ minWidth: { sm: 170 } }} {...primaryBtn} />
+                                <TasheelButton variant="contained" sx={{ minWidth: { sm: 170 } }} {...primaryBtn} />
                               </ButtonAnimationWrapper>
                             </motion.div>
                           )}
@@ -141,12 +141,12 @@ export default function Cta5({ heading, caption, label, input = false, primaryBt
                 <GraphicsCard sx={{ height: 1 }}>
                   <Stack sx={{ alignItems: 'center', gap: 1, py: { xs: 2, sm: 6, md: 7.5 }, px: { xs: 2, sm: 3.5 }, textAlign: 'center' }}>
                     <Typography component="div" variant="h1">
-                      {saleData.count}
+                      {saleData?.count || '250'}
                       <Typography variant="h2" component="span" sx={{ color: 'text.secondary' }}>
-                        {saleData.defaultUnit}
+                        {saleData?.defaultUnit || 'k+'}
                       </Typography>
                     </Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{saleData.caption}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{saleData?.caption || 'Words delivered with Tasheel oversight'}</Typography>
                   </Stack>
                 </GraphicsCard>
               </Grid>

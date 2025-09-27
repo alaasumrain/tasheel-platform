@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -100,7 +100,7 @@ export default function Integration2({ headLine, captionLine, primaryBtn, tagLis
                 whileHover={{ scale: 1.04 }}
               >
                 <ButtonAnimationWrapper>
-                  <Button variant="contained" size="large" {...primaryBtn} />
+                  <TasheelButton variant="contained" size="large" {...primaryBtn} />
                 </ButtonAnimationWrapper>
               </motion.div>
             )}

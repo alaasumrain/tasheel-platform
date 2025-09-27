@@ -12,7 +12,8 @@ export default function palette() {
       light: '#92CCFF', // AI/primary/80 - primary fixed dim
       main: '#006397', // AI/primary/40 - primary
       dark: '#004B73', // AI/primary/30 - on primary fixed variant
-      darker: '#001D31' // AI/primary/10 - on primary container / on primary fixed
+      darker: '#001D31', // AI/primary/10 - on primary container / on primary fixed
+      contrastText: '#FFFFFF'
     },
     secondary: {
       lighter: '#D3E4F8', // AI/secondary/90 - secondary container / secondary fixed

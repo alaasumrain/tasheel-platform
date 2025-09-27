@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import NextLink from 'next/link';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import CardMedia from '@mui/material/CardMedia';
 import Stack from '@mui/material/Stack';
 
@@ -20,7 +20,7 @@ export default function SimulatorTypeset({ heading, caption, figmaLink }) {
         {...{ heading, caption, headingProps: { variant: 'h4' }, captionProps: { variant: 'body1' }, stackProps: { sx: { gap: 0.5 } } }}
       />
       {figmaLink && (
-        <Button
+        <TasheelButton
           variant="outlined"
           component={NextLink}
           href={figmaLink}
@@ -33,7 +33,7 @@ export default function SimulatorTypeset({ heading, caption, figmaLink }) {
           endIcon={<SvgIcon name="tabler-arrow-narrow-right" />}
         >
           Get Figma File
-        </Button>
+        </TasheelButton>
       )}
     </Stack>
   );

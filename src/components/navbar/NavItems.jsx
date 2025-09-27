@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Collapse from '@mui/material/Collapse';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -113,12 +113,12 @@ function NavList({ item, menuTextColor }) {
   return (
     <>
       {!item.megaMenu ? (
-        <Button size="small" {...buttonProps}>
+        <TasheelButton size="small" {...buttonProps}>
           {item.title}
           {item?.icon && (
             <SvgIcon color="inherit" size={16} {...(typeof item.icon === 'string' ? { name: item.icon } : { ...item.icon })} />
           )}
-        </Button>
+        </TasheelButton>
       ) : (
         <MenuPopper
           menuTextColor={menuTextColor}

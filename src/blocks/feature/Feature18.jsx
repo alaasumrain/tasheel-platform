@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
@@ -223,7 +223,7 @@ export default function Feature18({ heading, caption, topics }) {
                                 whileHover={{ scale: 1.06 }}
                               >
                                 <ButtonAnimationWrapper>
-                                  <Button
+                                  <TasheelButton
                                     variant="outlined"
                                     color="primary"
                                     startIcon={<SvgIcon name="tabler-help" size={16} stroke={3} />}
@@ -240,7 +240,7 @@ export default function Feature18({ heading, caption, topics }) {
                                 whileHover={{ scale: 1.06 }}
                               >
                                 <ButtonAnimationWrapper>
-                                  <Button
+                                  <TasheelButton
                                     variant="contained"
                                     color="primary"
                                     startIcon={<SvgIcon name="tabler-link" size={16} stroke={3} color="background.default" />}

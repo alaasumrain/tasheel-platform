@@ -1,32 +1,35 @@
+'use client';
 export const testimonial = {
-  heading: 'What partners and applicants are saying',
-  caption: 'Tasheel pairs government-grade reliability with the responsiveness people expect from modern digital services.',
+  heading: 'What our language partners say',
+  caption: 'Tasheel delivers certified-quality translations, localisation, and interpreting with the responsiveness global teams expect.',
   testimonials: [
     {
-      title: '“Our permit backlog fell within weeks”',
+      title: '“Compliance deadlines met every time”',
       ratings: 5,
       review:
-        'Tasheel gave us one queue across three departments. Cases move faster because every reviewer sees the same timeline and checklist.',
-      profile: { avatar: '/assets/images/user/avatar1.png', name: 'Maya S.', role: 'Municipal licensing lead' }
+        'We process immigration cases across four continents. Tasheel delivers certified translations with notarisation faster than our internal SLAs.',
+      profile: { avatar: '/assets/images/user/avatar1.png', name: 'Maryam Q.', role: 'Global mobility lead, Fortune 500' }
     },
     {
-      title: '“No more guesswork for applicants”',
+      title: '“Product launches without translation bottlenecks”',
       ratings: 5,
       review:
-        'I was guided through exactly what was needed for my residency renewal. Upload, pay, track, done—without a single office visit.',
-      profile: { avatar: '/assets/images/user/avatar2.png', name: 'Hassan K.', role: 'Entrepreneur' }
+        'The localisation squad plugs into our sprint cycle, updating UI strings, marketing pages, and help docs in one pass. Releases stay on schedule.',
+      profile: { avatar: '/assets/images/user/avatar2.png', name: 'Leo T.', role: 'Director of Product, SaaS scale-up' }
     },
     {
-      title: '“Support that actually understands policy”',
-      ratings: 4,
-      review: 'When our team piloted express handling, Tasheel helped configure SLAs and escalation rules tailored to our regulations.',
-      profile: { avatar: '/assets/images/user/avatar3.png', name: 'Ranya D.', role: 'Ministry programme manager' }
-    },
-    {
-      title: '“Applicants feel informed, not anxious”',
+      title: '“Reliable interpreters for critical conversations”',
       ratings: 5,
-      review: 'SMS and email alerts at every stage meant we spent less time answering “where is my file?” and more time resolving cases.',
-      profile: { avatar: '/assets/images/user/avatar4.png', name: 'Samir L.', role: 'Customer operations lead' }
+      review:
+        'Tasheel’s video remote interpreting desk connects us to medical linguists in minutes—vital for emergency consultations and hearings.',
+      profile: { avatar: '/assets/images/user/avatar3.png', name: 'Dr. Rana B.', role: 'Chief of Patient Access, Healthcare network' }
+    },
+    {
+      title: '“Media ready in every market”',
+      ratings: 5,
+      review:
+        'From subtitles to voiceover and DTP, the Tasheel media team delivered 14 courses in five languages without compromising quality.',
+      profile: { avatar: '/assets/images/user/avatar4.png', name: 'Omar L.', role: 'Learning experience manager, Global NGO' }
     }
   ]
 };

@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -43,7 +43,7 @@ export default function Error404Page({ primaryBtn, heading }) {
             <Error404 />
             <Stack sx={{ gap: 2.25, alignItems: 'center', mt: { sm: -5, lg: -6.25 } }}>
               <Typography sx={{ width: { xs: 210, sm: 300 }, textAlign: 'center' }}>{heading}</Typography>
-              {primaryBtn && <Button variant="contained" size="medium" {...primaryBtn} />}
+              {primaryBtn && <TasheelButton variant="contained" size="medium" {...primaryBtn} />}
             </Stack>
           </Stack>
         </GraphicsCard>

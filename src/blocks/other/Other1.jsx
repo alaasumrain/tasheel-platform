@@ -6,7 +6,7 @@ import NextLink from 'next/link';
 
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import CardMedia from '@mui/material/CardMedia';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
@@ -159,7 +159,7 @@ export default function Other1({ heading, description, primaryBtn, sections }) {
             whileHover={{ scale: 1.04 }}
           >
             <ButtonAnimationWrapper>
-              <Button variant="outlined" {...primaryBtn} />
+              <TasheelButton variant="outlined" {...primaryBtn} />
             </ButtonAnimationWrapper>
           </motion.div>
         </Stack>

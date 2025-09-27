@@ -6,7 +6,7 @@ import NextLink from 'next/link';
 
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
@@ -375,7 +375,7 @@ export default function Sections() {
             />
             <Stack direction="row" sx={{ gap: 1.5, flexWrap: 'wrap' }}>
               {filterList.map((item, index) => (
-                <Button
+                <TasheelButton
                   key={index}
                   variant={filterBy === item.value ? 'contained' : 'outlined'}
                   size="small"
@@ -386,7 +386,7 @@ export default function Sections() {
                   }}
                 >
                   {item.title}
-                </Button>
+                </TasheelButton>
               ))}
             </Stack>
           </Stack>

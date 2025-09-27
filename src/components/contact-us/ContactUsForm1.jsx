@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -141,7 +141,7 @@ export default function ContactUsForm1() {
                   onChange={onChange}
                   startAdornment={
                     <Stack direction="row" sx={{ gap: 1.5, alignItems: 'center', pr: 1.5 }}>
-                      <Button
+                      <TasheelButton
                         endIcon={<SvgIcon name="tabler-chevron-down" size={16} color="text.primary" stroke={2} />}
                         sx={{
                           typography: 'body1',
@@ -160,7 +160,7 @@ export default function ContactUsForm1() {
                         onClick={handleClick}
                       >
                         {watch('dialcode')}
-                      </Button>
+                      </TasheelButton>
                       <Popper
                         placement="bottom-start"
                         id={id}
@@ -242,9 +242,9 @@ export default function ContactUsForm1() {
         <Grid size={12}>
           <Stack sx={{ alignItems: 'flex-start', mt: { xs: 0.5, sm: 1.5 } }}>
             <ButtonAnimationWrapper>
-              <Button type="submit" color="primary" variant="contained" size="large">
+              <TasheelButton type="submit" color="primary" variant="contained" size="large">
                 Send message
-              </Button>
+              </TasheelButton>
             </ButtonAnimationWrapper>
           </Stack>
         </Grid>

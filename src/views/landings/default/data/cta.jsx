@@ -1,3 +1,4 @@
+'use client';
 // @next
 import NextLink from 'next/link';
 
@@ -6,10 +7,10 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 
 export const cta4 = {
-  headLine: 'Why service teams partner with Tasheel',
+  headLine: 'Why organisations choose Tasheel for critical services',
   primaryBtn: {
-    children: 'Start your application',
-    href: '/services'
+    children: 'Start a conversation',
+    href: '/contact?intent=consult'
   },
   profileGroups: {
     avatarGroups: [
@@ -19,15 +20,15 @@ export const cta4 = {
       { avatar: '/assets/images/user/avatar4.png' },
       { avatar: '/assets/images/user/avatar5.png' }
     ],
-    review: 'Used by public agencies and service consultants across Palestine'
+    review: 'Trusted by teams handling compliance, growth, and public service delivery'
   },
   list: [
-    { primary: 'Complete digital intake and assessment' },
-    { primary: 'Transparent status tracking at every step' },
-    { primary: 'Secure document vault & audit trails' },
-    { primary: 'Arabic and English guidance' },
-    { primary: 'Express handling for urgent cases' },
-    { primary: 'Compliance-ready exports' }
+    { primary: 'Clear workflows from intake to delivery' },
+    { primary: 'A Tasheel coordinator who knows your use case' },
+    { primary: 'Certified translation with notarisation options' },
+    { primary: 'Secure handling and confidentiality controls' },
+    { primary: 'Responsive support across time zones' },
+    { primary: 'Status dashboards you can share internally' }
   ],
   clientContent: 'Learn More'
 };
@@ -45,14 +46,14 @@ function DescriptionLine() {
 
 export const cta5 = {
   label: 'Get started today',
-  heading: 'Ready to simplify permits, licenses, and civic services?',
-  caption: 'Tasheel removes the guesswork so you can focus on what matters—your residents, team, or business.',
+  heading: 'Ready to experience Tasheel?',
+  caption: 'Send your translation brief and we will show you how easy a complex service can feel.',
   primaryBtn: {
-    children: 'Browse services',
-    href: '/services'
+    children: 'Request a translation quote',
+    href: '/quote'
   },
   description: <DescriptionLine />,
-  saleData: { count: 12, defaultUnit: 'k+', caption: 'Applications processed in beta' },
+  saleData: { count: 250, defaultUnit: 'k+', caption: 'Words delivered with Tasheel oversight' },
   profileGroups: {
     avatarGroups: [
       { avatar: '/assets/images/user/avatar1.png' },
@@ -61,14 +62,14 @@ export const cta5 = {
       { avatar: '/assets/images/user/avatar4.png' },
       { avatar: '/assets/images/user/avatar5.png' }
     ],
-    review: 'Teams report 70% faster turnaround times'
+    review: 'Clients report faster turnarounds and clearer communication with Tasheel'
   }
 };
 
 export const cta10 = {
-  heading: "Can't find the service you need?",
-  caption: 'Tell us which workflow you want to digitise and our onboarding team will walk you through the next steps.',
-  primaryBtn: { children: 'Contact support', href: '/contact' },
+  heading: 'Need a different Tasheel service?',
+  caption: 'Translation is just the beginning. Tell us what you want to simplify next and we will design the roadmap with you.',
+  primaryBtn: { children: 'Talk to Tasheel', href: '/contact?intent=consult' },
   secondaryBtn: { children: 'View all services', href: '/services' },
   image: '/assets/images/graphics/ai/graphics15-light.svg',
   profileGroups: {
@@ -79,6 +80,6 @@ export const cta10 = {
       { avatar: '/assets/images/user/avatar4.png' },
       { avatar: '/assets/images/user/avatar5.png' }
     ],
-    review: 'Trusted by 50,000+ users'
+    review: 'Partnering with teams who expect more from their service providers'
   }
 };

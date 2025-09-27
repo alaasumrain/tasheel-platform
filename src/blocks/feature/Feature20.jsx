@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { alpha, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -194,7 +194,7 @@ export default function Feature20({ heading, caption, image, features, actionBtn
                   whileHover={{ scale: 1.06 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button variant="outlined" {...secondaryBtn} />
+                    <TasheelButton variant="outlined" {...secondaryBtn} />
                   </ButtonAnimationWrapper>
                 </motion.div>
               )}
@@ -206,7 +206,7 @@ export default function Feature20({ heading, caption, image, features, actionBtn
                   whileHover={{ scale: 1.06 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button
+                    <TasheelButton
                       variant="contained"
                       color="primary"
                       startIcon={<SvgIcon name="tabler-sparkles" size={16} stroke={3} color="background.default" />}

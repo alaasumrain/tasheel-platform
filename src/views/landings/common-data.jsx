@@ -1,5 +1,6 @@
+'use client';
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -45,13 +46,13 @@ function footerData() {
           transparency.
         </Typography>
       </Stack>
-      <Button
+      <TasheelButton
         variant="contained"
         sx={{ display: { xs: 'none', sm: 'inline-flex' }, minWidth: 100, px: { xs: 2 }, py: 1.25 }}
         href={BUY_NOW_URL}
       >
         Explore Services
-      </Button>
+      </TasheelButton>
     </Stack>
   );
 }
@@ -140,9 +141,9 @@ function bannerData() {
           Monitor submissions, approvals, and service level metrics from one secure dashboard built for public-sector workflows.
         </Typography>
       </Stack>
-      <Button href={ADMIN_PATH} variant="contained" sx={{ minWidth: 92, px: { xs: 2 }, py: 1.25 }}>
+      <TasheelButton href={ADMIN_PATH} variant="contained" sx={{ minWidth: 92, px: { xs: 2 }, py: 1.25 }}>
         Track Applications
-      </Button>
+      </TasheelButton>
     </Stack>
   );
 }

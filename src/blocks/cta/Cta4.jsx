@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -101,7 +101,7 @@ export default function Cta4({ headLine, primaryBtn, profileGroups, list, client
                   whileTap={{ scale: 0.95 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button color="primary" size="large" variant="contained" sx={{ minWidth: { md: 263 } }} {...primaryBtn} />
+                    <TasheelButton color="primary" size="large" variant="contained" sx={{ minWidth: { md: 263 } }} {...primaryBtn} />
                   </ButtonAnimationWrapper>
                 </motion.div>
               </Box>

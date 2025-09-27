@@ -1,214 +1,216 @@
+'use client';
 // @project
-import branding from '@/branding.json';
 import { IconType } from '@/enum';
 
 export const feature20 = {
-  heading: 'Everything you need to run public services end to end',
-  caption: 'Tasheel keeps applicants, reviewers, and partner ministries aligned with guided workflows and live status updates.',
-  actionBtn: { children: 'Start an Application', href: '/services' },
-  secondaryBtn: { children: 'Talk to Tasheel', href: '/contact' },
+  heading: 'Tasheel handles the legwork for every service request',
+  caption: 'One dashboard, clear handoffs, and a responsive support team—today for translation, tomorrow for every service you need.',
+  actionBtn: { children: 'Request a translation quote', href: '/quote' },
+  secondaryBtn: { children: 'Talk to Tasheel', href: '/contact?intent=consult' },
   features: [
     {
-      icon: 'tabler-layout-dashboard',
-      title: 'Unified dashboard',
-      content: 'Monitor every submission across agencies with clear ownership and next steps.'
+      icon: 'tabler-user-star',
+      title: 'Single Tasheel point of contact',
+      content: 'One coordinator understands your goals, gathers requirements, and keeps progress transparent.'
     },
     {
-      icon: 'tabler-checklist',
-      title: 'Guided forms',
-      content: 'Applicants see the exact documents, fees, and eligibility rules before they start.'
+      icon: 'tabler-language',
+      title: 'Trusted specialist partners',
+      content: 'Handpicked linguists with legal, medical, and technical backgrounds—not a generic marketplace.'
     },
     {
-      icon: 'tabler-bell',
-      title: 'Real-time alerts',
-      content: 'Automated email and SMS notifications keep applicants and officers aligned.'
+      icon: 'tabler-folders',
+      title: 'Structured reviews',
+      content: 'Checklists, terminology guidance, and second-eye reviews keep deliverables consistent.'
     },
     {
-      icon: 'tabler-cloud-lock',
-      title: 'Secure records',
-      content: 'End-to-end encryption and audit trails protect sensitive information by default.'
+      icon: 'tabler-shield-lock',
+      title: 'Secure handling',
+      content: 'NDAs, encrypted storage, and role-based access for every file and participant.'
     },
     {
-      icon: 'tabler-users-group',
-      title: 'Collaboration tools',
-      content: 'Invite inspectors, legal teams, or external reviewers without losing context.'
+      icon: 'tabler-robot',
+      title: 'Human-first, tech-assisted',
+      content: 'We use tooling to cut admin and amplify experts—not to replace them.'
     },
     {
-      icon: 'tabler-rocket',
-      title: 'Express handling',
-      content: 'Fast-track complex cases with SLA monitoring and escalation playbooks.'
+      icon: 'tabler-headset',
+      title: 'Support when you need it',
+      content: 'Quick responses via email, phone, or chat—before, during, and after delivery.'
     }
   ]
 };
 
 export const feature18 = {
-  heading: 'One platform for every department you work with',
-  caption: 'Tasheel adapts to each agency’s policy while keeping a consistent experience for applicants.',
+  heading: 'Where Tasheel adds value today',
+  caption: 'Our translation desk is the first of many Tasheel services—the same framework will power permits, logistics, and more.',
   topics: [
     {
-      icon: 'tabler-sparkles',
-      title: 'Digital services',
-      title2: 'Launch new workflows fast',
-      description: 'Use ready-made blueprints for intake, review, approvals, and fulfilment so teams focus on policy—not plumbing.',
+      icon: 'tabler-file-description',
+      title: 'Professional translation',
+      title2: 'Certified accuracy when stakes are high',
+      description: 'Certified, legal, and technical translation with notarisation support and tracked milestones.',
       image: '/assets/images/graphics/default/admin-dashboard.png',
       list: [
-        { primary: 'Reusable service templates' },
-        { primary: 'Document validation rules' },
-        { primary: 'Real-time status tracking' },
-        { primary: 'Built-in payments & receipts' }
+        { primary: 'Certified & notarised packs' },
+        { primary: 'Two-step linguistic QA' },
+        { primary: 'Terminology & glossary control' },
+        { primary: 'Secure digital delivery & shipping' }
       ],
-      actionBtn: { children: 'Start an application', href: '/services' },
-      actionBtn2: { children: 'See service catalogue', href: '/services' }
+      actionBtn: { children: 'Get a translation quote', href: '/quote?service=certified-translation' },
+      actionBtn2: { children: 'Browse translation services', href: '/services?category=translation' }
     },
     {
-      icon: 'tabler-palette',
-      title: 'Multi-department',
-      title2: 'Collaborate across ministries',
-      description: 'Connect licensing, immigration, municipal, and inspection workflows inside a single shared case file.',
+      icon: 'tabler-world-latitude',
+      title: 'Localization & product content',
+      title2: 'Keep launches on schedule',
+      description: 'Adapt websites, support docs, and software strings with reviewers who understand brand and UX.',
       image: '/assets/images/graphics/default/admin-dashboard-2.png',
       list: [
-        { primary: 'Shared applicant profiles' },
-        { primary: 'Role-based permissions' },
-        { primary: 'Cross-agency task routing' },
-        { primary: 'Unified notifications' }
+        { primary: 'Continuous localization pipelines' },
+        { primary: 'SEO + keyword adaptation' },
+        { primary: 'Style guide & tone management' },
+        { primary: 'In-market linguistic QA' }
       ],
-      actionBtn: { children: 'Browse services', href: '/services' },
-      actionBtn2: { children: 'Talk to Tasheel', href: '/contact' }
+      actionBtn: { children: 'Plan localization', href: '/contact?service=software-localization&intent=consult' },
+      actionBtn2: { children: 'Browse localization services', href: '/services?category=localization' }
     },
     {
-      icon: 'tabler-rocket',
-      title: 'Fast processing',
-      title2: 'Shorten turnaround times',
-      description: 'Automations trigger document checks, approvals, and reminders the moment an application arrives.',
+      icon: 'tabler-headphones',
+      title: 'Interpreting',
+      title2: 'Conversations without language barriers',
+      description:
+        'On-site, remote, and on-demand interpreting arranged through Tasheel—ideal for healthcare, legal, and government sessions.',
       image: '/assets/images/graphics/default/admin-dashboard-3.png',
       list: [
-        { primary: 'Automated eligibility checks' },
-        { primary: 'Instant routing to reviewers' },
-        { primary: 'Deadline monitoring' },
-        { primary: 'Express service configurations' }
+        { primary: 'Simultaneous & consecutive modes' },
+        { primary: 'Equipment and booth coordination' },
+        { primary: 'On-demand phone & video access' },
+        { primary: 'SLA-backed scheduling support' }
       ],
-      actionBtn: { children: 'Start an application', href: '/services' },
-      actionBtn2: { children: 'Request express setup', href: '/contact' }
+      actionBtn: { children: 'Schedule interpreting', href: '/contact?service=simultaneous-interpreting&intent=consult' },
+      actionBtn2: { children: 'Explore interpreting', href: '/services?category=interpreting' }
     },
     {
-      icon: 'tabler-scale',
-      title: 'Secure platform',
-      title2: 'Protect sensitive decisions',
-      description: 'Bank-grade encryption, Palestinian data residency, and detailed audit logs keep every action accountable.',
+      icon: 'tabler-video',
+      title: 'Media & AV support',
+      title2: 'Courses, campaigns, and comms in any language',
+      description: 'Subtitling, dubbing, transcription, and DTP—managed like a project, not a pile of files.',
       image: '/assets/images/graphics/default/admin-dashboard.png',
       list: [
-        { primary: 'End-to-end encryption' },
-        { primary: 'Granular audit trails' },
-        { primary: 'Compliance-ready exports' },
-        { primary: 'Routine penetration testing' }
+        { primary: 'Subtitle authoring & QC' },
+        { primary: 'Voiceover casting & direction' },
+        { primary: 'DTP & artwork adaptation' },
+        { primary: 'Multi-format exports (SRT, WebVTT, etc.)' }
       ],
-      actionBtn: { children: 'View security approach', href: '/privacy-policy' },
-      actionBtn2: { children: 'See privacy policy', href: '/privacy-policy' }
+      actionBtn: { children: 'Start media project', href: '/quote?service=subtitling' },
+      actionBtn2: { children: 'View audio-visual services', href: '/services?category=audio-visual' }
     }
   ]
 };
 
 export const feature21 = {
-  heading: `Experience digital public services with ${branding.brandName}`,
-  caption: 'Applicants stay informed, officers stay coordinated, and leadership gains the insight to improve every service.',
+  heading: `Experience Tasheel, starting with translation`,
+  caption:
+    'Submit once, track every milestone, and receive the deliverable you need. As Tasheel grows, the same experience will power every service.',
   image: '/assets/images/graphics/ai/desktop1-light.svg',
-  primaryBtn: { children: 'Start with Tasheel', href: '/services' },
+  primaryBtn: { children: 'Explore translation services', href: '/services' },
   secondaryBtn: {
-    children: 'Talk to our team',
-    href: '/contact'
+    children: 'Book time with Tasheel',
+    href: '/contact?intent=consult'
   },
   features: [
     {
       animationDelay: 0.1,
-      icon: 'tabler-components',
-      title: 'Multi-agency workflows'
+      icon: 'tabler-certificate',
+      title: 'Certified & notarised delivery'
     },
     {
       animationDelay: 0.2,
-      icon: 'tabler-moon',
-      title: '24/7 availability'
+      icon: 'tabler-language-hiragana',
+      title: '25+ language pairs and growing'
     },
     {
       animationDelay: 0.3,
-      icon: 'tabler-brightness-auto',
-      title: 'Smart forms & validation'
+      icon: 'tabler-adjustments-dollar',
+      title: 'Transparent pricing & SLAs'
     },
     {
       animationDelay: 0.4,
-      icon: 'tabler-accessible',
-      title: 'WCAG-compliant UI'
+      icon: 'tabler-shield-lock',
+      title: 'ISO-aligned security controls'
     },
     {
       animationDelay: 0.1,
-      icon: 'tabler-icons',
-      title: 'Arabic & English'
+      icon: 'tabler-archive',
+      title: 'Secure client workspace'
     },
     {
       animationDelay: 0.2,
-      icon: 'tabler-file-stack',
-      title: 'Digital document vault'
+      icon: 'tabler-user-check',
+      title: 'Humans review every job'
     },
     {
       animationDelay: 0.3,
-      icon: 'tabler-brand-matrix',
-      title: 'Secure infrastructure'
+      icon: 'tabler-traffic-lights',
+      title: 'Status tracking & approvals'
     },
     {
       animationDelay: 0.4,
-      icon: 'tabler-click',
-      title: 'Guided journeys'
+      icon: 'tabler-sparkles',
+      title: 'Digital workflows that scale'
     }
   ]
 };
 
 // Additional feature sections for other pages
 export const feature2 = {
-  heading: 'Our Commitment to Excellence',
-  caption: 'Dedicated to providing world-class government services',
+  heading: 'Our Commitment to Linguistic Excellence',
+  caption: 'We partner with clients to deliver accurate, secure, and culturally resonant language outcomes.',
   features: [
     {
       icon: { name: 'tabler-users', type: IconType.STROKE, color: 'primary.main', stroke: 1 },
-      title: 'Citizen-Centric',
-      content: 'We prioritize user experience to make government services accessible to all citizens.'
+      title: 'Client-first',
+      content: 'Every programme includes a dedicated success manager, proactive updates, and transparent milestones.'
     },
     {
       icon: { name: 'tabler-star', type: IconType.STROKE, color: 'warning.main', stroke: 1 },
-      title: 'Excellence',
-      content: 'Committed to delivering high-quality services with complete transparency.'
+      title: 'Subject-matter expertise',
+      content: 'We assign linguists with domain background—legal, medical, technical, or creative—to every engagement.'
     },
     {
-      icon: { name: 'tabler-chart-histogram', type: IconType.STROKE, color: 'success.main', stroke: 1 },
+      icon: { name: 'tabler-atom-2', type: IconType.STROKE, color: 'success.main', stroke: 1 },
       title: 'Innovation',
-      content: 'Continuously improving our platform with the latest technology and user feedback.'
+      content: 'AI-assisted tooling, translation memories, and QA automations keep quality high while reducing turnaround.'
     }
   ]
 };
 
 export const feature5 = {
-  heading: 'Support Services',
-  caption: 'Additional resources to help you navigate our platform',
+  heading: 'Project enablement',
+  caption: 'We plug into your workflow, platforms, and compliance needs to keep multilingual delivery effortless.',
   features: [
     {
-      icon: 'tabler-help-hexagon',
-      title: 'Help Center',
-      content: 'Comprehensive guides and FAQs to answer all your questions.'
+      icon: 'tabler-notebook',
+      title: 'Onboarding playbooks',
+      content: 'Implementation specialists document stakeholders, file formats, and QA expectations from day one.'
     },
     {
-      icon: 'tabler-book-2',
-      title: 'Video Tutorials',
-      content: 'Step-by-step video guides for complex application processes.'
+      icon: 'tabler-plug-connected',
+      title: 'Systems integration',
+      content: 'Sync Tasheel Language with CMS, design, ticketing, and DevOps tools using APIs and connectors.'
     }
   ],
   features2: [
     {
-      icon: 'tabler-message-circle',
-      title: 'Live Chat',
-      content: 'Instant support from our customer service team.'
+      icon: 'tabler-headset',
+      title: 'Always-on support',
+      content: '24/7 project desk with linguists on standby for rush turnarounds and live updates.'
     },
     {
-      icon: 'tabler-calendar-event',
-      title: 'Appointment Booking',
-      content: 'Schedule in-person visits when physical presence is required.'
+      icon: 'tabler-clipboard-check',
+      title: 'Compliance alignment',
+      content: 'ISO-style security practices, NDAs, and audit-friendly reporting for regulated industries.'
     }
   ]
 };

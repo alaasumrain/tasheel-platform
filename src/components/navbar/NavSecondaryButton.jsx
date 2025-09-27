@@ -1,15 +1,16 @@
+'use client';
 import PropTypes from 'prop-types';
 // @next
 import NextLink from 'next/link';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 
 /***************************  NAVBAR - SECONDARY BUTTON  ***************************/
 
 export default function NavSecondaryButton({ sx, children, ...rest }) {
   return (
-    <Button
+    <TasheelButton
       variant="outlined"
       size="small"
       sx={sx}
@@ -19,7 +20,7 @@ export default function NavSecondaryButton({ sx, children, ...rest }) {
       aria-label="nav-secondary-btn"
     >
       {children || 'Secondary Button'}
-    </Button>
+    </TasheelButton>
   );
 }
 

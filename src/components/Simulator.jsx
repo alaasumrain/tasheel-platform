@@ -8,7 +8,7 @@ import { Fragment, useCallback, useEffect, useId, useRef, useState } from 'react
 
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import IconButton from '@mui/material/IconButton';
 import NoSsr from '@mui/material/NoSsr';
 import Stack from '@mui/material/Stack';
@@ -194,7 +194,7 @@ export default function Simulator({ src, defaultHeight }) {
             <SvgIcon name="tabler-arrow-up-right" size={20} color="text.primary" />
           </IconButton> */}
 
-          <Button
+          <TasheelButton
             endIcon={<SvgIcon name="tabler-arrow-up-right" size={20} color="text.primary" />}
             href={src}
             sx={{ color: 'text.primary', px: 1.5, py: 1 }}
@@ -202,7 +202,7 @@ export default function Simulator({ src, defaultHeight }) {
             rel="noopener noreferrer"
           >
             Preview
-          </Button>
+          </TasheelButton>
         </Stack>
       </Stack>
       <Stack direction="row" sx={{ justifyContent: 'center' }}>

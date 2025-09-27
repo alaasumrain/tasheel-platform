@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
@@ -115,7 +115,7 @@ export default function Feature21({ heading, caption, image, features, primaryBt
                   whileHover={{ scale: 1.06 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button variant="outlined" startIcon={<SvgIcon name="tabler-eye" size={16} stroke={3} />} {...secondaryBtn} />
+                    <TasheelButton variant="outlined" startIcon={<SvgIcon name="tabler-eye" size={16} stroke={3} />} {...secondaryBtn} />
                   </ButtonAnimationWrapper>
                 </motion.div>
               )}
@@ -127,7 +127,7 @@ export default function Feature21({ heading, caption, image, features, primaryBt
                   whileHover={{ scale: 1.06 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button
+                    <TasheelButton
                       variant="contained"
                       startIcon={<SvgIcon name="tabler-download" size={16} stroke={3} color="background.default" />}
                       {...primaryBtn}

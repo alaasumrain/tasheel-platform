@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -34,7 +34,7 @@ export default function Error500Page({ primaryBtn, heading }) {
               <Error500 />
             </Box>
             <Typography sx={{ textAlign: 'center', width: { xs: 248, sm: 340, md: 448 } }}>{heading}</Typography>
-            {primaryBtn && <Button variant="contained" size="medium" {...primaryBtn} sx={{ zIndex: 1 }} />}
+            {primaryBtn && <TasheelButton variant="contained" size="medium" {...primaryBtn} sx={{ zIndex: 1 }} />}
           </Stack>
           <Box sx={{ width: { xs: '95%', md: '90%' }, position: 'absolute', left: -2, bottom: -6 }}>
             <Error500Server />

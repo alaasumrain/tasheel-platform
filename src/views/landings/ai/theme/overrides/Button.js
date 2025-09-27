@@ -19,6 +19,26 @@ export default function Button(theme) {
           boxShadow: 'none',
           '&:focus-visible': generateFocusVisibleStyles(theme.palette.primary.main)
         },
+        containedPrimary: {
+          color: theme.palette.common.white,
+          boxShadow: '0 18px 46px rgba(15,46,83,0.20)',
+          '&:hover': {
+            boxShadow: '0 22px 52px rgba(15,46,83,0.24)',
+            color: theme.palette.common.white
+          },
+          '&:active': {
+            boxShadow: '0 14px 36px rgba(15,46,83,0.24)',
+            color: theme.palette.common.white
+          }
+        },
+        outlinedPrimary: {
+          color: theme.palette.primary.main,
+          borderWidth: 1.5,
+          '&:hover': {
+            borderWidth: 1.5,
+            backgroundColor: theme.palette.action.hover
+          }
+        },
         sizeSmall: {
           padding: '10px 24px',
           '&.MuiButton-outlined': { padding: '9px 24px' }

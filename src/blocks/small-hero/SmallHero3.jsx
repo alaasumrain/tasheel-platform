@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import NextLink from 'next/link';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -64,7 +64,7 @@ export default function SmallHero3({ chip, headLine, captionLine, exploreBtn }) 
           </Stack>
           {exploreBtn && (
             <Stack direction="row" sx={{ alignItems: 'end', justifyContent: 'center', minWidth: 'fit-content' }}>
-              <Button size="large" variant="outlined" {...exploreBtn} />
+              <TasheelButton size="large" variant="outlined" {...exploreBtn} />
             </Stack>
           )}
         </Stack>

@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -88,7 +88,7 @@ export default function Faq6({ heading, caption, defaultExpanded, faqList, getIn
                   whileHover={{ scale: 1.06 }}
                 >
                   <ButtonAnimationWrapper>
-                    <Button
+                    <TasheelButton
                       variant="contained"
                       size="large"
                       {...getInTouch.link}
@@ -113,7 +113,7 @@ export default function Faq6({ heading, caption, defaultExpanded, faqList, getIn
           >
             <Stack sx={slickStyle}>
               <Slider {...settings}>
-                <Button
+                <TasheelButton
                   sx={{
                     minHeight: { xs: 40, sm: 48 },
                     color: 'text.primary',
@@ -128,9 +128,9 @@ export default function Faq6({ heading, caption, defaultExpanded, faqList, getIn
                   }}
                 >
                   All
-                </Button>
+                </TasheelButton>
                 {categories.map((item, index) => (
-                  <Button
+                  <TasheelButton
                     key={index}
                     sx={{
                       minHeight: { xs: 40, sm: 48 },
@@ -146,7 +146,7 @@ export default function Faq6({ heading, caption, defaultExpanded, faqList, getIn
                     }}
                   >
                     {item}
-                  </Button>
+                  </TasheelButton>
                 ))}
               </Slider>
             </Stack>

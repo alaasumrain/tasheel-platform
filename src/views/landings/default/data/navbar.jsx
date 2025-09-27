@@ -1,3 +1,4 @@
+'use client';
 // @project
 import SvgIcon from '@/components/SvgIcon';
 
@@ -17,9 +18,9 @@ export const navbar = {
     },
     sx: { minWidth: 80 }
   },
-  primaryBtn: { 
-    children: 'Track Application', 
-    href: '/track'
+  primaryBtn: {
+    children: 'Client Portal',
+    href: '/portal'
   },
   navItems: [
     { id: 'home', title: 'Home', link: '/' },

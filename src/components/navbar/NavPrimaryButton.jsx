@@ -5,13 +5,13 @@ import PropTypes from 'prop-types';
 import NextLink from 'next/link';
 
 // @mui
-import Button from '@mui/material/Button';
+import TasheelButton from '@/components/TasheelButton';
 
 /***************************  NAVBAR - PRIMARY BUTTON  ***************************/
 
 export default function NavPrimaryButton({ sx, children, ...rest }) {
   return (
-    <Button
+    <TasheelButton
       variant="contained"
       size="small"
       sx={sx}
@@ -21,7 +21,7 @@ export default function NavPrimaryButton({ sx, children, ...rest }) {
       aria-label="nav-primary-btn"
     >
       {children || 'Primary Button'}
-    </Button>
+    </TasheelButton>
   );
 }
 
