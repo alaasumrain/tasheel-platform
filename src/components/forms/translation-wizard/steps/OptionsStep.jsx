@@ -99,7 +99,13 @@ function OptionCard({ title, badge, description, selected, onClick }) {
               {title}
             </Typography>
             {badge && (
-              <Chip label={badge} size="small" color={selected ? 'primary' : 'default'} variant={selected ? 'filled' : 'outlined'} sx={{ fontWeight: 600 }} />
+              <Chip
+                label={badge}
+                size="small"
+                color={selected ? 'primary' : 'default'}
+                variant={selected ? 'filled' : 'outlined'}
+                sx={{ fontWeight: 600 }}
+              />
             )}
           </Stack>
           <Typography variant="body2" color="text.secondary">
@@ -131,7 +137,12 @@ function OptionCard({ title, badge, description, selected, onClick }) {
 }
 
 export default function OptionsStep() {
-  const { register, setValue, watch, formState: { errors } } = useFormContext();
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useFormContext();
 
   useEffect(() => {
     register('options.translationType', { required: 'Select a translation type' });
@@ -262,7 +273,12 @@ export default function OptionsStep() {
           multiline
           minRows={4}
           fullWidth
-          {...register('options.instructions')}
+          inputProps={{ maxLength: 1000 }}
+          {...register('options.instructions', {
+            maxLength: { value: 1000, message: 'Keep instructions under 1000 characters' }
+          })}
+          error={Boolean(errors?.options?.instructions)}
+          helperText={errors?.options?.instructions?.message}
           sx={outlinedInputSx}
         />
       </Grid>

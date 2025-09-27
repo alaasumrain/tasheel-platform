@@ -21,7 +21,7 @@ import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 
 import SvgIcon from '@/components/SvgIcon';
-import { ADMIN_STATUS_OPTIONS } from '@/lib/supabase/admin';
+import { ADMIN_STATUS_OPTIONS } from '@/lib/admin/status-options';
 
 const statusMeta = {
   submitted: { label: 'Submitted', color: 'info' },

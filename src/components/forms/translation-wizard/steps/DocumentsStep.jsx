@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 // @mui
@@ -34,10 +34,13 @@ const ACCEPTED_TYPES = [
 ];
 
 export default function DocumentsStep() {
+  const [uploadWarning, setUploadWarning] = useState('');
+
   const {
     register,
     setValue,
     setFocus,
+    setError,
     watch,
     formState: { errors },
     clearErrors
@@ -59,6 +62,7 @@ export default function DocumentsStep() {
   useEffect(() => {
     if (link) {
       clearErrors('documents.files');
+      setUploadWarning('');
     }
   }, [link, clearErrors]);
 
@@ -67,17 +71,22 @@ export default function DocumentsStep() {
       const incomingFiles = Array.from(event.target.files || []);
       if (!incomingFiles.length) return;
 
+      let rejected = 0;
+
       const filtered = incomingFiles.filter((file) => {
         const withinSize = file.size <= 20 * 1024 * 1024; // 20MB
         const acceptedType = ACCEPTED_TYPES.includes(file.type);
         const acceptedName = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpeg|jpg|png)$/i.test(file.name);
-        return withinSize && (acceptedType || acceptedName);
+        const ok = withinSize && (acceptedType || acceptedName);
+        if (!ok) rejected += 1;
+        return ok;
       });
 
       const nextFiles = [...files, ...filtered].slice(0, 5);
       setValue('documents.files', nextFiles, { shouldDirty: true, shouldValidate: true });
       if (nextFiles.length > 0) {
         clearErrors('documents.files');
+        setUploadWarning(rejected > 0 ? 'Some files were skipped because they exceeded 20MB or used unsupported formats.' : '');
         if (!watch('documents.documentType')) {
           const firstName = nextFiles[0]?.name?.split('.')?.[0] || '';
           if (firstName) {
@@ -85,9 +94,20 @@ export default function DocumentsStep() {
           }
         }
       }
+
+      if (rejected > 0 && filtered.length === 0 && nextFiles.length === 0 && !link) {
+        setError('documents.files', {
+          type: 'manual',
+          message:
+            rejected === incomingFiles.length
+              ? 'Files must be PDF, Office, or image formats under 20MB.'
+              : 'Some files were skipped because they exceeded 20MB or used unsupported formats.'
+        });
+        setUploadWarning('');
+      }
       event.target.value = '';
     },
-    [files, setValue, clearErrors]
+    [files, setValue, clearErrors, setError, watch, link]
   );
 
   const handleRemove = useCallback(
@@ -122,7 +142,16 @@ export default function DocumentsStep() {
           label="Shared link (optional)"
           placeholder="Google Drive, Dropbox, OneDrive link"
           fullWidth
-          {...register('documents.link')}
+          {...register('documents.link', {
+            validate: (value) => {
+              if (!value) return true;
+              return /^(https?:\/\/)[\w.-]+(\.[\w.-]+)+[\w\-\._~:\/?#[\]@!$&'()*+,;=.]+$/.test(value)
+                ? true
+                : 'Enter a valid URL starting with https://';
+            }
+          })}
+          error={Boolean(errors?.documents?.link)}
+          helperText={errors?.documents?.link?.message}
           sx={outlinedInputSx}
         />
       </Grid>
@@ -147,14 +176,7 @@ export default function DocumentsStep() {
               }
             }}
           >
-            <input
-              id="translation-dropzone"
-              type="file"
-              hidden
-              multiple
-              accept={ACCEPTED_TYPES.join(',')}
-              onChange={handleFileChange}
-            />
+            <input id="translation-dropzone" type="file" hidden multiple accept={ACCEPTED_TYPES.join(',')} onChange={handleFileChange} />
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', sm: 'center' }}>
               <Box
                 sx={{
@@ -199,6 +221,11 @@ export default function DocumentsStep() {
             {errors?.documents?.files && (
               <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 2 }}>
                 {errors.documents.files.message}
+              </Typography>
+            )}
+            {!errors?.documents?.files && uploadWarning && (
+              <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 2 }}>
+                {uploadWarning}
               </Typography>
             )}
           </Box>
