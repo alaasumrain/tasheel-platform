@@ -4,21 +4,25 @@ import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 
 // @mui
+import { useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import SvgIcon from '@/components/SvgIcon';
 import TasheelButton from '@/components/TasheelButton';
@@ -53,6 +57,9 @@ const DELIVERY_LABELS = {
 };
 
 export default function PortalDashboardClient({ requests }) {
+  const theme = useTheme();
+  const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
   const latestRequest = useMemo(() => (requests.length ? requests[0] : null), [requests]);
   const hasRequests = requests.length > 0;
 
@@ -83,7 +90,12 @@ export default function PortalDashboardClient({ requests }) {
             boxShadow: '0 32px 70px rgba(15,46,83,0.18)'
           }}
         >
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between">
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={{ xs: 3, md: 4 }}
+            alignItems={{ xs: 'stretch', md: 'center' }}
+            justifyContent="space-between"
+          >
             <Box sx={{ maxWidth: 640 }}>
               <Typography variant="overline" color="primary" sx={{ letterSpacing: 1 }}>
                 Tasheel client workspace
@@ -95,11 +107,19 @@ export default function PortalDashboardClient({ requests }) {
                 Track requests, upload supporting documents, and download deliverables once they’re ready. We’ll email you at each milestone.
               </Typography>
             </Box>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
-              <TasheelButton component="a" href="/quote" variant="contained">
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1.5}
+              sx={{
+                width: { xs: '100%', md: 'auto' },
+                alignItems: { xs: 'stretch', sm: 'center' },
+                '& > *': { flexGrow: { xs: 1, sm: 0 } }
+              }}
+            >
+              <TasheelButton component="a" href="/quote" variant="contained" fullWidth={isSmDown}>
                 Start new request
               </TasheelButton>
-              <TasheelButton component="a" href="mailto:support@tasheel.ps" variant="outlined">
+              <TasheelButton component="a" href="mailto:support@tasheel.ps" variant="outlined" fullWidth={isSmDown}>
                 Need help?
               </TasheelButton>
             </Stack>
@@ -108,9 +128,9 @@ export default function PortalDashboardClient({ requests }) {
 
         <Grid container spacing={3}>
           {summaryCards.map((card) => (
-            <Grid xs={12} sm={6} md={4} key={card.title}>
-              <Card sx={{ borderRadius: 3, boxShadow: '0 14px 32px rgba(15,46,83,0.12)' }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Grid item xs={12} sm={6} md={4} key={card.title}>
+              <Card sx={{ borderRadius: 3, boxShadow: '0 14px 32px rgba(15,46,83,0.12)', height: '100%' }}>
+                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, p: { xs: 2.5, md: 3 } }}>
                   <Box
                     sx={{
                       width: 52,
@@ -155,11 +175,21 @@ export default function PortalDashboardClient({ requests }) {
           </Stack>
 
           {latestRequest ? (
-            <Stack spacing={2.5} sx={{ mt: 3 }}>
+            <Stack spacing={3} sx={{ mt: 3 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                 {latestRequest.serviceName || latestRequest.service}
               </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: { xs: 2, md: 2.5 },
+                  gridTemplateColumns: {
+                    xs: 'repeat(1, minmax(0, 1fr))',
+                    sm: 'repeat(2, minmax(0, 1fr))',
+                    lg: 'repeat(3, minmax(0, 1fr))'
+                  }
+                }}
+              >
                 <InfoItem label="Reference" value={latestRequest.reference} />
                 <InfoItem label="Language pair" value={formatLanguages(latestRequest)} />
                 <InfoItem label="Submitted" value={formatDate(latestRequest.submittedAt)} />
@@ -167,12 +197,20 @@ export default function PortalDashboardClient({ requests }) {
                 <InfoItem label="Translation type" value={formatTranslationType(latestRequest)} />
                 <InfoItem label="Delivery" value={formatDeliveryMethod(latestRequest)} />
                 <InfoItem label="Estimated total" value={formatEstimatedTotal(latestRequest)} />
-              </Stack>
-              <Stack direction="row" spacing={1}>
+              </Box>
+              <Divider flexItem sx={{ borderStyle: 'dashed', my: { xs: 1, sm: 0 } }} />
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={{ xs: 1.25, sm: 1.5 }}
+                sx={{
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  '& > *': { flexGrow: { xs: 1, sm: 0 } }
+                }}
+              >
                 <TasheelButton component="a" href={`/portal/requests/${latestRequest.id}`} variant="contained" size="medium">
                   View request
                 </TasheelButton>
-                <TasheelButton component="a" href="/quote" variant="outlined" size="medium">
+                <TasheelButton component="a" href="/quote" variant="outlined" size="medium" fullWidth={isSmDown}>
                   Start new request
                 </TasheelButton>
               </Stack>
@@ -200,52 +238,127 @@ export default function PortalDashboardClient({ requests }) {
               </IconButton>
             </Stack>
 
-            <Table size="medium">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Reference</TableCell>
-                  <TableCell>Service</TableCell>
-                  <TableCell>Language pair</TableCell>
-                  <TableCell>Submitted</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Turnaround</TableCell>
-                  <TableCell>Translation type</TableCell>
-                  <TableCell>Delivery</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {requests.map((request) => (
-                  <TableRow key={request.id} hover>
-                    <TableCell>{request.reference}</TableCell>
-                    <TableCell>{request.serviceName || request.service}</TableCell>
-                    <TableCell>{formatLanguages(request)}</TableCell>
-                    <TableCell>{formatDate(request.submittedAt)}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={statusConfig[request.status]?.label || request.status}
-                        color={statusConfig[request.status]?.color || 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{formatTurnaround(request)}</TableCell>
-                    <TableCell>{formatTranslationType(request)}</TableCell>
-                    <TableCell>{formatDeliveryMethod(request)}</TableCell>
-                    <TableCell align="right">
-                      <TasheelButton
-                        component="a"
-                        href={`/portal/requests/${request.id}`}
-                        variant="outlined"
-                        size="small"
-                        sx={{ px: 2.5, py: 0.75 }}
-                      >
-                        View
-                      </TasheelButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {hasRequests ? (
+              isMdDown ? (
+                <Stack spacing={2.5} sx={{ mt: 2 }}>
+                  {requests.map((request) => (
+                    <Card
+                      key={request.id}
+                      sx={{
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: '0 16px 36px rgba(15,46,83,0.12)'
+                      }}
+                    >
+                      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems={{ xs: 'flex-start', sm: 'center' }}
+                          spacing={1}
+                          sx={{ flexWrap: 'wrap', rowGap: 1.5 }}
+                        >
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                              {request.serviceName || request.service}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              Ref: {request.reference || '—'}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={statusConfig[request.status]?.label || request.status}
+                            color={statusConfig[request.status]?.color || 'default'}
+                            size="small"
+                          />
+                        </Stack>
+                        <Divider sx={{ borderStyle: 'dashed' }} />
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gap: 2,
+                            gridTemplateColumns: {
+                              xs: 'repeat(1, minmax(0, 1fr))',
+                              sm: 'repeat(2, minmax(0, 1fr))'
+                            }
+                          }}
+                        >
+                          <InfoItem label="Language pair" value={formatLanguages(request)} />
+                          <InfoItem label="Submitted" value={formatDate(request.submittedAt)} />
+                          <InfoItem label="Turnaround" value={formatTurnaround(request)} />
+                          <InfoItem label="Translation type" value={formatTranslationType(request)} />
+                          <InfoItem label="Delivery" value={formatDeliveryMethod(request)} />
+                          <InfoItem label="Estimated total" value={formatEstimatedTotal(request)} />
+                        </Box>
+                        <TasheelButton component="a" href={`/portal/requests/${request.id}`} variant="outlined" size="medium" fullWidth>
+                          View details
+                        </TasheelButton>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <TableContainer
+                  sx={{
+                    mt: 3,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    boxShadow: '0 12px 28px rgba(15,46,83,0.12)',
+                    bgcolor: 'background.paper',
+                    overflowX: 'auto'
+                  }}
+                >
+                  <Table size="medium" sx={{ minWidth: 900 }}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Reference</TableCell>
+                        <TableCell>Service</TableCell>
+                        <TableCell>Language pair</TableCell>
+                        <TableCell>Submitted</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Turnaround</TableCell>
+                        <TableCell>Translation type</TableCell>
+                        <TableCell>Delivery</TableCell>
+                        <TableCell align="right">Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {requests.map((request) => (
+                        <TableRow key={request.id} hover>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>{request.reference}</TableCell>
+                          <TableCell>{request.serviceName || request.service}</TableCell>
+                          <TableCell>{formatLanguages(request)}</TableCell>
+                          <TableCell>{formatDate(request.submittedAt)}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={statusConfig[request.status]?.label || request.status}
+                              color={statusConfig[request.status]?.color || 'default'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>{formatTurnaround(request)}</TableCell>
+                          <TableCell>{formatTranslationType(request)}</TableCell>
+                          <TableCell>{formatDeliveryMethod(request)}</TableCell>
+                          <TableCell align="right">
+                            <TasheelButton
+                              component="a"
+                              href={`/portal/requests/${request.id}`}
+                              variant="outlined"
+                              size="small"
+                              sx={{ px: 2.5, py: 0.75 }}
+                            >
+                              View
+                            </TasheelButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )
+            ) : null}
 
             {!hasRequests && (
               <Box sx={{ py: 6, textAlign: 'center' }}>
@@ -253,13 +366,13 @@ export default function PortalDashboardClient({ requests }) {
                 <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
                   You haven’t submitted any requests yet
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Kick off your first translation project to see it appear here.
-                </Typography>
-                <TasheelButton href="/quote" variant="contained" sx={{ mt: 3 }}>
-                  Create your first request
-                </TasheelButton>
-              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mx: 'auto', maxWidth: 360 }}>
+                Kick off your first translation project to see it appear here.
+              </Typography>
+              <TasheelButton href="/quote" variant="contained" sx={{ mt: 3 }} fullWidth={isSmDown}>
+                Create your first request
+              </TasheelButton>
+            </Box>
             )}
           </Box>
         </Card>
@@ -272,13 +385,17 @@ PortalDashboardClient.propTypes = {
   requests: PropTypes.arrayOf(PropTypes.object)
 };
 
-function InfoItem({ label, value }) {
+function InfoItem({ label, value, sx }) {
   return (
-    <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+    <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.5, ...sx }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ textTransform: 'uppercase', letterSpacing: 1, display: 'block' }}
+      >
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-word', lineHeight: 1.4 }}>
         {value || '—'}
       </Typography>
     </Box>
@@ -287,7 +404,8 @@ function InfoItem({ label, value }) {
 
 InfoItem.propTypes = {
   label: PropTypes.string,
-  value: PropTypes.string
+  value: PropTypes.node,
+  sx: PropTypes.object
 };
 
 function formatLanguages(request) {

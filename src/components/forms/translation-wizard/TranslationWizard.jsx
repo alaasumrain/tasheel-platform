@@ -19,6 +19,7 @@ import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 // Steps
 import ContactStep from './steps/ContactStep';
@@ -93,6 +94,8 @@ const defaultValues = {
 
 export default function TranslationWizard({ service }) {
   const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
+  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
   const methods = useForm({ defaultValues, mode: 'onBlur' });
   const { handleSubmit, trigger, setValue, watch, reset } = methods;
 
@@ -244,32 +247,46 @@ export default function TranslationWizard({ service }) {
                 py: { xs: 2.5, md: 3 }
               }}
             >
-              <Stepper
-                activeStep={activeStep}
-                alternativeLabel
+              <Box
                 sx={{
-                  '& .MuiStepConnector-line': {
-                    borderColor: alpha(theme.palette.primary.main, 0.2),
-                    borderTopWidth: 2
-                  },
-                  '& .MuiStepLabel-label': {
-                    fontWeight: 600,
-                    color: theme.palette.text.secondary
-                  },
-                  '& .MuiStepLabel-label.Mui-active': {
-                    color: theme.palette.primary.main
-                  },
-                  '& .MuiStepLabel-label.Mui-completed': {
-                    color: theme.palette.primary.main
-                  }
+                  overflowX: isMdUp ? 'visible' : 'auto',
+                  pr: { xs: 1, md: 0 },
+                  '&::-webkit-scrollbar': { display: 'none' }
                 }}
               >
-                {steps.map((step) => (
-                  <Step key={step.label}>
-                    <StepLabel>{step.label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
+                <Stepper
+                  activeStep={activeStep}
+                  orientation={isMdUp ? 'horizontal' : 'vertical'}
+                  alternativeLabel={isMdUp}
+                  sx={{
+                    minWidth: isMdUp ? 'auto' : '100%',
+                    '& .MuiStepConnector-line': {
+                      borderColor: alpha(theme.palette.primary.main, 0.2),
+                      ...(isMdUp ? { borderTopWidth: 2 } : { borderLeftWidth: 2 })
+                    },
+                    '& .MuiStep-root': {
+                      alignItems: isMdUp ? 'center' : 'flex-start'
+                    },
+                    '& .MuiStepLabel-label': {
+                      fontWeight: 600,
+                      color: theme.palette.text.secondary,
+                      mt: isMdUp ? 1 : 0
+                    },
+                    '& .MuiStepLabel-label.Mui-active': {
+                      color: theme.palette.primary.main
+                    },
+                    '& .MuiStepLabel-label.Mui-completed': {
+                      color: theme.palette.primary.main
+                    }
+                  }}
+                >
+                  {steps.map((step) => (
+                    <Step key={step.label}>
+                      <StepLabel>{step.label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              </Box>
             </Paper>
 
             <Box display="grid" gridTemplateColumns={{ md: '2fr 1fr' }} gap={{ xs: 3, md: 4 }}>
@@ -285,8 +302,20 @@ export default function TranslationWizard({ service }) {
               >
                 <StepComponent />
 
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" sx={{ mt: 4 }}>
-                  <TasheelButton onClick={goBack} disabled={activeStep === 0 || isSubmitting} size="large" sx={{ minWidth: 140 }}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={2}
+                  justifyContent={{ sm: 'space-between' }}
+                  alignItems={{ sm: 'center' }}
+                  sx={{ mt: 4, width: '100%' }}
+                >
+                  <TasheelButton
+                    onClick={goBack}
+                    disabled={activeStep === 0 || isSubmitting}
+                    size="large"
+                    fullWidth={isSmDown}
+                    sx={{ order: { xs: 2, sm: 1 }, minWidth: { sm: 140 } }}
+                  >
                     Back
                   </TasheelButton>
                   <TasheelButton
@@ -294,7 +323,8 @@ export default function TranslationWizard({ service }) {
                     size="large"
                     onClick={goNext}
                     disabled={isSubmitting}
-                    sx={{ minWidth: 180, borderRadius: 999 }}
+                    fullWidth={isSmDown}
+                    sx={{ order: { xs: 1, sm: 2 }, minWidth: { sm: 180 }, borderRadius: 999 }}
                   >
                     {activeStep === steps.length - 1 ? 'Submit request' : 'Next step'}
                   </TasheelButton>

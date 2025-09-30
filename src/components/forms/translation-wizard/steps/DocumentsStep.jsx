@@ -199,15 +199,24 @@ export default function DocumentsStep() {
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
                   Up to 5 files, 20MB each. Accepted formats: PDF, DOC(X), XLS(X), PPT(X), JPG, PNG.
                 </Typography>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mt: 2 }}>
-                  <TasheelButton component="span" variant="contained" sx={{ borderRadius: 999, alignSelf: 'flex-start' }}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={1.5}
+                  sx={{
+                    mt: 2,
+                    width: '100%',
+                    alignItems: { sm: 'center' },
+                    '& > *': { width: { xs: '100%', sm: 'auto' } }
+                  }}
+                >
+                  <TasheelButton component="span" variant="contained" fullWidth sx={{ borderRadius: 999 }}>
                     Choose files
                   </TasheelButton>
                   <TasheelButton
                     component="span"
                     variant="text"
                     color="primary"
-                    sx={{ fontWeight: 600 }}
+                    sx={{ fontWeight: 600, justifyContent: { xs: 'center', sm: 'flex-start' } }}
                     onClick={(event) => {
                       event.preventDefault();
                       setFocus('documents.link');
@@ -242,7 +251,9 @@ export default function DocumentsStep() {
                   borderColor: 'divider',
                   borderRadius: 2,
                   backgroundColor: 'background.paper',
-                  boxShadow: '0 8px 20px rgba(15,46,83,0.08)'
+                  boxShadow: '0 8px 20px rgba(15,46,83,0.08)',
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  gap: { xs: 1, sm: 0 }
                 }}
                 secondaryAction={
                   <IconButton edge="end" onClick={() => handleRemove(index)} aria-label="remove file">
@@ -256,7 +267,8 @@ export default function DocumentsStep() {
                 <ListItemText
                   primary={file.name}
                   secondary={`${(file.size / (1024 * 1024)).toFixed(2)} MB`}
-                  primaryTypographyProps={{ noWrap: true }}
+                  primaryTypographyProps={{ sx: { wordBreak: 'break-word' } }}
+                  secondaryTypographyProps={{ sx: { color: 'text.secondary' } }}
                 />
               </ListItem>
             ))}
