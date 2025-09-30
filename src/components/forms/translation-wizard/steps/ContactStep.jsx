@@ -7,7 +7,6 @@ import { Controller, useFormContext } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -29,20 +28,25 @@ export default function ContactStep() {
 
   const { services, loading } = useServices();
 
-  const serviceOptions = useMemo(
-    () =>
-      services.map((service) => ({
+  const serviceOptions = useMemo(() => {
+    // Group services by category
+    const grouped = services.reduce((acc, service) => {
+      const categoryName = service.service_categories?.name || 'Other';
+      if (!acc[categoryName]) acc[categoryName] = [];
+      acc[categoryName].push({
         value: service.slug,
         label: service.name,
-        category: service.service_categories?.name,
+        category: categoryName,
         description: service.short_description,
-        price: service.starting_price_per_word ? `from $${service.starting_price_per_word}/word` : 'Custom pricing'
-      })),
-    [services]
-  );
+        price: service.starting_price_per_word ? `${service.starting_price_per_word}/word` : 'Custom pricing'
+      });
+      return acc;
+    }, {});
+    return grouped;
+  }, [services]);
 
   return (
-    <Grid container spacing={4}>
+    <Grid container spacing={3.5}>
       <Grid xs={12}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
           Your details
@@ -54,15 +58,14 @@ export default function ContactStep() {
 
       {/* Service Selection - Most Important Section */}
       <Grid xs={12}>
-        <Card sx={{ mb: 2, height: 'fit-content', minHeight: 200 }}>
-          <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: { xs: 2.75, md: 3.5 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box component="span" sx={{ color: 'primary.main', fontSize: '1.2em' }}>
                 📋
               </Box>
               Service Selection
             </Typography>
-
             <Box sx={{ flex: 1 }}>
               {loading ? (
                 <Skeleton variant="rectangular" height={56} />
@@ -79,28 +82,63 @@ export default function ContactStep() {
                       value={field.value || ''}
                       onChange={(event) => {
                         field.onChange(event);
-                        const selected = serviceOptions.find((option) => option.value === event.target.value);
-                        setValue('meta.serviceName', selected?.label || 'Translation service');
+                        // Find selected service across all categories
+                        let selectedService = null;
+                        Object.values(serviceOptions).forEach((categoryServices) => {
+                          const found = categoryServices.find((option) => option.value === event.target.value);
+                          if (found) selectedService = found;
+                        });
+                        setValue('meta.serviceName', selectedService?.label || 'Translation service');
                       }}
                       error={Boolean(fieldState.error)}
-                      helperText={fieldState.error?.message || 'We offer 18 specialized translation and localization services'}
+                      helperText={fieldState.error?.message || 'Select from 18+ specialized services across 4 categories'}
                       sx={{ ...outlinedInputSx, mb: 0 }}
+                      SelectProps={{
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              maxHeight: 480,
+                              '& .MuiList-root': { py: 1 }
+                            }
+                          }
+                        }
+                      }}
                     >
-                      <MenuItem value="" disabled>
-                        <em>Select the service that best fits your needs</em>
+                      <MenuItem value="" disabled sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                        Select the service that best fits your needs
                       </MenuItem>
-                      {serviceOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                              {option.label}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" display="block">
-                              {option.description} • {option.price}
-                            </Typography>
-                          </Box>
-                        </MenuItem>
-                      ))}
+                      {Object.entries(serviceOptions).map(([category, options]) => [
+                        <MenuItem key={`header-${category}`} disabled sx={{ opacity: 1, py: 1.5, px: 2, mt: 1 }}>
+                          <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 1, color: 'primary.main' }}>
+                            {category}
+                          </Typography>
+                        </MenuItem>,
+                        ...options.map((option) => (
+                          <MenuItem
+                            key={option.value}
+                            value={option.value}
+                            sx={{
+                              py: 1.5,
+                              px: 3,
+                              alignItems: 'flex-start',
+                              whiteSpace: 'normal',
+                              '&:hover': { backgroundColor: 'action.hover' }
+                            }}
+                          >
+                            <Box sx={{ width: '100%' }}>
+                              <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                {option.label}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.5, mb: 0.5 }}>
+                                {option.description}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 600 }}>
+                                from {option.price}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        ))
+                      ])}
                     </TextField>
                   )}
                 />
@@ -112,9 +150,9 @@ export default function ContactStep() {
 
       {/* Contact Information Section */}
       <Grid xs={12}>
-        <Card sx={{ height: 'fit-content', minHeight: 280 }}>
-          <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: { xs: 2.75, md: 3.5 }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box component="span" sx={{ color: 'primary.main', fontSize: '1.2em' }}>
                 👤
               </Box>
@@ -122,7 +160,7 @@ export default function ContactStep() {
             </Typography>
 
             <Box sx={{ flex: 1 }}>
-              <Grid container spacing={3}>
+              <Grid container spacing={3} rowSpacing={3.5}>
                 <Grid xs={12} md={6}>
                   <TextField
                     label="Full name *"
@@ -189,9 +227,9 @@ export default function ContactStep() {
 
       {/* Additional Context Section */}
       <Grid xs={12}>
-        <Card sx={{ height: 'fit-content', minHeight: 200 }}>
-          <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: { xs: 2.75, md: 3.5 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box component="span" sx={{ color: 'primary.main', fontSize: '1.2em' }}>
                 💬
               </Box>

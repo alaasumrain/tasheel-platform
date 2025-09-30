@@ -6,15 +6,16 @@ import { useFormContext } from 'react-hook-form';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 import TasheelButton from '@/components/TasheelButton';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 // @mui icons
@@ -156,12 +157,12 @@ export default function DocumentsStep() {
         />
       </Grid>
       <Grid xs={12}>
-        <Stack spacing={2.5}>
+        <Stack spacing={2.75}>
           <Box
             component="label"
             htmlFor="translation-dropzone"
             sx={{
-              p: { xs: 3, md: 3.5 },
+              p: { xs: 3.25, md: 3.75 },
               borderRadius: 3,
               border: '1px dashed',
               borderColor: errors?.documents?.files ? 'error.light' : 'divider',
@@ -169,6 +170,7 @@ export default function DocumentsStep() {
               cursor: 'pointer',
               transition: 'all 0.28s ease',
               display: 'block',
+              minHeight: { xs: 220, md: 240 },
               '&:hover': {
                 borderColor: 'primary.main',
                 boxShadow: '0 18px 44px rgba(15,46,83,0.12)',
@@ -227,20 +229,36 @@ export default function DocumentsStep() {
                 </Stack>
               </Box>
             </Stack>
-            {errors?.documents?.files && (
-              <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 2 }}>
-                {errors.documents.files.message}
-              </Typography>
-            )}
-            {!errors?.documents?.files && uploadWarning && (
-              <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 2 }}>
-                {uploadWarning}
-              </Typography>
-            )}
           </Box>
 
-          <List dense disablePadding sx={{ mt: 0.5 }}>
-            {files.map((file, index) => (
+          <Collapse in={Boolean(errors?.documents?.files)} unmountOnExit>
+            <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 2 }}>
+              {errors?.documents?.files?.message}
+            </Typography>
+          </Collapse>
+          <Collapse in={!errors?.documents?.files && Boolean(uploadWarning)} unmountOnExit>
+            <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 2 }}>
+              {uploadWarning}
+            </Typography>
+          </Collapse>
+        </Stack>
+
+        <List
+          dense
+          disablePadding
+          sx={{
+            mt: 0.5,
+            maxHeight: 240,
+            overflowY: 'auto',
+            pr: 0.5,
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.3),
+              borderRadius: 999
+            }
+          }}
+        >
+          {files.map((file, index) => (
               <ListItem
                 key={`${file.name}-${index}`}
                 sx={{
@@ -264,12 +282,16 @@ export default function DocumentsStep() {
                 <ListItemAvatar>
                   <SvgIcon name="tabler-file-description" size={24} />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={file.name}
-                  secondary={`${(file.size / (1024 * 1024)).toFixed(2)} MB`}
-                  primaryTypographyProps={{ sx: { wordBreak: 'break-word' } }}
-                  secondaryTypographyProps={{ sx: { color: 'text.secondary' } }}
-                />
+                <Box sx={{ minWidth: 0 }}>
+                  <Tooltip title={file.name} placement="top" enterDelay={400}>
+                    <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+                      {file.name}
+                    </Typography>
+                  </Tooltip>
+                  <Typography variant="caption" color="text.secondary">
+                    {(file.size / (1024 * 1024)).toFixed(2)} MB
+                  </Typography>
+                </Box>
               </ListItem>
             ))}
             {!files.length && (
@@ -277,11 +299,10 @@ export default function DocumentsStep() {
                 No files uploaded yet.
               </Typography>
             )}
-          </List>
-          <Typography variant="caption" color="text.secondary">
-            Tip: Drag and drop files anywhere in this area or paste a shared link if your documents are already in the cloud.
-          </Typography>
-        </Stack>
+        </List>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
+          Tip: Drag and drop files anywhere in this area or paste a shared link if your documents are already in the cloud.
+        </Typography>
       </Grid>
     </Grid>
   );

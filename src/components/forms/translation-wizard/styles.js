@@ -17,5 +17,9 @@ export const outlinedInputSx = {
   },
   '& .MuiInputLabel-root': {
     fontWeight: 500
+  },
+  '& .MuiFormHelperText-root': {
+    whiteSpace: 'normal',
+    lineHeight: 1.45
   }
 };

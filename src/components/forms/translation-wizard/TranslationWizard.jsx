@@ -11,14 +11,16 @@ import { alpha, useTheme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import TasheelButton from '@/components/TasheelButton';
+import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
+import Fade from '@mui/material/Fade';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Paper from '@mui/material/Paper';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 // Steps
@@ -102,6 +104,7 @@ export default function TranslationWizard({ service }) {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(null);
+  const isDevMode = process.env.NEXT_PUBLIC_TASHEEL_DEV_MODE === 'true';
 
   // Prefill service slug if provided
   useEffect(() => {
@@ -115,7 +118,7 @@ export default function TranslationWizard({ service }) {
 
   const goNext = async () => {
     const currentFields = steps[activeStep].fields;
-    if (currentFields.length) {
+    if (!isDevMode && currentFields.length) {
       const valid = await trigger(currentFields);
       if (!valid) return;
     }
@@ -243,34 +246,62 @@ export default function TranslationWizard({ service }) {
                 borderColor: alpha(theme.palette.primary.main, 0.08),
                 backgroundColor: 'background.paper',
                 boxShadow: '0 30px 60px rgba(15,46,83,0.10)',
-                px: { xs: 2, md: 4 },
-                py: { xs: 2.5, md: 3 }
+                px: { xs: 2.25, md: 4 },
+                py: { xs: 2.75, md: 3.25 }
               }}
             >
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                justifyContent="space-between"
+                spacing={{ xs: 2, sm: 3 }}
+                sx={{ mb: { xs: 2, md: 2.5 } }}
+              >
+                <Typography variant="subtitle2" color="text.secondary" sx={{ letterSpacing: 1 }}>
+                  Step {activeStep + 1} of {steps.length}
+                </Typography>
+                {isDevMode && <Chip color="warning" variant="outlined" label="Dev mode" size="small" />}
+              </Stack>
+
               <Box
                 sx={{
-                  overflowX: isMdUp ? 'visible' : 'auto',
+                  overflowX: 'auto',
                   pr: { xs: 1, md: 0 },
-                  '&::-webkit-scrollbar': { display: 'none' }
+                  mr: { xs: -2.25, md: -4 },
+                  ml: { xs: -2.25, md: -4 },
+                  px: { xs: 2.25, md: 4 },
+                  pb: { xs: 0.5, md: 0 },
+                  scrollSnapType: { xs: 'x mandatory', md: 'none' },
+                  '&::-webkit-scrollbar': { height: 6 },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.4),
+                    borderRadius: 999
+                  }
                 }}
               >
                 <Stepper
                   activeStep={activeStep}
-                  orientation={isMdUp ? 'horizontal' : 'vertical'}
+                  orientation="horizontal"
                   alternativeLabel={isMdUp}
                   sx={{
-                    minWidth: isMdUp ? 'auto' : '100%',
+                    minWidth: 'max-content',
+                    px: { xs: 0.5, md: 0 },
                     '& .MuiStepConnector-line': {
                       borderColor: alpha(theme.palette.primary.main, 0.2),
-                      ...(isMdUp ? { borderTopWidth: 2 } : { borderLeftWidth: 2 })
+                      borderTopWidth: 2
                     },
                     '& .MuiStep-root': {
-                      alignItems: isMdUp ? 'center' : 'flex-start'
+                      alignItems: 'center',
+                      flex: '0 0 auto',
+                      scrollSnapAlign: { xs: 'center', md: 'none' },
+                      minWidth: { xs: 140, md: 'auto' }
                     },
                     '& .MuiStepLabel-label': {
                       fontWeight: 600,
                       color: theme.palette.text.secondary,
-                      mt: isMdUp ? 1 : 0
+                      mt: isMdUp ? 1 : 0.75,
+                      maxWidth: 160,
+                      textTransform: 'capitalize'
                     },
                     '& .MuiStepLabel-label.Mui-active': {
                       color: theme.palette.primary.main
@@ -297,10 +328,15 @@ export default function TranslationWizard({ service }) {
                   border: '1px solid',
                   borderColor: alpha(theme.palette.primary.main, 0.08),
                   boxShadow: '0 28px 64px rgba(15, 46, 83, 0.12)',
-                  backgroundColor: 'background.paper'
+                  backgroundColor: 'background.paper',
+                  minHeight: { md: 420 }
                 }}
               >
-                <StepComponent />
+                <Fade key={activeStep} in timeout={250}>
+                  <Box sx={{ minHeight: { md: 320 } }}>
+                    <StepComponent />
+                  </Box>
+                </Fade>
 
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
@@ -329,6 +365,11 @@ export default function TranslationWizard({ service }) {
                     {activeStep === steps.length - 1 ? 'Submit request' : 'Next step'}
                   </TasheelButton>
                 </Stack>
+                {isDevMode && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 2, textAlign: { xs: 'center', sm: 'right' } }}>
+                    Dev mode active: step validation is skipped for quicker testing.
+                  </Typography>
+                )}
               </Paper>
 
               <Paper

@@ -84,18 +84,35 @@ function OptionCard({ title, badge, description, selected, onClick }) {
         boxShadow: selected ? '0 18px 44px rgba(15,46,83,0.14)' : '0 8px 28px rgba(15,46,83,0.08)',
         transition: 'all 0.3s ease',
         backgroundColor: selected ? 'background.paper' : 'grey.50',
-        position: 'relative'
+        position: 'relative',
+        transform: selected ? 'translateY(-2px)' : 'none',
+        '&:hover': {
+          boxShadow: '0 22px 48px rgba(15,46,83,0.16)'
+        }
       }}
     >
       <CardActionArea
         onClick={onClick}
         role="button"
         aria-pressed={selected}
-        sx={{ p: { xs: 2.5, md: 3 }, alignItems: 'stretch', display: 'flex' }}
+        sx={{
+          p: { xs: 2.75, md: 3.25 },
+          alignItems: 'stretch',
+          display: 'flex',
+          transition: 'transform 0.2s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)'
+          },
+          '&.MuiCardActionArea-focusVisible': {
+            outline: '3px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: 3
+          }
+        }}
       >
         <Stack spacing={1.5} alignItems="flex-start" sx={{ width: '100%' }}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            <Typography variant="subtitle1" className="option-card-title" sx={{ fontWeight: 700 }}>
               {title}
             </Typography>
             {badge && (
@@ -108,7 +125,7 @@ function OptionCard({ title, badge, description, selected, onClick }) {
               />
             )}
           </Stack>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'normal', lineHeight: 1.55 }}>
             {description}
           </Typography>
         </Stack>
@@ -193,7 +210,7 @@ export default function OptionsStep() {
           Translation type
         </Typography>
         <Stack spacing={2.5}>
-          <Grid container spacing={2.5}>
+          <Grid container spacing={2.25}>
             {TRANSLATION_TYPES.map((option) => (
               <Grid xs={12} md={6} key={option.value}>
                 <OptionCard
@@ -219,7 +236,7 @@ export default function OptionsStep() {
           Turnaround time
         </Typography>
         <Stack spacing={2.5}>
-          <Grid container spacing={2.5}>
+          <Grid container spacing={2.25}>
             {TURNAROUND_OPTIONS.map((option) => (
               <Grid xs={12} md={6} key={option.value}>
                 <OptionCard
@@ -245,7 +262,7 @@ export default function OptionsStep() {
           Delivery method
         </Typography>
         <Stack spacing={2.5}>
-          <Grid container spacing={2.5}>
+          <Grid container spacing={2.25}>
             {DELIVERY_OPTIONS.map((option) => (
               <Grid xs={12} md={6} key={option.value}>
                 <OptionCard

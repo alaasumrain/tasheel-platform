@@ -3,6 +3,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import TasheelButton from '@/components/TasheelButton';
@@ -13,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import SvgIcon from '@/components/SvgIcon';
 
@@ -44,8 +46,9 @@ const DELIVERY_LABELS = {
   digital: 'Digital delivery (PDF)',
   digital_physical: 'Digital + physical copies'
 };
-
 export default function PortalRequestDetailClient({ data }) {
+  const theme = useTheme();
+  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
   const statusMeta = statusConfig[data.status] || { label: data.status, color: 'default' };
 
   return (
@@ -57,7 +60,16 @@ export default function PortalRequestDetailClient({ data }) {
         <Typography color="text.primary">{data.reference}</Typography>
       </Breadcrumbs>
 
-      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+        spacing={2}
+        sx={{
+          gap: { xs: 1.75, md: 2 },
+          '& > *': { width: { xs: '100%', md: 'auto' } }
+        }}
+      >
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>
             {data.serviceName || data.service || 'Translation request'}
@@ -66,49 +78,55 @@ export default function PortalRequestDetailClient({ data }) {
             {data.reference} · {formatLanguages(data)}
           </Typography>
         </Box>
-        <Chip label={statusMeta.label} color={statusMeta.color} size="medium" />
+        <Chip
+          label={statusMeta.label}
+          color={statusMeta.color}
+          size="medium"
+          sx={{
+            alignSelf: { xs: 'stretch', md: 'center' },
+            height: 36,
+            borderRadius: 999,
+            justifyContent: 'center',
+            fontWeight: 600
+          }}
+        />
       </Stack>
 
       <Grid container spacing={3}>
         <Grid xs={12} md={7}>
           <Card sx={{ borderRadius: 3, mb: 3 }}>
-            <CardContent>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Request summary
               </Typography>
-              <Grid container spacing={2}>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Submitted" value={formatDateTime(data.submittedAt)} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Turnaround" value={formatTurnaround(data)} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Translation type" value={formatTranslationType(data)} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Delivery" value={formatDeliveryMethod(data)} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Estimated total" value={formatEstimatedTotal(data)} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Certification" value={data.options?.certification ? 'Yes' : 'No'} />
-                </Grid>
-                <Grid xs={12} sm={6}>
-                  <SummaryItem label="Notarisation" value={data.options?.notarisation ? 'Yes' : 'No'} />
-                </Grid>
-              </Grid>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: { xs: 2, md: 2.5 },
+                  gridTemplateColumns: {
+                    xs: 'repeat(1, minmax(0, 1fr))',
+                    sm: 'repeat(2, minmax(0, 1fr))'
+                  }
+                }}
+              >
+                <SummaryItem label="Submitted" value={formatDateTime(data.submittedAt)} />
+                <SummaryItem label="Turnaround" value={formatTurnaround(data)} />
+                <SummaryItem label="Translation type" value={formatTranslationType(data)} />
+                <SummaryItem label="Delivery" value={formatDeliveryMethod(data)} />
+                <SummaryItem label="Estimated total" value={formatEstimatedTotal(data)} />
+                <SummaryItem label="Certification" value={data.options?.certification ? 'Yes' : 'No'} />
+                <SummaryItem label="Notarisation" value={data.options?.notarisation ? 'Yes' : 'No'} />
+              </Box>
               <Divider sx={{ my: 3 }} />
               <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Special instructions</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>
                 {data.options?.instructions || 'None provided.'}
               </Typography>
             </CardContent>
           </Card>
 
           <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Timeline
               </Typography>
@@ -128,13 +146,13 @@ export default function PortalRequestDetailClient({ data }) {
 
         <Grid xs={12} md={5}>
           <Card sx={{ borderRadius: 3, mb: 3 }}>
-            <CardContent>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Uploaded documents
               </Typography>
               <Stack spacing={2}>
                 {data.attachments.map((file) => (
-                  <FileItem key={file.id} file={file} />
+                  <FileItem key={file.id} file={file} isSmDown={isSmDown} />
                 ))}
                 {!data.attachments.length && (
                   <Typography variant="body2" color="text.secondary">
@@ -146,14 +164,19 @@ export default function PortalRequestDetailClient({ data }) {
           </Card>
 
           <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Need help?
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Email support@tasheel.ps or call your Tasheel coordinator. You can request revisions once deliverables are ready.
               </Typography>
-              <TasheelButton variant="outlined" size="small" sx={{ mt: 2 }} disabled>
+              <TasheelButton
+                variant="outlined"
+                size="small"
+                sx={{ mt: 2, width: { xs: '100%', sm: 'auto' } }}
+                disabled
+              >
                 Request revision (coming soon)
               </TasheelButton>
             </CardContent>
@@ -183,11 +206,11 @@ PortalRequestDetailClient.propTypes = {
 
 function SummaryItem({ label, value }) {
   return (
-    <Box>
+    <Box sx={{ minWidth: 0 }}>
       <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
         {value || '—'}
       </Typography>
     </Box>
@@ -196,10 +219,10 @@ function SummaryItem({ label, value }) {
 
 SummaryItem.propTypes = {
   label: PropTypes.string,
-  value: PropTypes.string
+  value: PropTypes.node
 };
 
-function FileItem({ file }) {
+function FileItem({ file, isSmDown }) {
   const formattedSize = file.fileSize
     ? `${(file.fileSize / (1024 * 1024)).toFixed(2)} MB`
     : '';
@@ -211,12 +234,13 @@ function FileItem({ file }) {
         border: '1px solid',
         borderColor: 'divider',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: { xs: 'flex-start', sm: 'center' },
         justifyContent: 'space-between',
-        gap: 2
+        gap: 2,
+        flexDirection: { xs: 'column', sm: 'row' }
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
         <SvgIcon name="tabler-paperclip" size={20} />
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -227,7 +251,14 @@ function FileItem({ file }) {
           </Typography>
         </Box>
       </Box>
-      <TasheelButton variant="outlined" size="small" href={file.url || '#'} disabled={!file.url}>
+      <TasheelButton
+        variant="outlined"
+        size="small"
+        href={file.url || '#'}
+        disabled={!file.url}
+        sx={{ alignSelf: { xs: 'stretch', sm: 'center' } }}
+        fullWidth={isSmDown}
+      >
         {file.url ? 'Download' : 'Pending'}
       </TasheelButton>
     </Box>
@@ -239,13 +270,20 @@ FileItem.propTypes = {
     fileName: PropTypes.string,
     fileSize: PropTypes.number,
     url: PropTypes.string
-  })
+  }),
+  isSmDown: PropTypes.bool
 };
 
 function TimelineEvent({ event, isLast }) {
   return (
-    <Box sx={{ display: 'flex', gap: 2 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        gap: 2
+      }}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 0.25 }}>
         <SvgIcon name="tabler-clock" size={20} />
         {!isLast && <Box sx={{ width: 2, bgcolor: 'divider', flexGrow: 1, mt: 1 }} />}
       </Box>

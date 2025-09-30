@@ -116,11 +116,33 @@ export default function PortalDashboardClient({ requests }) {
                 '& > *': { flexGrow: { xs: 1, sm: 0 } }
               }}
             >
-              <TasheelButton component="a" href="/quote" variant="contained" fullWidth={isSmDown}>
-                Start new request
+              <TasheelButton
+                component="a"
+                href="/quote"
+                variant="contained"
+                fullWidth={isSmDown}
+                sx={{
+                  bgcolor: 'common.white',
+                  color: 'primary.main',
+                  boxShadow: '0 12px 30px rgba(15,46,83,0.12)',
+                  '&:hover': { bgcolor: 'grey.100' }
+                }}
+              >
+                New request
               </TasheelButton>
-              <TasheelButton component="a" href="mailto:support@tasheel.ps" variant="outlined" fullWidth={isSmDown}>
-                Need help?
+              <TasheelButton
+                component="a"
+                href="mailto:support@tasheel.ps"
+                variant="contained"
+                fullWidth={isSmDown}
+                sx={{
+                  bgcolor: 'common.white',
+                  color: 'primary.main',
+                  boxShadow: '0 12px 30px rgba(15,46,83,0.12)',
+                  '&:hover': { bgcolor: 'grey.100' }
+                }}
+              >
+                Help
               </TasheelButton>
             </Stack>
           </Stack>
@@ -211,7 +233,7 @@ export default function PortalDashboardClient({ requests }) {
                   View request
                 </TasheelButton>
                 <TasheelButton component="a" href="/quote" variant="outlined" size="medium" fullWidth={isSmDown}>
-                  Start new request
+                  New request
                 </TasheelButton>
               </Stack>
             </Stack>
@@ -292,7 +314,7 @@ export default function PortalDashboardClient({ requests }) {
                           <InfoItem label="Estimated total" value={formatEstimatedTotal(request)} />
                         </Box>
                         <TasheelButton component="a" href={`/portal/requests/${request.id}`} variant="outlined" size="medium" fullWidth>
-                          View details
+                          View
                         </TasheelButton>
                       </CardContent>
                     </Card>
@@ -370,7 +392,7 @@ export default function PortalDashboardClient({ requests }) {
                 Kick off your first translation project to see it appear here.
               </Typography>
               <TasheelButton href="/quote" variant="contained" sx={{ mt: 3 }} fullWidth={isSmDown}>
-                Create your first request
+                New request
               </TasheelButton>
             </Box>
             )}

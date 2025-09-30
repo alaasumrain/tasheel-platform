@@ -14,7 +14,21 @@ export default function NavPrimaryButton({ sx, children, ...rest }) {
     <TasheelButton
       variant="contained"
       size="small"
-      sx={sx}
+      sx={[
+        {
+          color: 'common.white',
+          px: { xs: 2.75, sm: 3 },
+          height: 38,
+          borderRadius: 999,
+          '&:hover': {
+            color: 'common.white'
+          },
+          '&:active': {
+            color: 'common.white'
+          }
+        },
+        sx
+      ]}
       {...rest}
       {...(rest?.href && { component: NextLink })}
       rel="noopener noreferrer"

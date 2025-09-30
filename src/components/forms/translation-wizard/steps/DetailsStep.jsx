@@ -41,7 +41,7 @@ export default function DetailsStep() {
           Choose source and target languages, provide an estimated word count, and tell us how the translation will be used.
         </Typography>
       </Grid>
-      <Grid xs={12}>
+      <Grid xs={12} md={6}>
         <Controller
           name="details.sourceLanguage"
           control={control}
@@ -62,7 +62,7 @@ export default function DetailsStep() {
                 <em>Select source language</em>
               </MenuItem>
               {LANGUAGES.map((language) => (
-                <MenuItem key={language} value={language}>
+                <MenuItem key={language} value={language} sx={{ whiteSpace: 'normal', alignItems: 'flex-start' }}>
                   {language}
                 </MenuItem>
               ))}
@@ -70,7 +70,7 @@ export default function DetailsStep() {
           )}
         />
       </Grid>
-      <Grid xs={12}>
+      <Grid xs={12} md={6}>
         <Controller
           name="details.targetLanguage"
           control={control}
@@ -92,7 +92,7 @@ export default function DetailsStep() {
                 <em>{selectedSource ? 'Select target language' : 'Choose source first'}</em>
               </MenuItem>
               {LANGUAGES.filter((language) => language !== selectedSource).map((language) => (
-                <MenuItem key={language} value={language}>
+                <MenuItem key={language} value={language} sx={{ whiteSpace: 'normal', alignItems: 'flex-start' }}>
                   {language}
                 </MenuItem>
               ))}
@@ -135,6 +135,7 @@ export default function DetailsStep() {
           type="date"
           fullWidth
           InputLabelProps={{ shrink: true }}
+          helperText="Optional — leave empty if flexible"
           {...register('details.deadline')}
           sx={outlinedInputSx}
         />
@@ -160,7 +161,7 @@ export default function DetailsStep() {
                 <em>Select project purpose</em>
               </MenuItem>
               {PURPOSES.map((purpose) => (
-                <MenuItem key={purpose} value={purpose}>
+                <MenuItem key={purpose} value={purpose} sx={{ whiteSpace: 'normal', alignItems: 'flex-start' }}>
                   {purpose}
                 </MenuItem>
               ))}
