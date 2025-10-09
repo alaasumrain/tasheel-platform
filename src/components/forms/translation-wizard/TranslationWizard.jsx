@@ -58,7 +58,8 @@ const deliveryMethodLookup = {
 };
 
 const defaultValues = {
-  meta: { service: '', serviceName: '', marketingChannel: '' },
+  meta: { service: '', serviceName: '', serviceCategory: 'all', marketingChannel: '' },
+  serviceDocuments: {},
   contact: {
     fullName: '',
     email: '',

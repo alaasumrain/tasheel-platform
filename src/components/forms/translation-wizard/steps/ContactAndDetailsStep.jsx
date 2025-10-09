@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import SvgIcon from '@/components/SvgIcon';
 import { ContactDetailsSection } from './components';
 import { outlinedInputSx } from '../styles';
-import { servicesCatalogue } from '@/data/services';
+import { servicesCatalogue, serviceCategories } from '@/data/services';
 import { useWizardConfig } from '../useWizardConfig';
 
 const LANGUAGES = ['Arabic', 'English', 'French', 'German', 'Italian', 'Spanish', 'Turkish', 'Chinese', 'Japanese'];
@@ -34,8 +34,14 @@ export default function ContactAndDetailsStep() {
     formState: { errors }
   } = useFormContext();
 
+  const selectedCategory = watch('meta.serviceCategory');
   const selectedServiceName = watch('meta.serviceName');
   const wizardConfig = useWizardConfig(control);
+
+  // Filter services based on selected category
+  const filteredServices = selectedCategory && selectedCategory !== 'all'
+    ? servicesCatalogue.filter((s) => s.category === selectedCategory)
+    : servicesCatalogue;
 
   console.log('📝 ContactAndDetailsStep RENDER', {
     timestamp: new Date().toISOString(),
@@ -73,6 +79,50 @@ export default function ContactAndDetailsStep() {
         </Typography>
       </Grid>
 
+      {/* Category Selector */}
+      <Grid size={12}>
+        <Controller
+          name="meta.serviceCategory"
+          control={control}
+          defaultValue="all"
+          render={({ field }) => (
+            <Autocomplete
+              options={serviceCategories}
+              getOptionLabel={(option) => option.name}
+              value={serviceCategories.find((c) => c.id === field.value) || serviceCategories[0]}
+              onChange={(_event, category) => {
+                field.onChange(category?.id || 'all');
+                // Clear selected service when category changes
+                setValue('meta.service', '', { shouldDirty: true });
+                setValue('meta.serviceName', '', { shouldDirty: true });
+              }}
+              onBlur={field.onBlur}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Service category"
+                  placeholder="All services"
+                  helperText="Filter services by category"
+                  sx={outlinedInputSx}
+                />
+              )}
+              renderOption={(props, option) => (
+                <Box component="li" {...props}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <SvgIcon name={option.icon} size={20} color="primary.main" />
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {option.name}
+                    </Typography>
+                  </Stack>
+                </Box>
+              )}
+              isOptionEqualToValue={(option, value) => option.id === value?.id}
+            />
+          )}
+        />
+      </Grid>
+
+      {/* Service Type Selector */}
       <Grid size={12}>
         <Controller
           name="meta.service"
@@ -80,19 +130,20 @@ export default function ContactAndDetailsStep() {
           rules={{ required: 'Please select a service' }}
           render={({ field, fieldState }) => (
             <Autocomplete
-              options={servicesCatalogue}
+              options={filteredServices}
               getOptionLabel={(option) => option.title}
-              value={servicesCatalogue.find((s) => s.slug === field.value) || null}
+              value={filteredServices.find((s) => s.slug === field.value) || null}
               onChange={(_event, service) => {
                 field.onChange(service?.slug || '');
                 setValue('meta.serviceName', service?.title || '', { shouldDirty: true });
               }}
               onBlur={field.onBlur}
+              disabled={!selectedCategory}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   label="Service type"
-                  placeholder="Select a service..."
+                  placeholder={selectedCategory ? "Select a service..." : "Choose a category first"}
                   error={Boolean(fieldState.error)}
                   helperText={fieldState.error?.message || 'Choose the service that best fits your needs'}
                   sx={outlinedInputSx}

@@ -19,6 +19,9 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 
+// @project
+import { useWizardConfig } from '../useWizardConfig';
+
 const LABEL_MAP = {
   certification: 'Certification required',
   notarisation: 'Notarisation needed',
@@ -43,6 +46,7 @@ export default function ReviewStep() {
     formState: { errors }
   } = useFormContext();
   const data = watch();
+  const wizardConfig = useWizardConfig(control);
 
   const optionFlags = useMemo(() => {
     return Object.entries(LABEL_MAP)
@@ -93,25 +97,41 @@ export default function ReviewStep() {
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
+            {/* Service Name */}
             <Box>
               <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                Project scope
+                Selected service
               </Typography>
-              <Stack spacing={1.25} sx={{ mt: 1.5 }}>
-                <Typography variant="body2">
-                  Languages: {data?.details?.sourceLanguage || '—'} → {data?.details?.targetLanguage || '—'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Purpose: {data?.details?.purpose || 'Not provided'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Word count: {data?.details?.wordCount ? `${data.details.wordCount} (approx.)` : 'Not provided'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Deadline: {data?.details?.deadline || 'Flexible'}
-                </Typography>
-              </Stack>
+              <Typography variant="body1" sx={{ mt: 1.5, fontWeight: 600 }}>
+                {data?.meta?.serviceName || 'Not selected'}
+              </Typography>
             </Box>
+
+            {/* Project scope - Only for translation services */}
+            {wizardConfig.needsLanguagePair && (
+              <>
+                <Divider sx={{ borderStyle: 'dashed' }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Project scope
+                  </Typography>
+                  <Stack spacing={1.25} sx={{ mt: 1.5 }}>
+                    <Typography variant="body2">
+                      Languages: {data?.details?.sourceLanguage || '—'} → {data?.details?.targetLanguage || '—'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Purpose: {data?.details?.purpose || 'Not provided'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Word count: {data?.details?.wordCount ? `${data.details.wordCount} (approx.)` : 'Not provided'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Deadline: {data?.details?.deadline || 'Flexible'}
+                    </Typography>
+                  </Stack>
+                </Box>
+              </>
+            )}
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
@@ -119,85 +139,129 @@ export default function ReviewStep() {
               <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
                 Documents
               </Typography>
-              <Stack spacing={1.5} sx={{ mt: 1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Description: {data?.documents?.documentType || 'Not specified'}
-                </Typography>
-                {data?.documents?.link && (
-                  <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
-                    External link: {data.documents.link}
-                  </Typography>
-                )}
-              </Stack>
-              <List
-                dense
-                disablePadding
-                sx={{ mt: 1.75, '& .MuiListItem-root': { borderRadius: 2, px: 0, '& + .MuiListItem-root': { mt: 1 } } }}
-              >
-                {(data?.documents?.files || []).map((file, index) => (
-                  <ListItem
-                    key={`${file.name}-${index}`}
-                    sx={{
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      backgroundColor: 'grey.50',
-                      py: 1,
-                      px: 1.5
-                    }}
-                  >
-                    <ListItemText primary={file.name} secondary={`${(file.size / (1024 * 1024)).toFixed(2)} MB`} />
-                  </ListItem>
-                ))}
-                {(!data?.documents?.files || data.documents.files.length === 0) && (
-                  <Typography variant="body2" color="text.secondary">
-                    No files uploaded.
-                  </Typography>
-                )}
-              </List>
-            </Box>
 
-            <Divider sx={{ borderStyle: 'dashed' }} />
-
-            <Box>
-              <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                Selected options
-              </Typography>
-              <Stack spacing={1.25} sx={{ mt: 1.5 }}>
-                <Typography variant="body2">
-                  Translation type: {LABEL_MAP_TRANSLATION[data?.options?.translationType] || 'Not selected'}
-                </Typography>
-                <Typography variant="body2">
-                  Turnaround: {data?.options?.turnaround === 'rush' ? 'Rush (24 hours)' : 'Standard (2–3 business days)'}
-                </Typography>
-                <Typography variant="body2">
-                  Delivery: {LABEL_MAP_DELIVERY[data?.options?.deliveryMethod] || 'Digital delivery (PDF)'}
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Estimated total: Pending quote — shared after Tasheel review
-                </Typography>
-              </Stack>
-              <Stack spacing={0.75} sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" sx={{ fontSize: '0.875rem' }}>
-                  Add-ons
-                </Typography>
-                {optionFlags.length ? (
-                  optionFlags.map((flag) => (
-                    <Typography key={flag} variant="body2">
-                      • {flag}
+              {/* Service-specific documents */}
+              {wizardConfig.documentRequirements?.length > 0 ? (
+                <List
+                  dense
+                  disablePadding
+                  sx={{ mt: 1.75, '& .MuiListItem-root': { borderRadius: 2, px: 0, '& + .MuiListItem-root': { mt: 1 } } }}
+                >
+                  {wizardConfig.documentRequirements.map((docType) => {
+                    const uploadedFile = data?.serviceDocuments?.[docType.id];
+                    return (
+                      <ListItem
+                        key={docType.id}
+                        sx={{
+                          border: '1px solid',
+                          borderColor: uploadedFile ? 'success.main' : 'divider',
+                          backgroundColor: uploadedFile ? 'success.lighter' : 'grey.50',
+                          py: 1,
+                          px: 1.5
+                        }}
+                      >
+                        <ListItemText
+                          primary={`${docType.label} ${uploadedFile ? '✓' : '(not uploaded)'}`}
+                          secondary={uploadedFile ? `${(uploadedFile.size / 1024).toFixed(1)} KB` : 'Required'}
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              ) : (
+                /* Generic document upload */
+                <>
+                  <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Description: {data?.documents?.documentType || 'Not specified'}
                     </Typography>
-                  ))
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No additional options selected.
-                  </Typography>
-                )}
-                {data?.options?.instructions && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Special instructions: {data.options.instructions}
-                  </Typography>
-                )}
-              </Stack>
+                    {data?.documents?.link && (
+                      <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
+                        External link: {data.documents.link}
+                      </Typography>
+                    )}
+                  </Stack>
+                  <List
+                    dense
+                    disablePadding
+                    sx={{ mt: 1.75, '& .MuiListItem-root': { borderRadius: 2, px: 0, '& + .MuiListItem-root': { mt: 1 } } }}
+                  >
+                    {(data?.documents?.files || []).map((file, index) => (
+                      <ListItem
+                        key={`${file.name}-${index}`}
+                        sx={{
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          backgroundColor: 'grey.50',
+                          py: 1,
+                          px: 1.5
+                        }}
+                      >
+                        <ListItemText primary={file.name} secondary={`${(file.size / (1024 * 1024)).toFixed(2)} MB`} />
+                      </ListItem>
+                    ))}
+                    {(!data?.documents?.files || data.documents.files.length === 0) && (
+                      <Typography variant="body2" color="text.secondary">
+                        No files uploaded.
+                      </Typography>
+                    )}
+                  </List>
+                </>
+              )}
             </Box>
+
+            {/* Selected options - Only show if service needs them */}
+            {(wizardConfig.needsTranslationType || wizardConfig.needsTurnaround || wizardConfig.needsDeliveryMethod) && (
+              <>
+                <Divider sx={{ borderStyle: 'dashed' }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Selected options
+                  </Typography>
+                  <Stack spacing={1.25} sx={{ mt: 1.5 }}>
+                    {wizardConfig.needsTranslationType && (
+                      <Typography variant="body2">
+                        Translation type: {LABEL_MAP_TRANSLATION[data?.options?.translationType] || 'Not selected'}
+                      </Typography>
+                    )}
+                    {wizardConfig.needsTurnaround && (
+                      <Typography variant="body2">
+                        Turnaround: {data?.options?.turnaround === 'rush' ? 'Rush (24 hours)' : 'Standard (2–3 business days)'}
+                      </Typography>
+                    )}
+                    {wizardConfig.needsDeliveryMethod && (
+                      <Typography variant="body2">
+                        Delivery: {LABEL_MAP_DELIVERY[data?.options?.deliveryMethod] || 'Digital delivery (PDF)'}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      Estimated total: Pending quote — shared after Tasheel review
+                    </Typography>
+                  </Stack>
+                  <Stack spacing={0.75} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ fontSize: '0.875rem' }}>
+                      Add-ons
+                    </Typography>
+                    {optionFlags.length ? (
+                      optionFlags.map((flag) => (
+                        <Typography key={flag} variant="body2">
+                          • {flag}
+                        </Typography>
+                      ))
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No additional options selected.
+                      </Typography>
+                    )}
+                    {data?.options?.instructions && (
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        Special instructions: {data.options.instructions}
+                      </Typography>
+                    )}
+                  </Stack>
+                </Box>
+              </>
+            )}
           </CardContent>
         </Card>
       </Grid>
