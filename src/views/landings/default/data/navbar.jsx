@@ -16,11 +16,12 @@ export const navbar = {
       // Language toggle functionality to be implemented
       console.log('Language toggle');
     },
-    sx: { minWidth: 80 }
+    sx: { minWidth: 96, fontWeight: 600 }
   },
   primaryBtn: {
     children: 'Client Portal',
-    href: '/portal'
+    href: '/portal',
+    sx: { px: 3.5 }
   },
   navItems: [
     { id: 'home', title: 'Home', link: '/' },

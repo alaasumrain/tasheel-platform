@@ -8,40 +8,36 @@ import { servicesCatalogue } from '@/data/services';
 
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
-import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Fade from '@mui/material/Fade';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Step from '@mui/material/Step';
+import StepButton from '@mui/material/StepButton';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import SvgIcon from '@/components/SvgIcon';
 
 // Steps
-import ContactStep from './steps/ContactStep';
-import DocumentsStep from './steps/DocumentsStep';
-import DetailsStep from './steps/DetailsStep';
-import OptionsStep from './steps/OptionsStep';
+import ContactAndDetailsStep from './steps/ContactAndDetailsStep';
+import DocumentsAndOptionsStep from './steps/DocumentsAndOptionsStep';
 import ReviewStep from './steps/ReviewStep';
+import WizardLayout from './layout/WizardLayout';
 
 const steps = [
-  { label: 'Contacts', component: ContactStep, fields: ['meta.service', 'contact.fullName', 'contact.email'] },
-  { label: 'Documents', component: DocumentsStep, fields: ['documents.files'] },
   {
-    label: 'Project details',
-    component: DetailsStep,
-    fields: ['details.sourceLanguage', 'details.targetLanguage', 'details.purpose']
+    label: 'Service & details',
+    component: ContactAndDetailsStep,
+    fields: ['meta.service', 'contact.fullName', 'contact.email', 'details.sourceLanguage', 'details.targetLanguage', 'details.purpose']
   },
   {
-    label: 'Options',
-    component: OptionsStep,
-    fields: ['options.translationType', 'options.turnaround', 'options.deliveryMethod']
+    label: 'Documents & options',
+    component: DocumentsAndOptionsStep,
+    fields: ['documents.files', 'options.translationType', 'options.turnaround', 'options.deliveryMethod']
   },
   { label: 'Review & submit', component: ReviewStep, fields: [] }
 ];
@@ -73,7 +69,8 @@ const defaultValues = {
   documents: {
     documentType: '',
     link: '',
-    files: []
+    files: [],
+    deferUpload: false
   },
   details: {
     sourceLanguage: '',
@@ -94,7 +91,41 @@ const defaultValues = {
   consent: false
 };
 
-export default function TranslationWizard({ service }) {
+function WizardStepIcon(props) {
+  const { active, completed, icon } = props;
+
+  return (
+    <Box
+      sx={{
+        width: 38,
+        height: 38,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 700,
+        color: (theme) => (completed || active ? theme.palette.common.white : theme.palette.text.secondary),
+        background: completed
+          ? 'linear-gradient(135deg, rgba(15,46,83,1) 0%, rgba(24,73,133,1) 100%)'
+          : active
+          ? 'linear-gradient(135deg, rgba(24,73,133,1) 0%, rgba(40,96,168,1) 100%)'
+          : (theme) => theme.palette.grey[200],
+        boxShadow: completed || active ? '0 12px 30px rgba(15,46,83,0.25)' : 'none',
+        transition: 'all 0.25s ease'
+      }}
+    >
+      {completed ? <SvgIcon name="tabler-check" size={18} color="#fff" /> : icon}
+    </Box>
+  );
+}
+
+WizardStepIcon.propTypes = {
+  active: PropTypes.bool,
+  completed: PropTypes.bool,
+  icon: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+};
+
+export default function TranslationWizard({ service, serviceName }) {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
   const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
@@ -106,35 +137,53 @@ export default function TranslationWizard({ service }) {
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const isDevMode = process.env.NEXT_PUBLIC_TASHEEL_DEV_MODE === 'true';
 
-  // Prefill service slug if provided
+  console.log('🧙 TranslationWizard RENDER', {
+    timestamp: new Date().toISOString(),
+    service,
+    serviceName,
+    activeStep,
+    isSubmitting,
+    hasSubmissionStatus: !!submissionStatus
+  });
+
+  // Prefill service slug and name if provided
   useEffect(() => {
+    console.log('🧙 TranslationWizard: Prefilling service', { service, serviceName });
+
     if (service) {
       setValue('meta.service', service);
-      setValue('meta.serviceName', serviceTitleLookup[service] || 'Translation service');
+      setValue('meta.serviceName', serviceName || serviceTitleLookup[service] || 'Service');
     }
-  }, [service, setValue]);
+  }, [service, serviceName, setValue]);
 
-  const StepComponent = steps[activeStep].component;
+  const StepComponent = steps[activeStep]?.component || (() => null);
 
   const goNext = async () => {
+    console.log('🧙 TranslationWizard: goNext', { activeStep, isSubmitting });
+    if (isSubmitting) return;
     const currentFields = steps[activeStep].fields;
     if (!isDevMode && currentFields.length) {
       const valid = await trigger(currentFields);
+      console.log('🧙 TranslationWizard: Validation result', { valid, fields: currentFields });
       if (!valid) return;
     }
 
     if (activeStep === steps.length - 1) {
-      handleSubmit(onSubmit)();
+      console.log('🧙 TranslationWizard: Submitting form');
+      await handleSubmit(onSubmit)();
     } else {
+      console.log('🧙 TranslationWizard: Moving to next step', { nextStep: activeStep + 1 });
       setActiveStep((prev) => prev + 1);
     }
   };
 
   const goBack = () => {
+    if (isSubmitting) return;
     setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
   const onSubmit = async (formValues) => {
+    console.log('🧙 TranslationWizard: onSubmit START', { formValues });
     try {
       setIsSubmitting(true);
       setSubmissionStatus(null);
@@ -146,16 +195,20 @@ export default function TranslationWizard({ service }) {
         formData.append('files', file);
       });
 
+      console.log('🧙 TranslationWizard: Sending form data');
       const response = await fetch('/api/quote', {
         method: 'POST',
         body: formData
       });
+
+      console.log('🧙 TranslationWizard: Got response', { status: response.status, ok: response.ok });
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));
         throw new Error(errorBody?.error || 'Request failed');
       }
 
+      console.log('🧙 TranslationWizard: onSubmit SUCCESS');
       setSubmissionStatus({ type: 'success', message: 'Thanks! Tasheel will reach out shortly with your quote.' });
       reset({
         ...defaultValues,
@@ -192,22 +245,26 @@ export default function TranslationWizard({ service }) {
           ? 'Rush (24 hours)'
           : formValues.options?.turnaround === 'standard'
           ? 'Standard (2–3 business days)'
-          : 'Select turnaround'
+          : null,
+      placeholder: 'Select turnaround'
     },
     {
       label: 'Translation type',
-      value: translationTypeLookup[formValues.options?.translationType] || 'Select option'
+      value: translationTypeLookup[formValues.options?.translationType] || null,
+      placeholder: 'Select option'
     },
     {
       label: 'Delivery',
-      value: deliveryMethodLookup[formValues.options?.deliveryMethod] || 'Digital delivery'
+      value: deliveryMethodLookup[formValues.options?.deliveryMethod] || null,
+      placeholder: 'Digital delivery'
     },
     {
       label: 'Language pair',
       value:
         formValues.details?.sourceLanguage && formValues.details?.targetLanguage
           ? `${formValues.details.sourceLanguage} → ${formValues.details.targetLanguage}`
-          : 'Select language pair'
+          : null,
+      placeholder: 'Select language pair'
     },
     {
       label: 'Estimated total',
@@ -215,217 +272,147 @@ export default function TranslationWizard({ service }) {
     }
   ];
 
-  return (
-    <Container maxWidth="lg" sx={{ py: { xs: 6, md: 8 } }}>
-      <FormProvider {...methods}>
-        <Stack spacing={4}>
-          <Box>
-            <Typography variant="overline" color="primary" sx={{ letterSpacing: 1, fontWeight: 700 }}>
-              Tasheel translation quote
+  const statusProps = submissionStatus
+    ? { type: submissionStatus.type, message: submissionStatus.message, onClose: () => setSubmissionStatus(null) }
+    : null;
+
+  const stepIndicator = (
+    <Box>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 3 }}
+      >
+        <Typography variant="subtitle2" color="text.secondary">
+          Step {activeStep + 1} of {steps.length}
+        </Typography>
+        {isDevMode && <Chip color="warning" variant="filled" label="Dev mode" size="small" />}
+      </Stack>
+
+      <Stepper
+        nonLinear
+        activeStep={activeStep}
+        alternativeLabel
+        sx={{
+          '& .MuiStepConnector-line': {
+            borderColor: 'divider',
+            borderTopWidth: 2
+          },
+          '& .MuiStepLabel-label': {
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            mt: 1
+          },
+          '& .MuiStepLabel-label.Mui-active': {
+            fontWeight: 600
+          }
+        }}
+      >
+        {steps.map((step, index) => {
+          const isClickable = index <= activeStep || isDevMode;
+          return (
+            <Step key={step.label} completed={activeStep > index}>
+              <StepButton
+                color="inherit"
+                onClick={() => isClickable && setActiveStep(index)}
+                disabled={!isClickable}
+              >
+                <StepLabel StepIconComponent={WizardStepIcon}>{step.label}</StepLabel>
+              </StepButton>
+            </Step>
+          );
+        })}
+      </Stepper>
+    </Box>
+  );
+
+  const summaryPanel = (
+    <Stack spacing={2}>
+      <Box>
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+          Request summary
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+          Updates as you move through the steps
+        </Typography>
+      </Box>
+
+      <Divider />
+
+      <Stack spacing={1.5}>
+        {summaryItems.map(({ label, value, placeholder }) => (
+          <Box key={label} sx={{ minWidth: 0 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.7rem' }}>
+              {label}
             </Typography>
-            <Typography variant="h3" sx={{ mt: 1, mb: 1.5 }}>
-              Share your brief. We’ll handle the rest.
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Upload your documents, pick turnaround options, and Tasheel will assign the right linguists with a detailed quote.
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 600, mt: 0.5, fontSize: '0.875rem', color: value ? 'text.primary' : 'text.disabled', wordBreak: 'break-word' }}
+            >
+              {value || placeholder || '—'}
             </Typography>
           </Box>
+        ))}
+      </Stack>
+    </Stack>
+  );
 
-          {submissionStatus && (
-            <Alert severity={submissionStatus.type} onClose={() => setSubmissionStatus(null)}>
-              {submissionStatus.message}
-            </Alert>
-          )}
+  const actionButtons = (
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      spacing={2}
+      justifyContent="flex-end"
+      alignItems={{ xs: 'stretch', sm: 'center' }}
+      sx={{ mt: 4 }}
+    >
+      <TasheelButton
+        onClick={goBack}
+        disabled={activeStep === 0 || isSubmitting}
+        size="large"
+        variant="text"
+        sx={{ order: { xs: 2, sm: 1 }, minWidth: { sm: 120 } }}
+      >
+        Back
+      </TasheelButton>
+      <TasheelButton
+        variant="contained"
+        size="large"
+        onClick={goNext}
+        disabled={isSubmitting}
+        sx={{ order: { xs: 1, sm: 2 }, minWidth: { sm: 160 } }}
+      >
+        {activeStep === steps.length - 1 ? (isSubmitting ? 'Submitting…' : 'Submit request') : 'Continue'}
+      </TasheelButton>
+    </Stack>
+  );
 
-          <Stack spacing={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: alpha(theme.palette.primary.main, 0.08),
-                backgroundColor: 'background.paper',
-                boxShadow: '0 30px 60px rgba(15,46,83,0.10)',
-                px: { xs: 2.25, md: 4 },
-                py: { xs: 2.75, md: 3.25 }
-              }}
-            >
-              <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                alignItems={{ xs: 'flex-start', sm: 'center' }}
-                justifyContent="space-between"
-                spacing={{ xs: 2, sm: 3 }}
-                sx={{ mb: { xs: 2, md: 2.5 } }}
-              >
-                <Typography variant="subtitle2" color="text.secondary" sx={{ letterSpacing: 1 }}>
-                  Step {activeStep + 1} of {steps.length}
-                </Typography>
-                {isDevMode && <Chip color="warning" variant="outlined" label="Dev mode" size="small" />}
-              </Stack>
+  const stepContent = (
+    <Fade key={activeStep} in timeout={250}>
+      <Box sx={{ minHeight: { md: 320 } }}>
+        <StepComponent />
+      </Box>
+    </Fade>
+  );
 
-              <Box
-                sx={{
-                  overflowX: 'auto',
-                  pr: { xs: 1, md: 0 },
-                  mr: { xs: -2.25, md: -4 },
-                  ml: { xs: -2.25, md: -4 },
-                  px: { xs: 2.25, md: 4 },
-                  pb: { xs: 0.5, md: 0 },
-                  scrollSnapType: { xs: 'x mandatory', md: 'none' },
-                  '&::-webkit-scrollbar': { height: 6 },
-                  '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.4),
-                    borderRadius: 999
-                  }
-                }}
-              >
-                <Stepper
-                  activeStep={activeStep}
-                  orientation="horizontal"
-                  alternativeLabel={isMdUp}
-                  sx={{
-                    minWidth: 'max-content',
-                    px: { xs: 0.5, md: 0 },
-                    '& .MuiStepConnector-line': {
-                      borderColor: alpha(theme.palette.primary.main, 0.2),
-                      borderTopWidth: 2
-                    },
-                    '& .MuiStep-root': {
-                      alignItems: 'center',
-                      flex: '0 0 auto',
-                      scrollSnapAlign: { xs: 'center', md: 'none' },
-                      minWidth: { xs: 140, md: 'auto' }
-                    },
-                    '& .MuiStepLabel-label': {
-                      fontWeight: 600,
-                      color: theme.palette.text.secondary,
-                      mt: isMdUp ? 1 : 0.75,
-                      maxWidth: 160,
-                      textTransform: 'capitalize'
-                    },
-                    '& .MuiStepLabel-label.Mui-active': {
-                      color: theme.palette.primary.main
-                    },
-                    '& .MuiStepLabel-label.Mui-completed': {
-                      color: theme.palette.primary.main
-                    }
-                  }}
-                >
-                  {steps.map((step) => (
-                    <Step key={step.label}>
-                      <StepLabel>{step.label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
-              </Box>
-            </Paper>
-
-            <Box display="grid" gridTemplateColumns={{ md: '2fr 1fr' }} gap={{ xs: 3, md: 4 }}>
-              <Paper
-                sx={{
-                  p: { xs: 3, md: 4 },
-                  borderRadius: 4,
-                  border: '1px solid',
-                  borderColor: alpha(theme.palette.primary.main, 0.08),
-                  boxShadow: '0 28px 64px rgba(15, 46, 83, 0.12)',
-                  backgroundColor: 'background.paper',
-                  minHeight: { md: 420 }
-                }}
-              >
-                <Fade key={activeStep} in timeout={250}>
-                  <Box sx={{ minHeight: { md: 320 } }}>
-                    <StepComponent />
-                  </Box>
-                </Fade>
-
-                <Stack
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={2}
-                  justifyContent={{ sm: 'space-between' }}
-                  alignItems={{ sm: 'center' }}
-                  sx={{ mt: 4, width: '100%' }}
-                >
-                  <TasheelButton
-                    onClick={goBack}
-                    disabled={activeStep === 0 || isSubmitting}
-                    size="large"
-                    fullWidth={isSmDown}
-                    sx={{ order: { xs: 2, sm: 1 }, minWidth: { sm: 140 } }}
-                  >
-                    Back
-                  </TasheelButton>
-                  <TasheelButton
-                    variant="contained"
-                    size="large"
-                    onClick={goNext}
-                    disabled={isSubmitting}
-                    fullWidth={isSmDown}
-                    sx={{ order: { xs: 1, sm: 2 }, minWidth: { sm: 180 }, borderRadius: 999 }}
-                  >
-                    {activeStep === steps.length - 1 ? 'Submit request' : 'Next step'}
-                  </TasheelButton>
-                </Stack>
-                {isDevMode && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 2, textAlign: { xs: 'center', sm: 'right' } }}>
-                    Dev mode active: step validation is skipped for quicker testing.
-                  </Typography>
-                )}
-              </Paper>
-
-              <Paper
-                sx={{
-                  p: { xs: 3, md: 4 },
-                  borderRadius: 4,
-                  backgroundColor: 'common.white',
-                  border: '1px solid',
-                  borderColor: alpha(theme.palette.primary.main, 0.1),
-                  boxShadow: '0 30px 60px rgba(15,46,83,0.10)'
-                }}
-              >
-                <Stack spacing={2.5}>
-                  <Box>
-                    <Typography variant="subtitle2" color="primary" sx={{ letterSpacing: 1 }}>
-                      Tasheel essentials
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                      What’s included
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-                      Certified linguists, secure storage, status alerts, and option to add notarisation or physical copies.
-                    </Typography>
-                  </Box>
-
-                  <Divider sx={{ borderStyle: 'dashed' }} />
-                  <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                    Request summary
-                  </Typography>
-                  <Stack spacing={1.75}>
-                    {summaryItems.map((item) => (
-                      <Box key={item.label}>
-                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.8 }}>
-                          {item.label}
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {item.value || '—'}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-                  {formValues.options?.turnaround !== 'rush' && formValues.options?.turnaround !== 'standard' && (
-                    <Typography variant="caption" color="warning.main">
-                      Choose a turnaround option on the next step to generate an accurate quote.
-                    </Typography>
-                  )}
-                </Stack>
-              </Paper>
-            </Box>
-          </Stack>
-        </Stack>
-      </FormProvider>
-    </Container>
+  return (
+    <FormProvider {...methods}>
+      <WizardLayout
+        heading="Share your brief. We'll handle the rest."
+        subheading="Upload your documents, pick turnaround options, and Tasheel will assign the right linguists with a detailed quote."
+        status={statusProps}
+        stepper={stepIndicator}
+        summary={summaryPanel}
+        actions={actionButtons}
+        isDevMode={isDevMode}
+      >
+        {stepContent}
+      </WizardLayout>
+    </FormProvider>
   );
 }
 
 TranslationWizard.propTypes = {
-  service: PropTypes.string
+  service: PropTypes.string,
+  serviceName: PropTypes.string
 };

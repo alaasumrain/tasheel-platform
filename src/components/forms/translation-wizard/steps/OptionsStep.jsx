@@ -8,11 +8,14 @@ import { useFormContext } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
+import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import Alert from '@mui/material/Alert';
 
 import { outlinedInputSx } from '../styles';
 import SvgIcon from '@/components/SvgIcon';
@@ -73,7 +76,7 @@ const DELIVERY_OPTIONS = [
   }
 ];
 
-function OptionCard({ title, badge, description, selected, onClick }) {
+function OptionTile({ title, badge, description, selected, onClick }) {
   return (
     <Card
       variant={selected ? 'outlined' : 'elevation'}
@@ -81,13 +84,13 @@ function OptionCard({ title, badge, description, selected, onClick }) {
         height: '100%',
         borderRadius: 3,
         borderColor: selected ? 'primary.main' : 'divider',
-        boxShadow: selected ? '0 18px 44px rgba(15,46,83,0.14)' : '0 8px 28px rgba(15,46,83,0.08)',
-        transition: 'all 0.3s ease',
+        boxShadow: selected ? '0 18px 44px rgba(15,46,83,0.14)' : '0 10px 34px rgba(15,46,83,0.12)',
+        transition: 'all 0.28s ease',
         backgroundColor: selected ? 'background.paper' : 'grey.50',
         position: 'relative',
         transform: selected ? 'translateY(-2px)' : 'none',
         '&:hover': {
-          boxShadow: '0 22px 48px rgba(15,46,83,0.16)'
+          boxShadow: '0 24px 54px rgba(15,46,83,0.18)'
         }
       }}
     >
@@ -195,115 +198,133 @@ export default function OptionsStep() {
   );
 
   return (
-    <Grid container spacing={3}>
-      <Grid xs={12}>
+    <Grid container spacing={4}>
+      <Grid size={12}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Translation and delivery options
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Choose the translation package, turnaround, and delivery method. These help the Tasheel desk scope pricing and staffing.
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+          Confirm the package, turnaround, and delivery expectations so we can quote precisely.
         </Typography>
       </Grid>
 
-      <Grid xs={12}>
-        <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>
-          Translation type
-        </Typography>
-        <Stack spacing={2.5}>
-          <Grid container spacing={2.25}>
-            {TRANSLATION_TYPES.map((option) => (
-              <Grid xs={12} md={6} key={option.value}>
-                <OptionCard
-                  title={option.title}
-                  badge={option.badge}
-                  description={option.description}
-                  selected={selectedTranslationType === option.value}
-                  onClick={() => handleTranslationSelect(option.value)}
-                />
-              </Grid>
-            ))}
-          </Grid>
+      <Grid size={{ xs: 12, md: 8 }}>
+        <Stack spacing={3.5}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
+              Translation type
+            </Typography>
+            <Grid container spacing={2.5}>
+              {TRANSLATION_TYPES.map((option) => (
+                <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
+                  <OptionTile
+                    title={option.title}
+                    badge={option.badge}
+                    description={option.description}
+                    selected={selectedTranslationType === option.value}
+                    onClick={() => handleTranslationSelect(option.value)}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            {errors?.options?.translationType && (
+              <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 1 }}>
+                {errors.options.translationType.message}
+              </Typography>
+            )}
+          </Box>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <Box>
+            <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
+              Turnaround time
+            </Typography>
+            <Grid container spacing={2.5}>
+              {TURNAROUND_OPTIONS.map((option) => (
+                <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
+                  <OptionTile
+                    title={option.title}
+                    badge={option.badge}
+                    description={option.description}
+                    selected={selectedTurnaround === option.value}
+                    onClick={() => setValue('options.turnaround', option.value, { shouldDirty: true, shouldValidate: true })}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            {errors?.options?.turnaround && (
+              <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 1 }}>
+                {errors.options.turnaround.message}
+              </Typography>
+            )}
+          </Box>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <Box>
+            <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
+              Delivery method
+            </Typography>
+            <Grid container spacing={2.5}>
+              {DELIVERY_OPTIONS.map((option) => (
+                <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
+                  <OptionTile
+                    title={option.title}
+                    badge={option.badge}
+                    description={option.description}
+                    selected={selectedDelivery === option.value}
+                    onClick={() => handleDeliverySelect(option.value)}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            {errors?.options?.deliveryMethod && (
+              <Typography variant="caption" color="error.main" sx={{ display: 'block', mt: 1 }}>
+                {errors.options.deliveryMethod.message}
+              </Typography>
+            )}
+          </Box>
+
+          <TextField
+            label="Special instructions"
+            placeholder="Glossaries, formatting needs, delivery notes (optional)"
+            multiline
+            minRows={4}
+            fullWidth
+            inputProps={{ maxLength: 1000 }}
+            {...register('options.instructions', {
+              maxLength: { value: 1000, message: 'Keep instructions under 1000 characters' }
+            })}
+            error={Boolean(errors?.options?.instructions)}
+            helperText={errors?.options?.instructions?.message}
+            sx={outlinedInputSx}
+          />
         </Stack>
-        {errors?.options?.translationType && (
-          <Typography variant="caption" color="error.main">
-            {errors.options.translationType.message}
-          </Typography>
-        )}
       </Grid>
 
-      <Grid xs={12}>
-        <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>
-          Turnaround time
-        </Typography>
-        <Stack spacing={2.5}>
-          <Grid container spacing={2.25}>
-            {TURNAROUND_OPTIONS.map((option) => (
-              <Grid xs={12} md={6} key={option.value}>
-                <OptionCard
-                  title={option.title}
-                  badge={option.badge}
-                  description={option.description}
-                  selected={selectedTurnaround === option.value}
-                  onClick={() => setValue('options.turnaround', option.value, { shouldDirty: true, shouldValidate: true })}
-                />
-              </Grid>
-            ))}
-          </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Stack spacing={2.5} sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
+          <Card sx={{ borderRadius: 4, boxShadow: '0 20px 56px rgba(15,46,83,0.14)' }}>
+            <CardContent sx={{ p: { xs: 3, md: 3.25 } }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>
+                How we scope your quote
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                • Translation type determines certification and reviewer assignments.<br />• Turnaround drives linguist availability and rush fees.<br />• Delivery method adds shipping and handling where required.
+              </Typography>
+            </CardContent>
+          </Card>
+          <Alert severity="info" sx={{ borderRadius: 3 }}>
+            Unsure which option to pick? Choose what seems closest—your Tasheel coordinator will confirm details before work begins.
+          </Alert>
         </Stack>
-        {errors?.options?.turnaround && (
-          <Typography variant="caption" color="error.main">
-            {errors.options.turnaround.message}
-          </Typography>
-        )}
-      </Grid>
-
-      <Grid xs={12}>
-        <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1 }}>
-          Delivery method
-        </Typography>
-        <Stack spacing={2.5}>
-          <Grid container spacing={2.25}>
-            {DELIVERY_OPTIONS.map((option) => (
-              <Grid xs={12} md={6} key={option.value}>
-                <OptionCard
-                  title={option.title}
-                  badge={option.badge}
-                  description={option.description}
-                  selected={selectedDelivery === option.value}
-                  onClick={() => handleDeliverySelect(option.value)}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Stack>
-        {errors?.options?.deliveryMethod && (
-          <Typography variant="caption" color="error.main">
-            {errors.options.deliveryMethod.message}
-          </Typography>
-        )}
-      </Grid>
-
-      <Grid xs={12}>
-        <TextField
-          label="Special instructions"
-          placeholder="Glossaries, formatting needs, delivery notes (optional)"
-          multiline
-          minRows={4}
-          fullWidth
-          inputProps={{ maxLength: 1000 }}
-          {...register('options.instructions', {
-            maxLength: { value: 1000, message: 'Keep instructions under 1000 characters' }
-          })}
-          error={Boolean(errors?.options?.instructions)}
-          helperText={errors?.options?.instructions?.message}
-          sx={outlinedInputSx}
-        />
       </Grid>
     </Grid>
   );
 }
 
-OptionCard.propTypes = {
+OptionTile.propTypes = {
   title: PropTypes.string,
   badge: PropTypes.string,
   description: PropTypes.string,

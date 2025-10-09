@@ -10,6 +10,7 @@ import TasheelButton from '@/components/TasheelButton';
 /***************************  NAVBAR - PRIMARY BUTTON  ***************************/
 
 export default function NavPrimaryButton({ sx, children, ...rest }) {
+  const extraSx = Array.isArray(sx) ? sx : sx ? [sx] : [];
   return (
     <TasheelButton
       variant="contained"
@@ -17,17 +18,22 @@ export default function NavPrimaryButton({ sx, children, ...rest }) {
       sx={[
         {
           color: 'common.white',
-          px: { xs: 2.75, sm: 3 },
-          height: 38,
+          fontWeight: 700,
+          px: { xs: 3, sm: 3.5 },
+          height: 40,
           borderRadius: 999,
+          letterSpacing: 0.3,
+          boxShadow: '0 20px 48px rgba(15,46,83,0.24)',
           '&:hover': {
-            color: 'common.white'
+            color: 'common.white',
+            boxShadow: '0 24px 56px rgba(15,46,83,0.28)'
           },
           '&:active': {
-            color: 'common.white'
+            color: 'common.white',
+            transform: 'translateY(1px)'
           }
         },
-        sx
+        ...extraSx
       ]}
       {...rest}
       {...(rest?.href && { component: NextLink })}

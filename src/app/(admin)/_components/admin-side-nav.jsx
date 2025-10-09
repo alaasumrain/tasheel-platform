@@ -6,6 +6,7 @@
  */
 
 import PropTypes from 'prop-types';
+import { usePathname } from 'next/navigation';
 
 // @mui
 import Box from '@mui/material/Box';
@@ -14,7 +15,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Toolbar from '@mui/material/Toolbar';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 // @project
@@ -29,51 +30,82 @@ const navItems = [
 ];
 
 export function AdminSideNav({ user, onNavigate }) {
+  const pathname = usePathname();
+
+  console.log('🧭 AdminSideNav RENDER', {
+    timestamp: new Date().toISOString(),
+    pathname,
+    hasUser: !!user,
+    userEmail: user?.email
+  });
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar sx={{ px: 3 }}>
-        <Box>
-          <Typography variant="subtitle2" color="primary" sx={{ letterSpacing: 1 }}>
-            Tasheel
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Admin Control
-          </Typography>
-        </Box>
-      </Toolbar>
+      <Box sx={{ px: 2, py: 1.5 }}>
+        <Typography variant="subtitle2" color="primary" sx={{ letterSpacing: 0.8 }}>
+          Tasheel admin
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Internal operations
+        </Typography>
+      </Box>
       <Divider />
-      <List sx={{ p: 1, flexGrow: 1 }}>
-        {navItems.map((item) => (
-          <ListItemButton
-            key={item.label}
-            component="a"
-            href={item.href}
-            disabled={item.disabled}
-            onClick={onNavigate}
-            sx={{ mb: 0.5, borderRadius: 2, '&.Mui-disabled': { opacity: 0.5 } }}
-          >
-            <ListItemIcon sx={{ minWidth: 40 }}>
-              <SvgIcon name={item.icon} size={20} color="primary.main" />
-            </ListItemIcon>
-            <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 600 }} />
-          </ListItemButton>
-        ))}
+      <List sx={{ px: 1.5, py: 1, flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+        {navItems.map((item) => {
+          const isSelected = pathname === item.href;
+          return (
+            <ListItemButton
+              key={item.label}
+              component="a"
+              href={item.href}
+              disabled={item.disabled}
+              onClick={onNavigate}
+              sx={{
+                borderRadius: 1.5,
+                px: 1.15,
+                py: 0.7,
+                bgcolor: isSelected ? 'action.selected' : 'transparent',
+                color: isSelected ? 'primary.main' : 'text.secondary',
+                '&:hover': { bgcolor: 'action.hover' },
+                '&.Mui-disabled': { opacity: 0.45 }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 28, color: 'inherit' }}>
+                <SvgIcon name={item.icon} size={18} />
+              </ListItemIcon>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{ variant: 'body2', fontWeight: isSelected ? 600 : 500, color: 'inherit' }}
+              />
+            </ListItemButton>
+          );
+        })}
       </List>
       <Divider />
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ px: 2, py: 2 }}>
         {user?.email && (
-          <Box sx={{ mb: 1 }}>
+          <Box
+            sx={{
+              p: 1.5,
+              borderRadius: 1.5,
+              border: '1px dashed',
+              borderColor: 'divider'
+            }}
+          >
             <Typography variant="caption" color="text.secondary">
               Signed in as
             </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>
               {user.email}
             </Typography>
           </Box>
         )}
-        <Typography variant="caption" color="text.secondary">
-          Tasheel internal tools
-        </Typography>
+        <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mt: 1.5 }}>
+          <SvgIcon name="tabler-help-circle" size={16} color="text.secondary" />
+          <Typography variant="caption" color="text.secondary">
+            Tasheel internal tools
+          </Typography>
+        </Stack>
       </Box>
     </Box>
   );

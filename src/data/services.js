@@ -5,7 +5,8 @@ export const serviceCategories = [
   { id: 'translation', name: 'Translation', icon: 'tabler-language' },
   { id: 'localization', name: 'Localization', icon: 'tabler-world' },
   { id: 'interpreting', name: 'Interpreting', icon: 'tabler-headphones' },
-  { id: 'audio-visual', name: 'Audio & Visual', icon: 'tabler-video' }
+  { id: 'audio-visual', name: 'Audio & Visual', icon: 'tabler-video' },
+  { id: 'documents', name: 'Document Processing', icon: 'tabler-files' }
 ];
 
 export const servicesCatalogue = [
@@ -224,6 +225,30 @@ export const servicesCatalogue = [
     fee: 'from $45 / page',
     requirements: ['InDesign / PowerPoint / Photoshop files', 'Fonts and brand assets', 'Output specs or printer notes'],
     eligibility: 'Design teams, training departments, documentation specialists'
+  },
+  {
+    id: 19,
+    title: 'International Driver\'s License',
+    slug: 'international-drivers-license',
+    category: 'documents',
+    icon: 'tabler-car',
+    description: 'Process and issue international driving permits recognized worldwide.',
+    processingTime: '1–2 business days',
+    fee: 'from $50',
+    requirements: ['Passport copy', 'Palestinian license (front & back)', 'Personal photo'],
+    eligibility: 'Individuals traveling abroad who need international driving permits'
+  },
+  {
+    id: 20,
+    title: 'Palestinian License Renewal',
+    slug: 'license-renewal',
+    category: 'documents',
+    icon: 'tabler-refresh',
+    description: 'Renew your Palestinian driving license with complete documentation support.',
+    processingTime: '2–3 business days',
+    fee: 'from $40',
+    requirements: ['ID card copy', 'Personal photo', 'Blood type', 'Old license copy'],
+    eligibility: 'Palestinian residents needing to renew expired or expiring licenses'
   }
 ];
 

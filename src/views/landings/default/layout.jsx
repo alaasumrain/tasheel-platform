@@ -46,14 +46,14 @@ export default function MainLayout({ children }) {
         ...navbar.primaryBtn,
         children: 'Dashboard',
         href: '/portal',
-        sx: { color: 'common.white' }
+        sx: [navbar.primaryBtn?.sx || {}, { color: 'common.white' }]
       };
     } else {
       base.primaryBtn = {
         ...navbar.primaryBtn,
         children: 'Sign in',
         href: '/login',
-        sx: { color: 'common.white' }
+        sx: [navbar.primaryBtn?.sx || {}, { color: 'common.white' }]
       };
     }
 

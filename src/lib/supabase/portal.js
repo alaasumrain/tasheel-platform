@@ -3,6 +3,28 @@ import { servicesCatalogue } from '@/data/services';
 const serviceTitleLookup = Object.fromEntries(servicesCatalogue.map((svc) => [svc.slug, svc.title]));
 const BUCKET = 'translation_uploads';
 const APPLICATION_SELECT = 'id, service_slug, status, payload, submitted_at, applicant_email';
+const SIGNED_URL_TTL_MS = 60 * 60 * 1000;
+
+const attachmentUrlCache = new Map();
+
+function getCachedSignedUrl(path) {
+  const cached = attachmentUrlCache.get(path);
+  if (!cached) return null;
+
+  if (cached.expiresAt <= Date.now()) {
+    attachmentUrlCache.delete(path);
+    return null;
+  }
+
+  return cached.url;
+}
+
+function setCachedSignedUrl(path, url) {
+  attachmentUrlCache.set(path, {
+    url,
+    expiresAt: Date.now() + SIGNED_URL_TTL_MS
+  });
+}
 
 function mapApplication(row) {
   const payload = row.payload || {};
@@ -36,6 +58,11 @@ function requireSupabaseClient(supabase) {
 }
 
 async function signAttachmentUrl(client, path) {
+  const cached = getCachedSignedUrl(path);
+  if (cached) {
+    return cached;
+  }
+
   const { data, error } = await client.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
 
   if (error) {
@@ -43,7 +70,11 @@ async function signAttachmentUrl(client, path) {
     return null;
   }
 
-  return data?.signedUrl || null;
+  const url = data?.signedUrl || null;
+  if (url) {
+    setCachedSignedUrl(path, url);
+  }
+  return url;
 }
 
 export async function fetchPortalRequests({ supabase, email } = {}) {
@@ -63,6 +94,38 @@ export async function fetchPortalRequests({ supabase, email } = {}) {
   }
 
   return (data || []).map(mapApplication);
+}
+
+export async function fetchRequestAttachments(id, { supabase } = {}) {
+  const client = requireSupabaseClient(supabase);
+
+  const { data, error } = await client
+    .from('application_attachments')
+    .select('id, storage_path, file_name, content_type, file_size, created_at')
+    .eq('application_id', id)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('fetchRequestAttachments error', error);
+    return [];
+  }
+
+  if (!data?.length) {
+    return [];
+  }
+
+  const signed = await Promise.all(
+    data.map(async (file) => ({
+      id: file.id,
+      fileName: file.file_name,
+      contentType: file.content_type,
+      fileSize: file.file_size,
+      createdAt: file.created_at,
+      url: await signAttachmentUrl(client, file.storage_path)
+    }))
+  );
+
+  return signed;
 }
 
 export async function fetchPortalRequestDetail(id, { supabase, email } = {}) {
@@ -85,34 +148,14 @@ export async function fetchPortalRequestDetail(id, { supabase, email } = {}) {
 
   const base = mapApplication(application);
 
-  const [{ data: events }, { data: attachments }] = await Promise.all([
+  const [{ data: events }, attachments] = await Promise.all([
     client
       .from('application_events')
       .select('id, event_type, notes, data, created_at')
       .eq('application_id', id)
       .order('created_at', { ascending: false }),
-    client
-      .from('application_attachments')
-      .select('id, storage_path, file_name, content_type, file_size, created_at')
-      .eq('application_id', id)
-      .order('created_at', { ascending: true })
+    fetchRequestAttachments(id, { supabase: client })
   ]);
-
-  let attachmentsWithUrls = attachments || [];
-  if (attachmentsWithUrls.length) {
-    const signed = await Promise.all(
-      attachmentsWithUrls.map(async (file) => ({
-        id: file.id,
-        fileName: file.file_name,
-        contentType: file.content_type,
-        fileSize: file.file_size,
-        createdAt: file.created_at,
-        url: await signAttachmentUrl(client, file.storage_path)
-      }))
-    );
-
-    attachmentsWithUrls = signed;
-  }
 
   return {
     ...base,
@@ -123,7 +166,7 @@ export async function fetchPortalRequestDetail(id, { supabase, email } = {}) {
       notes: event.notes,
       data: event.data || {}
     })),
-    attachments: attachmentsWithUrls
+    attachments: attachments || []
   };
 }
 

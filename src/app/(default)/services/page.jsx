@@ -60,22 +60,23 @@ const ServiceCard = ({ service, index }) => {
       <Card
         sx={{
           height: '100%',
-          minHeight: { xs: 320, md: 360 },
+          minHeight: { xs: 340, md: 380 },
           display: 'flex',
           flexDirection: 'column',
           borderRadius: { xs: 3, md: 4 },
           border: '1px solid',
           borderColor: alpha(theme.palette.primary.main, 0.08),
-          background: `linear-gradient(165deg, ${alpha(theme.palette.background.paper, 0.98)}, ${alpha(theme.palette.primary.lighter, 0.18)})`,
-          transition: 'all 0.35s ease',
-          boxShadow: '0 18px 48px rgba(15, 46, 83, 0.08)',
+          background: `linear-gradient(165deg, ${alpha(theme.palette.common.white, 0.98)}, ${alpha(theme.palette.primary.lighter, 0.2)})`,
+          transition: 'all 0.3s ease',
+          boxShadow: '0 24px 60px rgba(15, 46, 83, 0.12)',
           '&:hover': {
-            transform: 'translateY(-6px)',
-            boxShadow: '0 28px 60px rgba(15, 46, 83, 0.16)'
+            transform: 'translateY(-10px)',
+            borderColor: alpha(theme.palette.primary.main, 0.2),
+            boxShadow: '0 34px 84px rgba(15, 46, 83, 0.18)'
           }
         }}
       >
-        <CardContent sx={{ p: { xs: 2.5, sm: 3 }, height: '100%' }}>
+        <CardContent sx={{ p: { xs: 3, sm: 3.75 }, height: '100%' }}>
           <Stack spacing={3} sx={{ height: '100%' }}>
             <Stack direction="row" spacing={2} alignItems="flex-start">
               <Box
@@ -94,7 +95,7 @@ const ServiceCard = ({ service, index }) => {
               </Box>
               <Stack spacing={1} sx={{ flex: 1 }}>
                 {service.category !== 'all' && (
-                  <Typography variant="overline" sx={{ letterSpacing: 0.6, color: 'primary.main', fontWeight: 700 }}>
+                  <Typography variant="overline" sx={{ letterSpacing: 0.8, color: 'primary.main', fontWeight: 700 }}>
                     {categoryLookup[service.category]?.name ?? 'Tasheel service'}
                   </Typography>
                 )}
@@ -113,12 +114,18 @@ const ServiceCard = ({ service, index }) => {
                   size="small"
                   icon={<SvgIcon name="tabler-clock" size={16} />}
                   label={service.processingTime}
-                  sx={{ borderRadius: 1.5, fontWeight: 500 }}
+                  sx={{
+                    borderRadius: 999,
+                    fontWeight: 600,
+                    px: 1.75,
+                    bgcolor: alpha(theme.palette.primary.main, 0.12),
+                    color: theme.palette.primary.dark
+                  }}
                 />
               </Stack>
 
               <Stack direction="row" spacing={1} alignItems="flex-start">
-                <SvgIcon name="tabler-target" size={18} color="text.secondary" sx={{ mt: 0.3 }} />
+                <SvgIcon name="tabler-target" size={18} color="primary.main" sx={{ mt: 0.3, opacity: 0.6 }} />
                 <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                   {service.eligibility}
                 </Typography>
@@ -132,7 +139,19 @@ const ServiceCard = ({ service, index }) => {
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {service.requirements.slice(0, 3).map((item) => (
-                    <Chip key={item} label={item} size="small" variant="outlined" sx={{ borderRadius: 999, borderColor: 'divider' }} />
+                    <Chip
+                      key={item}
+                      label={item}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 999,
+                        borderColor: alpha(theme.palette.primary.main, 0.22),
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        fontWeight: 500,
+                        color: theme.palette.primary.dark
+                      }}
+                    />
                   ))}
                   {service.requirements.length > 3 && (
                     <Chip label={`+${service.requirements.length - 3} more`} size="small" variant="outlined" sx={{ borderRadius: 999 }} />
@@ -147,11 +166,12 @@ const ServiceCard = ({ service, index }) => {
                 href={`/quote?service=${service.slug}`}
                 variant="contained"
                 size="large"
-                fullWidth
                 sx={{
-                  borderRadius: 1.5,
-                  fontWeight: 600,
-                  py: 1.1
+                  flex: 1,
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  py: 1.2,
+                  minWidth: { sm: 0 }
                 }}
                 endIcon={<SvgIcon name="tabler-arrow-right" size={18} />}
               >
@@ -162,11 +182,12 @@ const ServiceCard = ({ service, index }) => {
                 href={`/contact?service=${service.slug}&intent=consult`}
                 variant="outlined"
                 size="large"
-                fullWidth
                 sx={{
-                  borderRadius: 1.5,
-                  fontWeight: 600,
-                  py: 1.1
+                  flex: 1,
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  py: 1.2,
+                  minWidth: { sm: 0 }
                 }}
                 endIcon={<SvgIcon name="tabler-calendar" size={18} />}
               >
@@ -338,38 +359,58 @@ export default function ServicesPage() {
                   '& .MuiToggleButton-root': {
                     borderRadius: 999,
                     textTransform: 'none',
-                    px: 2.5,
+                    px: { xs: 2.25, md: 2.75 },
                     py: 1.05,
-                    minWidth: 200,
+                    minWidth: { xs: 180, md: 210 },
                     border: '1px solid',
                     borderColor: alpha(theme.palette.primary.main, 0.12),
-                    bgcolor: alpha(theme.palette.primary.main, 0.06),
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    color: theme.palette.text.primary,
                     transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.25,
+                    fontWeight: 600,
+                    '& .category-icon': { color: alpha(theme.palette.primary.main, 0.65) },
+                    '& .category-count': {
+                      minWidth: 32,
+                      height: 22,
+                      px: 1,
+                      borderRadius: 999,
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                      color: theme.palette.primary.dark
+                    },
                     '&:hover': {
-                      borderColor: theme.palette.primary.main,
+                      borderColor: alpha(theme.palette.primary.main, 0.3),
                       bgcolor: alpha(theme.palette.primary.main, 0.1)
                     },
                     '&.Mui-selected': {
                       bgcolor: theme.palette.primary.main,
                       color: theme.palette.primary.contrastText,
                       borderColor: theme.palette.primary.main,
-                      boxShadow: '0 16px 36px rgba(15,46,83,0.18)'
+                      boxShadow: '0 18px 42px rgba(15,46,83,0.2)',
+                      '& .category-icon': { color: theme.palette.common.white },
+                      '& .category-count': {
+                        backgroundColor: 'rgba(255,255,255,0.18)',
+                        color: theme.palette.common.white
+                      }
                     }
                   }
                 }}
               >
                 {serviceCategories.map((cat) => (
                   <ToggleButton key={cat.id} value={cat.id}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <SvgIcon name={cat.icon} size={18} />
+                    <Stack direction="row" spacing={1.25} alignItems="center">
+                      <SvgIcon className="category-icon" name={cat.icon} size={18} />
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         {cat.name}
                       </Typography>
-                      <Chip
-                        label={categoryCounts[cat.id] || 0}
-                        size="small"
-                        sx={{ height: 20, minWidth: 24, bgcolor: 'background.paper' }}
-                      />
+                      <Box className="category-count">{categoryCounts[cat.id] || 0}</Box>
                     </Stack>
                   </ToggleButton>
                 ))}
@@ -381,7 +422,7 @@ export default function ServicesPage() {
           {loading ? (
             <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
               {[...Array(6)].map((_, index) => (
-                <Grid xs={12} sm={6} md={4} lg={3} key={index} sx={{ display: 'flex' }}>
+                <Grid key={index} size={{ xs: 12, sm: 6, md: 4, lg: 3 }} sx={{ display: 'flex' }}>
                   <Skeleton variant="rounded" height={320} sx={{ flexGrow: 1 }} />
                 </Grid>
               ))}
@@ -398,12 +439,12 @@ export default function ServicesPage() {
                 >
                   {filteredServices.length > 0 ? (
                     filteredServices.map((service, index) => (
-                      <Grid xs={12} sm={6} md={4} lg={3} key={service.id} sx={{ display: 'flex' }}>
+                      <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }} sx={{ display: 'flex' }}>
                         <ServiceCard service={service} index={index} />
                       </Grid>
                     ))
                   ) : (
-                    <Grid xs={12}>
+                    <Grid size={12}>
                       <Box sx={{ textAlign: 'center', py: 8 }}>
                         <SvgIcon name="tabler-search-off" size={64} color="text.disabled" />
                         <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>

@@ -10,25 +10,53 @@ const baseStyles = {
   borderRadius: 999,
   fontWeight: 600,
   textTransform: 'none',
-  letterSpacing: 0.2
+  letterSpacing: 0.2,
+  transition: 'all 0.2s ease-in-out'
 };
 
 const variants = {
   contained: {
-    color: 'common.white',
-    boxShadow: '0 18px 46px rgba(15,46,83,0.20)',
+    color: '#fff !important',
+    backgroundColor: '#1E5CB8',
+    backgroundImage: 'none',
+    boxShadow: '0 12px 24px rgba(15,46,83,0.18)',
+    '& .MuiButton-startIcon, & .MuiButton-endIcon': {
+      color: '#fff !important'
+    },
     '&:hover': {
-      color: 'common.white',
-      boxShadow: '0 22px 52px rgba(15,46,83,0.24)'
+      color: '#fff !important',
+      backgroundColor: '#184C99',
+      backgroundImage: 'none',
+      boxShadow: '0 18px 32px rgba(15,46,83,0.22)'
     },
     '&:active': {
-      boxShadow: '0 14px 36px rgba(15,46,83,0.22)'
+      backgroundImage: 'none',
+      boxShadow: '0 10px 20px rgba(15,46,83,0.18)',
+      transform: 'translateY(1px)'
+    },
+    '&.Mui-disabled': {
+      color: 'rgba(255,255,255,0.7) !important',
+      backgroundColor: '#7FA5E0',
+      backgroundImage: 'none',
+      boxShadow: 'none',
+      '& .MuiButton-startIcon, & .MuiButton-endIcon': {
+        color: 'rgba(255,255,255,0.7) !important'
+      }
     }
   },
   outlined: {
     borderWidth: 1.5,
+    borderColor: 'primary.main',
+    color: 'primary.main',
+    backgroundColor: 'rgba(15,46,83,0.04)',
+    boxShadow: '0 10px 24px rgba(15,46,83,0.10)',
     '&:hover': {
-      borderWidth: 1.5
+      borderWidth: 1.5,
+      borderColor: 'primary.dark',
+      backgroundColor: 'rgba(15,46,83,0.08)'
+    },
+    '&:active': {
+      transform: 'translateY(1px)'
     }
   },
   text: {
@@ -44,18 +72,18 @@ const TasheelButton = forwardRef(function TasheelButton(
     <Button
       ref={ref}
       variant={variant}
-      color={color}
+      color={variant === 'contained' ? undefined : color}
       size={size}
       sx={{
         ...baseStyles,
-        ...(variants[variant] || {}),
+        ...(typeof variants[variant] === 'function' ? variants[variant]() : variants[variant] || {}),
         ...sx
       }}
-      {...rest}
-    >
-      {children}
-    </Button>
-  );
+     {...rest}
+   >
+     {children}
+   </Button>
+ );
 });
 
 TasheelButton.propTypes = {

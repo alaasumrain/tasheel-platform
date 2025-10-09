@@ -6,7 +6,7 @@ import Error500Page from '@/blocks/maintenance/Error500';
 /***************************  ERROR 500 - DATA  ***************************/
 
 const data = {
-  primaryBtn: { children: 'Back to Home Page' },
+  primaryBtn: { children: 'Back to Home Page', href: '/' },
   heading: 'Please try again later or feel free to contact us if the problem persists.'
 };
 

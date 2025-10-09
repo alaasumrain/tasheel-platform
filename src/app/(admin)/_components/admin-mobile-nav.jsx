@@ -12,14 +12,14 @@ import Drawer from '@mui/material/Drawer';
 
 import { AdminSideNav } from './admin-side-nav';
 
-export function AdminMobileNav({ open, onClose, user }) {
+export function AdminMobileNav({ open, onClose, user, navWidth }) {
   return (
     <Drawer
       anchor="left"
       open={open}
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
-      sx={{ display: { xs: 'block', md: 'none' }, '& .MuiDrawer-paper': { width: 280 } }}
+      sx={{ display: { xs: 'block', md: 'none' }, '& .MuiDrawer-paper': { width: navWidth || 260 } }}
     >
       <AdminSideNav user={user} onNavigate={onClose} />
     </Drawer>
@@ -29,5 +29,6 @@ export function AdminMobileNav({ open, onClose, user }) {
 AdminMobileNav.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  user: PropTypes.object
+  user: PropTypes.object,
+  navWidth: PropTypes.number
 };

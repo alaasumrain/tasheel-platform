@@ -74,6 +74,7 @@ export default function LoginPage() {
 
   const redirectedFrom = params?.get('redirectedFrom');
   const loginError = params?.get('error');
+  const shouldSignOut = params?.get('signout') === 'true';
 
   const [activeTab, setActiveTab] = useState(SIGN_IN);
 
@@ -99,15 +100,41 @@ export default function LoginPage() {
 
   useEffect(() => {
     let isMounted = true;
+
+    // If shouldSignOut is true, sign out immediately to clear old session
+    if (shouldSignOut) {
+      supabase.auth
+        .signOut()
+        .catch((error) => {
+          console.error('Forced sign-out failed', error);
+        })
+        .finally(() => {
+          // After sign out, drop only the signout flag so the warning stays visible
+          const url = new URL(window.location.href);
+          url.searchParams.delete('signout');
+          router.replace(url.pathname + url.search);
+        });
+      return;
+    }
+
+    // Don't auto-redirect if there's an auth error (user needs to see the error message)
+    if (loginError) return;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!isMounted || !session) return;
-      const target = redirectedFrom || '/portal';
+
+      // Redirect based on user role
+      let target = redirectedFrom || '/portal';
+      if (session?.user?.app_metadata?.role === 'staff') {
+        target = '/admin';
+      }
+
       router.replace(target);
     });
     return () => {
       isMounted = false;
     };
-  }, [supabase, redirectedFrom, router]);
+  }, [supabase, redirectedFrom, router, loginError, shouldSignOut]);
 
   const handleTabChange = (_event, newValue) => {
     setActiveTab(newValue);
@@ -116,8 +143,16 @@ export default function LoginPage() {
     setMagicLinkStatus({ loading: false, message: null, error: null });
   };
 
-  const redirectAfterAuth = () => {
-    const target = redirectedFrom || '/portal';
+  const redirectAfterAuth = async () => {
+    // Force refresh session to get updated metadata from database
+    const { data: { session } } = await supabase.auth.refreshSession();
+
+    // Determine redirect based on role
+    let target = redirectedFrom || '/portal';
+    if (session?.user?.app_metadata?.role === 'staff') {
+      target = '/admin';
+    }
+
     router.push(target);
     router.refresh();
   };
@@ -275,7 +310,11 @@ export default function LoginPage() {
                   Sign in to view <strong>{redirectedFrom}</strong>.
                 </Alert>
               )}
-              {loginError === 'staff_only' && <Alert severity="warning">Admin area requires a Tasheel staff account.</Alert>}
+              {loginError === 'staff_only' && (
+                <Alert severity="warning">
+                  <strong>Admin access requires a staff account.</strong> You're being signed out automatically. Please sign in again to refresh your permissions.
+                </Alert>
+              )}
 
               {activeTab === SIGN_IN ? (
                 <Box component="form" onSubmit={handleSignInSubmit} noValidate>

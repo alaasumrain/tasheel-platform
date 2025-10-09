@@ -15,8 +15,14 @@ export default async function AdminLayout({ children }) {
     data: { session }
   } = await supabase.auth.getSession();
 
+  // If no session at all, redirect to login
+  if (!session) {
+    redirect('/login?redirectedFrom=/admin');
+  }
+
+  // If logged in but not staff, redirect with clear instruction to sign out/in
   if (session?.user?.app_metadata?.role !== 'staff') {
-    redirect('/login?error=staff_only');
+    redirect('/login?error=staff_only&signout=true');
   }
 
   return <AdminLayoutShell user={session?.user || null}>{children}</AdminLayoutShell>;

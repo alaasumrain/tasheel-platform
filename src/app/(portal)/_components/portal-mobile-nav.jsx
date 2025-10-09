@@ -12,7 +12,13 @@ import Drawer from '@mui/material/Drawer';
 
 import { PortalSideNav } from './portal-side-nav';
 
-export function PortalMobileNav({ open, onClose, user }) {
+export function PortalMobileNav({ open, onClose, user, navWidth }) {
+  console.log('📱 PortalMobileNav RENDER', {
+    timestamp: new Date().toISOString(),
+    open,
+    hasUser: !!user
+  });
+
   return (
     <Drawer
       anchor="left"
@@ -21,7 +27,7 @@ export function PortalMobileNav({ open, onClose, user }) {
       ModalProps={{ keepMounted: true }}
       sx={{
         display: { xs: 'block', md: 'none' },
-        '& .MuiDrawer-paper': { width: 280 }
+        '& .MuiDrawer-paper': { width: navWidth || 280 }
       }}
     >
       <PortalSideNav user={user} onNavigate={onClose} />
@@ -32,5 +38,6 @@ export function PortalMobileNav({ open, onClose, user }) {
 PortalMobileNav.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  user: PropTypes.object
+  user: PropTypes.object,
+  navWidth: PropTypes.number
 };

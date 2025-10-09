@@ -10,6 +10,7 @@ import TasheelButton from '@/components/TasheelButton';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
+import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -17,173 +18,198 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import SvgIcon from '@/components/SvgIcon';
-
-const statusConfig = {
-  quote_sent: { label: 'Quote sent', color: 'warning' },
-  in_progress: { label: 'In progress', color: 'primary' },
-  completed: { label: 'Completed', color: 'success' },
-  scoping: { label: 'Scoping', color: 'info' },
-  submitted: { label: 'Submitted', color: 'info' },
-  review: { label: 'In review', color: 'warning' }
-};
-
-const TURNAROUND_LABELS = {
-  rush: 'Rush (24 hours)',
-  Rush: 'Rush (24 hours)',
-  standard: 'Standard (2–3 business days)',
-  Standard: 'Standard (2–3 business days)',
-  'Rush (24 hours)': 'Rush (24 hours)',
-  'Standard (2–3 business days)': 'Standard (2–3 business days)'
-};
-
-const TRANSLATION_TYPE_LABELS = {
-  certified: 'Certified translation',
-  translation_only: 'Professional translation only',
-  notarized: 'Notarized translation'
-};
-
-const DELIVERY_LABELS = {
-  digital: 'Digital delivery (PDF)',
-  digital_physical: 'Digital + physical copies'
-};
+import AttachmentList from '@/components/dashboard/AttachmentList';
+import {
+  formatDateTime,
+  formatDeliveryMethod,
+  formatEstimatedTotal,
+  formatLanguagePair,
+  formatTranslationType,
+  formatTurnaround,
+  getStatusMeta
+} from '@/utils/dashboard';
 export default function PortalRequestDetailClient({ data }) {
+  console.log('🟣 PortalRequestDetailClient RENDER', {
+    timestamp: new Date().toISOString(),
+    requestId: data?.id,
+    reference: data?.reference
+  });
+
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
-  const statusMeta = statusConfig[data.status] || { label: data.status, color: 'default' };
+  const statusMeta = getStatusMeta(data.status);
 
   return (
-    <Stack spacing={4}>
-      <Breadcrumbs aria-label="breadcrumb">
-        <Typography color="inherit" component="a" href="/portal">
-          Portal
-        </Typography>
-        <Typography color="text.primary">{data.reference}</Typography>
-      </Breadcrumbs>
+    <Container maxWidth="lg" disableGutters sx={{ pt: { xs: 3, md: 4 }, pb: { xs: 5, md: 6 } }}>
+      <Stack spacing={3}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Typography color="inherit" component="a" href="/portal">
+            Portal
+          </Typography>
+          <Typography color="text.primary">{data.reference}</Typography>
+        </Breadcrumbs>
 
-      <Stack
-        direction={{ xs: 'column', md: 'row' }}
-        justifyContent="space-between"
-        alignItems={{ xs: 'flex-start', md: 'center' }}
-        spacing={2}
-        sx={{
-          gap: { xs: 1.75, md: 2 },
-          '& > *': { width: { xs: '100%', md: 'auto' } }
-        }}
-      >
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            {data.serviceName || data.service || 'Translation request'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {data.reference} · {formatLanguages(data)}
-          </Typography>
-        </Box>
-        <Chip
-          label={statusMeta.label}
-          color={statusMeta.color}
-          size="medium"
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'center' }}
+          spacing={2}
           sx={{
-            alignSelf: { xs: 'stretch', md: 'center' },
-            height: 36,
-            borderRadius: 999,
-            justifyContent: 'center',
-            fontWeight: 600
+            gap: { xs: 1.75, md: 2 },
+            '& > *': { width: { xs: '100%', md: 'auto' } }
           }}
-        />
-      </Stack>
+        >
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              {data.serviceName || data.service || 'Translation request'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {data.reference} · {formatLanguagePair(data)}
+            </Typography>
+          </Box>
+          <Chip
+            label={statusMeta.label}
+            color={statusMeta.color}
+            size="medium"
+            sx={{
+              alignSelf: { xs: 'stretch', md: 'center' },
+              height: 36,
+              borderRadius: 999,
+              justifyContent: 'center',
+              fontWeight: 600
+            }}
+          />
+        </Stack>
 
-      <Grid container spacing={3}>
-        <Grid xs={12} md={7}>
-          <Card sx={{ borderRadius: 3, mb: 3 }}>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Request summary
-              </Typography>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gap: { xs: 2, md: 2.5 },
-                  gridTemplateColumns: {
-                    xs: 'repeat(1, minmax(0, 1fr))',
-                    sm: 'repeat(2, minmax(0, 1fr))'
-                  }
-                }}
-              >
-                <SummaryItem label="Submitted" value={formatDateTime(data.submittedAt)} />
-                <SummaryItem label="Turnaround" value={formatTurnaround(data)} />
-                <SummaryItem label="Translation type" value={formatTranslationType(data)} />
-                <SummaryItem label="Delivery" value={formatDeliveryMethod(data)} />
-                <SummaryItem label="Estimated total" value={formatEstimatedTotal(data)} />
-                <SummaryItem label="Certification" value={data.options?.certification ? 'Yes' : 'No'} />
-                <SummaryItem label="Notarisation" value={data.options?.notarisation ? 'Yes' : 'No'} />
-              </Box>
-              <Divider sx={{ my: 3 }} />
-              <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Special instructions</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>
-                {data.options?.instructions || 'None provided.'}
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Timeline
-              </Typography>
-              <Stack spacing={3}>
-                {data.events.map((event, index) => (
-                  <TimelineEvent key={event.id} event={event} isLast={index === data.events.length - 1} />
-                ))}
-                {!data.events.length && (
-                  <Typography variant="body2" color="text.secondary">
-                    No events yet. We’ll update this timeline when activity begins.
-                  </Typography>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid xs={12} md={5}>
-          <Card sx={{ borderRadius: 3, mb: 3 }}>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Uploaded documents
-              </Typography>
-              <Stack spacing={2}>
-                {data.attachments.map((file) => (
-                  <FileItem key={file.id} file={file} isSmDown={isSmDown} />
-                ))}
-                {!data.attachments.length && (
-                  <Typography variant="body2" color="text.secondary">
-                    No documents uploaded yet.
-                  </Typography>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Need help?
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Email support@tasheel.ps or call your Tasheel coordinator. You can request revisions once deliverables are ready.
-              </Typography>
-              <TasheelButton
+        <Grid container spacing={2.5}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Stack spacing={2.5}>
+              <Card
                 variant="outlined"
-                size="small"
-                sx={{ mt: 2, width: { xs: '100%', sm: 'auto' } }}
-                disabled
+                sx={{ borderRadius: 3, borderColor: 'divider', boxShadow: '0 24px 60px rgba(15,46,83,0.08)' }}
               >
-                Request revision (coming soon)
-              </TasheelButton>
-            </CardContent>
-          </Card>
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 0.8 }}>
+                  Timeline
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700, mt: 0.5, mb: 2 }}>
+                  Project activity
+                </Typography>
+                <Stack spacing={3}>
+                  {data.events.map((event, index) => (
+                    <TimelineEvent key={event.id} event={event} isLast={index === data.events.length - 1} />
+                  ))}
+                  {!data.events.length && (
+                    <Typography variant="body2" color="text.secondary">
+                      No events yet. We’ll update this timeline when activity begins.
+                    </Typography>
+                  )}
+                </Stack>
+              </CardContent>
+              </Card>
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Stack spacing={3}>
+              <Card
+                variant="outlined"
+                sx={{ borderRadius: 3, borderColor: 'divider', boxShadow: '0 24px 60px rgba(15,46,83,0.08)' }}
+              >
+              <CardContent sx={{ p: { xs: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 0.8 }}>
+                    Request summary
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+                    Key details for this translation brief.
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: 2.5,
+                    gridTemplateColumns: {
+                      xs: 'repeat(1, minmax(0, 1fr))',
+                      sm: 'repeat(2, minmax(0, 1fr))'
+                    }
+                  }}
+                >
+                  <SummaryItem label="Submitted" value={formatDateTime(data.submittedAt)} />
+                  <SummaryItem label="Turnaround" value={formatTurnaround(data)} />
+                  <SummaryItem label="Translation type" value={formatTranslationType(data)} />
+                  <SummaryItem label="Delivery" value={formatDeliveryMethod(data)} />
+                  <SummaryItem label="Estimated total" value={formatEstimatedTotal(data)} />
+                  <SummaryItem label="Certification" value={data.options?.certification ? 'Yes' : 'No'} />
+                  <SummaryItem label="Notarisation" value={data.options?.notarisation ? 'Yes' : 'No'} />
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Special instructions
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>
+                    {data.options?.instructions || 'None provided.'}
+                  </Typography>
+                </Box>
+              </CardContent>
+              </Card>
+
+              <Card
+                variant="outlined"
+                sx={{ borderRadius: 3, borderColor: 'divider', boxShadow: '0 24px 60px rgba(15,46,83,0.08)' }}
+              >
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 0.8 }}>
+                  Uploaded documents
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+                  Review files shared with Tasheel for this request.
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <AttachmentList
+                    files={data.attachments}
+                    emptyPlaceholder={
+                      <Typography variant="body2" color="text.secondary">
+                        No documents uploaded yet.
+                      </Typography>
+                    }
+                    fullWidthOnMobile={isSmDown}
+                    getButtonProps={() => ({ variant: 'outlined', size: 'small' })}
+                  />
+                </Box>
+              </CardContent>
+              </Card>
+
+              <Card
+                variant="outlined"
+                sx={{ borderRadius: 3, borderColor: 'divider', boxShadow: '0 24px 60px rgba(15,46,83,0.08)' }}
+              >
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 0.8 }}>
+                  Need help?
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+                  Email support@tasheel.ps or call your Tasheel coordinator. You can request revisions once deliverables are ready.
+                </Typography>
+                <TasheelButton
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 2, width: { xs: '100%', sm: 'auto' } }}
+                  disabled
+                >
+                  Request revision (coming soon)
+                </TasheelButton>
+              </CardContent>
+              </Card>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
-    </Stack>
+      </Stack>
+    </Container>
   );
 }
 
@@ -207,10 +233,13 @@ PortalRequestDetailClient.propTypes = {
 function SummaryItem({ label, value }) {
   return (
     <Box sx={{ minWidth: 0 }}>
-      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.6 }}>
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600, wordBreak: 'break-word' }}>
+      <Typography
+        variant="body2"
+        sx={{ fontWeight: 600, mt: 0.75, wordBreak: 'break-word', color: value ? 'text.primary' : 'text.disabled' }}
+      >
         {value || '—'}
       </Typography>
     </Box>
@@ -220,58 +249,6 @@ function SummaryItem({ label, value }) {
 SummaryItem.propTypes = {
   label: PropTypes.string,
   value: PropTypes.node
-};
-
-function FileItem({ file, isSmDown }) {
-  const formattedSize = file.fileSize
-    ? `${(file.fileSize / (1024 * 1024)).toFixed(2)} MB`
-    : '';
-  return (
-    <Box
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        display: 'flex',
-        alignItems: { xs: 'flex-start', sm: 'center' },
-        justifyContent: 'space-between',
-        gap: 2,
-        flexDirection: { xs: 'column', sm: 'row' }
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-        <SvgIcon name="tabler-paperclip" size={20} />
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {file.fileName}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {formattedSize}
-          </Typography>
-        </Box>
-      </Box>
-      <TasheelButton
-        variant="outlined"
-        size="small"
-        href={file.url || '#'}
-        disabled={!file.url}
-        sx={{ alignSelf: { xs: 'stretch', sm: 'center' } }}
-        fullWidth={isSmDown}
-      >
-        {file.url ? 'Download' : 'Pending'}
-      </TasheelButton>
-    </Box>
-  );
-}
-
-FileItem.propTypes = {
-  file: PropTypes.shape({
-    fileName: PropTypes.string,
-    fileSize: PropTypes.number,
-    url: PropTypes.string
-  }),
-  isSmDown: PropTypes.bool
 };
 
 function TimelineEvent({ event, isLast }) {
@@ -312,56 +289,3 @@ TimelineEvent.propTypes = {
   }),
   isLast: PropTypes.bool
 };
-
-function formatLanguages(request) {
-  if (request.sourceLanguage && request.targetLanguage) {
-    return `${request.sourceLanguage} → ${request.targetLanguage}`;
-  }
-  return '—';
-}
-
-function formatDateTime(value) {
-  if (!value) return '—';
-  return new Date(value).toLocaleString();
-}
-
-function formatTurnaround(request) {
-  const value = request.options?.turnaround || request.turnaround;
-  if (!value) return '—';
-  if (typeof value === 'string') {
-    const normalized = value.toLowerCase();
-    if (TURNAROUND_LABELS[normalized]) {
-      return TURNAROUND_LABELS[normalized];
-    }
-  }
-  return TURNAROUND_LABELS[value] || value;
-}
-
-function formatTranslationType(request) {
-  const value = request.options?.translationType;
-  if (!value) return '—';
-  return TRANSLATION_TYPE_LABELS[value] || value;
-}
-
-function formatDeliveryMethod(request) {
-  const value = request.options?.deliveryMethod;
-  if (!value) {
-    if (request.options?.physicalCopies) {
-      return 'Digital + physical copies';
-    }
-    return 'Digital delivery (PDF)';
-  }
-  return DELIVERY_LABELS[value] || value;
-}
-
-function formatEstimatedTotal(request) {
-  const value = request.estimatedTotal ?? request.quoteAmount ?? request.options?.estimatedTotal;
-  if (value || value === 0) {
-    const numeric = Number(value);
-    if (Number.isFinite(numeric)) {
-      return `$${numeric.toFixed(2)}`;
-    }
-    return value;
-  }
-  return 'Pending quote — shared after Tasheel review';
-}
