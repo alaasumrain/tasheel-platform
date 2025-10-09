@@ -45,10 +45,10 @@ export default function ServiceSelectionSection({
   }, [serviceOptions]);
 
   return (
-    <Card sx={{ borderRadius: 4, boxShadow: '0 22px 64px rgba(15,46,83,0.12)', overflow: 'hidden' }}>
+    <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 10px 34px rgba(15,46,83,0.08)', md: '0 22px 64px rgba(15,46,83,0.12)' }, overflow: 'hidden' }}>
       <CardContent
         sx={{
-          p: { xs: 3, md: 4 },
+          p: { xs: 2.5, sm: 3, md: 4 },
           display: 'grid',
           gap: { xs: 3, md: 4 },
           gridTemplateColumns: { xs: '1fr', md: '1.1fr 1fr' }
@@ -56,14 +56,14 @@ export default function ServiceSelectionSection({
       >
         <Box sx={{ display: 'grid', gap: 2 }}>
           <Box>
-            <Typography variant="overline" sx={{ letterSpacing: 1, color: 'primary.main' }}>
+            <Typography variant="overline" sx={{ letterSpacing: 1, color: 'primary.main', fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}>
               Step 1 • Choose service
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.75 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.75, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
               Service Selection
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.25 }}>
-              We’ll tailor pricing and deliverables based on the programme you choose. Pick a quick suggestion or search our full catalogue.
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1.25, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
+              We'll tailor pricing and deliverables based on the programme you choose. Pick a quick suggestion or search our full catalogue.
             </Typography>
           </Box>
 
@@ -104,13 +104,13 @@ export default function ServiceSelectionSection({
                     sx={{
                       display: 'grid',
                       gap: 0.75,
-                      borderRadius: 3,
+                      borderRadius: { xs: 2, sm: 3 },
                       border: '2px solid',
                       borderColor: isActive ? 'primary.main' : 'divider',
                       bgcolor: isActive ? 'primary.lighter' : 'common.white',
-                      px: 2,
-                      py: 1.75,
-                      minHeight: 112,
+                      px: { xs: 1.5, sm: 2 },
+                      py: { xs: 1.5, sm: 1.75 },
+                      minHeight: { xs: 96, sm: 112 },
                       boxShadow: isActive ? '0 16px 40px rgba(15,46,83,0.16)' : '0 6px 24px rgba(15,46,83,0.08)',
                       cursor: 'pointer',
                       transition: 'all 0.18s ease',
@@ -120,10 +120,10 @@ export default function ServiceSelectionSection({
                       }
                     }}
                   >
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: { xs: '0.8125rem', sm: '0.875rem' } }}>
                       {option.label}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: { xs: '0.6875rem', sm: '0.75rem' } }}>
                       {option.category}
                     </Typography>
                     {isActive && <Chip label="Selected" size="small" color="primary" sx={{ width: 'fit-content' }} />}

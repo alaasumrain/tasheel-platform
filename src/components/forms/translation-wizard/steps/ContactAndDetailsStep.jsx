@@ -71,10 +71,10 @@ export default function ContactAndDetailsStep() {
     <Grid container spacing={4}>
       {/* Section 1: Service Selection */}
       <Grid size={12}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Select your service
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Choose the service you need to get started.
         </Typography>
       </Grid>
@@ -168,11 +168,11 @@ export default function ContactAndDetailsStep() {
       </Grid>
 
       {/* Section 2: Contact Details */}
-      <Grid size={12} sx={{ mt: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+      <Grid size={12} sx={{ mt: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Your contact details
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Tell us who we should send the quote to.
         </Typography>
       </Grid>
@@ -184,19 +184,19 @@ export default function ContactAndDetailsStep() {
       {/* Section 3: Language Pair - Only show if service needs it */}
       {wizardConfig.needsLanguagePair && (
         <>
-          <Grid size={12} sx={{ mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+          <Grid size={12} sx={{ mt: { xs: 1.5, sm: 2 } }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
               Language pair & project details
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
               Tell us which languages you need and how the translation will be used.
             </Typography>
           </Grid>
 
           <Grid size={12}>
-        <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-            <Grid container spacing={3}>
+        <Card sx={{ borderRadius: { xs: 2, md: 3 }, border: '1px solid', borderColor: 'divider' }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 4 } }}>
+            <Grid container spacing={{ xs: 2.5, sm: 3 }}>
               {/* Language pair with swap */}
               <Grid size={{ xs: 12, sm: 5 }}>
                 <Controller
@@ -224,7 +224,15 @@ export default function ContactAndDetailsStep() {
                 />
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Grid
+                size={{ xs: 12, sm: 'auto' }}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  my: { xs: -1, sm: 0 }
+                }}
+              >
                 <IconButton
                   aria-label="Swap languages"
                   onClick={handleSwapLanguages}
@@ -233,8 +241,8 @@ export default function ContactAndDetailsStep() {
                     border: '1px solid',
                     borderColor: canSwapLanguages ? 'primary.light' : 'divider',
                     borderRadius: 2,
-                    width: 44,
-                    height: 44,
+                    width: { xs: 40, sm: 44 },
+                    height: { xs: 40, sm: 44 },
                     bgcolor: canSwapLanguages ? 'primary.lighter' : 'grey.100'
                   }}
                 >

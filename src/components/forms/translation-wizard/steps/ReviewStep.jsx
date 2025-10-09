@@ -57,26 +57,26 @@ export default function ReviewStep() {
   return (
     <Grid container spacing={4}>
       <Grid size={12}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Review your request
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Double-check these details before sending. Your Tasheel coordinator will confirm anything that looks unclear.
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, md: 8 }}>
-        <Card sx={{ borderRadius: 4, boxShadow: '0 22px 64px rgba(15,46,83,0.12)' }}>
-          <CardContent sx={{ p: { xs: 3, md: 4 }, display: 'grid', gap: 3.5 }}>
+        <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 10px 34px rgba(15,46,83,0.08)', md: '0 22px 64px rgba(15,46,83,0.12)' } }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 4 }, display: 'grid', gap: { xs: 2.5, sm: 3.5 } }}>
             <Box>
-              <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+              <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 Contact details
               </Typography>
               <Stack spacing={0.75} sx={{ mt: 1.5 }}>
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                <Typography variant="body1" sx={{ fontWeight: 600, fontSize: { xs: '0.9375rem', sm: '1rem' } }}>
                   {data?.contact?.fullName || '—'}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8125rem', sm: '0.875rem' } }}>
                   {data?.contact?.email || 'No email provided'}
                 </Typography>
                 {data?.contact?.phone && (
@@ -268,8 +268,8 @@ export default function ReviewStep() {
 
       <Grid size={{ xs: 12, md: 4 }}>
         <Stack spacing={2.5} sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
-          <Card sx={{ borderRadius: 4, boxShadow: '0 20px 56px rgba(15,46,83,0.14)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 3.25 }, display: 'grid', gap: 2 }}>
+          <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 8px 24px rgba(15,46,83,0.08)', md: '0 20px 56px rgba(15,46,83,0.14)' } }}>
+            <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 3.25 }, display: 'grid', gap: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 What happens next
               </Typography>

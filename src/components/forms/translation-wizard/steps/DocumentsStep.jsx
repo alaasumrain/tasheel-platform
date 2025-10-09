@@ -21,12 +21,12 @@ export default function DocumentsStep() {
   } = useDocumentsLogic(methods);
 
   return (
-    <Grid container spacing={4}>
+    <Grid container spacing={{ xs: 3, sm: 4 }}>
       <Grid size={12}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Upload documents
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Drag and drop files or paste a secure link. Scans and high-quality photos of identity documents, certificates, and forms are all welcome.
         </Typography>
       </Grid>

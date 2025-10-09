@@ -99,7 +99,7 @@ function OptionTile({ title, badge, description, selected, onClick }) {
         role="button"
         aria-pressed={selected}
         sx={{
-          p: { xs: 2.75, md: 3.25 },
+          p: { xs: 2.25, sm: 2.75, md: 3.25 },
           alignItems: 'stretch',
           display: 'flex',
           transition: 'transform 0.2s ease',
@@ -200,10 +200,10 @@ export default function OptionsStep() {
   return (
     <Grid container spacing={4}>
       <Grid size={12}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Translation and delivery options
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Confirm the package, turnaround, and delivery expectations so we can quote precisely.
         </Typography>
       </Grid>
@@ -214,7 +214,7 @@ export default function OptionsStep() {
             <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
               Translation type
             </Typography>
-            <Grid container spacing={2.5}>
+            <Grid container spacing={{ xs: 2, sm: 2.5 }}>
               {TRANSLATION_TYPES.map((option) => (
                 <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
                   <OptionTile
@@ -240,7 +240,7 @@ export default function OptionsStep() {
             <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
               Turnaround time
             </Typography>
-            <Grid container spacing={2.5}>
+            <Grid container spacing={{ xs: 2, sm: 2.5 }}>
               {TURNAROUND_OPTIONS.map((option) => (
                 <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
                   <OptionTile
@@ -266,7 +266,7 @@ export default function OptionsStep() {
             <Typography variant="subtitle2" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 1.5 }}>
               Delivery method
             </Typography>
-            <Grid container spacing={2.5}>
+            <Grid container spacing={{ xs: 2, sm: 2.5 }}>
               {DELIVERY_OPTIONS.map((option) => (
                 <Grid key={option.value} size={{ xs: 12, sm: 6 }}>
                   <OptionTile
@@ -305,8 +305,8 @@ export default function OptionsStep() {
 
       <Grid size={{ xs: 12, md: 4 }}>
         <Stack spacing={2.5} sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
-          <Card sx={{ borderRadius: 4, boxShadow: '0 20px 56px rgba(15,46,83,0.14)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 3.25 } }}>
+          <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 8px 24px rgba(15,46,83,0.08)', md: '0 20px 56px rgba(15,46,83,0.14)' } }}>
+            <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 3.25 } }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>
                 How we scope your quote
               </Typography>

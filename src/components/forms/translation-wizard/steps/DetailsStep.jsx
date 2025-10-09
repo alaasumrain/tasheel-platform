@@ -49,18 +49,18 @@ export default function DetailsStep() {
   return (
     <Grid container spacing={4}>
       <Grid size={12}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: '1.125rem', sm: '1.25rem' } }}>
           Language pair & project details
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
           Tell us which languages you need, roughly how large the project is, and how the translation will be used.
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, md: 8 }}>
-        <Card sx={{ borderRadius: 4, boxShadow: '0 22px 64px rgba(15,46,83,0.12)' }}>
-          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-            <Grid container spacing={2.5} alignItems="center">
+        <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 10px 34px rgba(15,46,83,0.08)', md: '0 22px 64px rgba(15,46,83,0.12)' } }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 4 } }}>
+            <Grid container spacing={{ xs: 2, sm: 2.5 }} alignItems="center">
               <Grid size={{ xs: 12, sm: 5 }}>
                 <Controller
                   name="details.sourceLanguage"
@@ -86,7 +86,15 @@ export default function DetailsStep() {
                   )}
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 'auto' }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Grid
+                size={{ xs: 12, sm: 'auto' }}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  my: { xs: -1, sm: 0 }
+                }}
+              >
                 <IconButton
                   aria-label="Swap languages"
                   onClick={handleSwapLanguages}
@@ -95,8 +103,8 @@ export default function DetailsStep() {
                     border: '1px solid',
                     borderColor: canSwapLanguages ? 'primary.light' : 'divider',
                     borderRadius: 2,
-                    width: 44,
-                    height: 44,
+                    width: { xs: 40, sm: 44 },
+                    height: { xs: 40, sm: 44 },
                     bgcolor: canSwapLanguages ? 'primary.lighter' : 'grey.100'
                   }}
                 >
@@ -201,8 +209,8 @@ export default function DetailsStep() {
 
       <Grid size={{ xs: 12, md: 4 }}>
         <Stack spacing={2.5} sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
-          <Card sx={{ borderRadius: 4, boxShadow: '0 16px 48px rgba(15,46,83,0.1)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 3.25 } }}>
+          <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 8px 24px rgba(15,46,83,0.08)', md: '0 16px 48px rgba(15,46,83,0.1)' } }}>
+            <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 3.25 } }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>
                 Need multiple pairs?
               </Typography>
