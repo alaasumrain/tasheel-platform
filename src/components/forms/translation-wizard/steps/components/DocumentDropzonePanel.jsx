@@ -28,34 +28,19 @@ const ACCEPTED_TYPES = [
 
 export default function DocumentDropzonePanel({
   files,
-  link,
   deferUpload,
   errors,
   uploadWarning,
   onFilesChange,
   onRemoveFile,
-  onFocusLink,
-  clearErrors,
-  setValue,
-  watch
+  onFocusLink
 }) {
   const handleFileChange = (event) => {
     if (deferUpload) return;
     const incomingFiles = Array.from(event.target.files || []);
     if (!incomingFiles.length) return;
 
-    let rejected = 0;
-
-    const filtered = incomingFiles.filter((file) => {
-      const withinSize = file.size <= 20 * 1024 * 1024; // 20MB
-      const acceptedType = ACCEPTED_TYPES.includes(file.type);
-      const acceptedName = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|jpeg|jpg|png)$/i.test(file.name);
-      const ok = withinSize && (acceptedType || acceptedName);
-      if (!ok) rejected += 1;
-      return ok;
-    });
-
-    onFilesChange(filtered, rejected);
+    onFilesChange(incomingFiles);
     event.target.value = '';
   };
 
@@ -221,14 +206,10 @@ export default function DocumentDropzonePanel({
 
 DocumentDropzonePanel.propTypes = {
   files: PropTypes.array.isRequired,
-  link: PropTypes.string,
   deferUpload: PropTypes.bool,
   errors: PropTypes.object,
   uploadWarning: PropTypes.string,
   onFilesChange: PropTypes.func.isRequired,
   onRemoveFile: PropTypes.func.isRequired,
-  onFocusLink: PropTypes.func.isRequired,
-  clearErrors: PropTypes.func.isRequired,
-  setValue: PropTypes.func.isRequired,
-  watch: PropTypes.func.isRequired
+  onFocusLink: PropTypes.func.isRequired
 };

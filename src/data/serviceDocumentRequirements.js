@@ -89,12 +89,7 @@ export const serviceDocumentRequirements = {
     documentTypes.PERSONAL_PHOTO
   ],
 
-  'license-renewal': [
-    documentTypes.ID_CARD,
-    documentTypes.PERSONAL_PHOTO,
-    documentTypes.BLOOD_TYPE,
-    documentTypes.OLD_LICENSE
-  ],
+  'license-renewal': [documentTypes.ID_CARD, documentTypes.PERSONAL_PHOTO, documentTypes.BLOOD_TYPE, documentTypes.OLD_LICENSE],
 
   // Translation services - generic document
   'document-translation': [documentTypes.SOURCE_DOCUMENT],

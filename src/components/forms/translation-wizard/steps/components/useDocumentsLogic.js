@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useWatch } from 'react-hook-form';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
@@ -14,12 +15,19 @@ const ACCEPTED_TYPES = [
   'image/png'
 ];
 
-export default function useDocumentsLogic({ register, watch, setValue, clearErrors, setError }) {
+export default function useDocumentsLogic({ register, control, setValue, clearErrors, setError, getValues }) {
   const [uploadWarning, setUploadWarning] = useState('');
 
-  const files = useMemo(() => watch('documents.files') || [], [watch]);
-  const link = watch('documents.link');
-  const deferUpload = watch('documents.deferUpload');
+  const watchedFiles = useWatch({ control, name: 'documents.files' });
+  const files = useMemo(() => (Array.isArray(watchedFiles) ? watchedFiles : []), [watchedFiles]);
+  const link = useWatch({ control, name: 'documents.link' }) || '';
+  const deferUpload = useWatch({ control, name: 'documents.deferUpload' }) || false;
+
+  const filesRef = useRef(files);
+
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
 
   useEffect(() => {
     register('documents.files', {
@@ -61,13 +69,14 @@ export default function useDocumentsLogic({ register, watch, setValue, clearErro
         return ok;
       });
 
-      const nextFiles = [...files, ...filtered].slice(0, 5);
+      const nextFiles = [...(filesRef.current || []), ...filtered].slice(0, 5);
       setValue('documents.files', nextFiles, { shouldDirty: true, shouldValidate: true });
 
       if (nextFiles.length > 0) {
         clearErrors('documents.files');
         setUploadWarning(rejected > 0 ? 'Some files were skipped because they exceeded 20MB or used unsupported formats.' : '');
-        if (!watch('documents.documentType')) {
+        const currentDocType = getValues?.('documents.documentType');
+        if (!currentDocType) {
           const firstName = nextFiles[0]?.name?.split('.')?.[0] || '';
           if (firstName) {
             setValue('documents.documentType', firstName, { shouldDirty: false });
@@ -86,7 +95,7 @@ export default function useDocumentsLogic({ register, watch, setValue, clearErro
         setUploadWarning('');
       }
     },
-    [files, setValue, clearErrors, setError, watch, link]
+    [setValue, clearErrors, setError, link, getValues]
   );
 
   const handleDeferToggle = useCallback(
@@ -101,10 +110,10 @@ export default function useDocumentsLogic({ register, watch, setValue, clearErro
 
   const handleRemove = useCallback(
     (index) => {
-      const next = files.filter((_, i) => i !== index);
+      const next = (filesRef.current || []).filter((_, i) => i !== index);
       setValue('documents.files', next, { shouldDirty: true, shouldValidate: true });
     },
-    [files, setValue]
+    [setValue]
   );
 
   return {

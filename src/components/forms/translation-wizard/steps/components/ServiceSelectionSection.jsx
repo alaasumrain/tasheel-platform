@@ -29,20 +29,9 @@ export default function ServiceSelectionSection({
   onSelect,
   onClear
 }) {
-  console.log('🎯 ServiceSelectionSection RENDER', {
-    timestamp: new Date().toISOString(),
-    loading,
-    serviceOptionsCount: serviceOptions?.length || 0,
-    quickPickCount: quickPickOptions?.length || 0,
-    selectedService: selectedService?.label || 'none'
-  });
-
   const selectedValue = selectedService?.value || '';
 
-  const groupedOptions = useMemo(() => {
-    console.log('🎯 ServiceSelectionSection: Grouping options', { count: serviceOptions?.length });
-    return serviceOptions;
-  }, [serviceOptions]);
+  const groupedOptions = useMemo(() => serviceOptions, [serviceOptions]);
 
   return (
     <Card sx={{ borderRadius: { xs: 2, md: 4 }, boxShadow: { xs: '0 10px 34px rgba(15,46,83,0.08)', md: '0 22px 64px rgba(15,46,83,0.12)' }, overflow: 'hidden' }}>

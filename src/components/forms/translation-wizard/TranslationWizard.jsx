@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { servicesCatalogue } from '@/data/services';
 
 // @mui
-import { alpha, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import TasheelButton from '@/components/TasheelButton';
 import Chip from '@mui/material/Chip';
@@ -21,12 +21,14 @@ import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import SvgIcon from '@/components/SvgIcon';
+import { Wizard, useWizard } from 'react-use-wizard';
 
 // Steps
 import ContactAndDetailsStep from './steps/ContactAndDetailsStep';
 import DocumentsAndOptionsStep from './steps/DocumentsAndOptionsStep';
 import ReviewStep from './steps/ReviewStep';
 import WizardLayout from './layout/WizardLayout';
+import { useWizardConfig } from './useWizardConfig';
 
 const steps = [
   {
@@ -37,7 +39,15 @@ const steps = [
   {
     label: 'Documents & options',
     component: DocumentsAndOptionsStep,
-    fields: ['documents.files', 'options.translationType', 'options.turnaround', 'options.deliveryMethod']
+    fields: ['options.translationType', 'options.turnaround', 'options.deliveryMethod'],
+    getFields: ({ wizardConfig }) => {
+      const baseFields = ['options.translationType', 'options.turnaround', 'options.deliveryMethod'];
+      if (!wizardConfig.documentRequirements?.length) {
+        baseFields.unshift('documents.files');
+      }
+      return baseFields;
+    },
+    validate: validateServiceDocumentsStep
   },
   { label: 'Review & submit', component: ReviewStep, fields: [] }
 ];
@@ -128,63 +138,22 @@ WizardStepIcon.propTypes = {
 
 export default function TranslationWizard({ service, serviceName }) {
   const theme = useTheme();
-  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
-  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
   const methods = useForm({ defaultValues, mode: 'onBlur' });
   const { handleSubmit, trigger, setValue, watch, reset } = methods;
 
-  const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const isDevMode = process.env.NEXT_PUBLIC_TASHEEL_DEV_MODE === 'true';
 
-  console.log('🧙 TranslationWizard RENDER', {
-    timestamp: new Date().toISOString(),
-    service,
-    serviceName,
-    activeStep,
-    isSubmitting,
-    hasSubmissionStatus: !!submissionStatus
-  });
-
   // Prefill service slug and name if provided
   useEffect(() => {
-    console.log('🧙 TranslationWizard: Prefilling service', { service, serviceName });
-
     if (service) {
       setValue('meta.service', service);
       setValue('meta.serviceName', serviceName || serviceTitleLookup[service] || 'Service');
     }
   }, [service, serviceName, setValue]);
 
-  const StepComponent = steps[activeStep]?.component || (() => null);
-
-  const goNext = async () => {
-    console.log('🧙 TranslationWizard: goNext', { activeStep, isSubmitting });
-    if (isSubmitting) return;
-    const currentFields = steps[activeStep].fields;
-    if (!isDevMode && currentFields.length) {
-      const valid = await trigger(currentFields);
-      console.log('🧙 TranslationWizard: Validation result', { valid, fields: currentFields });
-      if (!valid) return;
-    }
-
-    if (activeStep === steps.length - 1) {
-      console.log('🧙 TranslationWizard: Submitting form');
-      await handleSubmit(onSubmit)();
-    } else {
-      console.log('🧙 TranslationWizard: Moving to next step', { nextStep: activeStep + 1 });
-      setActiveStep((prev) => prev + 1);
-    }
-  };
-
-  const goBack = () => {
-    if (isSubmitting) return;
-    setActiveStep((prev) => Math.max(prev - 1, 0));
-  };
-
   const onSubmit = async (formValues) => {
-    console.log('🧙 TranslationWizard: onSubmit START', { formValues });
     try {
       setIsSubmitting(true);
       setSubmissionStatus(null);
@@ -196,20 +165,22 @@ export default function TranslationWizard({ service, serviceName }) {
         formData.append('files', file);
       });
 
-      console.log('🧙 TranslationWizard: Sending form data');
+      Object.values(formValues.serviceDocuments || {}).forEach((file) => {
+        if (file) {
+          formData.append('files', file);
+        }
+      });
+
       const response = await fetch('/api/quote', {
         method: 'POST',
         body: formData
       });
-
-      console.log('🧙 TranslationWizard: Got response', { status: response.status, ok: response.ok });
 
       if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));
         throw new Error(errorBody?.error || 'Request failed');
       }
 
-      console.log('🧙 TranslationWizard: onSubmit SUCCESS');
       setSubmissionStatus({ type: 'success', message: 'Thanks! Tasheel will reach out shortly with your quote.' });
       reset({
         ...defaultValues,
@@ -218,9 +189,7 @@ export default function TranslationWizard({ service, serviceName }) {
           serviceName: serviceTitleLookup[formValues.meta.service] || ''
         }
       });
-      setActiveStep(0);
     } catch (error) {
-      console.error('Quote submission failed', error);
       setSubmissionStatus({
         type: 'error',
         message: error.message || 'Something went wrong. Please try again.'
@@ -277,57 +246,6 @@ export default function TranslationWizard({ service, serviceName }) {
     ? { type: submissionStatus.type, message: submissionStatus.message, onClose: () => setSubmissionStatus(null) }
     : null;
 
-  const stepIndicator = (
-    <Box>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 3 }}
-      >
-        <Typography variant="subtitle2" color="text.secondary">
-          Step {activeStep + 1} of {steps.length}
-        </Typography>
-        {isDevMode && <Chip color="warning" variant="filled" label="Dev mode" size="small" />}
-      </Stack>
-
-      <Stepper
-        nonLinear
-        activeStep={activeStep}
-        alternativeLabel
-        sx={{
-          '& .MuiStepConnector-line': {
-            borderColor: 'divider',
-            borderTopWidth: 2
-          },
-          '& .MuiStepLabel-label': {
-            fontWeight: 500,
-            fontSize: '0.875rem',
-            mt: 1
-          },
-          '& .MuiStepLabel-label.Mui-active': {
-            fontWeight: 600
-          }
-        }}
-      >
-        {steps.map((step, index) => {
-          const isClickable = index <= activeStep || isDevMode;
-          return (
-            <Step key={step.label} completed={activeStep > index}>
-              <StepButton
-                color="inherit"
-                onClick={() => isClickable && setActiveStep(index)}
-                disabled={!isClickable}
-              >
-                <StepLabel StepIconComponent={WizardStepIcon}>{step.label}</StepLabel>
-              </StepButton>
-            </Step>
-          );
-        })}
-      </Stepper>
-    </Box>
-  );
-
   const summaryPanel = (
     <Stack spacing={2}>
       <Box>
@@ -359,7 +277,138 @@ export default function TranslationWizard({ service, serviceName }) {
     </Stack>
   );
 
-  const actionButtons = (
+  const layoutWrapper = useMemo(
+    () => (
+      <WizardLayoutWrapper
+        heading="Share your brief. We'll handle the rest."
+        subheading="Upload your documents, pick turnaround options, and Tasheel will assign the right linguists with a detailed quote."
+        status={statusProps}
+        stepper={<WizardStepper steps={steps} isDevMode={isDevMode} />}
+        summary={summaryPanel}
+        actions={<WizardActions isSubmitting={isSubmitting} />}
+        isDevMode={isDevMode}
+      />
+    ),
+    [isDevMode, isSubmitting, statusProps, summaryPanel]
+  );
+
+  return (
+    <FormProvider {...methods}>
+      <Wizard wrapper={layoutWrapper} startIndex={0}>
+        {steps.map((step, index) => (
+          <WizardStepGuard
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            step={step}
+            stepIndex={index}
+            isLastStep={index === steps.length - 1}
+            isDevMode={isDevMode}
+            onSubmit={onSubmit}
+            setIsSubmitting={setIsSubmitting}
+          />
+        ))}
+      </Wizard>
+    </FormProvider>
+  );
+}
+
+TranslationWizard.propTypes = {
+  service: PropTypes.string,
+  serviceName: PropTypes.string
+};
+
+function WizardLayoutWrapper({ children, heading, subheading, status, stepper, summary, actions, isDevMode }) {
+  const { activeStep } = useWizard();
+
+  return (
+    <WizardLayout
+      heading={heading}
+      subheading={subheading}
+      status={status}
+      stepper={stepper}
+      summary={summary}
+      actions={actions}
+      isDevMode={isDevMode}
+    >
+      <Fade key={activeStep} in timeout={250}>
+        <Box sx={{ minHeight: { md: 320 } }}>{children}</Box>
+      </Fade>
+    </WizardLayout>
+  );
+}
+
+WizardLayoutWrapper.propTypes = {
+  actions: PropTypes.node,
+  children: PropTypes.node,
+  heading: PropTypes.node,
+  isDevMode: PropTypes.bool,
+  status: PropTypes.shape({ type: PropTypes.string, message: PropTypes.string, onClose: PropTypes.func }),
+  stepper: PropTypes.node,
+  subheading: PropTypes.node,
+  summary: PropTypes.node
+};
+
+function WizardStepper({ steps, isDevMode }) {
+  const { activeStep, goToStep, isLoading } = useWizard();
+
+  return (
+    <Box>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" color="text.secondary">
+          Step {activeStep + 1} of {steps.length}
+        </Typography>
+        {isDevMode && <Chip color="warning" variant="filled" label="Dev mode" size="small" />}
+      </Stack>
+
+      <Stepper
+        nonLinear
+        activeStep={activeStep}
+        alternativeLabel
+        sx={{
+          '& .MuiStepConnector-line': {
+            borderColor: 'divider',
+            borderTopWidth: 2
+          },
+          '& .MuiStepLabel-label': {
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            mt: 1
+          },
+          '& .MuiStepLabel-label.Mui-active': {
+            fontWeight: 600
+          }
+        }}
+      >
+        {steps.map((step, index) => {
+          const isClickable = index <= activeStep || isDevMode;
+          return (
+            <Step key={step.label} completed={activeStep > index}>
+              <StepButton
+                color="inherit"
+                onClick={() => isClickable && !isLoading && goToStep(index)}
+                disabled={!isClickable || isLoading}
+              >
+                <StepLabel StepIconComponent={WizardStepIcon}>{step.label}</StepLabel>
+              </StepButton>
+            </Step>
+          );
+        })}
+      </Stepper>
+    </Box>
+  );
+}
+
+WizardStepper.propTypes = {
+  isDevMode: PropTypes.bool,
+  steps: PropTypes.array.isRequired
+};
+
+function WizardActions({ isSubmitting }) {
+  const theme = useTheme();
+  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
+  const { previousStep, nextStep, isFirstStep, isLastStep, isLoading } = useWizard();
+
+  return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
       spacing={2}
@@ -368,8 +417,8 @@ export default function TranslationWizard({ service, serviceName }) {
       sx={{ mt: 4 }}
     >
       <TasheelButton
-        onClick={goBack}
-        disabled={activeStep === 0 || isSubmitting}
+        onClick={previousStep}
+        disabled={isFirstStep || isLoading || isSubmitting}
         size="large"
         variant="text"
         sx={{ order: { xs: 2, sm: 1 }, minWidth: { sm: 120 } }}
@@ -379,41 +428,121 @@ export default function TranslationWizard({ service, serviceName }) {
       <TasheelButton
         variant="contained"
         size="large"
-        onClick={goNext}
-        disabled={isSubmitting}
+        onClick={nextStep}
+        disabled={isLoading || (isLastStep && isSubmitting)}
         sx={{ order: { xs: 1, sm: 2 }, minWidth: { sm: 160 } }}
+        fullWidth={isSmDown}
       >
-        {activeStep === steps.length - 1 ? (isSubmitting ? 'Submitting…' : 'Submit request') : 'Continue'}
+        {isLastStep ? (isSubmitting || isLoading ? 'Submitting…' : 'Submit request') : 'Continue'}
       </TasheelButton>
     </Stack>
   );
-
-  const stepContent = (
-    <Fade key={activeStep} in timeout={250}>
-      <Box sx={{ minHeight: { md: 320 } }}>
-        <StepComponent />
-      </Box>
-    </Fade>
-  );
-
-  return (
-    <FormProvider {...methods}>
-      <WizardLayout
-        heading="Share your brief. We'll handle the rest."
-        subheading="Upload your documents, pick turnaround options, and Tasheel will assign the right linguists with a detailed quote."
-        status={statusProps}
-        stepper={stepIndicator}
-        summary={summaryPanel}
-        actions={actionButtons}
-        isDevMode={isDevMode}
-      >
-        {stepContent}
-      </WizardLayout>
-    </FormProvider>
-  );
 }
 
-TranslationWizard.propTypes = {
-  service: PropTypes.string,
-  serviceName: PropTypes.string
+WizardActions.propTypes = {
+  isSubmitting: PropTypes.bool
 };
+
+function WizardStepGuard({ step, stepIndex, isLastStep, isDevMode, onSubmit, setIsSubmitting }) {
+  const { handleStep, goToStep } = useWizard();
+  const { control, trigger, handleSubmit, setError, clearErrors, getValues } = useFormContext();
+  const wizardConfig = useWizardConfig(control);
+
+  const fieldsToValidate = useMemo(() => {
+    if (typeof step.getFields === 'function') {
+      return step.getFields({ wizardConfig }) || [];
+    }
+    return step.fields || [];
+  }, [step, wizardConfig]);
+
+  useEffect(() => {
+    handleStep(async () => {
+      if (!isDevMode && fieldsToValidate.length) {
+        const valid = await trigger(fieldsToValidate);
+        if (!valid) {
+          throw new Error('Step validation failed');
+        }
+      }
+
+      if (typeof step.validate === 'function') {
+        await step.validate({ wizardConfig, getValues, setError, clearErrors, isDevMode });
+      }
+
+      if (isLastStep) {
+        setIsSubmitting(true);
+        try {
+          await handleSubmit(onSubmit)();
+          goToStep(0);
+        } catch (error) {
+          setIsSubmitting(false);
+          throw error;
+        } finally {
+          // handleSubmit will resolve only after onSubmit completes.
+        }
+      }
+    });
+  }, [
+    clearErrors,
+    fieldsToValidate,
+    getValues,
+    goToStep,
+    handleStep,
+    handleSubmit,
+    isDevMode,
+    isLastStep,
+    onSubmit,
+    setError,
+    setIsSubmitting,
+    step.validate,
+    trigger,
+    wizardConfig
+  ]);
+
+  const StepComponent = step.component || (() => null);
+
+  return <StepComponent stepIndex={stepIndex} />;
+}
+
+WizardStepGuard.propTypes = {
+  isDevMode: PropTypes.bool,
+  isLastStep: PropTypes.bool,
+  onSubmit: PropTypes.func.isRequired,
+  setIsSubmitting: PropTypes.func.isRequired,
+  step: PropTypes.shape({
+    component: PropTypes.elementType,
+    fields: PropTypes.array,
+    getFields: PropTypes.func,
+    validate: PropTypes.func
+  }).isRequired,
+  stepIndex: PropTypes.number
+};
+
+async function validateServiceDocumentsStep({ wizardConfig, getValues, setError, clearErrors, isDevMode }) {
+  if (isDevMode) return;
+  if (!wizardConfig.documentRequirements?.length) return;
+
+  const serviceDocuments = getValues('serviceDocuments') || {};
+  let hasError = false;
+
+  wizardConfig.documentRequirements.forEach((doc) => {
+    if (!doc.required) {
+      clearErrors(`serviceDocuments.${doc.id}`);
+      return;
+    }
+
+    const file = serviceDocuments[doc.id];
+    if (!file) {
+      hasError = true;
+      setError(`serviceDocuments.${doc.id}`, {
+        type: 'manual',
+        message: `Upload ${doc.label}`
+      });
+    } else {
+      clearErrors(`serviceDocuments.${doc.id}`);
+    }
+  });
+
+  if (hasError) {
+    throw new Error('Missing required documents');
+  }
+}

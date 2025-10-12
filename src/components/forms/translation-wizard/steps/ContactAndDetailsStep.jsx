@@ -43,12 +43,6 @@ export default function ContactAndDetailsStep() {
     ? servicesCatalogue.filter((s) => s.category === selectedCategory)
     : servicesCatalogue;
 
-  console.log('📝 ContactAndDetailsStep RENDER', {
-    timestamp: new Date().toISOString(),
-    selectedServiceName,
-    hasErrors: Object.keys(errors).length > 0
-  });
-
   // Language swap logic
   const selectedSource = useWatch({ control, name: 'details.sourceLanguage' });
   const selectedTarget = useWatch({ control, name: 'details.targetLanguage' });

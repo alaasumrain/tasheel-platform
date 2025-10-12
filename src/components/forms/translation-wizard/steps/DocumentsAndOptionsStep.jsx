@@ -10,15 +10,17 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
+import Checkbox from '@mui/material/Checkbox';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import SvgIcon from '@/components/SvgIcon';
-import { DocumentDropzonePanel, DocumentGuidancePanel, ServiceDocumentUploader, useDocumentsLogic } from './components';
+import { DocumentDropzonePanel, ServiceDocumentUploader, useDocumentsLogic } from './components';
 import { outlinedInputSx } from '../styles';
 import { useWizardConfig } from '../useWizardConfig';
 
@@ -158,13 +160,29 @@ OptionTile.propTypes = {
 
 export default function DocumentsAndOptionsStep() {
   const methods = useFormContext();
-  const { register, setValue, watch, control, formState: { errors } } = methods;
+  const {
+    register,
+    setValue,
+    watch,
+    control,
+    clearErrors,
+    setError,
+    getValues,
+    formState: { errors }
+  } = methods;
 
   // Get wizard configuration based on selected service
   const wizardConfig = useWizardConfig(control);
 
   // Documents logic
-  const { files, link, deferUpload, uploadWarning, handleFilesChange, handleRemove, handleDeferToggle } = useDocumentsLogic(methods);
+  const { files, deferUpload, uploadWarning, handleFilesChange, handleRemove, handleDeferToggle } = useDocumentsLogic({
+    register,
+    control,
+    setValue,
+    clearErrors,
+    setError,
+    getValues
+  });
 
   // Options logic
   useEffect(() => {
@@ -221,36 +239,109 @@ export default function DocumentsAndOptionsStep() {
             documentRequirements={wizardConfig.documentRequirements}
             setValue={setValue}
             watch={watch}
+            clearErrors={clearErrors}
             errors={errors}
           />
         </Grid>
       ) : (
         <>
-          {/* Generic document dropzone for translation services */}
-          <Grid size={{ xs: 12, md: 7 }}>
+          {/* Generic document dropzone for translation services - Full width */}
+          <Grid size={12}>
             <DocumentDropzonePanel
               files={files}
-              link={link}
               deferUpload={deferUpload}
               errors={errors}
               uploadWarning={uploadWarning}
               onFilesChange={handleFilesChange}
               onRemoveFile={handleRemove}
               onFocusLink={() => methods.setFocus('documents.link')}
-              clearErrors={methods.clearErrors}
-              setValue={setValue}
-              watch={watch}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, md: 5 }}>
-            <DocumentGuidancePanel
-              register={register}
-              errors={errors}
-              deferUpload={deferUpload}
-              setValue={setValue}
-              onDeferToggle={handleDeferToggle}
+          {/* Document description and Secure link - Side by side */}
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              label="Document description"
+              placeholder="e.g. Birth certificate, employment contract"
+              fullWidth
+              {...register('documents.documentType')}
+              helperText="Optional — helps our team identify deliverables"
+              sx={outlinedInputSx}
+              disabled={deferUpload}
             />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Stack spacing={2.5}>
+              <TextField
+                label="Secure link"
+                placeholder="Paste Google Drive, Dropbox, or OneDrive link"
+                fullWidth
+                {...register('documents.link', {
+                  validate: (value) => {
+                    if (!value) return true;
+                    return /^(https?:\/\/)[\w.-]+(\.[\w.-]+)+[\w\-\._~:\/?#[\]@!$&'()*+,;=.]+$/.test(value)
+                      ? true
+                      : 'Enter a valid URL starting with https://';
+                  }
+                })}
+                error={Boolean(errors?.documents?.link)}
+                helperText={errors?.documents?.link?.message || "We'll download files from this link if you prefer"}
+                sx={outlinedInputSx}
+                disabled={deferUpload}
+              />
+            </Stack>
+          </Grid>
+
+          {/* Defer upload checkbox - Full width */}
+          <Grid size={12}>
+            <Box
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                px: { xs: 2.5, md: 3 },
+                py: { xs: 2, md: 2.5 },
+                backgroundColor: 'background.paper'
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={Boolean(deferUpload)}
+                    onChange={(event) => handleDeferToggle(event.target.checked)}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ lineHeight: 1.5 }}>
+                    {"I'll upload files later. Tasheel can collect them after scoping the project."}
+                  </Typography>
+                }
+                sx={{ alignItems: 'flex-start', m: 0 }}
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 4, mt: 0.5 }}>
+                {"We'll send a secure upload link once you approve the quote."}
+              </Typography>
+            </Box>
+          </Grid>
+
+          {/* Helpful guidelines - Full width at bottom */}
+          <Grid size={12}>
+            <Alert
+              severity="info"
+              variant="outlined"
+              sx={{ borderRadius: 2, borderColor: 'primary.light', backgroundColor: 'primary.lighter', color: 'primary.darker' }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                Helpful guidelines
+              </Typography>
+              <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                • Prefer flattened PDFs or high-resolution images.<br />
+                • Combine related pages into a single file when possible.<br />
+                • If your documents contain sensitive information, mention any handling requirements in the notes.
+              </Typography>
+            </Alert>
           </Grid>
         </>
       )}

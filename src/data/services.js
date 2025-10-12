@@ -2,11 +2,8 @@
 
 export const serviceCategories = [
   { id: 'all', name: 'All Services', icon: 'tabler-apps' },
-  { id: 'translation', name: 'Translation', icon: 'tabler-language' },
-  { id: 'localization', name: 'Localization', icon: 'tabler-world' },
-  { id: 'interpreting', name: 'Interpreting', icon: 'tabler-headphones' },
-  { id: 'audio-visual', name: 'Audio & Visual', icon: 'tabler-video' },
-  { id: 'documents', name: 'Document Processing', icon: 'tabler-files' }
+  { id: 'documents', name: 'Document Processing', icon: 'tabler-files' },
+  { id: 'translation', name: 'Translation', icon: 'tabler-language' }
 ];
 
 export const servicesCatalogue = [
@@ -228,7 +225,7 @@ export const servicesCatalogue = [
   },
   {
     id: 19,
-    title: 'International Driver\'s License',
+    title: "International Driver's License",
     slug: 'international-drivers-license',
     category: 'documents',
     icon: 'tabler-car',

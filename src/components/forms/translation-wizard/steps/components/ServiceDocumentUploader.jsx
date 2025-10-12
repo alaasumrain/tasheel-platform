@@ -20,7 +20,7 @@ import SvgIcon from '@/components/SvgIcon';
  * Component for uploading service-specific documents
  * Shows individual upload fields for each required document
  */
-export default function ServiceDocumentUploader({ documentRequirements, setValue, watch, errors }) {
+export default function ServiceDocumentUploader({ documentRequirements, setValue, watch, clearErrors, errors }) {
   const serviceDocuments = watch('serviceDocuments') || {};
 
   const handleFileSelect = useCallback(
@@ -28,9 +28,10 @@ export default function ServiceDocumentUploader({ documentRequirements, setValue
       const file = event.target.files?.[0];
       if (file) {
         setValue(`serviceDocuments.${documentId}`, file, { shouldValidate: true, shouldDirty: true });
+        clearErrors?.(`serviceDocuments.${documentId}`);
       }
     },
-    [setValue]
+    [setValue, clearErrors]
   );
 
   const handleRemoveFile = useCallback(
@@ -154,5 +155,6 @@ ServiceDocumentUploader.propTypes = {
   ).isRequired,
   setValue: PropTypes.func.isRequired,
   watch: PropTypes.func.isRequired,
+  clearErrors: PropTypes.func,
   errors: PropTypes.object
 };

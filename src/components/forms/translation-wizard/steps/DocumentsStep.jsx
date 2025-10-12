@@ -12,13 +12,19 @@ export default function DocumentsStep() {
   const methods = useFormContext();
   const {
     files,
-    link,
     deferUpload,
     uploadWarning,
     handleFilesChange,
     handleRemove,
     handleDeferToggle
-  } = useDocumentsLogic(methods);
+  } = useDocumentsLogic({
+    register: methods.register,
+    control: methods.control,
+    setValue: methods.setValue,
+    clearErrors: methods.clearErrors,
+    setError: methods.setError,
+    getValues: methods.getValues
+  });
 
   return (
     <Grid container spacing={{ xs: 3, sm: 4 }}>
@@ -34,16 +40,12 @@ export default function DocumentsStep() {
       <Grid size={{ xs: 12, md: 7 }}>
         <DocumentDropzonePanel
           files={files}
-          link={link}
           deferUpload={deferUpload}
           errors={methods.formState.errors}
           uploadWarning={uploadWarning}
           onFilesChange={handleFilesChange}
           onRemoveFile={handleRemove}
           onFocusLink={() => methods.setFocus('documents.link')}
-          clearErrors={methods.clearErrors}
-          setValue={methods.setValue}
-          watch={methods.watch}
         />
       </Grid>
 
