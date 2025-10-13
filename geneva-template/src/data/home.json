@@ -1,0 +1,325 @@
+{
+  "hero": {
+    "headline": "Language Interpreter Services",
+    "accent": "& Management Platform",
+    "trustedBy": "Trusted by interpreters across 30+ organizations",
+    "videoUrl": "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+    "primaryCta": {
+      "label": "Book a demo",
+      "href": "/contact"
+    },
+    "avatars": [
+      { "alt": "Interpreter One", "src": "/global/person-01.jpg" },
+      { "alt": "Interpreter Two", "src": "/global/person-02.jpg" },
+      { "alt": "Interpreter Three", "src": "/global/person-03.jpg" },
+      { "alt": "Interpreter Four", "src": "/global/person-04.jpg" }
+    ],
+    "mockup": {
+      "light": "/light/hero.jpg",
+      "dark": "/dark/hero.jpg",
+      "aspectRatio": "1271/831"
+    }
+  },
+  "partners": {
+    "headline": "Trusted by language access leaders",
+    "logos": [
+      "/global/partner-01.svg",
+      "/global/partner-02.svg",
+      "/global/partner-03.svg",
+      "/global/partner-04.svg",
+      "/global/partner-05.svg"
+    ]
+  },
+  "featuresGrid": {
+    "primary": {
+      "headline": "Interpreter Scheduling",
+      "description": "Coordinate onsite, phone, and virtual assignments with a single scheduler that updates in real-time.",
+      "image": {
+        "light": "/light/features-grid-01.png",
+        "dark": "/dark/features-grid-01.png",
+        "aspectRatio": "694/520"
+      },
+      "cta": {
+        "label": "Explore scheduling",
+        "href": "/services"
+      }
+    },
+    "secondary": {
+      "headline": "Compliance & Reporting",
+      "description": "Auto-generate audit trails, certifications, and billing statements in minutes.",
+      "image": {
+        "light": "/light/features-grid-02.png",
+        "dark": "/dark/features-grid-02.png",
+        "aspectRatio": "578/336"
+      }
+    },
+    "tertiary": {
+      "headline": "Multilingual Portal",
+      "description": "Give agencies, interpreters, and clients one portal to submit, approve, and track requests.",
+      "image": {
+        "light": "/light/features-grid-03.png",
+        "dark": "/dark/features-grid-03.png",
+        "aspectRatio": "578/336"
+      }
+    }
+  },
+  "video": {
+    "subHeadline": "Why language teams choose Tasheel",
+    "headline": "Purpose-built for interpreters, translators, and agencies",
+    "description": "Tasheel centralizes scheduling, billing, compliance, and interpreter management so your teams can focus on service delivery.",
+    "videoUrl": "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+    "poster": "/global/video-poster.jpg",
+    "cta": {
+      "label": "Start a project",
+      "href": "/quote"
+    }
+  },
+  "featuresSlider": {
+    "headline": "Capabilities that grow with every department",
+    "subHeadline": "Operations, compliance, billing, all in one workspace",
+    "features": [
+      {
+        "image": "/global/feature-slider-01.jpg",
+        "title": "Unified Case Management",
+        "description": "Track interpreter requests from intake to completion with live status updates."
+      },
+      {
+        "image": "/global/feature-slider-02.jpg",
+        "title": "Interpreter Marketplace",
+        "description": "Match jobs to certified interpreters automatically based on language, location, and availability."
+      },
+      {
+        "image": "/global/feature-slider-03.jpg",
+        "title": "Smart Billing",
+        "description": "Sync rates, timesheets, and invoices with your finance stack in a click."
+      },
+      {
+        "image": "/global/feature-slider-04.jpg",
+        "title": "Accessibility-first",
+        "description": "Support web, mobile, and kiosk requests with WCAG compliant flows."
+      }
+    ]
+  },
+  "featureLarge": {
+    "headline": "Build resilient language access programs",
+    "videoUrl": "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+    "features": [
+      "Centralize interpreter onboarding, credentialing, and renewals.",
+      "Keep agencies informed with automated notifications and reminders.",
+      "Monitor SLAs, performance metrics, and service quality in real-time.",
+      "Hand off billing, compliance, and reporting to Tasheel’s workflows."
+    ],
+    "image": {
+      "light": "/light/feature-large.png",
+      "dark": "/dark/feature-large.png"
+    },
+    "primaryCta": {
+      "label": "Launch your program",
+      "href": "/contact"
+    }
+  },
+  "featuresAccordion": {
+    "headline": "Integrations that keep requests moving",
+    "subHeadline": "Tasheel connects your CRM, scheduling tools, finance stack, and virtual interpreting platforms.",
+    "items": [
+      {
+        "title": "Zoom Rooms",
+        "content": "Spin up interpreter-enabled meetings with pre-assigned language channels and real-time notes.",
+        "imageLight": "/light/screenshot-01.jpg",
+        "imageDark": "/dark/screenshot-01.jpg"
+      },
+      {
+        "title": "Salesforce",
+        "content": "Sync service requests, case updates, and interpreter dispatch activity with customer records.",
+        "imageLight": "/light/screenshot-02.jpg",
+        "imageDark": "/dark/screenshot-02.jpg"
+      },
+      {
+        "title": "Stripe & QuickBooks",
+        "content": "Automate payouts, invoices, and reimbursements with built-in financial reconciliation.",
+        "imageLight": "/light/screenshot-03.jpg",
+        "imageDark": "/dark/screenshot-03.jpg"
+      },
+      {
+        "title": "Microsoft Teams",
+        "content": "Launch secure language sessions directly from your collaboration tools.",
+        "imageLight": "/light/screenshot-04.jpg",
+        "imageDark": "/dark/screenshot-04.jpg"
+      },
+      {
+        "title": "Zapier",
+        "content": "Trigger notifications, tasks, and forms across 5,000+ apps without writing code.",
+        "imageLight": "/light/screenshot-05.jpg",
+        "imageDark": "/dark/screenshot-05.jpg"
+      }
+    ]
+  },
+  "process": {
+    "headline": "From request to fulfillment in three steps",
+    "items": [
+      {
+        "number": 1,
+        "title": "Submit",
+        "content": "Agencies share language needs, documentation, and context via the portal."
+      },
+      {
+        "number": 2,
+        "title": "Match",
+        "content": "Tasheel pairs requests with certified interpreters and coordinates logistics."
+      },
+      {
+        "number": 3,
+        "title": "Deliver",
+        "content": "Track service delivery, gather feedback, and finalize billing in one workspace."
+      }
+    ]
+  },
+  "reviews": {
+    "headline": "Practitioners trust Tasheel",
+    "subHeadline": "Validated by coordinators, administrators, and interpreters worldwide",
+    "items": [
+      {
+        "stars": 5,
+        "author": "Layla K.",
+        "content": "Requests used to live in email threads. Tasheel gave us a source of truth overnight."
+      },
+      {
+        "stars": 5,
+        "author": "Mohammed S.",
+        "content": "Our interpreters finally have a mobile flow that respects their schedules and rates."
+      },
+      {
+        "stars": 5,
+        "author": "Rania B.",
+        "content": "Finance reconciliations went from days to an afternoon."
+      },
+      {
+        "stars": 5,
+        "author": "James P.",
+        "content": "The compliance reporting alone paid for the rollout."
+      }
+    ]
+  },
+  "featuresList": {
+    "headline": "Weighted for government-grade scale",
+    "subHeadline": "Run public sector programs, healthcare systems, and enterprise partnerships on one platform.",
+    "items": [
+      {
+        "title": "360° request visibility",
+        "content": "Track every interpreter engagement, update, and SLA across stakeholders with audit-ready logs.",
+        "lightImage": "/light/screenshot-01.jpg",
+        "darkImage": "/dark/screenshot-01.jpg"
+      },
+      {
+        "title": "Field-ready mobile tools",
+        "content": "Let interpreters manage assignments, submit documentation, and confirm arrivals from any device.",
+        "lightImage": "/light/screenshot-02.jpg",
+        "darkImage": "/dark/screenshot-02.jpg"
+      },
+      {
+        "title": "Analytics that drive policy",
+        "content": "Surface service demand, fulfillment rates, and language coverage to inform resource planning.",
+        "lightImage": "/light/screenshot-03.jpg",
+        "darkImage": "/dark/screenshot-03.jpg"
+      }
+    ]
+  },
+  "testimonials": {
+    "quote": "Tasheel modernized how we deliver language services. The team onboarded every agency in weeks and our interpreters love the transparency.",
+    "name": "Amani Dahlan",
+    "role": "Director of Language Access, Civic Services",
+    "image": "/global/testimonials-01.png"
+  },
+  "stats": {
+    "headline": "Impact across Tasheel deployments",
+    "description": "Real numbers from ministries, municipalities, and health networks running language services on Tasheel.",
+    "groups": [
+      [
+        { "headline": "17K+", "description": "Requests processed monthly", "highlight": true },
+        { "headline": "300+", "description": "Certified interpreters onboarded", "highlight": false },
+        { "headline": "13", "description": "Average hours saved per case", "highlight": false }
+      ],
+      [
+        { "headline": "5", "description": "Minutes to dispatch urgent requests", "highlight": false },
+        { "headline": "99.2%", "description": "Compliance accuracy", "highlight": true },
+        { "headline": "24/7", "description": "Operational coverage", "highlight": false }
+      ]
+    ]
+  },
+  "pricing": {
+    "headline": "Flexible programs tailored to your delivery model",
+    "subHeadline": "Choose the onboarding and support plan that matches your scale. Contact us for enterprise deployments.",
+    "currency": "USD",
+    "plans": [
+      {
+        "title": "Starter",
+        "monthlyPrice": 499,
+        "yearlyPrice": 4990,
+        "includedFeatures": [
+          "Up to 5 interpreter teams",
+          "Email + office hours support",
+          "Standard reporting suite"
+        ],
+        "excludedFeatures": [
+          "Dedicated implementation manager",
+          "Advanced analytics workspace"
+        ]
+      },
+      {
+        "title": "Growth",
+        "monthlyPrice": 1299,
+        "yearlyPrice": 12990,
+        "includedFeatures": [
+          "Unlimited interpreter accounts",
+          "Priority support",
+          "White-label client portal",
+          "Advanced analytics workspace"
+        ],
+        "excludedFeatures": [
+          "Custom integrations",
+          "Multi-region data residency"
+        ],
+        "popular": true
+      },
+      {
+        "title": "Enterprise",
+        "monthlyPrice": null,
+        "yearlyPrice": null,
+        "includedFeatures": [
+          "Dedicated success + solution architect",
+          "Custom integrations & SLAs",
+          "On-premise and GovCloud options",
+          "Field deployment training"
+        ],
+        "excludedFeatures": [],
+        "ctaLabel": "Contact sales"
+      }
+    ]
+  },
+  "faq": {
+    "headline": "Frequently asked",
+    "subHeadline": "Everything you need to know about Tasheel’s language access suite",
+    "items": [
+      {
+        "question": "Does Tasheel support on-demand and scheduled services?",
+        "answer": "Yes. Tasheel routes on-demand requests to available interpreters while managing scheduled appointments with calendar integrations."
+      },
+      {
+        "question": "Can we integrate Tasheel with our HR and finance systems?",
+        "answer": "Tasheel integrates with major HRIS, payroll, and accounting platforms. Enterprise plans include custom connectors."
+      },
+      {
+        "question": "How long does implementation take?",
+        "answer": "Pilot agencies can be live in under four weeks. Larger networks typically deploy within 60-90 days."
+      },
+      {
+        "question": "Is interpreter onboarding handled in the platform?",
+        "answer": "Tasheel manages credential uploads, approvals, renewals, and reminders so coordinators always know who is eligible to work."
+      },
+      {
+        "question": "What support is included?",
+        "answer": "All plans include help center access and live chat. Growth and Enterprise tiers add dedicated success resources."
+      }
+    ]
+  }
+}
