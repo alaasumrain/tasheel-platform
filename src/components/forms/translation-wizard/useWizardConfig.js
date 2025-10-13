@@ -13,9 +13,9 @@ export function useWizardConfig(control) {
 
   const config = useMemo(() => {
     if (!selectedServiceSlug) {
-      // No service selected yet - return default (show all translation fields)
+      // No service selected yet - don't show service-specific fields
       return {
-        needsLanguagePair: true,
+        needsLanguagePair: false,
         needsDocumentUpload: true,
         needsEventDetails: false,
         needsMediaFiles: false,
@@ -32,7 +32,7 @@ export function useWizardConfig(control) {
 
     if (!service) {
       return {
-        needsLanguagePair: true,
+        needsLanguagePair: false,
         needsDocumentUpload: true,
         needsEventDetails: false,
         needsMediaFiles: false,

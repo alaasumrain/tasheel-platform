@@ -100,16 +100,19 @@ export default function ContactAndDetailsStep() {
                   sx={outlinedInputSx}
                 />
               )}
-              renderOption={(props, option) => (
-                <Box component="li" {...props}>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <SvgIcon name={option.icon} size={20} color="primary.main" />
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {option.name}
-                    </Typography>
-                  </Stack>
-                </Box>
-              )}
+              renderOption={(props, option) => {
+                const { key, ...otherProps } = props;
+                return (
+                  <Box component="li" key={key} {...otherProps}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <SvgIcon name={option.icon} size={20} color="primary.main" />
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {option.name}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                );
+              }}
               isOptionEqualToValue={(option, value) => option.id === value?.id}
             />
           )}
@@ -143,18 +146,21 @@ export default function ContactAndDetailsStep() {
                   sx={outlinedInputSx}
                 />
               )}
-              renderOption={(props, option) => (
-                <Box component="li" {...props}>
-                  <Stack spacing={0.5} sx={{ width: '100%' }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {option.title}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {option.description}
-                    </Typography>
-                  </Stack>
-                </Box>
-              )}
+              renderOption={(props, option) => {
+                const { key, ...otherProps } = props;
+                return (
+                  <Box component="li" key={key} {...otherProps}>
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {option.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.description}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                );
+              }}
               isOptionEqualToValue={(option, value) => option.slug === value?.slug}
             />
           )}
