@@ -11,18 +11,15 @@ import { Providers } from '@/providers';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import theme from '@/theme';
 
-import Header from '@/components/sections/header';
-import Footer from '@/components/sections/footer';
-
 const monaSans = Mona_Sans({
 	variable: '--font-mona-sans',
 	subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-	title: 'Geneva — a ready-to-launch SaaS landing page by ThemeFellas.',
+	title: 'Tasheel — Government services concierge for Palestine',
 	description:
-		'aunch your SaaS product with Geneva — a responsive, high-converting landing page template built with Next.js, MUI and Tailwind CSS by ThemeFellas.',
+		'Tasheel helps residents and businesses in Palestine manage government documents, translations, and legalizations entirely online.',
 };
 
 export default function RootLayout({
@@ -37,11 +34,7 @@ export default function RootLayout({
 					<ThemeProvider theme={theme} defaultMode="dark">
 						<InitColorSchemeScript attribute="class" />
 						<Providers>
-							<Box sx={{ position: 'relative', zIndex: 2 }}>
-								<Header />
-								{children}
-								<Footer />
-							</Box>
+							<Box sx={{ position: 'relative', zIndex: 2 }}>{children}</Box>
 						</Providers>
 					</ThemeProvider>
 				</AppRouterCacheProvider>

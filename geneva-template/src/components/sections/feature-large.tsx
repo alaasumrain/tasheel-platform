@@ -16,21 +16,21 @@ import VideoButton from '@/components/buttons/video-button';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Build resilient language access programs`;
+const headline = `One platform for all your government needs`;
 
 // Put Video url here
 const videoUrl = 'https://www.youtube.com/watch?v=LXb3EKWsInQ';
 
 // Put Section items here
 const features: string[] = [
-	`Centralize interpreter onboarding, credentialing, and renewals.`,
-	`Keep agencies informed with automated notifications and reminders.`,
-	`Monitor SLAs, performance metrics, and service quality in real-time.`,
-	`Hand off billing, compliance, and reporting to Tasheel’s workflows.`,
+	`Submit multiple service requests and manage everything from one dashboard.`,
+	`Track all your documents in real-time with automated status notifications.`,
+	`Store completed documents securely with lifetime access and easy download.`,
+	`Set up renewal reminders so you never miss an expiration date.`,
 ];
 
 const primaryCta = {
-	label: 'Launch your program',
+	label: 'Get started now',
 	href: '/contact',
 };
 
@@ -72,11 +72,11 @@ export default function FeatureLarge() {
 												width: '100%',
 											}}
 										>
-											<Image
-												darkImage="/dark/feature-large.png"
-												lightImage="/light/feature-large.png"
-												alt=""
-											/>
+								<Image
+									darkImage="/dark/feature-large.png"
+									lightImage="/light/feature-large.png"
+									alt="Tasheel dashboard showing active government service requests"
+								/>
 										</Box>
 									</RevealSection>
 								</Grid>
@@ -90,10 +90,10 @@ export default function FeatureLarge() {
 														<Box sx={{ color: 'accent.main', pt: 0.5 }}>
 															<IconCheck size={24} />
 														</Box>
-														<Typography
-															color="textSecondary"
-															variant="subtitle2"
-														>
+									<Typography
+										color="text.secondary"
+										variant="subtitle2"
+									>
 															{feature}
 														</Typography>
 													</Stack>

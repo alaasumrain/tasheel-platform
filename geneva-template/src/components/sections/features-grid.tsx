@@ -17,24 +17,24 @@ import RevealSection from '@/components/ui/reveal-section';
 // Put Features here
 const features: Feature[] = [
 	{
-		headline: 'Interpreter Scheduling',
+		headline: 'Government Services Concierge',
 		description:
-			'Coordinate onsite, phone, and virtual assignments with a single scheduler that updates in real-time.',
+			'Renew licenses, request permits, and manage official certificates without visiting a service center.',
 	},
 	{
-		headline: 'Compliance & Reporting',
+		headline: 'Certified Translation Desk',
 		description:
-			'Auto-generate audit trails, certifications, and billing statements in minutes.',
+			'Order legal, medical, and academic translations with sworn translators and stamped deliverables.',
 	},
 	{
-		headline: 'Multilingual Portal',
+		headline: 'Legalization & Corporate Support',
 		description:
-			'Give agencies, interpreters, and clients one portal to submit, approve, and track requests.',
+			'Handle embassy legalization, ministry attestations, and corporate filings with guaranteed compliance.',
 	},
 ];
 
 const primaryCta = {
-	label: 'Explore scheduling',
+	label: 'Explore services',
 	href: '/services',
 };
 
@@ -69,11 +69,11 @@ export default function FeaturesGrid() {
 													<Typography variant="h4">
 														{features[0]?.headline || ''}
 													</Typography>
-													<Typography
-														color="textSecondary"
-														component={'p'}
-														variant="h6"
-													>
+							<Typography
+								color="text.secondary"
+								component={'p'}
+								variant="h6"
+							>
 														{features[0]?.description || ''}
 													</Typography>
 												</Stack>
@@ -92,12 +92,12 @@ export default function FeaturesGrid() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="694/520"
-													darkImage="/dark/features-grid-01.png"
-													lightImage="/light/features-grid-01.png"
-													alt=""
-												/>
+								<Image
+									aspectRatio="694/520"
+									darkImage="/dark/features-grid-01.png"
+									lightImage="/light/features-grid-01.png"
+									alt="Tasheel concierge dashboard for government services"
+								/>
 											</Box>
 										</Grid>
 									</Grid>
@@ -127,11 +127,11 @@ export default function FeaturesGrid() {
 												<Typography color="#ffffff" variant="h4">
 													{features[1]?.headline || ''}
 												</Typography>
-												<Typography
-													color="rgba(197, 202, 232, 1)"
-													component={'p'}
-													variant="h6"
-												>
+							<Typography
+								color="rgba(197, 202, 232, 1)"
+								component={'p'}
+								variant="h6"
+							>
 													{features[1]?.description || ''}
 												</Typography>
 											</Stack>
@@ -142,12 +142,12 @@ export default function FeaturesGrid() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="578/336"
-													darkImage="/dark/features-grid-02.png"
-													lightImage="/light/features-grid-02.png"
-													alt=""
-												/>
+								<Image
+									aspectRatio="578/336"
+									darkImage="/dark/features-grid-02.png"
+									lightImage="/light/features-grid-02.png"
+									alt="Certified translation management workspace"
+								/>
 											</Box>
 										</Grid>
 									</Grid>
@@ -186,17 +186,17 @@ export default function FeaturesGrid() {
 												>
 													{features[2]?.headline || ''}
 												</Typography>
-												<Typography
-													component={'p'}
-													sx={[
-														{ color: '#CBC9C7' },
-														(theme) =>
-															theme.applyStyles('dark', {
-																color: '#4B4B65',
-															}),
-													]}
-													variant="h6"
-												>
+							<Typography
+								component={'p'}
+								sx={[
+									{ color: '#CBC9C7' },
+									(theme) =>
+										theme.applyStyles('dark', {
+											color: '#4B4B65',
+										}),
+								]}
+								variant="h6"
+							>
 													{features[2]?.description || ''}
 												</Typography>
 											</Stack>
@@ -207,12 +207,12 @@ export default function FeaturesGrid() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="578/336"
-													darkImage="/dark/features-grid-03.png"
-													lightImage="/light/features-grid-03.png"
-													alt=""
-												/>
+								<Image
+									aspectRatio="578/336"
+									darkImage="/dark/features-grid-03.png"
+									lightImage="/light/features-grid-03.png"
+									alt="Legalization and corporate compliance workflow overview"
+								/>
 											</Box>
 										</Grid>
 									</Grid>

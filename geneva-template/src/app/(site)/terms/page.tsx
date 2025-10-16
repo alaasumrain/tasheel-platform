@@ -1,11 +1,12 @@
 import { Container, Stack, Typography } from '@mui/material';
 
+
 export default function Page() {
 	return (
 		<Container maxWidth="md" sx={{ py: { xs: 5, md: 10 } }}>
 			<Stack spacing={3}>
 				<Stack spacing={1}>
-					<Typography variant="h2">{'Privacy Policy'}</Typography>
+					<Typography variant="h2">{'Terms of Use'}</Typography>
 					<Typography color="textSecondary" variant="body1">
 						{'Last updated: 12 July 2025'}
 					</Typography>

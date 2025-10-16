@@ -11,9 +11,9 @@ import Image from 'next/image';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put content here
-const content = `Tasheel modernized how we deliver language services. The team onboarded every agency in weeks and our interpreters love the transparency.`;
-const name = `Amani Dahlan`;
-const job = `Director of Language Access, Civic Services`;
+const content = `Tasheel transformed how we manage employee documents. What used to take weeks of back-and-forth with government offices now happens seamlessly online. Our HR team saves 15+ hours per week, and our employees love the transparency.`;
+const name = `Sarah Al-Mansouri`;
+const job = `HR Director, Palestine Logistics Group`;
 
 export default function Testimonials() {
 	return (
@@ -40,12 +40,12 @@ export default function Testimonials() {
 											className="aspect-272/331"
 											sx={{ position: 'relative', width: '100%' }}
 										>
-											<Image
-												src="/global/testimonials-01.png"
-												style={{ objectFit: 'cover' }}
-												alt=""
-												fill
-											/>
+								<Image
+									src="/global/testimonials-01.png"
+									style={{ objectFit: 'cover' }}
+									alt="Portrait of Sarah Al-Mansouri"
+									fill
+								/>
 										</Box>
 									</Card>
 								</Box>

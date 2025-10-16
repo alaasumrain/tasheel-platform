@@ -5,15 +5,35 @@ import { cn } from '@/lib/utils';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Trusted by language access leaders`;
+const headline = `Trusted by residents and businesses across Palestine`;
 
 // Put Section Partners here
-const partners: string[] = [
-	'/global/partner-01.svg',
-	'/global/partner-02.svg',
-	'/global/partner-03.svg',
-	'/global/partner-04.svg',
-	'/global/partner-05.svg',
+interface Partner {
+	src: string;
+	alt: string;
+}
+
+const partners: Partner[] = [
+	{
+		src: '/global/partner-01.svg',
+		alt: 'Government services partner logo',
+	},
+	{
+		src: '/global/partner-02.svg',
+		alt: 'Enterprise client partner logo',
+	},
+	{
+		src: '/global/partner-03.svg',
+		alt: 'Financial services partner logo',
+	},
+	{
+		src: '/global/partner-04.svg',
+		alt: 'Logistics and delivery partner logo',
+	},
+	{
+		src: '/global/partner-05.svg',
+		alt: 'Technology integration partner logo',
+	},
 ];
 
 export default function Partners() {
@@ -27,11 +47,11 @@ export default function Partners() {
 				</RevealSection>
 				<RevealSection delay={0.3}>
 					<Box className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-						<Marquee pauseOnHover className="[--duration:20s]">
-							{partners.map((partner, index) => (
-								<img key={index} src={partner} alt="" />
-							))}
-						</Marquee>
+					<Marquee pauseOnHover className="[--duration:20s]">
+						{partners.map((partner, index) => (
+							<img key={index} src={partner.src} alt={partner.alt} />
+						))}
+					</Marquee>
 					<Box
 						sx={[
 							() => ({

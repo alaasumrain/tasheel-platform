@@ -29,39 +29,39 @@ interface Feature {
 const headline = `Integrations that keep requests moving`;
 
 // Put Section SubHeadline here
-const subHeadline = `Tasheel connects your CRM, scheduling tools, finance stack, and virtual interpreting platforms.`;
+const subHeadline = `Tasheel plugs into the portals, workflows, and communication tools your team already uses.`;
 
 // Put Section Features here
 const features: Feature[] = [
 	{
 		imageDark: '/dark/screenshot-01.jpg',
 		imageLight: '/light/screenshot-01.jpg',
-		title: `Zoom Rooms`,
-		content: `Spin up interpreter-enabled meetings with pre-assigned language channels and real-time notes.`,
+		title: `Government Portal Integrations`,
+		content: `Submit and monitor applications through Palestinian Authority portals including the Ministry of Interior eServices, Ministry of Transport, and Civil Affairs.`,
 	},
 	{
 		imageDark: '/dark/screenshot-02.jpg',
 		imageLight: '/light/screenshot-02.jpg',
-		title: `Salesforce`,
-		content: `Sync service requests, case updates, and interpreter dispatch activity with customer records.`,
+		title: `Secure Payment Workflows`,
+		content: `Collect fees through Stripe, Tap Payments, or bank transfer with automated receipts and reconciliation.`,
 	},
 	{
 		imageDark: '/dark/screenshot-03.jpg',
 		imageLight: '/light/screenshot-03.jpg',
-		title: `Stripe & QuickBooks`,
-		content: `Automate payouts, invoices, and reimbursements with built-in financial reconciliation.`,
+		title: `Document Vault`,
+		content: `Encrypt and store passports, certificates, and attestations with granular permissions and audit trails.`,
 	},
 	{
 		imageDark: '/dark/screenshot-04.jpg',
 		imageLight: '/light/screenshot-04.jpg',
-		title: `Microsoft Teams`,
-		content: `Launch secure language sessions directly from your collaboration tools.`,
+		title: `Notification Engine`,
+		content: `Keep applicants informed with branded SMS, email, and WhatsApp alerts at each milestone.`,
 	},
 	{
 		imageDark: '/dark/screenshot-05.jpg',
 		imageLight: '/light/screenshot-05.jpg',
-		title: `Zapier`,
-		content: `Trigger notifications, tasks, and forms across 5,000+ apps without writing code.`,
+		title: `Calendar & Appointments`,
+		content: `Sync site visits and biometrics appointments with Google Calendar, Outlook, and Teams schedules.`,
 	},
 ];
 

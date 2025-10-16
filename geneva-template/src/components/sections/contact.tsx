@@ -9,11 +9,11 @@ import {
 import Image from 'next/image';
 
 import { Card } from '@/components/ui/card';
-import ContactForm from '@/components/forms/contact-form';
+import QuoteRequestForm from '@/components/forms/quote-request-form';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put content here
-const headline = `Contact us`;
+const headline = `Request a quote`;
 
 export default function Contact() {
 	return (
@@ -42,7 +42,7 @@ export default function Contact() {
 						>
 							<Stack spacing={4}>
 								<Typography variant="h3">{headline}</Typography>
-								<ContactForm />
+								<QuoteRequestForm />
 							</Stack>
 						</CardContent>
 					</Card>

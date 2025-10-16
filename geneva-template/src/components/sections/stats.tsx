@@ -12,42 +12,42 @@ import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Impact across Tasheel deployments`;
+const headline = `Trusted by thousands across Palestine`;
 
 // Put Section Description here
-const description = `Real numbers from ministries, municipalities, and health networks running language services on Tasheel.`;
+const description = `Real results from residents and businesses across Palestine using Tasheel for government services, translations, and legalizations.`;
 
 const statsRow1: Stat[] = [
 	{
-		headline: '17K+',
-		description: 'Requests processed monthly',
+		headline: '5,000+',
+		description: 'Documents processed monthly',
 		color: true,
 	},
 	{
-		headline: '300+',
-		description: 'Certified interpreters onboarded',
+		headline: '48hrs',
+		description: 'Average turnaround time',
 		color: false,
 	},
 	{
-		headline: '13',
-		description: 'Average hours saved per case',
+		headline: '99.8%',
+		description: 'Approval success rate',
 		color: false,
 	},
 ];
 const statsRow2: Stat[] = [
 	{
-		headline: '5',
-		description: 'Minutes to dispatch urgent requests',
+		headline: '24/7',
+		description: 'Platform availability',
 		color: false,
 	},
 	{
-		headline: '99.2%',
-		description: 'Compliance accuracy',
+		headline: '15+',
+		description: 'Government entities',
 		color: true,
 	},
 	{
-		headline: '24/7',
-		description: 'Operational coverage',
+		headline: '2,500+',
+		description: 'Active users',
 		color: false,
 	},
 ];

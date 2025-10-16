@@ -27,46 +27,46 @@ import { Card } from '@/components/ui/card';
 import SubscribeForm from '@/components/forms/subscribe-form';
 
 // Put Headline here
-const headline = `Take Control of Your eCommerce Business`;
+const headline = `Ready to streamline your government services?`;
 
 // Put Description here
-const description = `Join thousands of sellers who trust Geneva to simplify operations, track performance, and scale faster — all from one powerful dashboard.`;
+const description = `Partner with Tasheel to digitize submissions, approvals, and translations while our specialists manage every government touchpoint for you.`;
 
 // Put Logo text here
-const logoText = `Geneva`;
+const logoText = `Tasheel`;
 
 // Put Copyright here
-const copyright = `© 2025 Geneva. All right reserved.`; // Put Copyright here
+const copyright = `© 2024 Tasheel. All rights reserved.`; // Put Copyright here
 
 // Put Footer links row 1 here
 const footerLinks1: FooterLink[] = [
 	{
 		href: '/about',
-		label: 'About',
+		label: 'About Us',
 	},
 	{
 		href: '/contact',
-		label: 'Contact us',
+		label: 'Contact',
 	},
 	{
-		href: '/sample',
-		label: 'Affiliate Program',
+		href: '/track',
+		label: 'Track Status',
 	},
 ];
 
 // Put Footer links row 2 here
 const footerLinks2: FooterLink[] = [
 	{
-		href: '/#features-1',
-		label: 'Features Grid',
+		href: '/#services',
+		label: 'Solutions',
 	},
 	{
-		href: '/#features-2',
-		label: 'Features Slider',
+		href: '/#industries',
+		label: 'Industries',
 	},
 	{
-		href: '/#features-3',
-		label: 'Features Accordion',
+		href: '/#resources',
+		label: 'Resources',
 	},
 ];
 
@@ -120,7 +120,7 @@ export default function Footer() {
 		});
 	};
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container id="company" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Box
 				sx={{
 					position: 'absolute',
@@ -195,12 +195,12 @@ export default function Footer() {
 										<Stack spacing={{ xs: 2.25, md: 4.5 }}>
 											<Stack alignItems="center" direction="row" spacing={1.5}>
 												<Box>
-													{mode === 'dark' && (
-														<img src="/dark/logo-footer.png" alt="" />
-													)}
-													{mode === 'light' && (
-														<img src="/light/logo-footer.png" alt="" />
-													)}
+									{mode === 'dark' && (
+										<img src="/dark/logo-footer.png" alt="Tasheel logo" />
+									)}
+									{mode === 'light' && (
+										<img src="/light/logo-footer.png" alt="Tasheel logo" />
+									)}
 												</Box>
 												<Typography
 													color="#ffffff"

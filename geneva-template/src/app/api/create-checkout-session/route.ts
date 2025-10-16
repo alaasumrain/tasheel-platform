@@ -2,7 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+// Lazy-initialize Stripe client to avoid errors during build
+function getStripeClient() {
+	if (!process.env.STRIPE_SECRET_KEY) {
+		throw new Error('STRIPE_SECRET_KEY is not configured');
+	}
+	return new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 
 export async function POST(req: NextRequest) {
 	try {
@@ -11,6 +17,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
 		}
 
+		const stripe = getStripeClient();
 		const session = await stripe.checkout.sessions.create({
 			payment_method_types: ['card'],
 			mode: 'subscription',

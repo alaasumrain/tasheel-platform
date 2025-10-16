@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	Avatar,
 	AvatarGroup,
@@ -8,47 +10,48 @@ import {
 	Stack,
 	Typography,
 } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 
 import GetStarted from '@/components/buttons/get-started-button';
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `One platform for language services`;
+const headline = `Your government services, simplified`;
 
 // Put Section Description here
-const description = `Overcome language barriers with AI-orchestrated scheduling, on-demand interpreting, and compliant translation workflows.`;
+const description = `From driver's license renewals to document legalization—submit online, track progress, and receive completed services. No office visits required.`;
 
 // Put Section TrustedBy here
-const trustedBy = `Trusted by ministries, hospitals, and enterprises across the region`;
+const trustedBy = `Trusted by 5,000+ residents and 200+ businesses`;
 
 // Put primary CTA here
 const primaryCta = {
-	label: 'Book a demo',
+	label: 'Start a request',
 	href: '/contact',
 };
 
 const secondaryCta = {
-	label: 'Learn more',
-	href: '/services',
+	label: 'Track my order',
+	href: '/track',
 };
 
 // Put Section AvatarGroup here
 const avatars: Avatar[] = [
 	{
-		alt: 'Interpreter spotlight',
+		alt: 'Tasheel government services specialist',
 		src: '/global/person-01.jpg',
 	},
 	{
-		alt: 'Agency coordinator',
+		alt: 'Document processing coordinator',
 		src: '/global/person-02.jpg',
 	},
 	{
-		alt: 'Remote interpreter',
+		alt: 'Client success manager',
 		src: '/global/person-03.jpg',
 	},
 	{
-		alt: 'Operations lead',
+		alt: 'Compliance and approvals lead',
 		src: '/global/person-04.jpg',
 	},
 ];
@@ -83,12 +86,50 @@ export default function Hero() {
 									<GetStarted
 										buttonLabel={primaryCta.label}
 										href={primaryCta.href}
+										size="large"
+										sx={{
+											boxShadow: (theme: Theme) =>
+												theme.palette.mode === 'dark'
+													? '0px 18px 32px rgba(0,0,0,0.45)'
+													: '0px 18px 36px rgba(31, 48, 146, 0.25)',
+											fontWeight: 600,
+										}}
 									/>
 									<Button
 										component="a"
 										href={secondaryCta.href}
-										variant="outlined"
-										color="secondary"
+										size="large"
+										variant="contained"
+										color="inherit"
+										sx={{
+											borderRadius: 999,
+											px: 3.5,
+											py: 1.25,
+											fontWeight: 600,
+											boxShadow: (theme: Theme) =>
+												theme.palette.mode === 'dark'
+													? '0px 16px 28px rgba(0,0,0,0.45)'
+													: '0px 20px 32px rgba(15,25,55,0.12)',
+											bgcolor: (theme: Theme) =>
+												theme.palette.mode === 'dark'
+													? 'rgba(255,255,255,0.08)'
+													: 'rgba(255,255,255,0.92)',
+											color: (theme: Theme) =>
+												theme.palette.mode === 'dark'
+													? theme.palette.common.white
+													: theme.palette.text.primary,
+											border: (theme: Theme) =>
+												theme.palette.mode === 'dark'
+													? '1px solid rgba(255,255,255,0.18)'
+													: '1px solid rgba(15,25,55,0.08)',
+											backdropFilter: 'blur(6px)',
+											'&:hover': {
+												bgcolor: (theme: Theme) =>
+													theme.palette.mode === 'dark'
+														? 'rgba(255,255,255,0.14)'
+														: 'rgba(255,255,255,1)',
+											},
+										}}
 									>
 										{secondaryCta.label}
 									</Button>

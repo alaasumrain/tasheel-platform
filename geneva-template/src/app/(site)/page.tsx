@@ -25,13 +25,13 @@ export default function Page() {
 			<Container sx={{ py: { xs: 6, md: 10 }, textAlign: 'center' }}>
 				<Stack spacing={2}>
 					<Typography color="accent" variant="subtitle1">
-						Language Interpreter Services &amp; Management System
+						Tasheel Government Services Concierge
 					</Typography>
 					<Typography variant="h2">
-						Everything agencies need to deliver language access at scale
+						Everything you need to handle government documents without the wait
 					</Typography>
 					<Typography color="text.secondary" variant="h6">
-						Centralize scheduling, interpreter onboarding, billing, and compliance while giving customers a seamless request experience.
+						From driver&apos;s licenses to embassy legalization—upload your documents once, track progress in real-time, and receive the final approvals without stepping into an office.
 					</Typography>
 				</Stack>
 			</Container>

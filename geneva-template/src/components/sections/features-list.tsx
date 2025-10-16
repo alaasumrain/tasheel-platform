@@ -4,28 +4,28 @@ import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put headline here
-const headline = `Language services for every industry`;
+const headline = `Built for individuals and businesses`;
 
 // Put subheadline here
-const subHeadline = `Equip government, healthcare, legal, and enterprise partners with tailored interpreter workflows.`;
+const subHeadline = `Whether you're renewing a license or managing corporate documents, Tasheel provides the tools you need.`;
 
 // Put features items here
 const features = [
 	{
-		title: `360° request visibility`,
-		content: `Track every interpreter engagement, update, and SLA across stakeholders with audit-ready logs.`,
+		title: `Complete request management`,
+		content: `Submit multiple service requests, upload documents, and manage everything from a single dashboard with full audit trail.`,
 		darkImage: '/dark/screenshot-01.jpg',
 		lightImage: '/light/screenshot-01.jpg',
 	},
 	{
-		title: `Field-ready mobile tools`,
-		content: `Let interpreters manage assignments, submit documentation, and confirm arrivals from any device.`,
+		title: `Mobile-first experience`,
+		content: `Check status, receive notifications, and download completed documents from any device—desktop, mobile, or tablet.`,
 		darkImage: '/dark/screenshot-02.jpg',
 		lightImage: '/light/screenshot-02.jpg',
 	},
 	{
-		title: `Analytics that drive policy`,
-		content: `Surface service demand, fulfillment rates, and language coverage to inform resource planning.`,
+		title: `Insights and analytics`,
+		content: `Track processing times, success rates, and spending across all your requests to optimize your document workflow.`,
 		darkImage: '/dark/screenshot-03.jpg',
 		lightImage: '/light/screenshot-03.jpg',
 	},
@@ -33,7 +33,7 @@ const features = [
 
 export default function FeaturesList() {
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container id="industries" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack alignItems="center" spacing={{ xs: 4, md: 8 }}>
 				<RevealSection delay={0.1} direction="up">
 					<Container disableGutters sx={{ maxWidth: '720px !important' }}>

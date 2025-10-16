@@ -10,24 +10,29 @@ import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `From request to fulfillment in three steps`;
+const headline = `From request to delivery in four simple steps`;
 
 // Put Section Items here
 const items: Item[] = [
 	{
 		number: 1,
-		title: 'Submit',
-		content: `Agencies share language needs, documentation, and context via the portal.`,
+		title: 'Choose & Submit',
+		content: `Select your service, upload required documents, and pay securely online.`,
 	},
 	{
 		number: 2,
-		title: 'Match',
-		content: `Tasheel pairs requests with certified interpreters and coordinates logistics.`,
+		title: 'We Verify',
+		content: `Our team reviews your submission within 2 hours and confirms document completeness.`,
 	},
 	{
 		number: 3,
-		title: 'Deliver',
-		content: `Track service delivery, gather feedback, and finalize billing in one workspace.`,
+		title: 'We Process',
+		content: `We handle all government submissions while you track progress in real-time.`,
+	},
+	{
+		number: 4,
+		title: 'Receive & Done',
+		content: `Get your completed documents delivered digitally or physically to your address.`,
 	},
 ];
 

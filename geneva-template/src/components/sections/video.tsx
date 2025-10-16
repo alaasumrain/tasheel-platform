@@ -21,20 +21,20 @@ import GetStarted from '@/components/buttons/get-started-button';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Purpose-built for interpreters, translators, and agencies`;
+const headline = `See how Tasheel simplifies government services`;
 
 // Put Section SubHeadline here
-const subHeadline = `Why language teams choose Tasheel`;
+const subHeadline = `Watch how it works`;
 
 // Put Section Description here
-const description = `Tasheel centralizes scheduling, billing, compliance, and interpreter management so your teams can focus on service delivery.`;
+const description = `From submitting your first request to receiving completed documents, see how Tasheel makes government services fast, transparent, and hassle-free.`;
 
 // Put Video url here
 const videoUrl = 'https://www.youtube.com/watch?v=LXb3EKWsInQ';
 
 const cta = {
-	label: 'Start a project',
-	href: '/quote',
+	label: 'Start a request',
+	href: '/contact',
 };
 
 export default function Video() {
@@ -123,12 +123,12 @@ export default function Video() {
 								},
 							}}
 						>
-							<Image
-								src="/global/video-poster.jpg"
-								alt=""
-								fill
-								style={{ objectFit: 'cover' }}
-							/>
+								<Image
+									src="/global/video-poster.jpg"
+									alt="Tasheel platform walkthrough preview"
+									fill
+									style={{ objectFit: 'cover' }}
+								/>
 							<Box
 								sx={{
 									backgroundColor: 'rgba(0, 0, 0, 0)',

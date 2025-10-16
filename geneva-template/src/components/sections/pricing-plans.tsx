@@ -17,53 +17,53 @@ import { IconCheck, IconX, IconArrowRight } from '@tabler/icons-react';
 import { Card } from '@/components/ui/card';
 
 const headline = `Our Pricing`;
-const subHeadline = `Geneva offers simple plans with powerful features.
+const subHeadline = `Tasheel offers transparent plans with built-in support.
 No hidden fees, no surprises.`;
-const currency = 'USD';
+const currency = 'ILS';
 
 const pricingPlans: PricingPlan[] = [
 	{
-		title: 'Beginner',
-		monthlyPrice: 9.99,
-		yearlyPrice: 99.99,
+		title: 'Essential Services',
+		monthlyPrice: 275,
+		yearlyPrice: 2970,
 		includedFeatures: [
-			`AI-Powered Financial Insights`,
-			`Seamless Multi-Account Management`,
-			`Advanced Bank-Level Security`,
+			`Driver's license renewal assistance`,
+			`Document verification & preparation`,
+			`Ministry coordination`,
 		],
 		excludedFeatures: [
-			`Flexible Custom Budgeting Tools`,
-			`Detailed Expense Tracking Analytics`,
-			`24/7 Priority Customer Support`,
+			`Embassy legalization handling`,
+			`Corporate compliance filings`,
+			`24/7 priority support`,
 		],
 	},
 	{
-		title: 'Professional',
-		monthlyPrice: 19.99,
-		yearlyPrice: 199.99,
+		title: 'Attestation Suite',
+		monthlyPrice: 520,
+		yearlyPrice: 5610,
 		includedFeatures: [
-			`AI-Powered Financial Insights`,
-			`Seamless Multi-Account Management`,
-			`Advanced Bank-Level Security`,
-			`Flexible Custom Budgeting Tools`,
+			`Full attestation chain (mission + MOFAE)`,
+			`Pickup & courier delivery`,
+			`Real-time status tracking`,
+			`Express turnaround options`,
 		],
 		excludedFeatures: [
-			`Detailed Expense Tracking Analytics`,
-			`24/7 Priority Customer Support`,
+			`Corporate compliance filings`,
+			`Dedicated account manager`,
 		],
 		popular: true,
 	},
 	{
-		title: 'Business',
-		monthlyPrice: 29.99,
-		yearlyPrice: 299.99,
+		title: 'Corporate Concierge',
+		monthlyPrice: 980,
+		yearlyPrice: 10580,
 		includedFeatures: [
-			`AI-Powered Financial Insights`,
-			`Seamless Multi-Account Management`,
-			`Advanced Bank-Level Security`,
-			`Flexible Custom Budgeting Tools`,
-			`Detailed Expense Tracking Analytics`,
-			`24/7 Priority Customer Support`,
+			`Commercial license renewals`,
+			`Business registration & restructuring`,
+			`Corporate compliance filings`,
+			`Dedicated account manager`,
+			`Priority government appointments`,
+			`24/7 priority support`,
 		],
 		excludedFeatures: [],
 	},

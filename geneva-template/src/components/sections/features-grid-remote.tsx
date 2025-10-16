@@ -17,25 +17,25 @@ import RevealSection from '@/components/ui/reveal-section';
 // Put Features here
 const features: Feature[] = [
 	{
-		headline: 'Video Remote Interpreting (VRI)',
+		headline: 'Online Document Upload',
 		description:
-			'Launch secure video sessions in seconds with HD streaming, waiting rooms, and language channel controls.',
+			'Securely upload documents from anywhere with drag-and-drop interface, automatic format detection, and encrypted storage.',
 	},
 	{
-		headline: 'Over-the-phone Interpreting (OPI)',
+		headline: 'Real-Time Tracking',
 		description:
-			'Route urgent calls to certified linguists 24/7 with automated call recording and analytics.',
+			'Track your request status 24/7 with live updates, estimated completion times, and instant notifications at every step.',
 	},
 	{
-		headline: 'Remote Simultaneous Interpreting (RSI)',
+		headline: 'Digital Signatures & Approval',
 		description:
-			'Power conferences and hybrid events with interpreter booths, relay language support, and live transcripts.',
+			'Sign documents electronically with legally-binding e-signatures and receive digital copies instantly upon completion.',
 	},
 ];
 
 const primaryCta = {
-	label: 'Discover remote delivery',
-	href: '/services',
+	label: 'Explore platform features',
+	href: '/#services',
 };
 
 interface Feature {
@@ -48,10 +48,10 @@ export default function FeaturesGridRemote() {
 		<Container sx={{ pt: { xs: 0, md: 0 }, pb: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={3} sx={{ mb: 4, textAlign: 'center' }}>
 				<Typography variant="h4">
-					Remote and hybrid interpreting programs
+					Powerful platform features that save you time
 				</Typography>
 				<Typography color="text.secondary" variant="h6">
-					Meeting-ready workflows for video, phone, and event interpreting delivered through Tasheel.
+					Everything you need to submit, track, and receive your government services—all in one secure platform.
 				</Typography>
 			</Stack>
 			<Grid container spacing={4.5}>
@@ -77,11 +77,11 @@ export default function FeaturesGridRemote() {
 													<Typography variant="h4">
 														{features[0]?.headline || ''}
 													</Typography>
-													<Typography
-														color="textSecondary"
-														component={'p'}
-														variant="h6"
-													>
+						<Typography
+							color="text.secondary"
+							component={'p'}
+							variant="h6"
+						>
 														{features[0]?.description || ''}
 													</Typography>
 												</Stack>
@@ -100,12 +100,12 @@ export default function FeaturesGridRemote() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="694/520"
-													darkImage="/dark/features-grid-01.png"
-													lightImage="/light/features-grid-01.png"
-													alt=""
-												/>
+                                                <Image
+                                                    aspectRatio="694/520"
+                                                    darkImage="/dark/screenshot-04.jpg"
+                                                    lightImage="/light/screenshot-04.jpg"
+                                                    alt="Tasheel document upload interface"
+                                                />
 											</Box>
 										</Grid>
 									</Grid>
@@ -150,12 +150,12 @@ export default function FeaturesGridRemote() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="578/336"
-													darkImage="/dark/features-grid-02.png"
-													lightImage="/light/features-grid-02.png"
-													alt=""
-												/>
+                                                <Image
+                                                    aspectRatio="578/336"
+                                                    darkImage="/dark/screenshot-05.jpg"
+                                                    lightImage="/light/screenshot-05.jpg"
+                                                    alt="Real-time request tracking dashboard"
+                                                />
 											</Box>
 										</Grid>
 									</Grid>
@@ -215,12 +215,12 @@ export default function FeaturesGridRemote() {
 											}}
 										>
 											<Box>
-												<Image
-													aspectRatio="578/336"
-													darkImage="/dark/features-grid-03.png"
-													lightImage="/light/features-grid-03.png"
-													alt=""
-												/>
+                                                <Image
+                                                    aspectRatio="578/336"
+                                                    darkImage="/dark/features-grid-03.png"
+                                                    lightImage="/light/features-grid-03.png"
+                                                    alt="Digital signature and approval confirmation screen"
+                                                />
 											</Box>
 										</Grid>
 									</Grid>

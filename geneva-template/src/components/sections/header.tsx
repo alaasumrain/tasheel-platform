@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import {
 	Box,
-	Button,
 	Link,
 	Container,
 	Dialog,
@@ -10,40 +9,37 @@ import {
 	IconButton,
 	Stack,
 	Typography,
-	Grid,
 	useColorScheme,
 } from '@mui/material';
 
 import { IconMenu, IconX as IconClose } from '@tabler/icons-react';
 
 import GetStarted from '@/components/buttons/get-started-button';
-import LoginButton from '@/components/buttons/login-button';
 import ThemeToggle from '@/components/ui/theme-toggle';
 
-// Put Logo text here
-const logoText = `Geneva`;
+// Wordmark handled via combined logo asset
 
 // Put Navigation links here
 const navigationLinks: NavigationLink[] = [
 	{
-		label: 'Home',
-		href: '/',
+		label: 'Services',
+		href: '/services',
 	},
 	{
-		label: 'Features',
-		href: '/#features-1',
-	},
-	{
-		label: 'How it works',
-		href: '/#features-3',
+		label: 'Track Status',
+		href: '/track',
 	},
 	{
 		label: 'Pricing',
 		href: '/#pricing',
 	},
 	{
-		label: 'FAQ',
-		href: '/#faq',
+		label: 'About',
+		href: '/about',
+	},
+	{
+		label: 'Contact',
+		href: '/contact',
 	},
 ];
 
@@ -52,38 +48,53 @@ export default function Header() {
 	return (
 		<>
 			<Box>
-				<Container maxWidth="lg">
+		<Container maxWidth="lg" sx={{ px: { xs: 2.5, lg: 4 } }}>
 					<Stack
 						alignItems="center"
 						direction={'row'}
 						justifyContent="space-between"
-						sx={{ height: 120 }}
+						sx={{ height: { xs: 100, lg: 110 } }}
 					>
 						<LogoWrapper />
-						<Stack
-							alignItems="center"
-							direction="row"
-							spacing={5}
-							sx={{ display: { xs: 'none', lg: 'flex' } }}
+				<Stack
+					direction="row"
+					spacing={3}
+					sx={{
+						display: { xs: 'none', lg: 'flex' },
+						ml: { lg: 6 },
+						alignItems: 'center',
+						'& a': {
+							whiteSpace: 'nowrap',
+							fontWeight: 500,
+						},
+					}}
+				>
+					{navigationLinks.map((link) => (
+						<Link key={link.label} href={link.href} underline="none">
+						<Typography
+							color="textPrimary"
+							sx={{ fontSize: '0.95rem', fontWeight: 600, letterSpacing: 0.2 }}
+							variant="subtitle2"
 						>
-							{navigationLinks.map((link) => (
-								<Link key={link.label} href={link.href} underline="none">
-									<Typography color="textPrimary" variant="subtitle2">
-										{link.label}
-									</Typography>
-								</Link>
-							))}
-						</Stack>
-						<Stack
-							alignItems="center"
-							direction="row"
-							spacing={2.5}
-							sx={{ display: { xs: 'none', lg: 'flex' } }}
-						>
-							<ThemeToggle />
-							<Button color="secondary">{`Login`}</Button>
-							<GetStarted />
-						</Stack>
+							{link.label}
+						</Typography>
+					</Link>
+					))}
+				</Stack>
+				<Stack
+					alignItems="center"
+					direction="row"
+					spacing={2.5}
+					sx={{ display: { xs: 'none', lg: 'flex' } }}
+				>
+					<ThemeToggle />
+					<GetStarted
+						buttonLabel="Request a Quote"
+						href="/contact"
+						size="medium"
+						sx={{ boxShadow: '0px 8px 16px rgba(0,0,0,0.12)' }}
+					/>
+				</Stack>
 						<Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
 							<IconButton onClick={() => setOpen(true)}>
 								<IconMenu />
@@ -150,19 +161,12 @@ export default function Header() {
 								))}
 							</Stack>
 							<Container maxWidth="sm">
-								<Grid
-									container
-									alignItems="center"
-									direction="row"
-									spacing={2.5}
-								>
-									<Grid size={{ xs: 12, md: 6 }}>
-										<LoginButton fullWidth />
-									</Grid>
-									<Grid size={{ xs: 12, md: 6 }}>
-										<GetStarted fullWidth />
-									</Grid>
-								</Grid>
+								<GetStarted
+									buttonLabel="Request a Quote"
+									fullWidth
+									href="/contact"
+									size="large"
+								/>
 							</Container>
 						</Stack>
 					</Container>
@@ -179,15 +183,15 @@ interface NavigationLink {
 
 function LogoWrapper() {
 	const { mode } = useColorScheme();
+	const logoSrc = mode === 'dark' ? '/dark/logo-header.png' : '/light/logo-header.png';
 	return (
 		<Link href="/" underline="none">
-			<Stack alignItems="center" direction="row" spacing={1.5}>
-				{mode === 'dark' && <img src="/dark/logo-header.png" alt="" />}
-				{mode === 'light' && <img src="/light/logo-header.png" alt="" />}
-				<Typography color="textPrimary" component={'div'} variant="h4">
-					{logoText}
-				</Typography>
-			</Stack>
+			<Box
+				component="img"
+				src={logoSrc}
+				alt="Company logo"
+				sx={{ height: { xs: 56, lg: 68 }, width: 'auto' }}
+			/>
 		</Link>
 	);
 }

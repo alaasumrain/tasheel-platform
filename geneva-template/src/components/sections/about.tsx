@@ -7,14 +7,17 @@ import ContactButton from '../buttons/contact-button';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put tagline here
-const tagline = `About us`;
+const tagline = `About Tasheel`;
 
 // Put headline here
-const headline = `We control the world one line at a time.`;
+const headline = `Simplifying government services, one document at a time`;
 
 // put content here
-const description = `It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. 
-\nMany desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose`;
+const description = `Tasheel is your trusted partner for government services, document translation, and legalization. We believe that accessing government services shouldn&apos;t require hours of waiting in lines or navigating complex bureaucracy.
+
+Our platform connects you directly with certified professionals who handle everything from driver&apos;s license renewals to embassy legalizations—all online, all secure, all transparent.
+
+Founded with a mission to modernize how citizens and businesses interact with government services, Tasheel combines expert knowledge with cutting-edge technology to deliver fast, compliant, and hassle-free service delivery.`;
 
 export default function Contact() {
 	return (

@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import {
 	Box,
 	Button,
@@ -8,63 +7,63 @@ import {
 	Container,
 	Grid,
 	Stack,
-	ToggleButtonGroup,
-	ToggleButton,
 	Typography,
 } from '@mui/material';
 import { IconCheck, IconX, IconArrowRight } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
-import { loadStripe } from '@stripe/stripe-js';
 import RevealSection from '@/components/ui/reveal-section';
 
-const headline = `Flexible programs tailored to your delivery model`;
-const subHeadline = `Choose the onboarding and support plan that matches your scale. Contact us for enterprise deployments.`;
-const currency = 'USD';
+const headline = `Transparent pricing for Palestinian services`;
+const subHeadline = `Clear NIS pricing for our most requested services. Government fees are billed at cost, and every quote includes a detailed breakdown.`;
+const currency = 'ILS';
 
 const pricingPlans: PricingPlan[] = [
 	{
-		title: 'Starter',
-		monthlyPrice: 499,
-		yearlyPrice: 4990,
-		includedFeatures: [
-			`Up to 5 interpreter teams`,
-			`Email + office hours support`,
-			`Standard reporting suite`,
-		],
-		excludedFeatures: [
-			`Dedicated implementation manager`,
-			`Advanced analytics workspace`,
-		],
-	},
-	{
-		title: 'Growth',
-		monthlyPrice: 1299,
-		yearlyPrice: 12990,
-		includedFeatures: [
-			`Unlimited interpreter accounts`,
-			`Priority support`,
-			`White-label client portal`,
-			`Advanced analytics workspace`,
-		],
-		excludedFeatures: [
-			`Custom integrations`,
-			`Multi-region data residency`,
-		],
-		popular: true,
-	},
-	{
-		title: 'Enterprise',
-		monthlyPrice: null,
+		title: 'Government Services',
+		monthlyPrice: 275,
 		yearlyPrice: null,
 		includedFeatures: [
-			`Dedicated success + solution architect`,
-			`Custom integrations & SLAs`,
-			`On-premise and GovCloud options`,
-			`Field deployment training`,
+			`Palestinian driver&apos;s license renewal assistance`,
+			`Document verification & preparation`,
+			`Ministry of Interior & Transport coordination`,
+			`Courier delivery included`,
+			`SMS/Email updates`,
 		],
 		excludedFeatures: [],
-		ctaLabel: 'Contact sales',
+		ctaLabel: 'View services',
+		ctaHref: '/services',
+	},
+	{
+		title: 'Attestation Services',
+		monthlyPrice: 520,
+		yearlyPrice: null,
+		includedFeatures: [
+			`Marriage certificate attestation`,
+			`Birth certificate attestation`,
+			`Degree attestation`,
+			`Complete mission + MOFAE chain`,
+			`Free pickup across the West Bank`,
+			`Express service available`,
+		],
+		excludedFeatures: [],
+		popular: true,
+		ctaLabel: 'View services',
+		ctaHref: '/services',
+	},
+	{
+		title: 'Business Services',
+		monthlyPrice: 980,
+		yearlyPrice: null,
+		includedFeatures: [
+			`Commercial license renewal`,
+			`Business registration`,
+			`Corporate compliance filings`,
+			`Ministry of National Economy coordination`,
+			`Priority processing`,
+		],
+		excludedFeatures: [],
+		ctaLabel: 'Contact us',
 		ctaHref: '/contact',
 	},
 ];
@@ -82,70 +81,31 @@ interface PricingPlan {
 	ctaHref?: string;
 }
 
-export default function PricingPlans() {
-	const [planType, setPlanType] = useState<'monthly' | 'yearly'>('monthly');
 
+export default function PricingPlans() {
 	return (
 		<Container id="pricing" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Stack spacing={{ xs: 6, md: 8 }}>
 					<Box>
-						<Grid container spacing={{ xs: 4, md: 4 }} alignItems="center">
-							<Grid size={{ xs: 12, md: 'grow' }}>
-								<Stack spacing={1.5}>
-									<Typography
-										sx={{ textAlign: { xs: 'center', md: 'left' } }}
-										variant="h2"
-									>
-										{headline}
-									</Typography>
-									<Typography
-										color="textSecondary"
-										component={'p'}
-										sx={{
-											textAlign: { xs: 'center', md: 'left' },
-											whiteSpace: 'pre-line',
-										}}
-										variant="h6"
-									>
-										{subHeadline}
-									</Typography>
-								</Stack>
-							</Grid>
-							<Grid size={{ xs: 12, md: 'auto' }}>
-								<Stack
-									direction="row"
-									alignItems="center"
-									justifyContent={{ xs: 'center', md: 'flex-end' }}
-								>
-									<ToggleButtonGroup
-										exclusive
-										onChange={(event, newValue) => setPlanType(newValue)}
-										value={planType}
-									>
-										<ToggleButton value="monthly">
-											<Box sx={{ px: { md: 3.25 } }}>{`Monthly`}</Box>
-										</ToggleButton>
-										<ToggleButton value="yearly">
-											<Stack direction="row" alignItems="center" spacing={1}>
-												<Box>{`Yearly`}</Box>
-												<Chip color="accent" label="Save 20%" size="small" />
-											</Stack>
-										</ToggleButton>
-									</ToggleButtonGroup>
-								</Stack>
-							</Grid>
-						</Grid>
+						<Stack spacing={1.5} textAlign="center">
+							<Typography variant="h2">{headline}</Typography>
+							<Typography
+								color="textSecondary"
+								component={'p'}
+								variant="h6"
+								maxWidth={800}
+								sx={{ mx: 'auto' }}
+							>
+								{subHeadline}
+							</Typography>
+						</Stack>
 					</Box>
 					<Box>
 						<Grid container spacing={{ xs: 3, md: 4 }}>
 							{pricingPlans.map((plan, index) => (
 								<Grid key={index} size={{ xs: 12, md: 4 }}>
-									<PricingPlanCard
-										plan={plan}
-										planType={planType}
-										currency={currency}
-									/>
+						<PricingPlanCard plan={plan} currency={currency} />
 								</Grid>
 							))}
 						</Grid>
@@ -158,74 +118,28 @@ export default function PricingPlans() {
 
 function PricingPlanCard({
 	plan,
-	planType,
 	currency,
 }: {
 	plan: PricingPlan;
-	planType: 'monthly' | 'yearly';
 	currency: string;
 }) {
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
 	const formattedMonthlyPrice =
 		plan.monthlyPrice !== undefined && plan.monthlyPrice !== null
 			? new Intl.NumberFormat('en-US', {
-					style: 'currency',
-					currency: currency,
-				}).format(plan.monthlyPrice)
-			: null;
-
-	const formattedYearlyPrice =
-		plan.yearlyPrice !== undefined && plan.yearlyPrice !== null
-			? new Intl.NumberFormat('en-US', {
-					style: 'currency',
-					currency: currency,
-				}).format(plan.yearlyPrice)
+				style: 'currency',
+				currency,
+				currencyDisplay: 'narrowSymbol',
+			}).format(plan.monthlyPrice)
 			: null;
 
 	const isCustomPlan =
 		(plan.monthlyPrice === undefined || plan.monthlyPrice === null) &&
 		(plan.yearlyPrice === undefined || plan.yearlyPrice === null);
 
-	const handlePrimaryAction = async () => {
-		if (isCustomPlan) {
-			if (plan.ctaHref) {
-				window.location.href = plan.ctaHref;
-			}
-			return;
-		}
-
-		setLoading(true);
-		setError(null);
-		const priceId =
-			planType === 'monthly'
-				? plan.stripePriceIdMonthly
-				: plan.stripePriceIdYearly;
-		if (!priceId) {
-			setError('No price ID available for this plan.');
-			setLoading(false);
-			return;
-		}
-		try {
-			const res = await fetch('/api/create-checkout-session', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ priceId }),
-			});
-			const data = await res.json();
-			if (!res.ok)
-				throw new Error(data.error || 'Failed to create checkout session');
-			const stripe = await loadStripe(
-				process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-			);
-			if (!stripe) throw new Error('Stripe failed to load');
-			await stripe.redirectToCheckout({ sessionId: data.sessionId });
-		} catch (err: unknown) {
-			const message = err instanceof Error ? err.message : 'An error occurred';
-			setError(message);
-		} finally {
-			setLoading(false);
+	const handlePrimaryAction = () => {
+		if (plan.ctaHref) {
+			window.location.href = plan.ctaHref;
 		}
 	};
 
@@ -250,17 +164,15 @@ function PricingPlanCard({
 							spacing={2}
 						>
 							<Typography variant="subtitle1">{plan.title}</Typography>
-							{plan.popular && <Chip color="accent" label="Popular" />}
+							{plan.popular && <Chip color="accent" label="Most Popular" />}
 						</Stack>
 						<Typography variant="h3">
-							{isCustomPlan && 'Custom'}
-							{!isCustomPlan && planType === 'monthly' && formattedMonthlyPrice}
-							{!isCustomPlan && planType === 'yearly' && formattedYearlyPrice}
+							{isCustomPlan && 'Custom Quote'}
+							{!isCustomPlan && `From ${formattedMonthlyPrice}`}
 						</Typography>
 						<Typography sx={{ fontWeight: 600 }} variant="body1">
-							{isCustomPlan && 'Tailored engagement'}
-							{!isCustomPlan && planType === 'monthly' && 'Monthly'}
-							{!isCustomPlan && planType === 'yearly' && 'Yearly'}
+							{isCustomPlan && 'Contact for pricing'}
+							{!isCustomPlan && 'Starting price'}
 						</Typography>
 					</Stack>
 					<Box
@@ -313,21 +225,11 @@ function PricingPlanCard({
 						</Stack>
 
 						<Button
-							disabled={!isCustomPlan && loading}
-							endIcon={!isCustomPlan ? <IconArrowRight size={24} /> : undefined}
+							endIcon={<IconArrowRight size={24} />}
 							onClick={handlePrimaryAction}
 						>
-							{isCustomPlan
-								? plan.ctaLabel ?? 'Contact sales'
-								: loading
-									? 'Redirecting...'
-									: 'Get Started'}
+							{plan.ctaLabel ?? 'Request Quote'}
 						</Button>
-						{error && (
-							<Typography color="error" variant="body2" sx={{ mt: 1 }}>
-								{error}
-							</Typography>
-						)}
 					</Stack>
 				</Stack>
 			</CardContent>

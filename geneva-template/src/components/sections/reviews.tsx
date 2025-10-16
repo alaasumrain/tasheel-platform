@@ -24,32 +24,32 @@ import useEmblaCarousel from 'embla-carousel-react';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Practitioners trust Tasheel`;
+const headline = `Residents and teams trust Tasheel`;
 
 // Put Section SubHeadline here
-const subHeadline = `Validated by coordinators, administrators, and interpreters worldwide`;
+const subHeadline = `Validated by residents, HR teams, and corporate admins across Palestine`;
 
 // Put Reviews items here
 const reviews: Review[] = [
 	{
 		stars: 5,
-		author: `Layla K.`,
-		content: `Requests used to live in email threads. Tasheel gave us a source of truth overnight.`,
+		author: `Fatima A., Ramallah resident`,
+		content: `I renewed my Palestinian ID card and driver&apos;s license without leaving home. Tasheel coordinated every ministry visit and delivered the approvals to my door.`,
 	},
 	{
 		stars: 5,
-		author: `Mohammed S.`,
-		content: `Our interpreters finally have a mobile flow that respects their schedules and rates.`,
+		author: `Omar R., HR Manager`,
+		content: `Tasheel turns employee residency renewals into a tracked workflow. We upload, they process, and our staff stay compliant with Palestinian regulations.`,
 	},
 	{
 		stars: 5,
-		author: `Rania B.`,
-		content: `Finance reconciliations went from days to an afternoon.`,
+		author: `Nadia L., Legal Consultant`,
+		content: `Embassy attestations used to take weeks. Tasheel worked with the Palestinian MOFAE and secured stamped documents in four days.`,
 	},
 	{
 		stars: 5,
-		author: `James P.`,
-		content: `The compliance reporting alone paid for the rollout.`,
+		author: `James P., Operations Director`,
+		content: `The live status dashboard means I always know where our permits stand across the West Bank. No more chasing government offices for updates.`,
 	},
 ];
 
@@ -59,7 +59,7 @@ interface Review {
 	content: string;
 }
 
-export default function FeaturesSlider() {
+export default function Reviews() {
 	const [emblaRef, emblaApi] = useEmblaCarousel();
 
 	const [canPrev, setCanPrev] = useState(true);

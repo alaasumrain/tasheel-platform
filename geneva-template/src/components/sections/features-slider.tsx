@@ -24,27 +24,32 @@ import useEmblaCarousel from 'embla-carousel-react';
 import RevealSection from '@/components/ui/reveal-section';
 
 // Put Section Headline here
-const headline = `Redefining language services`;
+const headline = `Complete service coverage`;
 
 // Put Section SubHeadline here
-const subHeadline = `Showcase what Tasheel brings to every engagement`;
+const subHeadline = `Your concierge for government, translation, legalization, and corporate filings`;
 
 // Put Section Features here
 const features: Feature[] = [
 	{
 		image: '/global/feature-slider-01.jpg',
-		title: `Industry-leading customer service`,
-		description: `Dedicated coordinators and interpreter success teams keep every engagement on track.`,
+		title: `Government Services`,
+		description: `Driver's licenses, Palestinian ID renewals, travel permits, and official certificates processed end-to-end.`,
 	},
 	{
 		image: '/global/feature-slider-02.jpg',
-		title: `Best-in-class virtual quality`,
-		description: `HD video, crystal-clear audio, and resilient infrastructure built for mission-critical sessions.`,
+		title: `Translation Services`,
+		description: `Certified and legal translations for contracts, medical reports, diplomas, and corporate documents.`,
 	},
 	{
 		image: '/global/feature-slider-03.jpg',
-		title: `Smart, easy-to-use technology`,
-		description: `Intuitive portals and mobile apps for agencies, interpreters, and requesters alike.`,
+		title: `Legalization & Attestation`,
+		description: `Embassy legalization, ministry attestation, and apostille support for global acceptance.`,
+	},
+	{
+		image: '/global/feature-slider-04.jpg',
+		title: `Corporate Compliance`,
+		description: `Company formation, HR onboarding, payroll documents, and ongoing compliance filings.`,
 	},
 ];
 
@@ -81,7 +86,7 @@ export default function FeaturesSlider() {
 	}, [emblaApi]);
 
 	return (
-		<Stack alignItems={{ lg: 'center' }} id="features-2">
+		<Stack alignItems={{ lg: 'center' }} id="resources">
 			<Stack spacing={{ xs: 2, md: 8 }}>
 				<RevealSection delay={0.1} direction="up">
 					<Container>
