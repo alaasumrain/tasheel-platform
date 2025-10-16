@@ -83,8 +83,7 @@ export default function Video({
 
 const Transition = forwardRef(function Transition(
 	props: TransitionProps & {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		children: ReactElement<any, any>;
+		children: ReactElement<any, any>; // eslint-disable-line
 	},
 	ref: React.Ref<unknown>,
 ) {

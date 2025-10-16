@@ -95,7 +95,7 @@ export default function Reviews() {
 					<Container>
 						<Box sx={{ px: { xs: 2, md: 7.5 } }}>
 							<Grid alignItems="end" container spacing={{ xs: 2.5, md: 5 }}>
-								<Grid size={{ xs: 12, md: 'grow' }}>
+								<Grid xs={12} md>
 									<Stack spacing={1.5}>
 										<Typography color="accent" variant="subtitle1">
 											{headline}
@@ -109,7 +109,7 @@ export default function Reviews() {
 										</Typography>
 									</Stack>
 								</Grid>
-								<Grid size={{ xs: 0, md: 'auto' }}>
+								<Grid xs={0} md="auto">
 									<Stack
 										direction="row"
 										spacing={{ md: 5 }}

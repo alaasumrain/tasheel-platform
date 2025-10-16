@@ -81,7 +81,7 @@ export default function ServicesOverview() {
 									<Grid container spacing={4}>
 				{categoryServices.map((service) => (
 											<Grid
-												size={{ xs: 12, md: 6, lg: 4 }}
+												xs={12} md={6} lg={4}
 												key={service.slug}
 											>
 												<Card fullHeight>

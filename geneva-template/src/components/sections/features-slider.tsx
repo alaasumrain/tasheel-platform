@@ -92,7 +92,7 @@ export default function FeaturesSlider() {
 					<Container>
 						<Box sx={{ px: { xs: 0, md: 7.5 } }}>
 							<Grid alignItems="end" container spacing={{ xs: 3.75, md: 5 }}>
-								<Grid size={{ xs: 12, md: 'grow' }}>
+								<Grid xs={12} md>
 									<Stack
 										spacing={{ xs: 1.5, md: 1.5 }}
 										sx={{ px: { xs: 2, md: 0 } }}
@@ -109,7 +109,7 @@ export default function FeaturesSlider() {
 										</Typography>
 									</Stack>
 								</Grid>
-								<Grid size={{ xs: 0, md: 'auto' }}>
+								<Grid xs={0} md="auto">
 									<Stack
 										direction="row"
 										spacing={{ md: 5 }}

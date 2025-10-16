@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { Mona_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 
 import { Box } from '@mui/material';
@@ -11,8 +11,8 @@ import { Providers } from '@/providers';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import theme from '@/theme';
 
-const monaSans = Mona_Sans({
-	variable: '--font-mona-sans',
+const inter = Inter({
+	variable: '--font-inter',
 	subsets: ['latin'],
 });
 
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={`${monaSans.variable} antialiased`}>
+			<body className={`${inter.variable} antialiased`}>
 				<AppRouterCacheProvider>
 					<ThemeProvider theme={theme} defaultMode="dark">
 						<InitColorSchemeScript attribute="class" />

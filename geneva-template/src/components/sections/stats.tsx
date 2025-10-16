@@ -65,12 +65,12 @@ export default function Stats() {
 				<RevealSection delay={0.1} direction="up">
 					<Box sx={{ px: { xs: 3.75, md: 7.5 } }}>
 						<Grid container spacing={{ xs: 2, lg: 7.5 }}>
-							<Grid size={{ xs: 12, lg: 6 }}>
+							<Grid xs={12} lg={6}>
 								<Typography sx={{ whiteSpace: 'pre-line' }} variant="h2">
 									{headline}
 								</Typography>
 							</Grid>
-							<Grid size={{ xs: 12, lg: 6 }}>
+							<Grid xs={12} lg={6}>
 								<Stack spacing={3}>
 									<Typography
 										color="text.secondary"
@@ -91,7 +91,8 @@ export default function Stats() {
 								{statsRow1.map((stat, index) => (
 									<Grid
 										key={index}
-										size={{ xs: 12, lg: index === 2 ? 6 : 3 }}
+										xs={12}
+										lg={index === 2 ? 6 : 3}
 										sx={{ height: '100%' }}
 									>
 										<StatItem stat={stat} />
@@ -104,7 +105,8 @@ export default function Stats() {
 								{statsRow2.map((stat, index) => (
 									<Grid
 										key={index}
-										size={{ xs: 12, lg: index === 0 ? 6 : 3 }}
+										xs={12}
+										lg={index === 0 ? 6 : 3}
 										sx={{ height: '100%' }}
 									>
 										<StatItem stat={stat} />

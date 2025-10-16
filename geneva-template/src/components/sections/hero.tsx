@@ -70,7 +70,7 @@ export default function Hero() {
 				spacing={{ xs: 6, md: 8 }}
 				sx={{ px: { xs: 3.75, md: 7.5 } }}
 			>
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<Stack spacing={4}>
 						<RevealSection delay={0.1}>
 							<Stack spacing={2} sx={{ maxWidth: 640 }}>
@@ -155,7 +155,7 @@ export default function Hero() {
 						</RevealSection>
 					</Stack>
 				</Grid>
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<RevealSection delay={0.4} direction="up" distance={60}>
 						<Box sx={{ mx: { md: 'auto' }, maxWidth: 540, width: '100%' }}>
 							<Mockup

@@ -27,7 +27,7 @@ export default function Testimonials() {
 				>
 					<CardContent sx={{ pr: { xs: null, lg: 2.5 } }}>
 						<Grid container spacing={{ xs: 6, lg: 3 }}>
-							<Grid size={{ xs: 12, md: 'auto' }} sx={{ pt: { lg: 2 } }}>
+							<Grid xs={12} md="auto" sx={{ pt: { lg: 2 } }}>
 								<Box sx={{ width: { xs: '100%', md: 272 } }}>
 									<Card
 										borderRadius={20}
@@ -50,7 +50,7 @@ export default function Testimonials() {
 									</Card>
 								</Box>
 							</Grid>
-							<Grid size={{ xs: 12, md: 'grow' }}>
+							<Grid xs={12} md>
 								<Box sx={{ display: { xs: 'block', lg: 'none' } }}>
 									<Stack spacing={4}>
 										<Typography

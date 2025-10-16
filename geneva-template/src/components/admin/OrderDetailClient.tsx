@@ -126,7 +126,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 
 			<Grid container spacing={3}>
 				{/* Left Column */}
-				<Grid size={{ xs: 12, md: 8 }}>
+				<Grid xs={12} md={8}>
 					{/* Customer Info */}
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
@@ -139,7 +139,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 							</Typography>
 
 							<Grid container spacing={2} sx={{ mt: 1 }}>
-								<Grid size={{ xs: 12, sm: 6 }}>
+								<Grid xs={12} sm={6}>
 									<Typography variant="caption" color="text.secondary">
 										Name
 									</Typography>
@@ -147,7 +147,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 										{order.customer_name || 'N/A'}
 									</Typography>
 								</Grid>
-								<Grid size={{ xs: 12, sm: 6 }}>
+								<Grid xs={12} sm={6}>
 									<Typography variant="caption" color="text.secondary">
 										Email
 									</Typography>
@@ -155,7 +155,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 										{order.applicant_email}
 									</Typography>
 								</Grid>
-								<Grid size={{ xs: 12, sm: 6 }}>
+								<Grid xs={12} sm={6}>
 									<Typography variant="caption" color="text.secondary">
 										Phone
 									</Typography>
@@ -163,7 +163,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 										{order.customer_phone || 'N/A'}
 									</Typography>
 								</Grid>
-								<Grid size={{ xs: 12, sm: 6 }}>
+								<Grid xs={12} sm={6}>
 									<Typography variant="caption" color="text.secondary">
 										Service
 									</Typography>
@@ -312,7 +312,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 				</Grid>
 
 				{/* Right Column - Status Update */}
-				<Grid size={{ xs: 12, md: 4 }}>
+				<Grid xs={12} md={4}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}

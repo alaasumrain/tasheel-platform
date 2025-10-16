@@ -117,7 +117,7 @@ export default function FeaturesAccordion() {
 							direction={{ xs: 'column-reverse', md: 'row' }}
 							spacing={{ xs: 3.75, md: 7.5 }}
 						>
-							<Grid size={{ xs: 12, md: 5 }}>
+							<Grid xs={12} md={5}>
 								<Box sx={{ position: 'relative', width: '100%' }}>
 									<Stepper
 										activeStep={activeStep}
@@ -257,7 +257,7 @@ export default function FeaturesAccordion() {
 									</Stepper>
 								</Box>
 							</Grid>
-							<Grid size={{ xs: 12, md: 'grow' }}>
+							<Grid xs={12} md>
 								<Stack
 									sx={{
 										height: { xs: 260, md: '100%' },

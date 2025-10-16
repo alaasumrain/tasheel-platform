@@ -105,8 +105,9 @@ export default function Track() {
 					container
 					spacing={{ xs: 4, md: 8 }}
 					sx={{ minHeight: { md: '60vh' } }}
+					justifyContent="center"
 				>
-					<Grid size={{ xs: 12, md: 10, lg: 8 }} offset={{ md: 1, lg: 2 }}>
+					<Grid xs={12} md={10} lg={8}>
 						<Stack spacing={{ xs: 4, md: 6 }}>
 							<Stack spacing={2.5} sx={{ textAlign: 'center' }}>
 								<Typography color="accent" variant="h5">
@@ -207,7 +208,7 @@ export default function Track() {
 
 																	{/* Customer Info */}
 																	<Grid container spacing={2}>
-																		<Grid size={{ xs: 12, sm: 6 }}>
+																		<Grid xs={12} sm={6}>
 																			<Typography variant="caption" color="textSecondary">
 																				Customer
 																			</Typography>
@@ -215,7 +216,7 @@ export default function Track() {
 																				{orderData.order.customer_name || 'N/A'}
 																			</Typography>
 																		</Grid>
-																		<Grid size={{ xs: 12, sm: 6 }}>
+																		<Grid xs={12} sm={6}>
 																			<Typography variant="caption" color="textSecondary">
 																				Submitted
 																			</Typography>

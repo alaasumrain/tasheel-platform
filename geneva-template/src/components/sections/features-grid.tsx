@@ -47,7 +47,7 @@ export default function FeaturesGrid() {
 	return (
 		<Container id="features-1" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Grid container spacing={4.5}>
-				<Grid size={12}>
+				<Grid xs={12}>
 					<RevealSection delay={0.1}>
 						<Card>
 							<CardContent>
@@ -63,7 +63,7 @@ export default function FeaturesGrid() {
 											},
 										}}
 									>
-										<Grid size={{ xs: 12, lg: 'grow' }}>
+										<Grid xs={12} lg>
 											<Stack spacing={3.75} sx={{ pt: 1 }}>
 												<Stack spacing={1.5}>
 													<Typography variant="h4">
@@ -86,10 +86,7 @@ export default function FeaturesGrid() {
 											</Stack>
 										</Grid>
 										<Grid
-											size={{
-												xs: 12,
-												lg: 'auto',
-											}}
+											xs={12} lg="auto"
 										>
 											<Box>
 								<Image
@@ -107,7 +104,7 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<RevealSection delay={0.3} direction="left">
 						<Card
 							backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
@@ -122,7 +119,7 @@ export default function FeaturesGrid() {
 										spacing={5}
 										direction={{ xs: 'column-reverse', md: 'row' }}
 									>
-										<Grid size={{ xs: 12 }}>
+										<Grid xs={12}>
 											<Stack spacing={1.5}>
 												<Typography color="#ffffff" variant="h4">
 													{features[1]?.headline || ''}
@@ -137,9 +134,7 @@ export default function FeaturesGrid() {
 											</Stack>
 										</Grid>
 										<Grid
-											size={{
-												xs: 12,
-											}}
+											xs={12}
 										>
 											<Box>
 								<Image
@@ -157,7 +152,7 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<RevealSection delay={0.5} direction="right">
 						<Card
 							backgroundColor={{ light: '#10101E', dark: '#DDDDDD' }}
@@ -172,7 +167,7 @@ export default function FeaturesGrid() {
 										spacing={5}
 										direction={{ xs: 'column-reverse', md: 'row' }}
 									>
-										<Grid size={{ xs: 12 }}>
+										<Grid xs={12}>
 											<Stack spacing={1.5}>
 												<Typography
 													sx={[
@@ -202,9 +197,7 @@ export default function FeaturesGrid() {
 											</Stack>
 										</Grid>
 										<Grid
-											size={{
-												xs: 12,
-											}}
+											xs={12}
 										>
 											<Box>
 								<Image

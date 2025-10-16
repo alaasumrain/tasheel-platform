@@ -104,7 +104,7 @@ export default function PricingPlans() {
 					<Box>
 						<Grid container spacing={{ xs: 3, md: 4 }}>
 							{pricingPlans.map((plan, index) => (
-								<Grid key={index} size={{ xs: 12, md: 4 }}>
+								<Grid key={index} xs={12} md={4}>
 						<PricingPlanCard plan={plan} currency={currency} />
 								</Grid>
 							))}

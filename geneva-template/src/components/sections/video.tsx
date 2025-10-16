@@ -58,12 +58,12 @@ export default function Video() {
 							</Typography>
 							<Box>
 								<Grid container spacing={{ xs: 2, lg: 7.5 }}>
-									<Grid size={{ xs: 12, lg: 6 }}>
+									<Grid xs={12} lg={6}>
 										<Stack spacing={1.5}>
 											<Typography variant="h3">{headline}</Typography>
 										</Stack>
 									</Grid>
-									<Grid size={{ xs: 12, lg: 6 }}>
+									<Grid xs={12} lg={6}>
 										<Stack spacing={3}>
 											<Typography
 												color="text.secondary"

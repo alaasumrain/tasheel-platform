@@ -83,7 +83,7 @@ export default function Process() {
 
 function ProcessItem({ title, content, number }: Item) {
 	return (
-		<Grid size={{ xs: 12, md: 4 }}>
+		<Grid xs={12} md={4}>
 			<Stack alignItems="center">
 				<Box sx={{ mb: -10 }}>
 					<Typography

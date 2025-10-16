@@ -47,7 +47,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 12.5 } }}>
 				<RevealSection delay={0.1} direction="up">
 					<Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
-						<Grid size={{ xs: 12, md: 6 }}>
+						<Grid xs={12} md={6}>
 							<Stack spacing={3}>
 								<Typography
 									color="accent"
@@ -67,7 +67,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 
 								{/* Quick Info */}
 								<Grid container spacing={2} sx={{ pt: 2 }}>
-									<Grid size={{ xs: 12, sm: 6 }}>
+									<Grid xs={12} sm={6}>
 										<Stack direction="row" spacing={1} alignItems="center">
 											<IconClock size={20} />
 											<Box>
@@ -80,7 +80,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 											</Box>
 										</Stack>
 									</Grid>
-									<Grid size={{ xs: 12, sm: 6 }}>
+									<Grid xs={12} sm={6}>
 										<Stack direction="row" spacing={1} alignItems="center">
 									<IconCurrencyShekel size={20} />
 											<Box>
@@ -116,7 +116,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 							</Stack>
 						</Grid>
 
-						<Grid size={{ xs: 12, md: 6 }}>
+						<Grid xs={12} md={6}>
 							<Mockup
 								darkImage={service.image.dark}
 								lightImage={service.image.light}
@@ -144,7 +144,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 
 							<Grid container spacing={4}>
 								{service.processSteps.map((step, index) => (
-									<Grid size={{ xs: 12, md: 6, lg: 3 }} key={index}>
+									<Grid xs={12} md={6} lg={3} key={index}>
 										<CustomCard>
 											<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 												<Stack spacing={2}>
@@ -184,7 +184,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 				<RevealSection delay={0.3} direction="up">
 					<Grid container spacing={6}>
 						{/* Required Documents */}
-						<Grid size={{ xs: 12, lg: 6 }}>
+						<Grid xs={12} lg={6}>
 							<CustomCard>
 								<CardContent sx={{ p: { xs: 4, md: 5 } }}>
 									<Stack spacing={3}>
@@ -221,7 +221,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 						</Grid>
 
 						{/* Service Features */}
-						<Grid size={{ xs: 12, lg: 6 }}>
+						<Grid xs={12} lg={6}>
 							<CustomCard
 								backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
 								borderColor={{ light: '#3949B1', dark: '#3949B1' }}

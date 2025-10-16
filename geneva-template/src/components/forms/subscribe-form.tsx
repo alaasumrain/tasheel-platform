@@ -40,7 +40,7 @@ export default function SubscribeForm() {
 	return (
 		<form ref={formRef} action={handleSubmit}>
 			<Grid alignItems="center" container spacing={{ md: 2.5 }}>
-				<Grid size={{ xs: 12, md: 'grow' }}>
+				<Grid xs={12} md>
 					<Input
 						disabled={isPending}
 						name="email"
@@ -49,7 +49,7 @@ export default function SubscribeForm() {
 						startAdornment={<IconMail />}
 					/>
 				</Grid>
-				<Grid size={{ xs: 12, md: 'auto' }}>
+				<Grid xs={12} md="auto">
 					<Button
 						color="accent"
 						disabled={isPending}

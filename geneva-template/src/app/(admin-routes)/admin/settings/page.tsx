@@ -14,7 +14,7 @@ export default function SettingsPage() {
 			</Box>
 
 			<Grid container spacing={3}>
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
@@ -39,7 +39,7 @@ export default function SettingsPage() {
 					</Card>
 				</Grid>
 
-				<Grid size={{ xs: 12, md: 6 }}>
+				<Grid xs={12} md={6}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
@@ -66,7 +66,7 @@ export default function SettingsPage() {
 					</Card>
 				</Grid>
 
-				<Grid size={{ xs: 12 }}>
+				<Grid xs={12}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}

@@ -87,7 +87,7 @@ function FeatureItem({
 	return (
 		<Grid alignItems="center" container spacing={{ xs: 3.75, md: 7.5 }}>
 			<Grid
-				size={{ xs: 12, md: 5 }}
+				xs={12} md={5}
 				order={{ xs: 2, md: order === 'image-first' ? 2 : 1 }}
 			>
 				<Stack spacing={1}>
@@ -98,7 +98,7 @@ function FeatureItem({
 				</Stack>
 			</Grid>
 			<Grid
-				size={{ xs: 12, md: 7 }}
+				xs={12} md={7}
 				order={{ xs: 1, md: order === 'image-first' ? 1 : 2 }}
 			>
 				<Box sx={{ width: '100%' }}>
