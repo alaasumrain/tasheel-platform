@@ -95,7 +95,11 @@ export default function FeaturesSlider() {
 								<Grid xs={12} md>
 									<Stack
 										spacing={{ xs: 1.5, md: 1.5 }}
-										sx={{ px: { xs: 2, md: 0 } }}
+										sx={{
+											alignItems: { xs: 'center', md: 'flex-start' },
+											px: { xs: 2, md: 0 },
+											textAlign: { xs: 'center', md: 'left' },
+										}}
 									>
 										<Typography color="accent" variant="subtitle1">
 											{subHeadline}

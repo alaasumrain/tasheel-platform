@@ -66,12 +66,21 @@ export default function Stats() {
 					<Box sx={{ px: { xs: 3.75, md: 7.5 } }}>
 						<Grid container spacing={{ xs: 2, lg: 7.5 }}>
 							<Grid xs={12} lg={6}>
-								<Typography sx={{ whiteSpace: 'pre-line' }} variant="h2">
+								<Typography
+									sx={{
+										textAlign: { xs: 'center', lg: 'left' },
+										whiteSpace: 'pre-line',
+									}}
+									variant="h2"
+								>
 									{headline}
 								</Typography>
 							</Grid>
 							<Grid xs={12} lg={6}>
-								<Stack spacing={3}>
+								<Stack
+									spacing={3}
+									sx={{ textAlign: { xs: 'center', lg: 'left' } }}
+								>
 									<Typography
 										color="text.secondary"
 										component={'p'}

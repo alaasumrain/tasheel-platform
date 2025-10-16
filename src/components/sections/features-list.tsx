@@ -45,7 +45,7 @@ export default function FeaturesList() {
 							>
 								{headline}
 							</Typography>
-				<Typography textAlign={'center'} variant="h2">
+							<Typography textAlign={'center'} variant="h2">
 								{subHeadline}
 							</Typography>
 						</Stack>
@@ -85,31 +85,39 @@ function FeatureItem({
 	order: 'image-first' | 'image-last';
 }) {
 	return (
-		<Grid alignItems="center" container spacing={{ xs: 3.75, md: 7.5 }}>
-			<Grid
-				xs={12} md={5}
-				order={{ xs: 2, md: order === 'image-first' ? 2 : 1 }}
-			>
-				<Stack spacing={1}>
-					<Typography variant="h3">{title}</Typography>
-					<Typography color="textSecondary" variant="subtitle2">
-						{content}
-					</Typography>
-				</Stack>
+		<Box sx={{ px: { xs: 2.5, md: 0 }, width: '100%' }}>
+			<Grid alignItems="center" container spacing={{ xs: 3.75, md: 7.5 }}>
+				<Grid
+					xs={12} md={5}
+					order={{ xs: 2, md: order === 'image-first' ? 2 : 1 }}
+				>
+					<Stack
+						spacing={1}
+						sx={{
+							alignItems: { xs: 'center', md: 'flex-start' },
+							textAlign: { xs: 'center', md: 'left' },
+						}}
+					>
+						<Typography variant="h3">{title}</Typography>
+						<Typography color="text.secondary" variant="subtitle2">
+							{content}
+						</Typography>
+					</Stack>
+				</Grid>
+				<Grid
+					xs={12} md={7}
+					order={{ xs: 1, md: order === 'image-first' ? 1 : 2 }}
+				>
+					<Box sx={{ mx: { xs: 'auto', md: 0 }, width: '100%' }}>
+						<Mockup
+							darkImage={darkImage}
+							lightImage={lightImage}
+							aspectRatio="680/440"
+							borderRadius={24}
+						/>
+					</Box>
+				</Grid>
 			</Grid>
-			<Grid
-				xs={12} md={7}
-				order={{ xs: 1, md: order === 'image-first' ? 1 : 2 }}
-			>
-				<Box sx={{ width: '100%' }}>
-					<Mockup
-						darkImage={darkImage}
-						lightImage={lightImage}
-						aspectRatio="680/440"
-						borderRadius={24}
-					/>
-				</Box>
-			</Grid>
-		</Grid>
+		</Box>
 	);
 }

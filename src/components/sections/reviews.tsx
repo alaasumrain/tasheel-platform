@@ -96,13 +96,22 @@ export default function Reviews() {
 						<Box sx={{ px: { xs: 2, md: 7.5 } }}>
 							<Grid alignItems="end" container spacing={{ xs: 2.5, md: 5 }}>
 								<Grid xs={12} md>
-									<Stack spacing={1.5}>
+									<Stack
+										spacing={1.5}
+										sx={{
+											alignItems: { xs: 'center', md: 'flex-start' },
+											textAlign: { xs: 'center', md: 'left' },
+										}}
+									>
 										<Typography color="accent" variant="subtitle1">
 											{headline}
 										</Typography>
 										<Typography
 											component="div"
-											sx={{ whiteSpace: 'pre-line' }}
+											sx={{
+												textAlign: { xs: 'center', md: 'left' },
+												whiteSpace: 'pre-line',
+											}}
 											variant="h2"
 										>
 											{subHeadline}

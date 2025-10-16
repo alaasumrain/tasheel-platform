@@ -31,8 +31,8 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning>
 			<body className={`${inter.variable} antialiased`}>
 				<AppRouterCacheProvider>
-					<ThemeProvider theme={theme} defaultMode="dark">
-						<InitColorSchemeScript attribute="class" />
+					<ThemeProvider theme={theme} defaultMode="light">
+						<InitColorSchemeScript attribute="class" defaultMode="light" />
 						<Providers>
 							<Box sx={{ position: 'relative', zIndex: 2 }}>{children}</Box>
 						</Providers>

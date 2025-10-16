@@ -73,7 +73,14 @@ export default function Hero() {
 				<Grid xs={12} md={6}>
 					<Stack spacing={4}>
 						<RevealSection delay={0.1}>
-							<Stack spacing={2} sx={{ maxWidth: 640 }}>
+							<Stack
+								spacing={2}
+								sx={{
+									alignItems: { xs: 'center', md: 'flex-start' },
+									maxWidth: 640,
+									textAlign: { xs: 'center', md: 'left' },
+								}}
+							>
 								<Typography variant="h1">{headline}</Typography>
 								<Typography color="text.secondary" variant="h6">
 									{description}
@@ -82,12 +89,17 @@ export default function Hero() {
 						</RevealSection>
 						<RevealSection delay={0.3}>
 							<Stack spacing={3}>
-								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.5}>
+								<Stack
+									direction={{ xs: 'column', sm: 'row' }}
+									spacing={2.5}
+									sx={{ alignItems: { xs: 'stretch', sm: 'center' } }}
+								>
 									<GetStarted
 										buttonLabel={primaryCta.label}
 										href={primaryCta.href}
 										size="large"
 										sx={{
+											width: { xs: '100%', sm: 'auto' },
 											boxShadow: (theme: Theme) =>
 												theme.palette.mode === 'dark'
 													? '0px 18px 32px rgba(0,0,0,0.45)'
@@ -105,6 +117,7 @@ export default function Hero() {
 											borderRadius: 999,
 											px: 3.5,
 											py: 1.25,
+											width: { xs: '100%', sm: 'auto' },
 											fontWeight: 600,
 											boxShadow: (theme: Theme) =>
 												theme.palette.mode === 'dark'
@@ -135,8 +148,9 @@ export default function Hero() {
 									</Button>
 								</Stack>
 								<Stack
-									alignItems={{ xs: 'flex-start', sm: 'center' }}
+									alignItems={{ xs: 'center', sm: 'center' }}
 									direction={{ xs: 'column', sm: 'row' }}
+									sx={{ textAlign: { xs: 'center', sm: 'left' } }}
 									spacing={1.5}
 								>
 									<AvatarGroup

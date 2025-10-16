@@ -83,9 +83,9 @@ export default function Process() {
 
 function ProcessItem({ title, content, number }: Item) {
 	return (
-		<Grid xs={12} md={4}>
-			<Stack alignItems="center">
-				<Box sx={{ mb: -10 }}>
+		<Grid xs={12} sm={6} md={6} lg={3}>
+			<Stack alignItems="center" sx={{ px: { xs: 2, md: 0 } }}>
+				<Box sx={{ mb: { xs: -4, md: -10 } }}>
 					<Typography
 						component="span"
 						textAlign="center"
@@ -93,7 +93,7 @@ function ProcessItem({ title, content, number }: Item) {
 							background:
 								'linear-gradient(180deg, #97A0D6 28%, rgba(151, 160, 214, 0) 72%)',
 							backgroundClip: 'text',
-							fontSize: '11.25rem',
+							fontSize: { xs: '6rem', md: '11.25rem' },
 							fontWeight: 'bold',
 							WebkitBackgroundClip: 'text',
 							WebkitTextFillColor: 'transparent',

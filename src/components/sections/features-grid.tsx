@@ -4,10 +4,10 @@ import {
 	Box,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 import { Card } from '@/components/ui/card';
 import Image from '@/components/ui/image';
@@ -45,9 +45,9 @@ interface Feature {
 
 export default function FeaturesGrid() {
 	return (
-		<Container id="features-1" sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Grid container spacing={4.5}>
-				<Grid xs={12}>
+				<Grid size={12}>
 					<RevealSection delay={0.1}>
 						<Card>
 							<CardContent>
@@ -63,17 +63,17 @@ export default function FeaturesGrid() {
 											},
 										}}
 									>
-										<Grid xs={12} lg>
+										<Grid size={{ xs: 12, lg: 'grow' }}>
 											<Stack spacing={3.75} sx={{ pt: 1 }}>
 												<Stack spacing={1.5}>
 													<Typography variant="h4">
 														{features[0]?.headline || ''}
 													</Typography>
-							<Typography
-								color="text.secondary"
-								component={'p'}
-								variant="h6"
-							>
+													<Typography
+														color="text.secondary"
+														component={'p'}
+														variant="h6"
+													>
 														{features[0]?.description || ''}
 													</Typography>
 												</Stack>
@@ -86,15 +86,18 @@ export default function FeaturesGrid() {
 											</Stack>
 										</Grid>
 										<Grid
-											xs={12} lg="auto"
+											size={{
+												xs: 12,
+												lg: 'auto',
+											}}
 										>
 											<Box>
-								<Image
-									aspectRatio="694/520"
-									darkImage="/dark/features-grid-01.png"
-									lightImage="/light/features-grid-01.png"
-									alt="Tasheel concierge dashboard for government services"
-								/>
+												<Image
+													aspectRatio="694/520"
+													darkImage="/dark/features-grid-01.png"
+													lightImage="/light/features-grid-01.png"
+													alt="Tasheel concierge dashboard for government services"
+												/>
 											</Box>
 										</Grid>
 									</Grid>
@@ -104,7 +107,8 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid xs={12} md={12}>
+				<Grid size={{ xs: 12, md: 6 }}>
+					<RevealSection delay={0.3} direction="left">
 						<Card
 							backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
 							borderColor={{ light: '#3949B1', dark: '#3949B1' }}
@@ -118,30 +122,32 @@ export default function FeaturesGrid() {
 										spacing={5}
 										direction={{ xs: 'column-reverse', md: 'row' }}
 									>
-										<Grid xs={12}>
+										<Grid size={{ xs: 12 }}>
 											<Stack spacing={1.5}>
 												<Typography color="#ffffff" variant="h4">
 													{features[1]?.headline || ''}
 												</Typography>
-							<Typography
-								color="rgba(197, 202, 232, 1)"
-								component={'p'}
-								variant="h6"
-							>
+												<Typography
+													color="rgba(197, 202, 232, 1)"
+													component={'p'}
+													variant="h6"
+												>
 													{features[1]?.description || ''}
 												</Typography>
 											</Stack>
 										</Grid>
 										<Grid
-											xs={12}
+											size={{
+												xs: 12,
+											}}
 										>
 											<Box>
-								<Image
-									aspectRatio="578/336"
-									darkImage="/dark/features-grid-02.png"
-									lightImage="/light/features-grid-02.png"
-									alt="Certified translation management workspace"
-								/>
+												<Image
+													aspectRatio="578/336"
+													darkImage="/dark/features-grid-02.png"
+													lightImage="/light/features-grid-02.png"
+													alt="Certified translation management workspace"
+												/>
 											</Box>
 										</Grid>
 									</Grid>
@@ -151,7 +157,7 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid xs={12} md={12}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<RevealSection delay={0.5} direction="right">
 						<Card
 							backgroundColor={{ light: '#10101E', dark: '#DDDDDD' }}
@@ -166,7 +172,7 @@ export default function FeaturesGrid() {
 										spacing={5}
 										direction={{ xs: 'column-reverse', md: 'row' }}
 									>
-										<Grid xs={12}>
+										<Grid size={{ xs: 12 }}>
 											<Stack spacing={1.5}>
 												<Typography
 													sx={[
@@ -180,31 +186,33 @@ export default function FeaturesGrid() {
 												>
 													{features[2]?.headline || ''}
 												</Typography>
-							<Typography
-								component={'p'}
-								sx={[
-									{ color: '#CBC9C7' },
-									(theme) =>
-										theme.applyStyles('dark', {
-											color: '#4B4B65',
-										}),
-								]}
-								variant="h6"
-							>
+												<Typography
+													component={'p'}
+													sx={[
+														{ color: '#CBC9C7' },
+														(theme) =>
+															theme.applyStyles('dark', {
+																color: '#4B4B65',
+															}),
+													]}
+													variant="h6"
+												>
 													{features[2]?.description || ''}
 												</Typography>
 											</Stack>
 										</Grid>
 										<Grid
-											xs={12}
+											size={{
+												xs: 12,
+											}}
 										>
 											<Box>
-								<Image
-									aspectRatio="578/336"
-									darkImage="/dark/features-grid-03.png"
-									lightImage="/light/features-grid-03.png"
-									alt="Legalization and corporate compliance workflow overview"
-								/>
+												<Image
+													aspectRatio="578/336"
+													darkImage="/dark/features-grid-03.png"
+													lightImage="/light/features-grid-03.png"
+													alt="Legalization and corporate compliance workflow overview"
+												/>
 											</Box>
 										</Grid>
 									</Grid>
