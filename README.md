@@ -1,61 +1,51 @@
 # Tasheel Platform
 
-Tasheel is Palestine's digital gateway for government services. This Next.js 15 project powers the public-facing experience for citizens and businesses to discover services, submit applications, and track their status online.
+Tasheel is a Palestinian government-services concierge built with Next.js, Material UI, and Tailwind CSS. The platform lets residents and businesses submit requests for licensing, translations, legalizations, and corporate filings entirely online while our operations team handles ministry visits and follow-up.
+
+## Features
+
+- Landing page tailored to Palestinian government workflows
+- Dynamic services catalog with localized copy, pricing in ILS, and MOFAE-focused processes
+- Quote request form with Supabase persistence and Resend-powered email notifications
+- Responsive layouts using the MUI v7 design system and shared component library
+- Dark/light theming, animations, and modular section components for rapid customization
 
 ## Getting Started
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
-2. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-3. Open `http://localhost:3000` and start building.
+```bash
+npm install
+npm run dev
+```
 
-## Available Scripts
+The app runs at `http://localhost:3000`. Update environment variables in `.env.local` for Supabase, Resend, and contact details.
 
-- `npm run dev` — start the Next.js app with Turbopack
-- `npm run build` — create a production build
-- `npm run start` — serve the production build
-- `npm run lint` / `npm run lint:fix` — run ESLint across `src`
-- `npm run prettier` — format source files
+## Scripts
 
-## Project Highlights
+| Command        | Description                    |
+| -------------- | ------------------------------ |
+| `npm run dev`  | Start development server        |
+| `npm run build`| Create production build         |
+| `npm run start`| Serve the production build      |
+| `npm run lint` | Run ESLint (TS + Next.js rules) |
 
-- **App Router & MUI v7** — opinionated component library with responsive design tokens, palettes, and typography overrides in `src/views/landings/ai/theme`.
-- **Configurable branding** — core identity and metadata live in `src/branding.json`, `src/metadata.js`, and `src/path.js`.
-- **Composable content blocks** — reusable UI blocks live under `src/blocks/**` and are assembled into pages via data objects in `src/views/landings/default/data`.
-- **Lazy loading** — large sections are streamed in via `src/components/LazySection.jsx` to keep the landing experience snappy.
-- **Context-driven theming** — `src/contexts/ConfigContext.jsx` and `src/components/ThemeProvider.jsx` persist the selected theme in local storage.
+## Project Structure
 
-## Environment Variables
+```
+src/
+  app/            # Next.js App Router pages & API routes
+  components/     # MUI section blocks, forms, and shared UI
+  data/services.ts# Service catalog content & categories
+  lib/            # Supabase client, query helpers, utilities
+  theme.ts        # Custom MUI theme and design tokens
+```
 
-Set these before building or deploying:
+## Customization Checklist
 
-| Variable | Description |
-| --- | --- |
-| `NEXT_PUBLIC_ANALYTICS_ID` | Google Analytics measurement ID (optional). |
-| `NEXT_PUBLIC_METADATA_BASE` | Absolute base URL used when generating metadata. |
-| `MAILERLITE_API_ENDPOINT` | MailerLite base URL for newsletter subscriptions. |
-| `MAILERLITE_API_KEY` | API key for MailerLite integration. |
-| `MAILERLITE_GROUP` | Comma-separated list of group IDs to subscribe new contacts to. |
+- Update assets in `public/` with your latest brand visuals
+- Adjust services data in `src/data/services.ts` for new offerings or pricing
+- Review email copy in `src/app/actions/submit-quote-request.ts`
+- Configure environment variables for production deployments
 
-Create a `.env.local` file in the project root to store these values for local development.
+## License
 
-## Deployment Notes
-
-- Run `npm run build` locally to catch linting or type issues before pushing.
-- Verify the `/api/subscribe` route has access to the MailerLite variables on your hosting platform.
-- Review `branding.json` to keep social links, support URLs, and logos current before each release.
-
-## Contributing
-
-1. Create a feature branch.
-2. Keep PRs focused and well-tested.
-3. Run lint and build commands prior to opening a pull request.
-
----
-
-Need help evolving the experience? Open an issue or reach out to the Tasheel team.
+This project is provided for Tasheel internal use. Redistribution or resale of the codebase is not permitted without written approval.
