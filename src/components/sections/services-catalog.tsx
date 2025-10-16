@@ -97,7 +97,7 @@ export default function ServicesCatalog() {
 			</Stack>
 			<Grid container spacing={{ xs: 2.5, md: 3.5 }}>
 				{services.map((service, index) => (
-					<Grid key={service.title} xs={12} sm={6} lg={4}>
+					<Grid key={service.title} xs={12} sm={12} lg={4}>
 						<RevealSection delay={0.1 + index * 0.05} direction="up">
 							<Card
 								borderRadius={24}

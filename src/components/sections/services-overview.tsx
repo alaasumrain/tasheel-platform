@@ -77,17 +77,16 @@ export default function ServicesOverview() {
 										<Typography variant="h2">{category.description}</Typography>
 									</Stack>
 
-									{/* Service Cards */}
-									<Grid container spacing={4}>
-				{categoryServices.map((service) => (
-											<Grid
-												xs={12} md={6} lg={4}
-												key={service.slug}
-											>
-												<Card fullHeight>
-													<CardContent
-														sx={{
-															p: 0,
+														{/* Service Cards */}
+														<Grid container spacing={4} justifyContent="center">
+													{categoryServices.map((service) => (
+																			<Grid
+																				xs={12} md={12} lg={6}
+																				key={service.slug}
+																			>
+																				<Card fullHeight>
+																					<CardContent
+																						sx={{															p: 0,
 															display: 'flex',
 															flexDirection: 'column',
 															height: '100%',

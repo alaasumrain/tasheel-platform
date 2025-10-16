@@ -104,8 +104,7 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid xs={12} md={6}>
-					<RevealSection delay={0.3} direction="left">
+				<Grid xs={12} md={12}>
 						<Card
 							backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
 							borderColor={{ light: '#3949B1', dark: '#3949B1' }}
@@ -152,7 +151,7 @@ export default function FeaturesGrid() {
 					</RevealSection>
 				</Grid>
 
-				<Grid xs={12} md={6}>
+				<Grid xs={12} md={12}>
 					<RevealSection delay={0.5} direction="right">
 						<Card
 							backgroundColor={{ light: '#10101E', dark: '#DDDDDD' }}
