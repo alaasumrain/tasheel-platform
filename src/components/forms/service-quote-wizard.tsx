@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -17,8 +17,10 @@ import {
 	StepLabel,
 	Box,
 	Alert,
+	CircularProgress,
+	LinearProgress,
 } from '@mui/material';
-import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconCheck, IconUpload, IconFile } from '@tabler/icons-react';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
@@ -34,8 +36,32 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const formRef = useRef<HTMLFormElement>(null);
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
+	const [restoredData, setRestoredData] = useState(false);
 
 	const serviceFields = getServiceFields(service.slug);
+	const storageKey = `quote_draft_${service.slug}`;
+
+	// Load saved data from localStorage on mount
+	useEffect(() => {
+		const saved = localStorage.getItem(storageKey);
+		if (saved) {
+			try {
+				const parsed = JSON.parse(saved);
+				setFormData(parsed);
+				setRestoredData(true);
+				toast.success('Your previous draft has been restored');
+			} catch (e) {
+				// Invalid saved data, ignore
+			}
+		}
+	}, [storageKey]);
+
+	// Auto-save to localStorage whenever formData changes
+	useEffect(() => {
+		if (Object.keys(formData).length > 0) {
+			localStorage.setItem(storageKey, JSON.stringify(formData));
+		}
+	}, [formData, storageKey]);
 
 	const { mutate: send, isPending } = useMutation({
 		mutationFn: submitQuoteRequest,
@@ -45,10 +71,12 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				return;
 			}
 			toast.success(result.message.toString());
-			// Reset form
+			// Clear localStorage and reset form
+			localStorage.removeItem(storageKey);
 			formRef.current?.reset();
 			setFormData({});
 			setActiveStep(0);
+			setRestoredData(false);
 		},
 		onError(error) {
 			toast.error(error.message.toString());
@@ -103,20 +131,37 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		}
 	};
 
+	const progress = Math.round(((activeStep + 1) / steps.length) * 100);
+
 	return (
 		<form ref={formRef} onSubmit={handleSubmit}>
 			{/* Hidden service field */}
 			<input type="hidden" name="service" value={service.slug} />
 
 			<Stack spacing={4}>
+				{/* Restored Data Alert */}
+				{restoredData && (
+					<Alert severity="success" sx={{ borderRadius: 2 }}>
+						Your previous draft has been restored. Continue where you left off!
+					</Alert>
+				)}
+
 				{/* Stepper */}
-				<Stepper activeStep={activeStep} alternativeLabel>
-					{steps.map((label) => (
-						<Step key={label}>
-							<StepLabel>{label}</StepLabel>
-						</Step>
-					))}
-				</Stepper>
+				<Box>
+					<Stepper activeStep={activeStep} alternativeLabel>
+						{steps.map((label) => (
+							<Step key={label}>
+								<StepLabel>{label}</StepLabel>
+							</Step>
+						))}
+					</Stepper>
+					<Box sx={{ mt: 2 }}>
+						<LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
+						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+							Step {activeStep + 1} of {steps.length} ({progress}% complete)
+						</Typography>
+					</Box>
+				</Box>
 
 				{/* Step Content */}
 				<Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
@@ -148,7 +193,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							type="submit"
 							variant="contained"
 							disabled={isPending}
-							startIcon={<IconCheck size={18} />}
+							startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
 							size="large"
 						>
 							{isPending ? 'Submitting...' : 'Submit Request'}
@@ -176,7 +221,14 @@ function Step1Content({
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth>
-					<FormLabel htmlFor="name">Full Name</FormLabel>
+					<FormLabel htmlFor="name">
+						Full Name
+						{formData.name && formData.name.length > 2 && (
+							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+								<IconCheck size={16} />
+							</Box>
+						)}
+					</FormLabel>
 					<OutlinedInput
 						id="name"
 						name="name"
@@ -189,7 +241,14 @@ function Step1Content({
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth>
-					<FormLabel htmlFor="email">Email Address</FormLabel>
+					<FormLabel htmlFor="email">
+						Email Address
+						{formData.email && formData.email.includes('@') && (
+							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+								<IconCheck size={16} />
+							</Box>
+						)}
+					</FormLabel>
 					<OutlinedInput
 						id="email"
 						name="email"
@@ -201,7 +260,14 @@ function Step1Content({
 				</FormControl>
 
 				<FormControl required fullWidth>
-					<FormLabel htmlFor="phone">Phone Number</FormLabel>
+					<FormLabel htmlFor="phone">
+						Phone Number
+						{formData.phone && formData.phone.length > 8 && (
+							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+								<IconCheck size={16} />
+							</Box>
+						)}
+					</FormLabel>
 					<OutlinedInput
 						id="phone"
 						name="phone"
@@ -227,6 +293,15 @@ function Step2Content({
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
 }) {
+	const [fileNames, setFileNames] = useState<Record<string, string>>({});
+
+	const handleFileChange = (fieldName: string, e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setFileNames((prev) => ({ ...prev, [fieldName]: file.name }));
+		}
+	};
+
 	const renderField = (field: FormField) => {
 		const commonProps = {
 			id: field.name,
@@ -285,10 +360,57 @@ function Step2Content({
 				return (
 					<FormControl fullWidth key={field.name}>
 						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-						<Button variant="outlined" component="label" sx={{ mt: 1 }}>
-							Choose File
-							<input type="file" name={field.name} hidden accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-						</Button>
+						<Box
+							component="label"
+							sx={{
+								mt: 1,
+								p: 3,
+								border: 2,
+								borderStyle: 'dashed',
+								borderColor: fileNames[field.name] ? 'success.main' : 'divider',
+								borderRadius: 2,
+								backgroundColor: fileNames[field.name] ? 'success.lighter' : 'background.paper',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+								'&:hover': {
+									borderColor: 'primary.main',
+									backgroundColor: 'action.hover',
+								},
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+								gap: 1,
+							}}
+						>
+							<input
+								type="file"
+								name={field.name}
+								hidden
+								accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+								onChange={(e) => handleFileChange(field.name, e)}
+							/>
+							{fileNames[field.name] ? (
+								<>
+									<IconFile size={32} />
+									<Typography variant="body2" fontWeight={600}>
+										{fileNames[field.name]}
+									</Typography>
+									<Typography variant="caption" color="success.main">
+										File selected - Click to change
+									</Typography>
+								</>
+							) : (
+								<>
+									<IconUpload size={32} />
+									<Typography variant="body2" fontWeight={600}>
+										Click to upload file
+									</Typography>
+									<Typography variant="caption" color="text.secondary">
+										PDF, JPG, PNG, DOC, DOCX (Max 10MB)
+									</Typography>
+								</>
+							)}
+						</Box>
 						{field.helperText && (
 							<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
 								{field.helperText}

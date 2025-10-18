@@ -4,82 +4,14 @@ import {
 	Button,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
-
-interface Service {
-	title: string;
-	description: string;
-	href?: string;
-}
-
-const services: Service[] = [
-	{
-		title: 'Legal Translation',
-		description:
-			'Specialized translation of contracts, affidavits, and court filings with legal-grade accuracy.',
-	},
-	{
-		title: 'Certified Translation',
-		description:
-			'Official translations packaged with certification statements for government and academic submissions.',
-	},
-	{
-		title: 'Professional Translation',
-		description:
-			'High-quality localization for business, marketing, and technical content without certification requirements.',
-	},
-	{
-		title: 'Notarized Translation',
-		description:
-			'Notary-verified translations that meet legal authenticity standards for cross-border use.',
-	},
-	{
-		title: 'Document Attestation & Legalization',
-		description:
-			'Coordinate ministry, embassy, and consular authentication to make documents valid internationally.',
-	},
-	{
-		title: 'Embassy Services',
-		description:
-			'Application support, appointment scheduling, and document preparation for embassy interactions.',
-	},
-	{
-		title: 'Ministries Services',
-		description:
-			'Liaise with government ministries to expedite permits, certificates, and official records.',
-	},
-	{
-		title: 'Municipality Services',
-		description:
-			'City and municipal paperwork assistance, from registrations to service requests.',
-	},
-	{
-		title: 'Corporate Services',
-		description:
-			'Corporate filings, HR documentation, and compliance support for growing businesses.',
-	},
-	{
-		title: 'Apostille Service',
-		description:
-			'Authenticate public documents under Hague Convention requirements for international recognition.',
-	},
-	{
-		title: 'Police Certificate & Good Conduct',
-		description:
-			'End-to-end handling of police clearance certificates and non-conviction reports.',
-	},
-	{
-		title: 'Driving License (Local & International)',
-		description:
-			'Process local renewals and secure international driving permits without leaving the office.',
-	},
-];
+import { services } from '@/data/services';
 
 export default function ServicesCatalog() {
 	return (
@@ -97,31 +29,33 @@ export default function ServicesCatalog() {
 			</Stack>
 			<Grid container spacing={{ xs: 2.5, md: 3.5 }}>
 				{services.map((service, index) => (
-					<Grid key={service.title} xs={12} sm={12} lg={4}>
-						<RevealSection delay={0.1 + index * 0.05} direction="up">
+					<Grid key={service.slug} size={{ xs: 12, sm: 6, md: 4, lg: 4 }} sx={{ display: 'flex' }}>
+						<RevealSection delay={0.1 + index * 0.05} direction="up" style={{ width: '100%', display: 'flex' }}>
 							<Card
 								borderRadius={24}
 								backgroundColor={{ light: 'rgba(255,255,255,0.8)', dark: '#1F1F2B' }}
 								borderColor={{ light: '#fff', dark: '#2F2F3B' }}
+								sx={{ width: '100%', display: 'flex' }}
 							>
 								<CardContent
 									sx={{
 										display: 'flex',
 										flexDirection: 'column',
 										height: '100%',
+										width: '100%',
 										gap: 2,
 									}}
 								>
 									<Stack spacing={1.5} sx={{ flexGrow: 1 }}>
 										<Typography variant="h5">{service.title}</Typography>
 										<Typography color="text.secondary" variant="body1">
-											{service.description}
+											{service.shortDescription}
 										</Typography>
 									</Stack>
 									<Box>
 										<Button
 											component={Link}
-											href={service.href ?? '/contact'}
+											href={`/services/${service.slug}`}
 											size="large"
 										>
 											Get started
