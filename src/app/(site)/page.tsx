@@ -1,3 +1,5 @@
+'use client';
+
 import { Container, Stack, Typography } from '@mui/material';
 
 import Faq from '@/components/sections/faq';
@@ -16,6 +18,7 @@ import ServicesCatalog from '@/components/sections/services-catalog';
 import Stats from '@/components/sections/stats';
 import Testimonials from '@/components/sections/testimonials';
 import Video from '@/components/sections/video';
+import RevealSection from '@/components/ui/reveal-section';
 
 export default function Page() {
 	return (
@@ -23,17 +26,19 @@ export default function Page() {
 			<Hero />
 			<Partners />
 			<Container sx={{ py: { xs: 6, md: 10 }, textAlign: 'center' }}>
-				<Stack spacing={2}>
-					<Typography color="accent" variant="subtitle1">
-						Tasheel Government Services Concierge
-					</Typography>
-					<Typography variant="h2">
-						Everything you need to handle government documents without the wait
-					</Typography>
-					<Typography color="text.secondary" variant="h6">
-						From driver&apos;s licenses to embassy legalization—upload your documents once, track progress in real-time, and receive the final approvals without stepping into an office.
-					</Typography>
-				</Stack>
+				<RevealSection delay={0.1}>
+					<Stack spacing={2}>
+						<Typography color="accent" variant="subtitle1">
+							Government Services Concierge
+						</Typography>
+						<Typography variant="h2">
+							Skip the queues, get it done online
+						</Typography>
+						<Typography color="text.secondary" variant="h6">
+							Upload documents, track progress, receive approvals—all without visiting an office.
+						</Typography>
+					</Stack>
+				</RevealSection>
 			</Container>
 			<FeaturesGrid />
 			<FeaturesGridRemote />

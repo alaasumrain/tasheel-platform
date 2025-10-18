@@ -89,7 +89,7 @@ export default function Header() {
 				>
 					<ThemeToggle />
 					<GetStarted
-						buttonLabel="Request a Quote"
+						buttonLabel="Request a Service"
 						href="/services"
 						size="medium"
 						sx={{ boxShadow: '0px 8px 16px rgba(0,0,0,0.12)' }}
@@ -162,7 +162,7 @@ export default function Header() {
 							</Stack>
 							<Container maxWidth="sm">
 								<GetStarted
-									buttonLabel="Request a Quote"
+									buttonLabel="Request a Service"
 									fullWidth
 									href="/services"
 									size="large"

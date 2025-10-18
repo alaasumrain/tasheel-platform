@@ -48,7 +48,7 @@ export default function FeaturesGridRemote() {
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={3} sx={{ mb: { xs: 6, md: 8 }, textAlign: 'center' }}>
 				<Typography variant="h4">
-					TEST TEST - Powerful platform features that save you time
+					Powerful platform features that save you time
 				</Typography>
 				<Typography color="text.secondary" variant="h6">
 					Everything you need to submit, track, and receive your government services—all in one secure platform.
