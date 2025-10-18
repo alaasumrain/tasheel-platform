@@ -7,6 +7,7 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	FormHelperText,
 	MenuItem,
 	OutlinedInput,
 	Select,
@@ -19,8 +20,10 @@ import {
 	Alert,
 	CircularProgress,
 	LinearProgress,
+	IconButton,
+	Tooltip,
 } from '@mui/material';
-import { IconArrowLeft, IconArrowRight, IconCheck, IconUpload, IconFile } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconCheck, IconUpload, IconFile, IconX, IconRefresh } from '@tabler/icons-react';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
@@ -30,13 +33,20 @@ interface ServiceQuoteWizardProps {
 	service: Service;
 }
 
+interface FieldErrors {
+	[key: string]: string;
+}
+
 const steps = ['Your Details', 'Service Requirements', 'Review & Submit'];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps) {
 	const formRef = useRef<HTMLFormElement>(null);
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 	const [restoredData, setRestoredData] = useState(false);
+	const [errors, setErrors] = useState<FieldErrors>({});
+	const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
 
 	const serviceFields = getServiceFields(service.slug);
 	const storageKey = `quote_draft_${service.slug}`;
@@ -71,51 +81,171 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				return;
 			}
 			toast.success(result.message.toString());
-			// Clear localStorage and reset form
-			localStorage.removeItem(storageKey);
-			formRef.current?.reset();
-			setFormData({});
-			setActiveStep(0);
-			setRestoredData(false);
+			// Clear everything
+			handleClearForm();
 		},
 		onError(error) {
 			toast.error(error.message.toString());
 		},
 	});
 
+	// Validation functions
+	const validateEmail = (email: string): boolean => {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	};
+
+	const validatePhone = (phone: string): boolean => {
+		// Palestinian phone number validation (simple)
+		return phone.length >= 9;
+	};
+
+	const validateStep = (step: number): boolean => {
+		const newErrors: FieldErrors = {};
+
+		if (step === 0) {
+			// Step 1: Contact Information
+			if (!formData.name || formData.name.length < 2) {
+				newErrors.name = 'Please enter your full name (at least 2 characters)';
+			}
+			if (!formData.email || !validateEmail(formData.email)) {
+				newErrors.email = 'Please enter a valid email address';
+			}
+			if (!formData.phone || !validatePhone(formData.phone)) {
+				newErrors.phone = 'Please enter a valid phone number (at least 9 digits)';
+			}
+		} else if (step === 1) {
+			// Step 2: Service Requirements
+			// Validate service-specific required fields
+			serviceFields.forEach((field) => {
+				if (field.required && !formData[field.name] && field.type !== 'file') {
+					newErrors[field.name] = `${field.label} is required`;
+				}
+			});
+
+			// Validate standard fields
+			if (!formData.details || formData.details.length < 10) {
+				newErrors.details = 'Please provide at least 10 characters of details';
+			}
+		}
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
 	const handleNext = () => {
-		if (activeStep < steps.length - 1) {
-			setActiveStep((prev) => prev + 1);
+		if (validateStep(activeStep)) {
+			if (activeStep < steps.length - 1) {
+				setActiveStep((prev) => prev + 1);
+				setErrors({}); // Clear errors when moving to next step
+			}
+		} else {
+			toast.error('Please fix the errors before continuing');
 		}
 	};
 
 	const handleBack = () => {
 		setActiveStep((prev) => prev - 1);
+		setErrors({}); // Clear errors when going back
 	};
 
 	const handleFieldChange = (name: string, value: string) => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
+		// Clear error for this field when user starts typing
+		if (errors[name]) {
+			setErrors((prev) => {
+				const newErrors = { ...prev };
+				delete newErrors[name];
+				return newErrors;
+			});
+		}
+	};
+
+	const handleFileChange = (fieldName: string, file: File | null) => {
+		if (file) {
+			// Validate file size
+			if (file.size > MAX_FILE_SIZE) {
+				setErrors((prev) => ({
+					...prev,
+					[fieldName]: `File size must be less than 10MB (current: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+				}));
+				return;
+			}
+			setUploadedFiles((prev) => ({ ...prev, [fieldName]: file }));
+			setFormData((prev) => ({ ...prev, [fieldName]: file.name }));
+			// Clear error
+			if (errors[fieldName]) {
+				setErrors((prev) => {
+					const newErrors = { ...prev };
+					delete newErrors[fieldName];
+					return newErrors;
+				});
+			}
+		}
+	};
+
+	const handleRemoveFile = (fieldName: string) => {
+		setUploadedFiles((prev) => {
+			const newFiles = { ...prev };
+			delete newFiles[fieldName];
+			return newFiles;
+		});
+		setFormData((prev) => {
+			const newData = { ...prev };
+			delete newData[fieldName];
+			return newData;
+		});
+	};
+
+	const handleClearForm = () => {
+		if (window.confirm('Are you sure you want to clear the form? This will delete all your progress.')) {
+			localStorage.removeItem(storageKey);
+			formRef.current?.reset();
+			setFormData({});
+			setActiveStep(0);
+			setRestoredData(false);
+			setErrors({});
+			setUploadedFiles({});
+			toast.success('Form cleared successfully');
+		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+
+		// Final validation
+		if (!validateStep(activeStep)) {
+			toast.error('Please fix the errors before submitting');
+			return;
+		}
+
 		const formElement = formRef.current;
 		if (!formElement) return;
 
 		const data = new FormData(formElement);
+
+		// Add uploaded files to FormData
+		Object.entries(uploadedFiles).forEach(([fieldName, file]) => {
+			data.set(fieldName, file);
+		});
+
 		send(data);
 	};
 
 	const renderStepContent = (step: number) => {
 		switch (step) {
 			case 0:
-				return <Step1Content formData={formData} onChange={handleFieldChange} />;
+				return <Step1Content formData={formData} onChange={handleFieldChange} errors={errors} />;
 			case 1:
 				return (
 					<Step2Content
 						serviceFields={serviceFields}
 						formData={formData}
 						onChange={handleFieldChange}
+						errors={errors}
+						uploadedFiles={uploadedFiles}
+						onFileChange={handleFileChange}
+						onRemoveFile={handleRemoveFile}
 					/>
 				);
 			case 2:
@@ -124,6 +254,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						service={service}
 						serviceFields={serviceFields}
 						formData={formData}
+						uploadedFiles={uploadedFiles}
 					/>
 				);
 			default:
@@ -132,6 +263,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	};
 
 	const progress = Math.round(((activeStep + 1) / steps.length) * 100);
+	const canContinue = activeStep === 0 ? (formData.name && formData.email && formData.phone) : activeStep === 1 ? (formData.details) : true;
 
 	return (
 		<form ref={formRef} onSubmit={handleSubmit}>
@@ -141,7 +273,17 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 			<Stack spacing={4}>
 				{/* Restored Data Alert */}
 				{restoredData && (
-					<Alert severity="success" sx={{ borderRadius: 2 }}>
+					<Alert
+						severity="success"
+						sx={{ borderRadius: 2 }}
+						action={
+							<Tooltip title="Clear saved draft">
+								<IconButton size="small" onClick={handleClearForm}>
+									<IconX size={18} />
+								</IconButton>
+							</Tooltip>
+						}
+					>
 						Your previous draft has been restored. Continue where you left off!
 					</Alert>
 				)}
@@ -149,9 +291,24 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				{/* Stepper */}
 				<Box>
 					<Stepper activeStep={activeStep} alternativeLabel>
-						{steps.map((label) => (
+						{steps.map((label, index) => (
 							<Step key={label}>
-								<StepLabel>{label}</StepLabel>
+								<StepLabel
+									onClick={() => {
+										// Allow going back to previous steps
+										if (index < activeStep) {
+											setActiveStep(index);
+										}
+									}}
+									sx={{
+										cursor: index < activeStep ? 'pointer' : 'default',
+										'& .MuiStepLabel-label': {
+											fontSize: { xs: '0.75rem', sm: '0.875rem' }
+										}
+									}}
+								>
+									{label}
+								</StepLabel>
 							</Step>
 						))}
 					</Stepper>
@@ -167,7 +324,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				<Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
 
 				{/* Navigation Buttons */}
-				<Stack direction="row" spacing={2}>
+				<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ gap: 1 }}>
 					{activeStep > 0 && (
 						<Button
 							variant="outlined"
@@ -178,6 +335,16 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							Back
 						</Button>
 					)}
+					<Button
+						variant="text"
+						color="error"
+						onClick={handleClearForm}
+						startIcon={<IconRefresh size={18} />}
+						disabled={isPending}
+						sx={{ display: { xs: 'none', sm: 'flex' } }}
+					>
+						Clear Form
+					</Button>
 					<Box sx={{ flexGrow: 1 }} />
 					{activeStep < steps.length - 1 ? (
 						<Button
@@ -185,6 +352,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							onClick={handleNext}
 							endIcon={<IconArrowRight size={18} />}
 							size="large"
+							disabled={!canContinue}
 						>
 							Continue
 						</Button>
@@ -209,9 +377,11 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 function Step1Content({
 	formData,
 	onChange,
+	errors,
 }: {
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
+	errors: FieldErrors;
 }) {
 	return (
 		<Stack spacing={3}>
@@ -220,10 +390,10 @@ function Step1Content({
 			</Typography>
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-				<FormControl required fullWidth>
+				<FormControl required fullWidth error={!!errors.name}>
 					<FormLabel htmlFor="name">
 						Full Name
-						{formData.name && formData.name.length > 2 && (
+						{formData.name && formData.name.length > 2 && !errors.name && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
 							</Box>
@@ -234,16 +404,17 @@ function Step1Content({
 						name="name"
 						value={formData.name || ''}
 						onChange={(e) => onChange('name', e.target.value)}
-						required
+						error={!!errors.name}
 					/>
+					{errors.name && <FormHelperText error>{errors.name}</FormHelperText>}
 				</FormControl>
 			</Stack>
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-				<FormControl required fullWidth>
+				<FormControl required fullWidth error={!!errors.email}>
 					<FormLabel htmlFor="email">
 						Email Address
-						{formData.email && formData.email.includes('@') && (
+						{formData.email && formData.email.includes('@') && !errors.email && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
 							</Box>
@@ -255,14 +426,15 @@ function Step1Content({
 						type="email"
 						value={formData.email || ''}
 						onChange={(e) => onChange('email', e.target.value)}
-						required
+						error={!!errors.email}
 					/>
+					{errors.email && <FormHelperText error>{errors.email}</FormHelperText>}
 				</FormControl>
 
-				<FormControl required fullWidth>
+				<FormControl required fullWidth error={!!errors.phone}>
 					<FormLabel htmlFor="phone">
 						Phone Number
-						{formData.phone && formData.phone.length > 8 && (
+						{formData.phone && formData.phone.length > 8 && !errors.phone && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
 							</Box>
@@ -275,8 +447,9 @@ function Step1Content({
 						placeholder="+970 XX XXX XXXX"
 						value={formData.phone || ''}
 						onChange={(e) => onChange('phone', e.target.value)}
-						required
+						error={!!errors.phone}
 					/>
+					{errors.phone && <FormHelperText error>{errors.phone}</FormHelperText>}
 				</FormControl>
 			</Stack>
 		</Stack>
@@ -288,20 +461,19 @@ function Step2Content({
 	serviceFields,
 	formData,
 	onChange,
+	errors,
+	uploadedFiles,
+	onFileChange,
+	onRemoveFile,
 }: {
 	serviceFields: FormField[];
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
+	errors: FieldErrors;
+	uploadedFiles: Record<string, File>;
+	onFileChange: (fieldName: string, file: File | null) => void;
+	onRemoveFile: (fieldName: string) => void;
 }) {
-	const [fileNames, setFileNames] = useState<Record<string, string>>({});
-
-	const handleFileChange = (fieldName: string, e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			setFileNames((prev) => ({ ...prev, [fieldName]: file.name }));
-		}
-	};
-
 	const renderField = (field: FormField) => {
 		const commonProps = {
 			id: field.name,
@@ -312,12 +484,13 @@ function Step2Content({
 		switch (field.type) {
 			case 'select':
 				return (
-					<FormControl required={field.required} fullWidth key={field.name}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
 						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
 						<Select
 							{...commonProps}
 							value={formData[field.name] || ''}
 							onChange={(e) => onChange(field.name, e.target.value)}
+							error={!!errors[field.name]}
 						>
 							<MenuItem value="" disabled>
 								Select an option
@@ -328,17 +501,16 @@ function Step2Content({
 								</MenuItem>
 							))}
 						</Select>
-						{field.helperText && (
-							<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-								{field.helperText}
-							</Typography>
+						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{!errors[field.name] && field.helperText && (
+							<FormHelperText>{field.helperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
 
 			case 'textarea':
 				return (
-					<FormControl required={field.required} fullWidth key={field.name}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
 						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
@@ -347,81 +519,105 @@ function Step2Content({
 							placeholder={field.placeholder}
 							value={formData[field.name] || ''}
 							onChange={(e) => onChange(field.name, e.target.value)}
+							error={!!errors[field.name]}
 						/>
-						{field.helperText && (
-							<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-								{field.helperText}
-							</Typography>
+						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{!errors[field.name] && field.helperText && (
+							<FormHelperText>{field.helperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
 
 			case 'file':
+				const file = uploadedFiles[field.name];
 				return (
-					<FormControl fullWidth key={field.name}>
+					<FormControl fullWidth key={field.name} error={!!errors[field.name]}>
 						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-						<Box
-							component="label"
-							sx={{
-								mt: 1,
-								p: 3,
-								border: 2,
-								borderStyle: 'dashed',
-								borderColor: fileNames[field.name] ? 'success.main' : 'divider',
-								borderRadius: 2,
-								backgroundColor: fileNames[field.name] ? 'success.lighter' : 'background.paper',
-								cursor: 'pointer',
-								transition: 'all 0.2s',
-								'&:hover': {
-									borderColor: 'primary.main',
-									backgroundColor: 'action.hover',
-								},
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-								gap: 1,
-							}}
-						>
-							<input
-								type="file"
-								name={field.name}
-								hidden
-								accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-								onChange={(e) => handleFileChange(field.name, e)}
-							/>
-							{fileNames[field.name] ? (
-								<>
-									<IconFile size={32} />
-									<Typography variant="body2" fontWeight={600}>
-										{fileNames[field.name]}
-									</Typography>
-									<Typography variant="caption" color="success.main">
-										File selected - Click to change
-									</Typography>
-								</>
-							) : (
-								<>
-									<IconUpload size={32} />
-									<Typography variant="body2" fontWeight={600}>
-										Click to upload file
-									</Typography>
-									<Typography variant="caption" color="text.secondary">
-										PDF, JPG, PNG, DOC, DOCX (Max 10MB)
-									</Typography>
-								</>
+						<Box sx={{ position: 'relative' }}>
+							<Box
+								component="label"
+								sx={{
+									mt: 1,
+									p: 3,
+									border: 2,
+									borderStyle: 'dashed',
+									borderColor: file ? 'success.main' : errors[field.name] ? 'error.main' : 'divider',
+									borderRadius: 2,
+									backgroundColor: file ? 'success.lighter' : 'background.paper',
+									cursor: 'pointer',
+									transition: 'all 0.2s',
+									'&:hover': {
+										borderColor: 'primary.main',
+										backgroundColor: 'action.hover',
+									},
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									gap: 1,
+								}}
+							>
+								<input
+									type="file"
+									hidden
+									accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+									onChange={(e) => {
+										const selectedFile = e.target.files?.[0] || null;
+										onFileChange(field.name, selectedFile);
+									}}
+								/>
+								{file ? (
+									<>
+										<IconFile size={32} />
+										<Typography variant="body2" fontWeight={600}>
+											{file.name}
+										</Typography>
+										<Typography variant="caption" color="text.secondary">
+											{(file.size / 1024 / 1024).toFixed(2)}MB
+										</Typography>
+										<Typography variant="caption" color="success.main">
+											File selected - Click to change
+										</Typography>
+									</>
+								) : (
+									<>
+										<IconUpload size={32} />
+										<Typography variant="body2" fontWeight={600}>
+											Click to upload file
+										</Typography>
+										<Typography variant="caption" color="text.secondary">
+											PDF, JPG, PNG, DOC, DOCX (Max 10MB)
+										</Typography>
+									</>
+								)}
+							</Box>
+							{file && (
+								<Tooltip title="Remove file">
+									<IconButton
+										size="small"
+										onClick={() => onRemoveFile(field.name)}
+										sx={{
+											position: 'absolute',
+											top: 8,
+											right: 8,
+											bgcolor: 'background.paper',
+											'&:hover': { bgcolor: 'error.main', color: 'white' },
+										}}
+									>
+										<IconX size={18} />
+									</IconButton>
+								</Tooltip>
 							)}
 						</Box>
-						{field.helperText && (
-							<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-								{field.helperText}
-							</Typography>
+						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{!errors[field.name] && field.helperText && (
+							<FormHelperText>{field.helperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
 
 			default:
 				return (
-					<FormControl required={field.required} fullWidth key={field.name}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
 						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
@@ -429,11 +625,11 @@ function Step2Content({
 							placeholder={field.placeholder}
 							value={formData[field.name] || ''}
 							onChange={(e) => onChange(field.name, e.target.value)}
+							error={!!errors[field.name]}
 						/>
-						{field.helperText && (
-							<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-								{field.helperText}
-							</Typography>
+						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{!errors[field.name] && field.helperText && (
+							<FormHelperText>{field.helperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
@@ -465,7 +661,7 @@ function Step2Content({
 				</Select>
 			</FormControl>
 
-			<FormControl required>
+			<FormControl required error={!!errors.details}>
 				<FormLabel htmlFor="details">Additional Details</FormLabel>
 				<OutlinedInput
 					id="details"
@@ -475,8 +671,9 @@ function Step2Content({
 					placeholder="Any specific requirements or questions..."
 					value={formData.details || ''}
 					onChange={(e) => onChange('details', e.target.value)}
-					required
+					error={!!errors.details}
 				/>
+				{errors.details && <FormHelperText error>{errors.details}</FormHelperText>}
 			</FormControl>
 
 			<FormControl>
@@ -500,10 +697,12 @@ function Step3Content({
 	service,
 	serviceFields,
 	formData,
+	uploadedFiles,
 }: {
 	service: Service;
 	serviceFields: FormField[];
 	formData: Record<string, string>;
+	uploadedFiles: Record<string, File>;
 }) {
 	return (
 		<Stack spacing={3}>
@@ -552,7 +751,15 @@ function Step3Content({
 					</Typography>
 					<Stack spacing={0.5}>
 						{serviceFields.map((field) => {
-							if (field.type === 'file') return null; // Skip file fields in review
+							if (field.type === 'file') {
+								const file = uploadedFiles[field.name];
+								if (!file) return null;
+								return (
+									<Typography variant="body2" key={field.name}>
+										<strong>{field.label}:</strong> {file.name} ({(file.size / 1024 / 1024).toFixed(2)}MB)
+									</Typography>
+								);
+							}
 							const value = formData[field.name];
 							if (!value) return null;
 							return (
