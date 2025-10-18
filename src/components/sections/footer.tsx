@@ -191,7 +191,7 @@ export default function Footer() {
 						>
 							<CardContent>
 								<Grid container spacing={{ md: 8, xs: 4 }}>
-									<Grid size={{ xs: 12, md: 12, lg: true }}>
+									<Grid size={{ xs: 12, md: 12, lg: 'grow' }}>
 										<Stack spacing={{ xs: 2.25, md: 4.5 }}>
 											<Stack alignItems="center" direction="row" spacing={1.5}>
 												<Box>

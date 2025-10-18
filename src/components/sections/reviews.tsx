@@ -95,7 +95,7 @@ export default function Reviews() {
 					<Container>
 						<Box sx={{ px: { xs: 2, md: 7.5 } }}>
 							<Grid alignItems="end" container spacing={{ xs: 2.5, md: 5 }}>
-								<Grid size={{ xs: 12, md: true }}>
+								<Grid size={{ xs: 12, md: 'grow' }}>
 									<Stack
 										spacing={1.5}
 										sx={{

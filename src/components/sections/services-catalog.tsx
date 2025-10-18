@@ -30,12 +30,11 @@ export default function ServicesCatalog() {
 			<Grid container spacing={{ xs: 2.5, md: 3.5 }}>
 				{services.map((service, index) => (
 					<Grid key={service.slug} size={{ xs: 12, sm: 6, md: 4, lg: 4 }} sx={{ display: 'flex' }}>
-						<RevealSection delay={0.1 + index * 0.05} direction="up" style={{ width: '100%', display: 'flex' }}>
+						<RevealSection delay={0.1 + index * 0.05} direction="up">
 							<Card
 								borderRadius={24}
 								backgroundColor={{ light: 'rgba(255,255,255,0.8)', dark: '#1F1F2B' }}
 								borderColor={{ light: '#fff', dark: '#2F2F3B' }}
-								sx={{ width: '100%', display: 'flex' }}
 							>
 								<CardContent
 									sx={{

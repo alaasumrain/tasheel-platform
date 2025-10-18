@@ -86,7 +86,7 @@ export default function PricingPlans() {
 			<Stack spacing={{ xs: 6, md: 8 }}>
 				<Box>
 					<Grid container spacing={{ xs: 4, md: 4 }} alignItems="center">
-						<Grid size={{ xs: 12, md: true }}>
+						<Grid size={{ xs: 12, md: 'grow' }}>
 							<Stack spacing={1.5}>
 								<Typography
 									sx={{ textAlign: { xs: 'center', md: 'left' } }}

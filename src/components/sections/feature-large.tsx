@@ -76,7 +76,7 @@ export default function FeatureLarge() {
 										</Box>
 									</RevealSection>
 								</Grid>
-								<Grid size={{ xs: 12, md: true }}>
+								<Grid size={{ xs: 12, md: 'grow' }}>
 									<RevealSection delay={0.5} direction="right">
 										<Stack spacing={5} sx={{ pt: { md: 1 } }}>
 											<Typography variant="h2">{headline}</Typography>

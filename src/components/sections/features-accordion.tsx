@@ -257,7 +257,7 @@ export default function FeaturesAccordion() {
 									</Stepper>
 								</Box>
 							</Grid>
-							<Grid size={{ xs: 12, md: true }}>
+							<Grid size={{ xs: 12, md: 'grow' }}>
 								<Stack
 									sx={{
 										height: { xs: 260, md: '100%' },

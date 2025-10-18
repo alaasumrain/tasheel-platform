@@ -50,7 +50,7 @@ export default function Testimonials() {
 									</Card>
 								</Box>
 							</Grid>
-							<Grid size={{ xs: 12, md: true }}>
+							<Grid size={{ xs: 12, md: 'grow' }}>
 								<Box sx={{ display: { xs: 'block', lg: 'none' } }}>
 									<Stack spacing={4}>
 										<Typography

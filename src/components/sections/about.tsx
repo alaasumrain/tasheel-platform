@@ -59,7 +59,7 @@ export default function Contact() {
 				</Grid>
 				</RevealSection>
 				<RevealSection delay={0.5} direction="right">
-					<Grid size={{ md: true }} sx={{ flexGrow: { md: 1 } }}>
+					<Grid size={{ md: 'grow' }} sx={{ flexGrow: { md: 1 } }}>
 					<Card
 						borderColor={{
 							light: 'rgba(255, 255, 255, 0.5)',
