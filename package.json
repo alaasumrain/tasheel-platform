@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "git:new-branch": "git checkout main && git pull && git checkout -b",
+    "git:push-branch": "git push -u origin $(git branch --show-current)",
+    "git:list-branches": "git branch -a",
+    "git:current-branch": "git branch --show-current",
+    "git:preview": "git push origin $(git branch --show-current)",
+    "git:status": "git status --short && echo '' && echo 'Current branch:' && git branch --show-current"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
