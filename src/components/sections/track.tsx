@@ -6,13 +6,13 @@ import {
 	Box,
 	Button,
 	Container,
-	Grid,
 	Stack,
 	TextField,
 	Typography,
 	Chip,
 	Alert,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { IconSearch, IconCheck, IconClock } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
@@ -107,7 +107,7 @@ export default function Track() {
 					sx={{ minHeight: { md: '60vh' } }}
 					justifyContent="center"
 				>
-					<Grid xs={12} md={10} lg={8}>
+					<Grid size={{ xs: 12, md: 10, lg: 8 }}>
 						<Stack spacing={{ xs: 4, md: 6 }}>
 							<Stack spacing={2.5} sx={{ textAlign: 'center' }}>
 								<Typography color="accent" variant="h5">
@@ -208,7 +208,7 @@ export default function Track() {
 
 																	{/* Customer Info */}
 																	<Grid container spacing={2}>
-																		<Grid xs={12} sm={6}>
+																		<Grid size={{ xs: 12, sm: 6 }}>
 																			<Typography variant="caption" color="textSecondary">
 																				Customer
 																			</Typography>
@@ -216,7 +216,7 @@ export default function Track() {
 																				{orderData.order.customer_name || 'N/A'}
 																			</Typography>
 																		</Grid>
-																		<Grid xs={12} sm={6}>
+																		<Grid size={{ xs: 12, sm: 6 }}>
 																			<Typography variant="caption" color="textSecondary">
 																				Submitted
 																			</Typography>

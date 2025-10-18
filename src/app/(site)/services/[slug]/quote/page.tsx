@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Box, Container, Grid, Stack, Typography } from '@mui/material';
+import { Box, Container, Stack, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Link from 'next/link';
 import { IconArrowLeft } from '@tabler/icons-react';
 
@@ -78,7 +79,7 @@ export default async function QuotePage({ params }: PageProps) {
 						{/* Main Content */}
 						<Grid container spacing={{ xs: 4, md: 6 }}>
 							{/* Form */}
-							<Grid xs={12} md={7}>
+							<Grid size={{ xs: 12, md: 7 }}>
 								<Card borderRadius={24}>
 									<Box sx={{ p: { xs: 3, md: 4 } }}>
 										<ServiceQuoteWizard service={service} />
@@ -87,7 +88,7 @@ export default async function QuotePage({ params }: PageProps) {
 							</Grid>
 
 							{/* Sidebar */}
-							<Grid xs={12} md={5}>
+							<Grid size={{ xs: 12, md: 5 }}>
 								<ServiceQuoteSidebar service={service} />
 							</Grid>
 						</Grid>

@@ -5,12 +5,12 @@ import {
 	Button,
 	CardContent,
 	Container,
-	Grid,
 	IconButton,
 	Stack,
 	Tooltip,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { useColorScheme } from '@mui/material';
 
 import Link from 'next/link';
@@ -161,12 +161,12 @@ export default function Footer() {
 					<Stack spacing={{ md: 8, xs: 6 }}>
 						<Box>
 							<Grid container spacing={{ md: 8, xs: 2 }}>
-								<Grid xs={12} lg={6}>
+								<Grid size={{ xs: 12, lg: 6 }}>
 									<Typography color="#ffffff" variant="h2">
 										{headline}
 									</Typography>
 								</Grid>
-								<Grid xs={12} lg={6}>
+								<Grid size={{ xs: 12, lg: 6 }}>
 									<Stack spacing={{ xs: 2, md: 3 }}>
 										<Typography
 											color="rgba(160, 160, 174, 1)"
@@ -191,7 +191,7 @@ export default function Footer() {
 						>
 							<CardContent>
 								<Grid container spacing={{ md: 8, xs: 4 }}>
-									<Grid xs={12} md={12} lg>
+									<Grid size={{ xs: 12, md: 12, lg: true }}>
 										<Stack spacing={{ xs: 2.25, md: 4.5 }}>
 											<Stack alignItems="center" direction="row" spacing={1.5}>
 												<Box>
@@ -240,7 +240,7 @@ export default function Footer() {
 											</Stack>
 										</Stack>
 									</Grid>
-									<Grid xs={12} md={4} lg="auto">
+									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
 										<Stack spacing={2}>
 											<Typography color="#ffffff" variant="subtitle1">
 												{`Company`}
@@ -259,7 +259,7 @@ export default function Footer() {
 											</Stack>
 										</Stack>
 									</Grid>
-									<Grid xs={12} md={4} lg="auto">
+									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
 										<Stack spacing={2}>
 											<Typography color="#ffffff" variant="subtitle1">
 												{`Features`}
@@ -278,7 +278,7 @@ export default function Footer() {
 											</Stack>
 										</Stack>
 									</Grid>
-									<Grid xs={12} md={4} lg="auto">
+									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
 										<Stack spacing={2}>
 											<Typography color="#ffffff" variant="subtitle1">
 												{`Legal`}

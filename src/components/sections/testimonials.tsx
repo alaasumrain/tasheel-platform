@@ -2,10 +2,10 @@ import {
 	Box,
 	Container,
 	CardContent,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
 import RevealSection from '@/components/ui/reveal-section';
@@ -27,7 +27,7 @@ export default function Testimonials() {
 				>
 					<CardContent sx={{ pr: { xs: null, lg: 2.5 } }}>
 						<Grid container spacing={{ xs: 6, lg: 3 }}>
-							<Grid xs={12} md="auto" sx={{ pt: { lg: 2 } }}>
+							<Grid size={{ xs: 12, md: "auto" }} sx={{ pt: { lg: 2 } }}>
 								<Box sx={{ width: { xs: '100%', md: 272 } }}>
 									<Card
 										borderRadius={20}
@@ -50,7 +50,7 @@ export default function Testimonials() {
 									</Card>
 								</Box>
 							</Grid>
-							<Grid xs={12} md>
+							<Grid size={{ xs: 12, md: true }}>
 								<Box sx={{ display: { xs: 'block', lg: 'none' } }}>
 									<Stack spacing={4}>
 										<Typography

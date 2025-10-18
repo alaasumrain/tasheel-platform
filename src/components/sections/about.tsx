@@ -1,4 +1,5 @@
-import { Box, Container, Grid, Stack, Typography } from '@mui/material';
+import { Box, Container, Stack, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
 
 import { Card } from '@/components/ui/card';
@@ -30,7 +31,7 @@ export default function Contact() {
 				spacing={{ xs: 0, md: 4, lg: 8 }}
 			>
 				<RevealSection delay={0.3} direction="left">
-					<Grid xs={12} md={6}>
+					<Grid size={{ xs: 12, md: 6 }}>
 					<Stack spacing={{ xs: 2.5, md: 5 }} sx={{ py: { xs: 0, md: 5 } }}>
 						<Stack spacing={1.5}>
 							<Typography
@@ -58,7 +59,7 @@ export default function Contact() {
 				</Grid>
 				</RevealSection>
 				<RevealSection delay={0.5} direction="right">
-					<Grid xs={0} md sx={{ flexGrow: { md: 1 } }}>
+					<Grid size={{ md: true }} sx={{ flexGrow: { md: 1 } }}>
 					<Card
 						borderColor={{
 							light: 'rgba(255, 255, 255, 0.5)',

@@ -2,10 +2,10 @@ import {
 	Box,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { IconCheck } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
@@ -58,9 +58,7 @@ export default function FeatureLarge() {
 								}}
 							>
 								<Grid
-									xs={12}
-									md={6}
-									lg="auto"
+									size={{ xs: 12, md: 6, lg: "auto" }}
 								>
 									<RevealSection delay={0.3} direction="left">
 										<Box
@@ -78,7 +76,7 @@ export default function FeatureLarge() {
 										</Box>
 									</RevealSection>
 								</Grid>
-								<Grid xs={12} md>
+								<Grid size={{ xs: 12, md: true }}>
 									<RevealSection delay={0.5} direction="right">
 										<Stack spacing={5} sx={{ pt: { md: 1 } }}>
 											<Typography variant="h2">{headline}</Typography>

@@ -1,4 +1,5 @@
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
 	Receipt as OrdersIcon,
 	HourglassEmpty as PendingIcon,
@@ -39,7 +40,7 @@ export default async function AdminDashboardPage() {
 
 			{/* Stats Cards */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
-				<Grid xs={12} sm={6} md={3}>
+				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
 						title="Total Orders"
 						value={metrics.totalOrders}
@@ -47,7 +48,7 @@ export default async function AdminDashboardPage() {
 						color="primary"
 					/>
 				</Grid>
-				<Grid xs={12} sm={6} md={3}>
+				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
 						title="Pending"
 						value={metrics.pendingOrders}
@@ -55,7 +56,7 @@ export default async function AdminDashboardPage() {
 						color="info"
 					/>
 				</Grid>
-				<Grid xs={12} sm={6} md={3}>
+				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
 						title="In Progress"
 						value={metrics.inProgressOrders}
@@ -63,7 +64,7 @@ export default async function AdminDashboardPage() {
 						color="warning"
 					/>
 				</Grid>
-				<Grid xs={12} sm={6} md={3}>
+				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
 						title="Completed Today"
 						value={metrics.completedToday}
@@ -75,10 +76,10 @@ export default async function AdminDashboardPage() {
 
 			{/* Charts */}
 			<Grid container spacing={3} sx={{ mb: 4 }}>
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<OrdersTimelineChart data={timelineData} />
 				</Grid>
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<StatusDistributionChart data={statusData} />
 				</Grid>
 			</Grid>

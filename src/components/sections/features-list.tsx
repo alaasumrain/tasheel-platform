@@ -1,4 +1,5 @@
-import { Box, Container, Grid, Stack, Typography } from '@mui/material';
+import { Box, Container, Stack, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
@@ -88,7 +89,7 @@ function FeatureItem({
 		<Box sx={{ px: { xs: 2.5, md: 0 }, width: '100%' }}>
 			<Grid alignItems="center" container spacing={{ xs: 3.75, md: 7.5 }}>
 				<Grid
-					xs={12} md={5}
+					size={{ xs: 12, md: 5 }}
 					order={{ xs: 2, md: order === 'image-first' ? 2 : 1 }}
 				>
 					<Stack
@@ -105,7 +106,7 @@ function FeatureItem({
 					</Stack>
 				</Grid>
 				<Grid
-					xs={12} md={7}
+					size={{ xs: 12, md: 7 }}
 					order={{ xs: 1, md: order === 'image-first' ? 1 : 2 }}
 				>
 					<Box sx={{ mx: { xs: 'auto', md: 0 }, width: '100%' }}>

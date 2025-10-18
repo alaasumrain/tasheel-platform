@@ -4,10 +4,10 @@ import {
 	Box,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
@@ -65,7 +65,7 @@ export default function Stats() {
 				<RevealSection delay={0.1} direction="up">
 					<Box sx={{ px: { xs: 3.75, md: 7.5 } }}>
 						<Grid container spacing={{ xs: 2, lg: 7.5 }}>
-							<Grid xs={12} lg={6}>
+							<Grid size={{ xs: 12, lg: 6 }}>
 								<Typography
 									sx={{
 										textAlign: { xs: 'center', lg: 'left' },
@@ -76,7 +76,7 @@ export default function Stats() {
 									{headline}
 								</Typography>
 							</Grid>
-							<Grid xs={12} lg={6}>
+							<Grid size={{ xs: 12, lg: 6 }}>
 								<Stack
 									spacing={3}
 									sx={{ textAlign: { xs: 'center', lg: 'left' } }}
@@ -100,8 +100,7 @@ export default function Stats() {
 								{statsRow1.map((stat, index) => (
 									<Grid
 										key={index}
-										xs={12}
-										lg={index === 2 ? 6 : 3}
+										size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
 										sx={{ height: '100%' }}
 									>
 										<StatItem stat={stat} />
@@ -114,8 +113,7 @@ export default function Stats() {
 								{statsRow2.map((stat, index) => (
 									<Grid
 										key={index}
-										xs={12}
-										lg={index === 0 ? 6 : 3}
+										size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
 										sx={{ height: '100%' }}
 									>
 										<StatItem stat={stat} />

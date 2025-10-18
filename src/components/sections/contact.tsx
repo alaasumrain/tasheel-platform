@@ -2,10 +2,10 @@ import {
 	Box,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
 
 import { Card } from '@/components/ui/card';
@@ -25,7 +25,7 @@ export default function Contact() {
 				direction={{ xs: 'column-reverse', md: 'row' }}
 				spacing={{ xs: 0, md: 4, lg: 8 }}
 			>
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
 						backgroundColor={{
 							light: 'rgba(255, 255, 255, 0.5)',
@@ -47,7 +47,7 @@ export default function Contact() {
 						</CardContent>
 					</Card>
 				</Grid>
-				<Grid xs={0} md={6} sx={{ flexGrow: { md: 1 } }}>
+				<Grid size={{ md: 6 }} sx={{ flexGrow: { md: 1 } }}>
 					<Card borderRadius={36} fullHeight>
 						<Box
 							className="aspect-596/702"

@@ -2,10 +2,10 @@ import {
 	Box,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
@@ -83,7 +83,7 @@ export default function Process() {
 
 function ProcessItem({ title, content, number }: Item) {
 	return (
-		<Grid xs={12} sm={6} md={6} lg={3}>
+		<Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
 			<Stack alignItems="center" sx={{ px: { xs: 2, md: 0 } }}>
 				<Box sx={{ mb: { xs: -4, md: -10 } }}>
 					<Typography

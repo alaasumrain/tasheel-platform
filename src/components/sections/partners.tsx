@@ -40,12 +40,12 @@ export default function Partners() {
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={{ xs: 4, md: 8 }}>
-				<RevealSection delay={0.1}>
+				<RevealSection delay={0}>
 					<Typography textAlign={'center'} variant="h3">
 						{headline}
 					</Typography>
 				</RevealSection>
-				<RevealSection delay={0.3}>
+				<RevealSection delay={0.15}>
 					<Box className="relative flex w-full flex-col items-center justify-center overflow-hidden">
 					<Marquee pauseOnHover className="[--duration:20s]">
 						{partners.map((partner, index) => (

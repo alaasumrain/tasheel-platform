@@ -5,10 +5,10 @@ import {
 	CardContent,
 	Chip,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { IconCheck, IconX, IconArrowRight } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
@@ -104,7 +104,7 @@ export default function PricingPlans() {
 					<Box>
 						<Grid container spacing={{ xs: 3, md: 4 }}>
 							{pricingPlans.map((plan, index) => (
-								<Grid key={index} xs={12} md={4}>
+								<Grid key={index} size={{ xs: 12, md: 4 }}>
 						<PricingPlanCard plan={plan} currency={currency} />
 								</Grid>
 							))}

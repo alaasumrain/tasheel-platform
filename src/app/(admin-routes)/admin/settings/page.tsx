@@ -1,4 +1,5 @@
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
 
 export default function SettingsPage() {
@@ -14,7 +15,7 @@ export default function SettingsPage() {
 			</Box>
 
 			<Grid container spacing={3}>
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
@@ -39,7 +40,7 @@ export default function SettingsPage() {
 					</Card>
 				</Grid>
 
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
@@ -66,7 +67,7 @@ export default function SettingsPage() {
 					</Card>
 				</Grid>
 
-				<Grid xs={12}>
+				<Grid size={{ xs: 12 }}>
 					<Card
 						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
 						borderColor={{ light: '#e0e0e0', dark: '#333333' }}

@@ -6,10 +6,10 @@ import {
 	Box,
 	Button,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import type { Theme } from '@mui/material/styles';
 
 import GetStarted from '@/components/buttons/get-started-button';
@@ -70,9 +70,9 @@ export default function Hero() {
 				spacing={{ xs: 6, md: 8 }}
 				sx={{ px: { xs: 3.75, md: 7.5 } }}
 			>
-				<Grid xs={12} md={6}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<Stack spacing={4}>
-						<RevealSection delay={0.1}>
+						<RevealSection delay={0}>
 							<Stack
 								spacing={2}
 								sx={{
@@ -87,7 +87,7 @@ export default function Hero() {
 								</Typography>
 							</Stack>
 						</RevealSection>
-						<RevealSection delay={0.3}>
+						<RevealSection delay={0.15}>
 							<Stack spacing={3}>
 								<Stack
 									direction={{ xs: 'column', sm: 'row' }}
@@ -169,8 +169,8 @@ export default function Hero() {
 						</RevealSection>
 					</Stack>
 				</Grid>
-				<Grid xs={12} md={6}>
-					<RevealSection delay={0.4} direction="up" distance={60}>
+				<Grid size={{ xs: 12, md: 6 }}>
+					<RevealSection delay={0.2} direction="up" distance={60}>
 						<Box sx={{ mx: { md: 'auto' }, maxWidth: 540, width: '100%' }}>
 							<Mockup
 								darkImage="/dark/hero.jpg"

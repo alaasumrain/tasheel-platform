@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import {
 	Box,
 	Container,
-	Grid,
 	Stack,
 	Stepper,
 	Step,
@@ -13,6 +12,7 @@ import {
 	StepContent,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { useCountUp } from 'use-count-up';
 
 import Mockup from '@/components/ui/mockup';
@@ -117,7 +117,7 @@ export default function FeaturesAccordion() {
 							direction={{ xs: 'column-reverse', md: 'row' }}
 							spacing={{ xs: 3.75, md: 7.5 }}
 						>
-							<Grid xs={12} md={5}>
+							<Grid size={{ xs: 12, md: 5 }}>
 								<Box sx={{ position: 'relative', width: '100%' }}>
 									<Stepper
 										activeStep={activeStep}
@@ -257,7 +257,7 @@ export default function FeaturesAccordion() {
 									</Stepper>
 								</Box>
 							</Grid>
-							<Grid xs={12} md>
+							<Grid size={{ xs: 12, md: true }}>
 								<Stack
 									sx={{
 										height: { xs: 260, md: '100%' },

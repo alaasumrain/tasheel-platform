@@ -6,12 +6,12 @@ import {
 	CardContent,
 	Chip,
 	Container,
-	Grid,
 	Stack,
 	ToggleButtonGroup,
 	ToggleButton,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { IconCheck, IconX, IconArrowRight } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
@@ -86,7 +86,7 @@ export default function PricingPlans() {
 			<Stack spacing={{ xs: 6, md: 8 }}>
 				<Box>
 					<Grid container spacing={{ xs: 4, md: 4 }} alignItems="center">
-						<Grid xs={12} md>
+						<Grid size={{ xs: 12, md: true }}>
 							<Stack spacing={1.5}>
 								<Typography
 									sx={{ textAlign: { xs: 'center', md: 'left' } }}
@@ -107,7 +107,7 @@ export default function PricingPlans() {
 								</Typography>
 							</Stack>
 						</Grid>
-						<Grid xs={12} md="auto">
+						<Grid size={{ xs: 12, md: "auto" }}>
 							<Stack
 								direction="row"
 								alignItems="center"
@@ -135,7 +135,7 @@ export default function PricingPlans() {
 				<Box>
 					<Grid container spacing={{ xs: 3, md: 4 }}>
 						{pricingPlans.map((plan, index) => (
-							<Grid key={index} xs={12} md={4}>
+							<Grid key={index} size={{ xs: 12, sm: 6, md: 4, lg: 4 }}>
 								<PricingPlanCard
 									plan={plan}
 									planType={planType}

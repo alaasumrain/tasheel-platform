@@ -3,7 +3,8 @@ import { useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
-import { Button, Grid, OutlinedInput } from '@mui/material';
+import { Button, OutlinedInput } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { styled } from '@mui/material/styles';
 
 import { IconMail } from '@tabler/icons-react';
@@ -40,7 +41,7 @@ export default function SubscribeForm() {
 	return (
 		<form ref={formRef} action={handleSubmit}>
 			<Grid alignItems="center" container spacing={{ md: 2.5 }}>
-				<Grid xs={12} md>
+				<Grid size={{ xs: 12, md: true }}>
 					<Input
 						disabled={isPending}
 						name="email"
@@ -49,7 +50,7 @@ export default function SubscribeForm() {
 						startAdornment={<IconMail />}
 					/>
 				</Grid>
-				<Grid xs={12} md="auto">
+				<Grid size={{ xs: 12, md: "auto" }}>
 					<Button
 						color="accent"
 						disabled={isPending}

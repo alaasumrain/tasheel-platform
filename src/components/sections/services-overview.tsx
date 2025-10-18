@@ -3,10 +3,10 @@ import {
 	Button,
 	CardContent,
 	Container,
-	Grid,
 	Stack,
 	Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
 	IconArrowRight,
 	IconClock,
@@ -81,7 +81,7 @@ export default function ServicesOverview() {
 														<Grid container spacing={4} justifyContent="center">
 													{categoryServices.map((service) => (
 																			<Grid
-																				xs={12} md={12} lg={6}
+																				size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
 																				key={service.slug}
 																			>
 																				<Card fullHeight>
