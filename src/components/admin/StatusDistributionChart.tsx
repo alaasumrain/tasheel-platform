@@ -12,6 +12,7 @@ import {
 	Cell,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 interface StatusDistributionChartProps {
 	data: { status: string; count: number }[];
@@ -29,22 +30,11 @@ const statusColors: Record<string, string> = {
 	cancelled: '#757575',
 };
 
-const statusLabels: Record<string, string> = {
-	submitted: 'Submitted',
-	scoping: 'Scoping',
-	quote_sent: 'Quote Sent',
-	in_progress: 'In Progress',
-	review: 'Review',
-	completed: 'Completed',
-	archived: 'Archived',
-	rejected: 'Rejected',
-	cancelled: 'Cancelled',
-};
-
 export function StatusDistributionChart({ data }: StatusDistributionChartProps) {
+	const t = useTranslations('Admin.orders');
 	const formattedData = data.map((item) => ({
 		...item,
-		label: statusLabels[item.status] || item.status,
+		label: t(`statusLabels.${item.status}` as any, { defaultValue: item.status }),
 	}));
 
 	return (
@@ -55,10 +45,10 @@ export function StatusDistributionChart({ data }: StatusDistributionChartProps) 
 		>
 			<Box sx={{ p: 3 }}>
 				<Typography variant="h6" fontWeight={600} gutterBottom>
-					Status Distribution
+					{t('statusDistribution')}
 				</Typography>
 				<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-					Orders by current status
+					{t('statusDistributionDescription')}
 				</Typography>
 
 				<ResponsiveContainer width="100%" height={300}>

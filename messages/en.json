@@ -1,0 +1,628 @@
+{
+	"Metadata": {
+		"home": {
+			"title": "Tasheel — Government services concierge for Palestine",
+			"description": "Tasheel helps residents and businesses in Palestine manage government documents, translations, and legalizations entirely online."
+		}
+	},
+	"Header": {
+		"home": "Home",
+		"services": "Services",
+		"track": "Track Status",
+		"pricing": "Pricing",
+		"about": "About",
+		"contact": "Contact",
+		"login": "Login"
+	},
+	"Common": {
+		"loading": "Loading...",
+		"error": "An error occurred",
+		"submit": "Submit",
+		"cancel": "Cancel",
+		"save": "Save",
+		"delete": "Delete",
+		"edit": "Edit",
+		"view": "View",
+		"search": "Search",
+		"filter": "Filter",
+		"clear": "Clear",
+		"close": "Close",
+		"back": "Back",
+		"next": "Next",
+		"previous": "Previous",
+		"confirm": "Confirm",
+		"yes": "Yes",
+		"no": "No"
+	},
+	"Forms": {
+		"required": "This field is required",
+		"invalidEmail": "Please enter a valid email address",
+		"invalidPhone": "Please enter a valid phone number",
+		"submitError": "An error occurred while submitting the form",
+		"submitSuccess": "Form submitted successfully"
+	},
+	"Services": {
+		"title": "Our Services",
+		"description": "Browse our comprehensive catalog of government services and translations",
+		"viewDetails": "View Details",
+		"requestQuote": "Request Quote",
+		"requestQuoteNow": "Request Quote Now",
+		"startingPrice": "Pricing",
+		"from": "From",
+		"turnaroundTime": "Turnaround Time",
+		"requiredDocuments": "Required Documents",
+		"processSteps": "Process Steps",
+		"simpleProcess": "Simple process, professional results",
+		"whatsIncluded": "What's Included",
+		"readyToStart": "Ready to get started?",
+		"quoteDescription": "Submit a quote request and our team will get back to you within 2 hours with pricing and next steps.",
+		"callUs": "Call +970 2 240 1234",
+		"trackStatus": "Track Status",
+		"notFound": "Service Not Found"
+	},
+	"Admin": {
+		"layout": {
+			"title": "Tasheel",
+			"subtitle": "Admin Dashboard",
+			"menu": {
+				"dashboard": "Dashboard",
+				"orders": "Orders",
+				"users": "Users",
+				"seedServices": "Seed Services",
+				"settings": "Settings"
+			},
+			"logout": "Logout"
+		},
+		"orders": {
+			"table": {
+				"orderNumber": "Order Number",
+				"customer": "Customer",
+				"email": "Email",
+				"service": "Service",
+				"status": "Status",
+				"submitted": "Submitted",
+				"actions": "Actions",
+				"view": "View"
+			},
+			"noOrders": "No orders found",
+			"noOrdersDescription": "Orders will appear here when customers submit quote requests",
+			"orderDetails": "Order Details",
+			"submitted": "Submitted",
+			"customerInformation": "Customer Information",
+			"name": "Name",
+			"email": "Email",
+			"phone": "Phone",
+			"orderDetailsTitle": "Order Details",
+			"urgency": "Urgency",
+			"details": "Details",
+			"customerNotes": "Customer Notes",
+			"timeline": "Timeline",
+			"noEvents": "No events yet",
+			"updateStatus": "Update Status",
+			"status": "Status",
+			"notesOptional": "Notes (optional)",
+			"notesPlaceholder": "Add notes about this status update...",
+			"updating": "Updating...",
+			"updateStatusButton": "Update Status",
+			"statusUpdateNotification": "Customer will be notified via email about this status change",
+			"statusUpdated": "Status updated successfully",
+			"statusUpdateFailed": "Failed to update status",
+			"errorOccurred": "An error occurred",
+			"email": "Email",
+			"call": "Call",
+			"whatsapp": "WhatsApp",
+			"statusLabels": {
+				"draft": "Draft",
+				"submitted": "Submitted",
+				"scoping": "Scoping",
+				"quote_sent": "Quote Sent",
+				"in_progress": "In Progress",
+				"review": "In Review",
+				"completed": "Completed",
+				"archived": "Archived",
+				"rejected": "Rejected",
+				"cancelled": "Cancelled"
+			},
+			"statusDistribution": "Status Distribution",
+			"statusDistributionDescription": "Orders by current status",
+			"ordersTimeline": "Orders Timeline (Last 7 Days)",
+			"ordersTimelineDescription": "Daily order submissions",
+			"eventTypes": {
+				"status_changed": "Status Changed",
+				"quote_sent": "Quote Sent",
+				"payment_received": "Payment Received",
+				"document_uploaded": "Document Uploaded",
+				"note_added": "Note Added",
+				"assigned_to": "Assigned To",
+				"completed": "Completed"
+			}
+		},
+		"quote": {
+			"createQuote": "Create Quote",
+			"createQuoteDescription": "Generate and send a quote to the customer",
+			"amountNIS": "Amount (NIS)",
+			"notesOptional": "Notes (optional)",
+			"notesPlaceholder": "Additional notes for the customer...",
+			"creating": "Creating...",
+			"createAndSend": "Create & Send Quote",
+			"cancel": "Cancel",
+			"quoteCreated": "Quote created and sent to customer!"
+		},
+		"invoice": {
+			"createInvoice": "Create Invoice",
+			"createInvoiceDescription": "Generate an invoice for this order",
+			"amountNIS": "Amount (NIS)",
+			"dueDate": "Due Date",
+			"creating": "Creating...",
+			"createInvoiceButton": "Create Invoice",
+			"cancel": "Cancel",
+			"invoiceCreated": "Invoice created successfully!"
+		},
+		"users": {
+			"table": {
+				"name": "Name",
+				"email": "Email",
+				"role": "Role",
+				"status": "Status",
+				"created": "Created",
+				"actions": "Actions"
+			},
+			"noUsers": "No users found",
+			"active": "Active",
+			"inactive": "Inactive",
+			"edit": "Edit",
+			"delete": "Delete"
+		},
+		"dashboard": {
+			"title": "Dashboard",
+			"description": "Overview of all orders and their statuses",
+			"stats": {
+				"totalOrders": "Total Orders",
+				"pending": "Pending",
+				"inProgress": "In Progress",
+				"completedToday": "Completed Today"
+			},
+			"recentOrders": {
+				"title": "Recent Orders",
+				"description": "All orders sorted by most recent"
+			}
+		},
+		"seedServices": {
+			"title": "Seed Services",
+			"description": "Seed the database with 30 essential services",
+			"button": "Seed All Services",
+			"buttonLoading": "Seeding Services...",
+			"success": "Services seeded successfully!",
+			"error": "Failed to seed services",
+			"added": "Added:",
+			"total": "Total:",
+			"alreadyExisted": "Already existed:",
+			"services": "services"
+		}
+	},
+	"Auth": {
+		"register": {
+			"title": "Create Account",
+			"description": "Join Tasheel to manage your government services",
+			"fields": {
+				"name": "Full Name",
+				"email": "Email",
+				"phone": "Phone Number",
+				"password": "Password",
+				"confirmPassword": "Confirm Password"
+			},
+			"errors": {
+				"nameRequired": "Name must be at least 2 characters",
+				"emailInvalid": "Please enter a valid email address",
+				"phoneInvalid": "Please enter a valid phone number",
+				"passwordMin": "Password must be at least 6 characters",
+				"passwordMismatch": "Passwords do not match",
+				"validationFailed": "Please fix the errors above",
+				"signupFailed": "Failed to create account. Please try again.",
+				"generic": "An error occurred. Please try again."
+			},
+			"submit": "Create Account",
+			"success": "Account created successfully!",
+			"alreadyHaveAccount": "Already have an account?",
+			"loginLink": "Login"
+		},
+		"login": {
+			"title": "Login",
+			"description": "Access your Tasheel account",
+			"fields": {
+				"email": "Email",
+				"password": "Password"
+			},
+			"errors": {
+				"fieldsRequired": "Email and password are required",
+				"loginFailed": "Invalid email or password",
+				"generic": "An error occurred. Please try again."
+			},
+			"submit": "Login",
+			"success": "Login successful!",
+			"forgotPassword": "Forgot password?",
+			"noAccount": "Don't have an account?",
+			"registerLink": "Register"
+		},
+		"forgotPassword": {
+			"title": "Reset Password",
+			"description": "Enter your email address and we'll send you a link to reset your password.",
+			"fields": {
+				"email": "Email"
+			},
+			"errors": {
+				"emailInvalid": "Please enter a valid email address",
+				"generic": "An error occurred. Please try again."
+			},
+			"submit": "Send Reset Link",
+			"success": "Password reset link sent to your email!",
+			"emailSent": "We've sent a password reset link to your email. Please check your inbox."
+		},
+		"resetPassword": {
+			"title": "Set New Password",
+			"description": "Enter your new password below.",
+			"fields": {
+				"password": "New Password",
+				"confirmPassword": "Confirm Password"
+			},
+			"errors": {
+				"passwordMin": "Password must be at least 6 characters",
+				"passwordMismatch": "Passwords do not match",
+				"validationFailed": "Please fix the errors above",
+				"invalidLink": "Invalid or expired reset link",
+				"generic": "An error occurred. Please try again."
+			},
+			"submit": "Update Password",
+			"success": "Password updated successfully!",
+			"passwordUpdated": "Your password has been updated. Redirecting to login..."
+		}
+	},
+	"Dashboard": {
+		"page": {
+			"welcomeBack": "Welcome back, {name}!",
+			"description": "Manage your government services requests and track their progress",
+			"totalRequests": "Total Requests",
+			"pending": "Pending",
+			"inProgress": "In Progress",
+			"completed": "Completed",
+			"recentRequests": "Recent Requests",
+			"noRequestsYet": "No requests yet. Start by requesting a service!",
+			"status": "Status:"
+		},
+		"layout": {
+			"title": "Tasheel",
+			"subtitle": "Customer Dashboard",
+			"menu": {
+				"dashboard": "Dashboard",
+				"myRequests": "My Requests",
+				"invoices": "Invoices",
+				"profile": "Profile"
+			},
+			"logout": "Logout",
+			"logoutSuccess": "Logged out successfully",
+			"logoutFailed": "Failed to logout"
+		},
+		"requests": {
+			"title": "My Requests",
+			"description": "View and track all your service requests",
+			"searchPlaceholder": "Search requests...",
+			"noResults": "No requests found matching your search",
+			"noRequests": "No requests yet. Start by requesting a service!",
+			"table": {
+				"orderNumber": "Order Number",
+				"service": "Service",
+				"status": "Status",
+				"submitted": "Submitted",
+				"actions": "Actions",
+				"view": "View"
+			},
+			"statusLabels": {
+				"draft": "Draft",
+				"submitted": "Submitted",
+				"scoping": "Scoping",
+				"quote_sent": "Quote Sent",
+				"in_progress": "In Progress",
+				"review": "In Review",
+				"completed": "Completed",
+				"archived": "Archived",
+				"rejected": "Rejected",
+				"cancelled": "Cancelled"
+			}
+		},
+		"requestDetail": {
+			"requestDetails": "Request Details",
+			"submitted": "Submitted",
+			"serviceDetails": "Service Details",
+			"service": "Service",
+			"description": "Description",
+			"requestInformation": "Request Information",
+			"urgency": "Urgency",
+			"yourNotes": "Your Notes",
+			"statusTimeline": "Status Timeline",
+			"noUpdatesYet": "No updates yet",
+			"contactInformation": "Contact Information",
+			"name": "Name",
+			"email": "Email",
+			"phone": "Phone",
+			"invoice": "Invoice",
+			"invoiceNumber": "Invoice Number",
+			"amount": "Amount",
+			"payNow": "Pay Now",
+			"needHelp": "Need Help?",
+			"whatsappMessage": "Hello, I need help with order {orderNumber}",
+			"eventTypes": {
+				"status_changed": "Status Changed",
+				"quote_sent": "Quote Sent",
+				"payment_received": "Payment Received",
+				"document_uploaded": "Document Uploaded",
+				"note_added": "Note Added",
+				"assigned_to": "Assigned To",
+				"completed": "Completed"
+			},
+			"statusLabels": {
+				"draft": "Draft",
+				"submitted": "Submitted",
+				"scoping": "Scoping",
+				"quote_sent": "Quote Sent",
+				"in_progress": "In Progress",
+				"review": "In Review",
+				"completed": "Completed",
+				"archived": "Archived",
+				"rejected": "Rejected",
+				"cancelled": "Cancelled"
+			}
+		},
+		"profile": {
+			"title": "Profile Settings",
+			"description": "Manage your account information and preferences",
+			"profileInformation": "Profile Information",
+			"changePassword": "Change Password",
+			"fields": {
+				"name": "Full Name",
+				"email": "Email",
+				"phone": "Phone Number",
+				"language": "Language Preference",
+				"currentPassword": "Current Password",
+				"newPassword": "New Password",
+				"confirmPassword": "Confirm Password"
+			},
+			"emailCannotChange": "Email cannot be changed",
+			"passwordRequirements": "Password must be at least 6 characters",
+			"updateProfile": "Update Profile",
+			"updatePassword": "Update Password",
+			"profileUpdated": "Profile updated successfully!",
+			"passwordUpdated": "Password updated successfully!",
+			"updateFailed": "Failed to update. Please try again.",
+			"errors": {
+				"passwordMin": "Password must be at least 6 characters",
+				"passwordMismatch": "Passwords do not match",
+				"currentPasswordInvalid": "Current password is incorrect"
+			}
+		},
+		"fileUpload": {
+			"title": "Upload Documents",
+			"clickOrDrag": "Click or drag file here to upload",
+			"dropHere": "Drop file here",
+			"uploading": "Uploading...",
+			"maxSize": "Max size: {maxSize}",
+			"maxSizeExceeded": "File size exceeds maximum allowed size of {maxSize}",
+			"uploadSuccess": "File uploaded successfully!",
+			"uploadError": "Failed to upload file. Please try again."
+		},
+		"fileList": {
+			"title": "Uploaded Files",
+			"noFiles": "No files uploaded yet",
+			"filename": "Filename",
+			"type": "Type",
+			"size": "Size",
+			"status": "Status",
+			"actions": "Actions",
+			"customerUpload": "Your Upload",
+			"completedWork": "Completed Work",
+			"downloadError": "Failed to download file",
+			"confirmDelete": "Are you sure you want to delete this file?",
+			"deleteError": "Failed to delete file"
+		}
+	},
+	"Invoice": {
+		"title": "Invoice",
+		"companyName": "Tasheel Platform",
+		"companyAddress": "Ramallah, Palestine",
+		"companyPhone": "+970 2 240 1234",
+		"invoiceDetails": "Invoice Details",
+		"invoiceNumber": "Invoice Number",
+		"date": "Date",
+		"status": "Status",
+		"customerDetails": "Customer Details",
+		"name": "Name",
+		"email": "Email",
+		"service": "Service",
+		"description": "Description",
+		"amount": "Amount",
+		"serviceFee": "Service Fee",
+		"total": "Total",
+		"footer": "Thank you for your business!",
+		"generating": "Generating PDF...",
+		"download": "Download Invoice"
+	},
+	"Payment": {
+		"title": "Payment",
+		"testingMode": "TESTING MODE",
+		"testingModeDescription": "This is a test payment flow. Actual payment gateway integration will be implemented later.",
+		"reviewTitle": "Review Payment",
+		"invoiceId": "Invoice ID",
+		"amount": "Amount",
+		"cancel": "Cancel",
+		"continue": "Continue",
+		"back": "Back",
+		"paymentTitle": "Complete Payment",
+		"paymentDescription": "You will be redirected to the payment gateway to complete your payment securely.",
+		"processing": "Processing...",
+		"payNow": "Pay Now",
+		"paymentFailed": "Payment failed. Please try again.",
+		"paymentError": "An error occurred during payment. Please try again.",
+		"successTitle": "Payment Successful!",
+		"successDescription": "Your payment has been processed successfully. You will receive a confirmation email shortly.",
+		"done": "Done"
+	},
+	"WhatsApp": {
+		"openChat": "Chat on WhatsApp",
+		"sendMessage": "Send WhatsApp Message",
+		"contactUs": "Contact us on WhatsApp",
+		"messageSent": "WhatsApp message sent!",
+		"sendError": "Failed to send WhatsApp message"
+	},
+	"Homepage": {
+		"hero": {
+			"headline": "Your government services, simplified",
+			"description": "From driver's license renewals to document legalization—submit online, track progress, and receive completed services. No office visits required.",
+			"trustedBy": "Trusted by 5,000+ residents and 200+ businesses",
+			"primaryCta": "Start a request",
+			"secondaryCta": "Track my order"
+		},
+		"intro": {
+			"subtitle": "Government Services Concierge",
+			"title": "Skip the queues, get it done online",
+			"description": "Upload documents, track progress, receive approvals—all without visiting an office."
+		},
+		"servicesCatalog": {
+			"subtitle": "Tasheel services",
+			"title": "A complete partner for legalization, translation, and government workflows",
+			"description": "Choose the service you need and our team will handle the rest—from paperwork to final delivery.",
+			"getStarted": "Get started"
+		},
+		"stats": {
+			"headline": "Trusted by thousands across Palestine",
+			"description": "Real results from residents and businesses across Palestine using Tasheel for government services, translations, and legalizations.",
+			"stat1": "5,000+",
+			"stat1Desc": "Documents processed monthly",
+			"stat2": "48hrs",
+			"stat2Desc": "Average turnaround time",
+			"stat3": "99.8%",
+			"stat3Desc": "Approval success rate",
+			"stat4": "24/7",
+			"stat4Desc": "Platform availability",
+			"stat5": "15+",
+			"stat5Desc": "Government entities",
+			"stat6": "2,500+",
+			"stat6Desc": "Active users"
+		},
+		"process": {
+			"headline": "From request to delivery in four simple steps",
+			"step1Title": "Choose & Submit",
+			"step1Content": "Select your service, upload required documents, and pay securely online.",
+			"step2Title": "We Verify",
+			"step2Content": "Our team reviews your submission within 2 hours and confirms document completeness.",
+			"step3Title": "We Process",
+			"step3Content": "We handle all government submissions while you track progress in real-time.",
+			"step4Title": "Receive & Done",
+			"step4Content": "Get your completed documents delivered digitally or physically to your address."
+		},
+		"features": {
+			"feature1Headline": "Government Services Concierge",
+			"feature1Description": "Renew licenses, request permits, and manage official certificates without visiting a service center.",
+			"feature2Headline": "Certified Translation Desk",
+			"feature2Description": "Order legal, medical, and academic translations with sworn translators and stamped deliverables.",
+			"feature3Headline": "Legalization & Corporate Support",
+			"feature3Description": "Handle embassy legalization, ministry attestations, and corporate filings with guaranteed compliance.",
+			"exploreServices": "Explore services"
+		},
+		"featuresList": {
+			"headline": "Built for individuals and businesses",
+			"subHeadline": "Whether you're renewing a license or managing corporate documents, Tasheel provides the tools you need.",
+			"feature1Title": "Complete request management",
+			"feature1Content": "Submit multiple service requests, upload documents, and manage everything from a single dashboard with full audit trail.",
+			"feature2Title": "Mobile-first experience",
+			"feature2Content": "Check status, receive notifications, and download completed documents from any device—desktop, mobile, or tablet.",
+			"feature3Title": "Insights and analytics",
+			"feature3Content": "Track processing times, success rates, and spending across all your requests to optimize your document workflow."
+		},
+		"faq": {
+			"headline": "Frequently asked",
+			"subHeadline": "Everything you need to know about Tasheel's government services",
+			"question1": "How long does document attestation take?",
+			"answer1": "Processing time varies by service and country. Palestinian Ministry of Foreign Affairs and Expatriates (MOFAE) attestation typically takes 5-7 business days. Foreign document attestation (home country + Palestinian embassy + MOFAE) takes 10-20 business days depending on the country. Express service is available for urgent requests.",
+			"question2": "Do you offer free pickup and delivery?",
+			"answer2": "Yes! We offer free document pickup and delivery within Ramallah and Bethlehem. For other West Bank cities or Gaza, we can arrange insured courier service at a nominal fee. After you submit a quote request, our team will coordinate pickup at your convenience.",
+			"question3": "Can I track my order status online?",
+			"answer3": "Absolutely. Once your order is confirmed, you'll receive a tracking number. Visit our Track Status page or use the link in your confirmation email to see real-time updates. You'll also receive SMS and email notifications at every stage of processing.",
+			"question4": "What documents do I need for driver's license renewal?",
+			"answer4": "You'll need: copy of your existing driver's license, Palestinian ID card, passport copy, and a recent vision test certificate (we can arrange this for you). If you're employed, you may also need a no objection letter from your sponsor. Our team will verify all requirements when you submit your request.",
+			"question5": "What payment methods do you accept?",
+			"answer5": "We accept cash, credit/debit cards, bank transfers, and online payments. Payment is typically required after we provide you with a detailed quote and before we begin processing. For corporate clients, we offer invoice-based billing with NET 30 terms.",
+			"question6": "Is express service available for urgent requests?",
+			"answer6": "Yes, express processing is available for most services. Priority attestation can be completed in 2-3 business days, and same-day service is available for specific Ramallah-based ministries. Express fees vary by service type—request a quote for exact pricing and turnaround times.",
+			"question7": "How secure is my personal information and documents?",
+			"answer7": "We take security seriously. All documents are handled by verified staff, stored in secure facilities, and transported via insured courier. Your digital information is encrypted and stored on secure servers. We never share your personal data with third parties without your explicit consent."
+		},
+		"track": {
+			"tagline": "Track your request",
+			"headline": "Check the status of your order",
+			"description": "Enter your order number below to track your request in real-time. You'll see the current status and estimated completion date.",
+			"orderNumber": "Order Number",
+			"search": "Search",
+			"status": {
+				"draft": "Draft",
+				"submitted": "Order Received",
+				"scoping": "Under Review",
+				"quote_sent": "Quote Sent",
+				"in_progress": "In Progress",
+				"review": "Quality Review",
+				"completed": "Completed",
+				"archived": "Archived",
+				"rejected": "Rejected",
+				"cancelled": "Cancelled"
+			},
+			"noOrderFound": "No order found with this number",
+			"orderNumberRequired": "Please enter an order number",
+			"estimatedCompletion": "Estimated Completion",
+			"orderDetails": "Order Details",
+			"service": "Service",
+			"createdAt": "Created At",
+			"updatedAt": "Last Updated",
+			"customer": "Customer",
+			"submitted": "Submitted",
+			"orderNumberLabel": "Order",
+			"orderTimeline": "Order Timeline",
+			"noTimelineEvents": "No timeline events yet",
+			"urgency": "Urgency",
+			"details": "Details",
+			"needHelp": "Need help with your order?",
+			"contactSupport": "Contact support"
+		}
+	},
+	"Quote": {
+		"requestQuote": "Request a Quote",
+		"title": "Get your personalized quote",
+		"description": "Fill out the form below and our team will get back to you within 2 hours with a detailed quote and next steps.",
+		"backTo": "Back to",
+		"whatHappensNext": "What happens next?",
+		"whatHappensNext1": "Our team reviews your request within 2 hours",
+		"whatHappensNext2": "We contact you via phone or email with a detailed quote",
+		"whatHappensNext3": "Once approved, we begin processing your order",
+		"whatHappensNext4": "Track your order status anytime at tasheel.ps/track"
+	},
+	"Legal": {
+		"terms": {
+			"title": "Terms of Use",
+			"lastUpdated": "Last updated: 12 July 2025"
+		},
+		"privacy": {
+			"title": "Privacy Policy",
+			"lastUpdated": "Last updated: 12 July 2025"
+		},
+		"cookies": {
+			"title": "Cookies Policy",
+			"lastUpdated": "Last updated: 12 July 2025"
+		}
+	},
+	"About": {
+		"tagline": "About Tasheel",
+		"headline": "Simplifying government services, one document at a time",
+		"description": "Tasheel is your trusted partner for government services, document translation, and legalization. We believe that accessing government services shouldn't require hours of waiting in lines or navigating complex bureaucracy.\n\nOur platform connects you directly with certified professionals who handle everything from driver's license renewals to embassy legalizations—all online, all secure, all transparent.\n\nFounded with a mission to modernize how citizens and businesses interact with government services, Tasheel combines expert knowledge with cutting-edge technology to deliver fast, compliant, and hassle-free service delivery."
+	},
+	"ServicesOverview": {
+		"description": "From driver's license renewals to document attestation—submit online, track progress, and receive completed services. No office visits required."
+	}
+}
+

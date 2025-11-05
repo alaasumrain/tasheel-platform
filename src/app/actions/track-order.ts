@@ -1,7 +1,8 @@
 'use server';
 
 import { getOrderByNumber, getOrderEvents } from '@/lib/admin-queries';
-import { services } from '@/data/services';
+import { getServiceBySlug } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 
 export async function trackOrder(orderNumber: string) {
 	try {
@@ -18,18 +19,24 @@ export async function trackOrder(orderNumber: string) {
 		// Fetch order events
 		const events = await getOrderEvents(order.id);
 
-		// Get service details
-		const service = services.find((s) => s.slug === order.service_slug);
+		// Get service details from database
+		const serviceFromDB = order.service_slug
+			? await getServiceBySlug(order.service_slug)
+			: null;
+
+		const legacyService = serviceFromDB
+			? convertToLegacyFormat(serviceFromDB, 'en')
+			: null;
 
 		return {
 			type: 'success' as const,
 			data: {
 				order,
 				events,
-				service: service
+				service: legacyService
 					? {
-							title: service.title,
-							category: service.category,
+							title: legacyService.title,
+							category: legacyService.category,
 						}
 					: null,
 			},

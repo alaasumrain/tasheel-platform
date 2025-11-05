@@ -1,6 +1,12 @@
 import { Resend } from 'resend';
+import { render } from '@react-email/components';
 import { Application, ApplicationStatus } from './admin-queries';
-import { services } from '@/data/services';
+import { getServiceBySlug } from './service-queries';
+import { convertToLegacyFormat } from './types/service';
+import { OrderStatusEmail } from '@/components/emails/OrderStatusEmail';
+import { QuoteSentEmail } from '@/components/emails/QuoteSentEmail';
+import { PaymentConfirmedEmail } from '@/components/emails/PaymentConfirmedEmail';
+import { QuoteRequestReceivedEmail } from '@/components/emails/QuoteRequestReceivedEmail';
 
 // Lazy-initialize Resend client to avoid errors during build
 function getResendClient() {
@@ -53,9 +59,16 @@ const statusMessages: Record<ApplicationStatus, { subject: string; message: stri
 	},
 };
 
-function getServiceName(serviceSlug: string): string {
-	const service = services.find((s) => s.slug === serviceSlug);
-	return service?.title || serviceSlug;
+async function getServiceName(serviceSlug: string | null): Promise<string> {
+	if (!serviceSlug) {
+		return 'Service';
+	}
+	const service = await getServiceBySlug(serviceSlug);
+	if (!service) {
+		return serviceSlug;
+	}
+	const legacyService = convertToLegacyFormat(service, 'en');
+	return legacyService.title;
 }
 
 export async function sendOrderStatusEmail(order: Application) {
@@ -65,106 +78,21 @@ export async function sendOrderStatusEmail(order: Application) {
 	}
 
 	const statusInfo = statusMessages[order.status];
-	const serviceName = getServiceName(order.service_slug);
+	const serviceName = await getServiceName(order.service_slug);
 	const trackingUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/track?order=${order.order_number}`;
 
-	const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>${statusInfo.subject}</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-	<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
-		<tr>
-			<td align="center">
-				<table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-					<!-- Header -->
-					<tr>
-						<td style="background-color: rgba(14, 33, 160, 1); padding: 30px 40px; text-align: center;">
-							<h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">
-								Order Update
-							</h1>
-						</td>
-					</tr>
-
-					<!-- Content -->
-					<tr>
-						<td style="padding: 40px;">
-							<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.5; color: #333;">
-								Hi ${order.customer_name || 'there'},
-							</p>
-
-							<p style="margin: 0 0 20px; font-size: 16px; line-height: 1.5; color: #333;">
-								${statusInfo.message}
-							</p>
-
-							<!-- Order Details Box -->
-							<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9; border-radius: 6px; margin: 30px 0;">
-								<tr>
-									<td style="padding: 20px;">
-										<table width="100%" cellpadding="8" cellspacing="0">
-											<tr>
-												<td style="color: #666; font-size: 14px;">Order Number:</td>
-												<td style="color: #333; font-size: 14px; font-weight: 600; text-align: right;">
-													${order.order_number}
-												</td>
-											</tr>
-											<tr>
-												<td style="color: #666; font-size: 14px;">Service:</td>
-												<td style="color: #333; font-size: 14px; text-align: right;">
-													${serviceName}
-												</td>
-											</tr>
-											<tr>
-												<td style="color: #666; font-size: 14px;">Status:</td>
-												<td style="color: #333; font-size: 14px; font-weight: 600; text-align: right; text-transform: capitalize;">
-													${order.status.replace(/_/g, ' ')}
-												</td>
-											</tr>
-										</table>
-									</td>
-								</tr>
-							</table>
-
-							<!-- CTA Button -->
-							<table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
-								<tr>
-									<td align="center">
-										<a href="${trackingUrl}"
-											 style="display: inline-block; background-color: rgba(14, 33, 160, 1); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">
-											Track Your Order
-										</a>
-									</td>
-								</tr>
-							</table>
-
-							<p style="margin: 30px 0 0; font-size: 14px; line-height: 1.5; color: #666;">
-								If you have any questions, feel free to reply to this email or contact us at
-								<a href="mailto:${process.env.CONTACT_EMAIL}" style="color: rgba(14, 33, 160, 1); text-decoration: none;">
-									${process.env.CONTACT_EMAIL}
-								</a>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Footer -->
-					<tr>
-						<td style="background-color: #f9f9f9; padding: 30px 40px; text-align: center; border-top: 1px solid #e0e0e0;">
-							<p style="margin: 0; font-size: 14px; color: #666;">
-								© ${new Date().getFullYear()} Tasheel. All rights reserved.
-							</p>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-	</table>
-</body>
-</html>
-	`.trim();
+	// Render email using React Email component
+	const htmlContent = await render(
+		OrderStatusEmail({
+			orderNumber: order.order_number,
+			customerName: order.customer_name || undefined,
+			serviceName,
+			status: order.status,
+			statusMessage: statusInfo.message,
+			trackingUrl,
+			contactEmail: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+		})
+	);
 
 	try {
 		const resend = getResendClient();
@@ -176,8 +104,161 @@ export async function sendOrderStatusEmail(order: Application) {
 		});
 
 		console.log(`Email sent to ${order.applicant_email} for order ${order.order_number}`);
+
+		// Send WhatsApp notification if phone number available
+		if (order.customer_phone) {
+			try {
+				const { sendStatusUpdateWhatsApp } = await import('./whatsapp-notifications');
+				await sendStatusUpdateWhatsApp({
+					orderNumber: order.order_number,
+					customerPhone: order.customer_phone,
+					customerName: order.customer_name || undefined,
+					status: order.status,
+					statusMessage: statusInfo.message,
+				});
+			} catch (whatsappError) {
+				console.log('WhatsApp notification skipped:', whatsappError);
+			}
+		}
 	} catch (error) {
 		console.error('Error sending email:', error);
+		throw error;
+	}
+}
+
+/**
+ * Send quote sent email to customer
+ */
+export async function sendQuoteSentEmail(params: {
+	orderNumber: string;
+	customerEmail: string;
+	customerName?: string;
+	serviceName: string;
+	amount: number;
+	currency: string;
+	paymentLink?: string;
+	expiryHours?: number;
+}) {
+	if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
+		console.log('Email not configured. Skipping email notification.');
+		return;
+	}
+
+	const htmlContent = await render(
+		QuoteSentEmail({
+			orderNumber: params.orderNumber,
+			customerName: params.customerName,
+			serviceName: params.serviceName,
+			amount: params.amount,
+			currency: params.currency,
+			paymentLink: params.paymentLink,
+			expiryHours: params.expiryHours,
+			contactEmail: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+		})
+	);
+
+	try {
+		const resend = getResendClient();
+		await resend.emails.send({
+			from: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+			to: params.customerEmail,
+			subject: `Your Quote is Ready - ${params.orderNumber}`,
+			html: htmlContent,
+		});
+
+		console.log(`Quote sent email to ${params.customerEmail} for order ${params.orderNumber}`);
+	} catch (error) {
+		console.error('Error sending quote email:', error);
+		throw error;
+	}
+}
+
+/**
+ * Send payment confirmed email to customer
+ */
+export async function sendPaymentConfirmedEmail(params: {
+	orderNumber: string;
+	customerEmail: string;
+	customerName?: string;
+	amount: number;
+	currency: string;
+	transactionId: string;
+	invoiceUrl?: string;
+	dashboardUrl?: string;
+}) {
+	if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
+		console.log('Email not configured. Skipping email notification.');
+		return;
+	}
+
+	const htmlContent = await render(
+		PaymentConfirmedEmail({
+			orderNumber: params.orderNumber,
+			customerName: params.customerName,
+			amount: params.amount,
+			currency: params.currency,
+			transactionId: params.transactionId,
+			invoiceUrl: params.invoiceUrl,
+			dashboardUrl: params.dashboardUrl,
+			contactEmail: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+		})
+	);
+
+	try {
+		const resend = getResendClient();
+		await resend.emails.send({
+			from: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+			to: params.customerEmail,
+			subject: `Payment Confirmed - ${params.orderNumber}`,
+			html: htmlContent,
+		});
+
+		console.log(`Payment confirmation email sent to ${params.customerEmail} for order ${params.orderNumber}`);
+	} catch (error) {
+		console.error('Error sending payment confirmation email:', error);
+		throw error;
+	}
+}
+
+/**
+ * Send quote request received email to customer
+ */
+export async function sendQuoteRequestReceivedEmail(params: {
+	orderNumber: string;
+	customerEmail: string;
+	customerName?: string;
+	serviceName: string;
+	trackingUrl: string;
+	contactPhone?: string;
+}) {
+	if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
+		console.log('Email not configured. Skipping email notification.');
+		return;
+	}
+
+	const htmlContent = await render(
+		QuoteRequestReceivedEmail({
+			orderNumber: params.orderNumber,
+			customerName: params.customerName,
+			serviceName: params.serviceName,
+			trackingUrl: params.trackingUrl,
+			contactEmail: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+			contactPhone: params.contactPhone,
+		})
+	);
+
+	try {
+		const resend = getResendClient();
+		await resend.emails.send({
+			from: process.env.CONTACT_EMAIL || 'noreply@tasheel.com',
+			to: params.customerEmail,
+			subject: `Your Request Has Been Received - ${params.orderNumber}`,
+			html: htmlContent,
+		});
+
+		console.log(`Quote request received email sent to ${params.customerEmail} for order ${params.orderNumber}`);
+	} catch (error) {
+		console.error('Error sending quote request received email:', error);
 		throw error;
 	}
 }

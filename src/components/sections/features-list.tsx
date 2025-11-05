@@ -1,38 +1,35 @@
+'use client';
+
 import { Box, Container, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslations } from 'next-intl';
 
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
 
-// Put headline here
-const headline = `Built for individuals and businesses`;
-
-// Put subheadline here
-const subHeadline = `Whether you're renewing a license or managing corporate documents, Tasheel provides the tools you need.`;
-
-// Put features items here
-const features = [
-	{
-		title: `Complete request management`,
-		content: `Submit multiple service requests, upload documents, and manage everything from a single dashboard with full audit trail.`,
-		darkImage: '/dark/screenshot-01.jpg',
-		lightImage: '/light/screenshot-01.jpg',
-	},
-	{
-		title: `Mobile-first experience`,
-		content: `Check status, receive notifications, and download completed documents from any device—desktop, mobile, or tablet.`,
-		darkImage: '/dark/screenshot-02.jpg',
-		lightImage: '/light/screenshot-02.jpg',
-	},
-	{
-		title: `Insights and analytics`,
-		content: `Track processing times, success rates, and spending across all your requests to optimize your document workflow.`,
-		darkImage: '/dark/screenshot-03.jpg',
-		lightImage: '/light/screenshot-03.jpg',
-	},
-];
-
 export default function FeaturesList() {
+	const t = useTranslations('Homepage.featuresList');
+	
+	const features = [
+		{
+			title: t('feature1Title'),
+			content: t('feature1Content'),
+			darkImage: '/dark/screenshot-01.jpg',
+			lightImage: '/light/screenshot-01.jpg',
+		},
+		{
+			title: t('feature2Title'),
+			content: t('feature2Content'),
+			darkImage: '/dark/screenshot-02.jpg',
+			lightImage: '/light/screenshot-02.jpg',
+		},
+		{
+			title: t('feature3Title'),
+			content: t('feature3Content'),
+			darkImage: '/dark/screenshot-03.jpg',
+			lightImage: '/light/screenshot-03.jpg',
+		},
+	];
 	return (
 		<Container id="industries" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack alignItems="center" spacing={{ xs: 4, md: 8 }}>
@@ -44,10 +41,10 @@ export default function FeaturesList() {
 								textAlign={'center'}
 								variant="subtitle1"
 							>
-								{headline}
+								{t('headline')}
 							</Typography>
 							<Typography textAlign={'center'} variant="h2">
-								{subHeadline}
+								{t('subHeadline')}
 							</Typography>
 						</Stack>
 					</Container>

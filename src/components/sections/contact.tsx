@@ -8,6 +8,8 @@ import {
 import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
 
+import { getAllServices } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 import { Card } from '@/components/ui/card';
 import QuoteRequestForm from '@/components/forms/quote-request-form';
 import RevealSection from '@/components/ui/reveal-section';
@@ -15,7 +17,9 @@ import RevealSection from '@/components/ui/reveal-section';
 // Put content here
 const headline = `Request a quote`;
 
-export default function Contact() {
+export default async function Contact() {
+	const servicesFromDB = await getAllServices();
+	const services = servicesFromDB.map((s) => convertToLegacyFormat(s, 'en'));
 	return (
 		<Container sx={{ py: { xs: 1.5, md: 3 } }}>
 			<RevealSection delay={0.1} direction="up">
@@ -42,7 +46,7 @@ export default function Contact() {
 						>
 							<Stack spacing={4}>
 								<Typography variant="h3">{headline}</Typography>
-								<QuoteRequestForm />
+								<QuoteRequestForm services={services} />
 							</Stack>
 						</CardContent>
 					</Card>

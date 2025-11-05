@@ -13,13 +13,30 @@ import {
 	IconCurrencyShekel,
 } from '@tabler/icons-react';
 import Link from 'next/link';
+import { getTranslations, getLocale } from 'next-intl/server';
 
-import { services, serviceCategories } from '@/data/services';
+import { getAllServices, getServiceCategories } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 import { Card } from '@/components/ui/card';
 import Image from '@/components/ui/image';
 import RevealSection from '@/components/ui/reveal-section';
 
-export default function ServicesOverview() {
+export default async function ServicesOverview() {
+	const t = await getTranslations('Services');
+	const tOverview = await getTranslations('ServicesOverview');
+	const locale = (await getLocale()) as 'en' | 'ar';
+	const servicesFromDB = await getAllServices();
+	const categoriesFromDB = await getServiceCategories();
+	
+	// Convert DB services to legacy format for component compatibility
+	const services = servicesFromDB.map((s) => convertToLegacyFormat(s, locale));
+	
+	// Map categories to expected format
+	const serviceCategories = categoriesFromDB.map((cat) => ({
+		slug: cat.slug,
+		name: cat.name,
+		description: cat.description || cat.headline || '',
+	}));
 	return (
 		<Box>
 			{/* Hero Section */}
@@ -27,10 +44,10 @@ export default function ServicesOverview() {
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={3} alignItems="center" textAlign="center">
 						<Typography color="accent" variant="subtitle1">
-							Our Services
+							{t('title')}
 						</Typography>
 						<Typography variant="h1" maxWidth={800}>
-							Complete government services, all in one place
+							{t('description')}
 						</Typography>
 					<Typography
 						color="text.secondary"
@@ -38,9 +55,7 @@ export default function ServicesOverview() {
 						component="p"
 						maxWidth={720}
 					>
-						From driver&apos;s license renewals to document attestation—submit
-						online, track progress, and receive completed services without
-						office visits.
+						{tOverview('description')}
 					</Typography>
 					</Stack>
 				</RevealSection>
@@ -166,7 +181,7 @@ export default function ServicesOverview() {
 																endIcon={<IconArrowRight size={18} />}
 																fullWidth
 															>
-																View Details
+																{t('viewDetails')}
 															</Button>
 														</Stack>
 													</CardContent>

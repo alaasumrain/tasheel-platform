@@ -1,11 +1,21 @@
 import { Box, Typography } from '@mui/material';
 import { OrdersTable } from '@/components/admin/OrdersTable';
 import { getOrders } from '@/lib/admin-queries';
+import { getAllServices } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 
 export const dynamic = 'force-dynamic';
 
 export default async function OrdersPage() {
 	const orders = await getOrders();
+	const services = await getAllServices();
+	
+	// Create a map of service slug -> name for quick lookup
+	const serviceNames: Record<string, string> = {};
+	services.forEach((service) => {
+		const legacy = convertToLegacyFormat(service, 'en');
+		serviceNames[service.slug] = legacy.title;
+	});
 
 	return (
 		<Box>
@@ -18,7 +28,7 @@ export default async function OrdersPage() {
 				</Typography>
 			</Box>
 
-			<OrdersTable orders={orders} />
+			<OrdersTable orders={orders} serviceNames={serviceNames} />
 		</Box>
 	);
 }

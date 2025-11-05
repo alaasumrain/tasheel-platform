@@ -13,6 +13,11 @@ import {
 	TextField,
 	Alert,
 	Snackbar,
+	Stack,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import {
@@ -22,11 +27,14 @@ import {
 } from '@mui/icons-material';
 import { Card } from '@/components/ui/card';
 import { Application, ApplicationEvent, ApplicationStatus } from '@/lib/admin-queries';
-import { services } from '@/data/services';
+import { QuoteCreationCard } from './QuoteCreationCard';
+import { InvoiceCreationCard } from './InvoiceCreationCard';
+import { useTranslations } from 'next-intl';
 
 interface OrderDetailClientProps {
 	order: Application;
 	events: ApplicationEvent[];
+	serviceName?: string;
 }
 
 interface PayloadData {
@@ -35,17 +43,6 @@ interface PayloadData {
 	message?: string;
 }
 
-const statusOptions: { value: ApplicationStatus; label: string }[] = [
-	{ value: 'submitted', label: 'Submitted' },
-	{ value: 'scoping', label: 'Scoping' },
-	{ value: 'quote_sent', label: 'Quote Sent' },
-	{ value: 'in_progress', label: 'In Progress' },
-	{ value: 'review', label: 'In Review' },
-	{ value: 'completed', label: 'Completed' },
-	{ value: 'archived', label: 'Archived' },
-	{ value: 'rejected', label: 'Rejected' },
-	{ value: 'cancelled', label: 'Cancelled' },
-];
 
 const statusColors: Record<ApplicationStatus, 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'> = {
 	draft: 'default',
@@ -60,11 +57,6 @@ const statusColors: Record<ApplicationStatus, 'default' | 'primary' | 'success' 
 	cancelled: 'default',
 };
 
-function getServiceName(serviceSlug: string): string {
-	const service = services.find((s) => s.slug === serviceSlug);
-	return service?.title || serviceSlug;
-}
-
 function formatDate(dateString: string): string {
 	const date = new Date(dateString);
 	return new Intl.DateTimeFormat('en-US', {
@@ -76,11 +68,24 @@ function formatDate(dateString: string): string {
 	}).format(date);
 }
 
-export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
+export function OrderDetailClient({ order, events, serviceName }: OrderDetailClientProps) {
 	const [status, setStatus] = useState<ApplicationStatus>(order.status);
 	const [notes, setNotes] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [snackbar, setSnackbar] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
+	const t = useTranslations('Admin.orders');
+
+	const statusOptions: { value: ApplicationStatus; label: string }[] = [
+		{ value: 'submitted', label: t('statusLabels.submitted') },
+		{ value: 'scoping', label: t('statusLabels.scoping') },
+		{ value: 'quote_sent', label: t('statusLabels.quote_sent') },
+		{ value: 'in_progress', label: t('statusLabels.in_progress') },
+		{ value: 'review', label: t('statusLabels.review') },
+		{ value: 'completed', label: t('statusLabels.completed') },
+		{ value: 'archived', label: t('statusLabels.archived') },
+		{ value: 'rejected', label: t('statusLabels.rejected') },
+		{ value: 'cancelled', label: t('statusLabels.cancelled') },
+	];
 
 	const handleStatusUpdate = async () => {
 		setLoading(true);
@@ -92,15 +97,15 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 			});
 
 			if (response.ok) {
-				setSnackbar({ message: 'Status updated successfully', severity: 'success' });
+				setSnackbar({ message: t('statusUpdated'), severity: 'success' });
 				setNotes('');
 				// Refresh the page to show updated data
 				window.location.reload();
 			} else {
-				setSnackbar({ message: 'Failed to update status', severity: 'error' });
+				setSnackbar({ message: t('statusUpdateFailed'), severity: 'error' });
 			}
 		} catch {
-			setSnackbar({ message: 'An error occurred', severity: 'error' });
+			setSnackbar({ message: t('errorOccurred'), severity: 'error' });
 		} finally {
 			setLoading(false);
 		}
@@ -112,7 +117,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 			<Box sx={{ mb: 4 }}>
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
 					<Typography variant="h4" component="h1" fontWeight={700}>
-						{order.order_number || 'Order Details'}
+						{order.order_number || t('orderDetails')}
 					</Typography>
 					<Chip
 						label={statusOptions.find((s) => s.value === order.status)?.label}
@@ -120,7 +125,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 					/>
 				</Box>
 				<Typography variant="body1" color="text.secondary">
-					Submitted {formatDate(order.submitted_at)}
+					{t('submitted')} {formatDate(order.submitted_at)}
 				</Typography>
 			</Box>
 
@@ -135,13 +140,13 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 					>
 						<Box sx={{ p: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Customer Information
+								{t('customerInformation')}
 							</Typography>
 
 							<Grid container spacing={2} sx={{ mt: 1 }}>
 								<Grid size={{ xs: 12, sm: 6 }}>
 									<Typography variant="caption" color="text.secondary">
-										Name
+										{t('name')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{order.customer_name || 'N/A'}
@@ -149,7 +154,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 								</Grid>
 								<Grid size={{ xs: 12, sm: 6 }}>
 									<Typography variant="caption" color="text.secondary">
-										Email
+										{t('email')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{order.applicant_email}
@@ -157,7 +162,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 								</Grid>
 								<Grid size={{ xs: 12, sm: 6 }}>
 									<Typography variant="caption" color="text.secondary">
-										Phone
+										{t('phone')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{order.customer_phone || 'N/A'}
@@ -165,10 +170,10 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 								</Grid>
 								<Grid size={{ xs: 12, sm: 6 }}>
 									<Typography variant="caption" color="text.secondary">
-										Service
+										{t('service')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
-										{getServiceName(order.service_slug)}
+										{serviceName || order.service_slug || 'N/A'}
 									</Typography>
 								</Grid>
 							</Grid>
@@ -182,7 +187,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 									component="a"
 									href={`mailto:${order.applicant_email}`}
 								>
-									Email
+									{t('email')}
 								</Button>
 								{order.customer_phone && (
 									<>
@@ -193,7 +198,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 											component="a"
 											href={`tel:${order.customer_phone}`}
 										>
-											Call
+											{t('call')}
 										</Button>
 										<Button
 											variant="outlined"
@@ -203,7 +208,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 											href={`https://wa.me/${order.customer_phone.replace(/[^0-9]/g, '')}`}
 											target="_blank"
 										>
-											WhatsApp
+											{t('whatsapp')}
 										</Button>
 									</>
 								)}
@@ -219,7 +224,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 					>
 						<Box sx={{ p: 3, mt: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Order Details
+								{t('orderDetailsTitle')}
 							</Typography>
 
 							<Box sx={{ mt: 2 }}>
@@ -230,7 +235,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 											{payloadData.urgency && (
 												<Box>
 													<Typography variant="caption" color="text.secondary">
-														Urgency
+														{t('urgency')}
 													</Typography>
 													<Typography variant="body1">
 														{payloadData.urgency}
@@ -240,7 +245,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 											{payloadData.details && (
 												<Box>
 													<Typography variant="caption" color="text.secondary">
-														Details
+														{t('details')}
 													</Typography>
 													<Typography variant="body1">
 														{payloadData.details}
@@ -250,7 +255,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 											{payloadData.message && (
 												<Box>
 													<Typography variant="caption" color="text.secondary">
-														Customer Notes
+														{t('customerNotes')}
 													</Typography>
 													<Typography variant="body1">
 														{payloadData.message}
@@ -272,13 +277,13 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 					>
 						<Box sx={{ p: 3, mt: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Timeline
+								{t('timeline')}
 							</Typography>
 
 							<Box sx={{ mt: 2 }}>
 								{events.length === 0 ? (
 									<Typography variant="body2" color="text.secondary">
-										No events yet
+										{t('noEvents')}
 									</Typography>
 								) : (
 									<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -292,7 +297,7 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 												}}
 											>
 												<Typography variant="body2" fontWeight={600}>
-													{event.event_type.replace(/_/g, ' ').toUpperCase()}
+													{t(`eventTypes.${event.event_type}` as any, { defaultValue: event.event_type.replace(/_/g, ' ').toUpperCase() })}
 												</Typography>
 												{event.notes && (
 													<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -311,62 +316,71 @@ export function OrderDetailClient({ order, events }: OrderDetailClientProps) {
 					</Card>
 				</Grid>
 
-				{/* Right Column - Status Update */}
+				{/* Right Column - Actions */}
 				<Grid size={{ xs: 12, md: 4 }}>
-					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
-						borderRadius={20}
-					>
-						<Box sx={{ p: 3 }}>
-							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Update Status
-							</Typography>
+					<Stack spacing={3}>
+						{/* Status Update */}
+						<Card
+							backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
+							borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+							borderRadius={20}
+						>
+							<Box sx={{ p: 3 }}>
+								<Typography variant="h6" fontWeight={600} gutterBottom>
+									{t('updateStatus')}
+								</Typography>
 
-							<FormControl fullWidth sx={{ mt: 2 }}>
-								<InputLabel>Status</InputLabel>
-								<Select
-									value={status}
-									label="Status"
-									onChange={(e) => setStatus(e.target.value as ApplicationStatus)}
+								<FormControl fullWidth sx={{ mt: 2 }}>
+									<InputLabel>{t('status')}</InputLabel>
+									<Select
+										value={status}
+										label={t('status')}
+										onChange={(e) => setStatus(e.target.value as ApplicationStatus)}
+									>
+										{statusOptions.map((option) => (
+											<MenuItem key={option.value} value={option.value}>
+												{option.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+
+								<TextField
+									fullWidth
+									multiline
+									rows={4}
+									label={t('notesOptional')}
+									value={notes}
+									onChange={(e) => setNotes(e.target.value)}
+									sx={{ mt: 2 }}
+									placeholder={t('notesPlaceholder')}
+								/>
+
+								<Button
+									fullWidth
+									variant="contained"
+									size="large"
+									onClick={handleStatusUpdate}
+									disabled={loading || status === order.status}
+									sx={{ mt: 2 }}
 								>
-									{statusOptions.map((option) => (
-										<MenuItem key={option.value} value={option.value}>
-											{option.label}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
+									{loading ? t('updating') : t('updateStatusButton')}
+								</Button>
 
-							<TextField
-								fullWidth
-								multiline
-								rows={4}
-								label="Notes (optional)"
-								value={notes}
-								onChange={(e) => setNotes(e.target.value)}
-								sx={{ mt: 2 }}
-								placeholder="Add notes about this status update..."
-							/>
+								{status !== order.status && (
+									<Alert severity="info" sx={{ mt: 2 }}>
+										{t('statusUpdateNotification')}
+									</Alert>
+								)}
+							</Box>
+						</Card>
 
-							<Button
-								fullWidth
-								variant="contained"
-								size="large"
-								onClick={handleStatusUpdate}
-								disabled={loading || status === order.status}
-								sx={{ mt: 2 }}
-							>
-								{loading ? 'Updating...' : 'Update Status'}
-							</Button>
+						{/* Quote Creation */}
+						<QuoteCreationCard orderId={order.id} customerEmail={order.applicant_email} />
 
-							{status !== order.status && (
-								<Alert severity="info" sx={{ mt: 2 }}>
-									Customer will be notified via email about this status change
-								</Alert>
-							)}
-						</Box>
-					</Card>
+						{/* Invoice Creation */}
+						<InvoiceCreationCard orderId={order.id} applicationId={order.id} />
+					</Stack>
 				</Grid>
 			</Grid>
 

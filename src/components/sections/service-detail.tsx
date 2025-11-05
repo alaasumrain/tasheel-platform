@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	Box,
 	Button,
@@ -8,7 +10,8 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconCheck, IconClock, IconCurrencyShekel } from '@tabler/icons-react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 import type { Service } from '@/data/services';
 import Mockup from '@/components/ui/mockup';
@@ -20,6 +23,7 @@ interface ServiceDetailProps {
 }
 
 export default function ServiceDetail({ service }: ServiceDetailProps) {
+	const t = useTranslations('Services');
 	const formatPrice = () => {
 		if (service.pricing.type === 'fixed' && service.pricing.amount !== undefined) {
 			return new Intl.NumberFormat('en-US', {
@@ -35,10 +39,10 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 				currency: 'ILS',
 				currencyDisplay: 'narrowSymbol',
 			}).format(service.pricing.amount);
-			return `From ${amount}`;
+			return `${t('from')} ${amount}`;
 		}
 
-		return 'Request Quote';
+		return t('requestQuote');
 	};
 
 	return (
@@ -54,7 +58,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 									variant="subtitle1"
 									sx={{ textTransform: 'capitalize' }}
 								>
-									{service.category.replace('-', ' ')} Service
+									{service.category.replace('-', ' ')} {t('title')}
 								</Typography>
 								<Typography variant="h1">{service.title}</Typography>
 								<Typography
@@ -72,7 +76,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 											<IconClock size={20} />
 											<Box>
 												<Typography variant="caption" color="text.secondary">
-													Turnaround Time
+													{t('turnaroundTime')}
 												</Typography>
 												<Typography variant="body2" fontWeight={600}>
 													{service.turnaroundTime}
@@ -85,7 +89,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 									<IconCurrencyShekel size={20} />
 											<Box>
 												<Typography variant="caption" color="text.secondary">
-													Pricing
+													{t('startingPrice')}
 												</Typography>
 									<Typography variant="body2" fontWeight={600}>
 										{formatPrice()}
@@ -102,7 +106,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										variant="contained"
 										size="large"
 									>
-										Get Started
+										{t('requestQuote')}
 									</Button>
 									<Button
 										component={Link}
@@ -110,7 +114,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										variant="outlined"
 										size="large"
 									>
-										Track Order
+										{t('trackStatus')}
 									</Button>
 								</Stack>
 							</Stack>
@@ -135,10 +139,10 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 						<Stack spacing={5} alignItems="center">
 							<Stack spacing={2.5} alignItems="center" textAlign="center">
 								<Typography color="accent" variant="subtitle1">
-									How it works
+									{t('processSteps')}
 								</Typography>
 								<Typography variant="h2">
-									Simple process, professional results
+									{t('simpleProcess')}
 								</Typography>
 							</Stack>
 
@@ -188,7 +192,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 							<CustomCard>
 								<CardContent sx={{ p: { xs: 4, md: 5 } }}>
 									<Stack spacing={3}>
-										<Typography variant="h4">Required Documents</Typography>
+										<Typography variant="h4">{t('requiredDocuments')}</Typography>
 										<Stack spacing={2}>
 											{service.requiredDocuments.map((doc, index) => (
 												<Stack direction="row" spacing={2} key={index}>
@@ -231,7 +235,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 								<CardContent sx={{ p: { xs: 4, md: 5 } }}>
 									<Stack spacing={3}>
 									<Typography variant="h4" color="#ffffff">
-										What&apos;s Included
+										{t('whatsIncluded')}
 									</Typography>
 										<Stack spacing={2}>
 											{service.features.map((feature, index) => (
@@ -272,11 +276,10 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 								<Stack spacing={4} alignItems="center">
 									<Stack spacing={2} alignItems="center" maxWidth={720}>
 										<Typography variant="h3">
-											Ready to get started?
+											{t('readyToStart')}
 										</Typography>
 										<Typography color="text.secondary" variant="h6">
-											Submit a quote request and our team will get back to you
-											within 2 hours with pricing and next steps.
+											{t('quoteDescription')}
 										</Typography>
 									</Stack>
 									<Stack
@@ -290,7 +293,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 											variant="contained"
 											size="large"
 										>
-											Request Quote Now
+											{t('requestQuoteNow')}
 										</Button>
 										<Button
 									component={Link}
@@ -298,7 +301,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 											variant="outlined"
 											size="large"
 										>
-									Call +970 2 240 1234
+									{t('callUs')}
 										</Button>
 									</Stack>
 								</Stack>

@@ -306,3 +306,31 @@ export async function getStatusDistribution() {
 		count,
 	}));
 }
+
+export interface User {
+	id: string;
+	email: string;
+	name: string | null;
+	role: 'admin' | 'officer' | 'supervisor' | 'intake' | 'auditor';
+	team_id: string | null;
+	is_active: boolean;
+	created_at: string;
+	updated_at: string;
+}
+
+/**
+ * Get all users
+ */
+export async function getUsers() {
+	const { data, error } = await supabase
+		.from('users')
+		.select('*')
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		console.error('Error fetching users:', error);
+		throw error;
+	}
+
+	return (data as User[]) || [];
+}

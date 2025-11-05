@@ -1,3 +1,9 @@
+/**
+ * @deprecated This file is deprecated. Services are now stored in the database.
+ * Use `getAllServices()` and `getServiceBySlug()` from `@/lib/service-queries` instead.
+ * This file is kept for backward compatibility during migration.
+ */
+
 export interface Service {
 	slug: string;
 	title: string;

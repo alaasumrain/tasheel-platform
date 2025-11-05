@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
@@ -11,9 +11,53 @@ import { Providers } from '@/providers';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import theme from '@/theme';
 
-const inter = Inter({
-	variable: '--font-inter',
-	subsets: ['latin'],
+// System font for English
+const systemFont = {
+	variable: '--font-mona-sans',
+	className: 'font-sans',
+};
+
+// Tajawal font for Arabic
+const tajawal = localFont({
+	src: [
+		{
+			path: '../fonts/tajawal/tajawal-200.ttf',
+			weight: '200',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-300.ttf',
+			weight: '300',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-400.ttf',
+			weight: '400',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-500.ttf',
+			weight: '500',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-700.ttf',
+			weight: '700',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-800.ttf',
+			weight: '800',
+			style: 'normal',
+		},
+		{
+			path: '../fonts/tajawal/tajawal-900.ttf',
+			weight: '900',
+			style: 'normal',
+		},
+	],
+	variable: '--font-tajawal',
+	display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -28,8 +72,8 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" suppressHydrationWarning>
-			<body className={`${inter.variable} antialiased`}>
+		<html lang="ar" dir="rtl" suppressHydrationWarning>
+			<body className={`${systemFont.variable} ${tajawal.variable} antialiased`}>
 				<AppRouterCacheProvider>
 					<ThemeProvider theme={theme} defaultMode="light">
 						<InitColorSchemeScript attribute="class" defaultMode="light" />

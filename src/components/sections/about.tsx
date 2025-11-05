@@ -1,26 +1,17 @@
+'use client';
+
 import { Box, Container, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import GetStarted from '../buttons/get-started-button';
 import ContactButton from '../buttons/contact-button';
 import RevealSection from '@/components/ui/reveal-section';
 
-// Put tagline here
-const tagline = `About Tasheel`;
-
-// Put headline here
-const headline = `Simplifying government services, one document at a time`;
-
-// put content here
-const description = `Tasheel is your trusted partner for government services, document translation, and legalization. We believe that accessing government services shouldn&apos;t require hours of waiting in lines or navigating complex bureaucracy.
-
-Our platform connects you directly with certified professionals who handle everything from driver&apos;s license renewals to embassy legalizations—all online, all secure, all transparent.
-
-Founded with a mission to modernize how citizens and businesses interact with government services, Tasheel combines expert knowledge with cutting-edge technology to deliver fast, compliant, and hassle-free service delivery.`;
-
-export default function Contact() {
+export default function About() {
+	const t = useTranslations('About');
 	return (
 		<Container sx={{ pt: { xs: 2, md: 4 }, pb: { xs: 3.25, md: 7.5 } }}>
 			<RevealSection delay={0.1} direction="up">
@@ -39,16 +30,16 @@ export default function Contact() {
 								sx={{ maxWidth: { xs: '100%', md: '80%' } }}
 								variant="h5"
 							>
-								{tagline}
+								{t('tagline')}
 							</Typography>
 							<Typography
 								variant="h2"
 								sx={{ maxWidth: { xs: '100%', md: '80%' } }}
 							>
-								{headline}
+								{t('headline')}
 							</Typography>
 							<Typography color="textSecondary" sx={{ whiteSpace: 'pre-line' }}>
-								{description}
+								{t('description')}
 							</Typography>
 						</Stack>
 						<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>

@@ -11,12 +11,14 @@ import {
 	ResponsiveContainer,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 interface OrdersTimelineChartProps {
 	data: { date: string; count: number }[];
 }
 
 export function OrdersTimelineChart({ data }: OrdersTimelineChartProps) {
+	const t = useTranslations('Admin.orders');
 	const formattedData = data.map((item) => ({
 		...item,
 		date: new Date(item.date).toLocaleDateString('en-US', {
@@ -33,10 +35,10 @@ export function OrdersTimelineChart({ data }: OrdersTimelineChartProps) {
 		>
 			<Box sx={{ p: 3 }}>
 				<Typography variant="h6" fontWeight={600} gutterBottom>
-					Orders Timeline (Last 7 Days)
+					{t('ordersTimeline')}
 				</Typography>
 				<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-					Daily order submissions
+					{t('ordersTimelineDescription')}
 				</Typography>
 
 				<ResponsiveContainer width="100%" height={300}>

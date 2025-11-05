@@ -2,6 +2,9 @@
 
 import { Resend } from 'resend';
 import { supabase } from '@/lib/supabase';
+import { sendQuoteRequestReceivedEmail } from '@/lib/email-notifications';
+import { getServiceBySlug } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 
 if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
 	console.log('RESEND_API_KEY or CONTACT_EMAIL is not set');
@@ -95,55 +98,41 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 			console.error('Admin email error:', adminEmailData.error);
 		}
 
-		// Send confirmation email to customer
-		const customerEmailData = await resend.emails.send({
-			from: `${contactName} <${contactEmail}>`,
-			to: email,
-			subject: `Order Confirmed - ${orderNumber}`,
-			html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0E21A0;">✅ Your Order Has Been Received!</h2>
-          <p>Dear ${name},</p>
-          <p>Thank you for choosing Tasheel. Your quote request has been confirmed.</p>
+		// Send confirmation email to customer using React Email template
+		try {
+			const service = await getServiceBySlug(serviceSlug);
+			const serviceName = service
+				? convertToLegacyFormat(service, 'en').title
+				: serviceSlug;
 
-          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #0E21A0;">Order Details</h3>
-            <p style="margin: 10px 0;"><strong>Order Number:</strong> ${orderNumber}</p>
-            <p style="margin: 10px 0;"><strong>Service:</strong> ${serviceSlug}</p>
-            <p style="margin: 10px 0;"><strong>Urgency:</strong> ${urgency}</p>
-          </div>
+			const trackingUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/track?order=${orderNumber}`;
+			
+			await sendQuoteRequestReceivedEmail({
+				orderNumber,
+				customerEmail: email,
+				customerName: name,
+				serviceName,
+				trackingUrl,
+				contactPhone: '+970 2 240 1234',
+			});
 
-          <p><strong>What happens next?</strong></p>
-          <ol>
-            <li>Our team will review your request within 2 hours</li>
-            <li>We&apos;ll contact you via phone or email with a detailed quote</li>
-            <li>Once approved, we&apos;ll begin processing your order</li>
-          </ol>
-
-          <p style="margin-top: 30px;">
-            <a href="https://tasheel.ps/track?order=${orderNumber}"
-               style="background-color: #0E21A0; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Track Your Order
-            </a>
-          </p>
-
-          <p style="margin-top: 30px; font-size: 14px; color: #666;">
-            <strong>Need help?</strong><br>
-            Email: ${contactEmail}<br>
-            Phone: +970 2 240 1234<br>
-            WhatsApp: +970 59 000 0000
-          </p>
-
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
-          <p style="font-size: 12px; color: #999;">
-            This is an automated confirmation email. Please save your order number (${orderNumber}) for future reference.
-          </p>
-        </div>
-      `,
-		});
-
-		if (customerEmailData.error) {
-			console.error('Customer email error:', customerEmailData.error);
+			// Send WhatsApp notification if phone number provided
+			if (phone) {
+				try {
+					const { sendOrderConfirmationWhatsApp } = await import('@/lib/whatsapp-notifications');
+					await sendOrderConfirmationWhatsApp({
+						orderNumber,
+						customerPhone: phone,
+						customerName: name,
+						serviceName,
+					});
+				} catch (whatsappError) {
+					console.log('WhatsApp notification skipped:', whatsappError);
+				}
+			}
+		} catch (emailError) {
+			console.error('Error sending quote request received email:', emailError);
+			// Don't fail the submission if email fails
 		}
 
 		// Log event in application_events

@@ -14,28 +14,12 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconSearch, IconCheck, IconClock } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 import { trackOrder } from '@/app/actions/track-order';
 import type { Application, ApplicationEvent } from '@/lib/admin-queries';
-
-const tagline = `Track your request`;
-const headline = `Check the status of your order`;
-const description = `Enter your order number below to track your request in real-time. You'll see the current status and estimated completion date.`;
-
-const statusLabels: Record<string, string> = {
-	draft: 'Draft',
-	submitted: 'Order Received',
-	scoping: 'Under Review',
-	quote_sent: 'Quote Sent',
-	in_progress: 'In Progress',
-	review: 'Quality Review',
-	completed: 'Completed',
-	archived: 'Archived',
-	rejected: 'Rejected',
-	cancelled: 'Cancelled',
-};
 
 const statusColors: Record<string, string> = {
 	draft: '#9E9E9E',
@@ -51,6 +35,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function Track() {
+	const t = useTranslations('Homepage.track');
 	const searchParams = useSearchParams();
 	const [orderNumber, setOrderNumber] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -61,11 +46,24 @@ export default function Track() {
 		service: { title: string; category: string } | null;
 	} | null>(null);
 
+	const statusLabels: Record<string, string> = {
+		draft: t('status.draft'),
+		submitted: t('status.submitted'),
+		scoping: t('status.scoping'),
+		quote_sent: t('status.quote_sent'),
+		in_progress: t('status.in_progress'),
+		review: t('status.review'),
+		completed: t('status.completed'),
+		archived: t('status.archived'),
+		rejected: t('status.rejected'),
+		cancelled: t('status.cancelled'),
+	};
+
 	const handleTrack = useCallback(
 		async (orderNum?: string) => {
 			const numToTrack = orderNum || orderNumber;
 			if (!numToTrack.trim()) {
-				setError('Please enter an order number');
+				setError(t('orderNumberRequired'));
 				return;
 			}
 
@@ -76,7 +74,7 @@ export default function Track() {
 			const result = await trackOrder(numToTrack.trim());
 
 			if (result.type === 'error') {
-				setError(result.message);
+				setError(result.message || t('noOrderFound'));
 				setOrderData(null);
 			} else {
 				setOrderData(result.data);
@@ -85,7 +83,7 @@ export default function Track() {
 
 			setLoading(false);
 		},
-		[orderNumber],
+		[orderNumber, t],
 	);
 
 	// Auto-load if order param in URL
@@ -111,11 +109,11 @@ export default function Track() {
 						<Stack spacing={{ xs: 4, md: 6 }}>
 							<Stack spacing={2.5} sx={{ textAlign: 'center' }}>
 								<Typography color="accent" variant="h5">
-									{tagline}
+									{t('tagline')}
 								</Typography>
-								<Typography variant="h2">{headline}</Typography>
+								<Typography variant="h2">{t('headline')}</Typography>
 								<Typography color="textSecondary" sx={{ whiteSpace: 'pre-line' }}>
-									{description}
+									{t('description')}
 								</Typography>
 							</Stack>
 
@@ -129,8 +127,8 @@ export default function Track() {
 										<Stack spacing={3}>
 											<TextField
 												fullWidth
-												label="Order Number"
-												placeholder="Enter your order number (e.g., TS-12345)"
+												label={t('orderNumber')}
+												placeholder={`${t('orderNumber')} (e.g., TS-12345)`}
 												value={orderNumber}
 												onChange={(e) => setOrderNumber(e.target.value)}
 												onKeyPress={(e) => {
@@ -147,8 +145,8 @@ export default function Track() {
 											/>
 											<Button
 												fullWidth
-												size="large"
 												startIcon={<IconSearch size={20} />}
+												size="large"
 												onClick={() => handleTrack()}
 												disabled={loading}
 												sx={{
@@ -156,7 +154,7 @@ export default function Track() {
 													py: 1.5,
 												}}
 											>
-												{loading ? 'Searching...' : 'Track Order'}
+												{loading ? t('search') + '...' : t('search')}
 											</Button>
 
 											{error && (
@@ -187,7 +185,7 @@ export default function Track() {
 																	>
 																		<Stack spacing={1}>
 																			<Typography variant="h5" fontWeight={700}>
-																				Order #{orderData.order.order_number}
+																				{t('orderNumberLabel')} #{orderData.order.order_number}
 																			</Typography>
 																			{orderData.service && (
 																				<Typography variant="body2" color="textSecondary">
@@ -210,7 +208,7 @@ export default function Track() {
 																	<Grid container spacing={2}>
 																		<Grid size={{ xs: 12, sm: 6 }}>
 																			<Typography variant="caption" color="textSecondary">
-																				Customer
+																				{t('customer')}
 																			</Typography>
 																			<Typography variant="body2" fontWeight={600}>
 																				{orderData.order.customer_name || 'N/A'}
@@ -218,7 +216,7 @@ export default function Track() {
 																		</Grid>
 																		<Grid size={{ xs: 12, sm: 6 }}>
 																			<Typography variant="caption" color="textSecondary">
-																				Submitted
+																				{t('submitted')}
 																			</Typography>
 																			<Typography variant="body2" fontWeight={600}>
 																				{new Date(orderData.order.submitted_at).toLocaleDateString('en-US', {
@@ -234,7 +232,7 @@ export default function Track() {
 																{/* Timeline */}
 																<Box>
 																	<Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-																		Order Timeline
+																		{t('orderTimeline')}
 																	</Typography>
 																	<Stack spacing={2}>
 																		{orderData.events.length > 0 ? (
@@ -254,7 +252,7 @@ export default function Track() {
 																			))
 																		) : (
 																			<Typography variant="body2" color="textSecondary">
-																				No timeline events yet
+																				{t('noTimelineEvents')}
 																			</Typography>
 																		)}
 																	</Stack>
@@ -264,13 +262,13 @@ export default function Track() {
 																{orderData.order.payload && (
 																	<Box>
 																		<Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1.5 }}>
-																			Order Details
+																			{t('orderDetails')}
 																		</Typography>
 																		<Stack spacing={1}>
 																			{(orderData.order.payload as Record<string, unknown>).urgency ? (
 																				<Stack direction="row" spacing={1}>
 																					<Typography variant="body2" color="textSecondary">
-																						Urgency:
+																						{t('urgency')}:
 																					</Typography>
 																					<Typography variant="body2" fontWeight={600}>
 																						{String((orderData.order.payload as Record<string, unknown>).urgency)}
@@ -280,7 +278,7 @@ export default function Track() {
 																			{(orderData.order.payload as Record<string, unknown>).details ? (
 																				<Box>
 																					<Typography variant="body2" color="textSecondary" sx={{ mb: 0.5 }}>
-																						Details:
+																						{t('details')}:
 																					</Typography>
 																					<Typography variant="body2">
 																						{String((orderData.order.payload as Record<string, unknown>).details)}
@@ -300,7 +298,7 @@ export default function Track() {
 																	}}
 																>
 																	<Typography variant="body2" color="textSecondary">
-																		Need help with your order?{' '}
+																		{t('needHelp')}{' '}
 																		<Typography
 																			component="a"
 																			href="/contact"
@@ -312,7 +310,7 @@ export default function Track() {
 																				'&:hover': { textDecoration: 'underline' },
 																			}}
 																		>
-																			Contact support
+																			{t('contactSupport')}
 																		</Typography>
 																	</Typography>
 																</Box>

@@ -8,49 +8,9 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `Trusted by thousands across Palestine`;
-
-// Put Section Description here
-const description = `Real results from residents and businesses across Palestine using Tasheel for government services, translations, and legalizations.`;
-
-const statsRow1: Stat[] = [
-	{
-		headline: '5,000+',
-		description: 'Documents processed monthly',
-		color: true,
-	},
-	{
-		headline: '48hrs',
-		description: 'Average turnaround time',
-		color: false,
-	},
-	{
-		headline: '99.8%',
-		description: 'Approval success rate',
-		color: false,
-	},
-];
-const statsRow2: Stat[] = [
-	{
-		headline: '24/7',
-		description: 'Platform availability',
-		color: false,
-	},
-	{
-		headline: '15+',
-		description: 'Government entities',
-		color: true,
-	},
-	{
-		headline: '2,500+',
-		description: 'Active users',
-		color: false,
-	},
-];
 
 interface Stat {
 	headline: string;
@@ -59,6 +19,43 @@ interface Stat {
 }
 
 export default function Stats() {
+	const t = useTranslations('Homepage.stats');
+	
+	const statsRow1: Stat[] = [
+		{
+			headline: t('stat1'),
+			description: t('stat1Desc'),
+			color: true,
+		},
+		{
+			headline: t('stat2'),
+			description: t('stat2Desc'),
+			color: false,
+		},
+		{
+			headline: t('stat3'),
+			description: t('stat3Desc'),
+			color: false,
+		},
+	];
+	const statsRow2: Stat[] = [
+		{
+			headline: t('stat4'),
+			description: t('stat4Desc'),
+			color: false,
+		},
+		{
+			headline: t('stat5'),
+			description: t('stat5Desc'),
+			color: true,
+		},
+		{
+			headline: t('stat6'),
+			description: t('stat6Desc'),
+			color: false,
+		},
+	];
+	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={{ xs: 4, md: 8 }}>
@@ -73,7 +70,7 @@ export default function Stats() {
 									}}
 									variant="h2"
 								>
-									{headline}
+									{t('headline')}
 								</Typography>
 							</Grid>
 							<Grid size={{ xs: 12, lg: 6 }}>
@@ -86,7 +83,7 @@ export default function Stats() {
 										component={'p'}
 										variant="h6"
 									>
-										{description}
+										{t('description')}
 									</Typography>
 								</Stack>
 							</Grid>

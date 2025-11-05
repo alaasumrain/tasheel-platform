@@ -16,25 +16,37 @@ import {
 	getOrdersTimeline,
 	getStatusDistribution,
 } from '@/lib/admin-queries';
+import { getAllServices } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-	const [metrics, orders, timelineData, statusData] = await Promise.all([
+	const t = await getTranslations('Admin.dashboard');
+	const [metrics, orders, timelineData, statusData, services] = await Promise.all([
 		getDashboardMetrics(),
 		getOrders(),
 		getOrdersTimeline(),
 		getStatusDistribution(),
+		getAllServices(),
 	]);
+	
+	// Create a map of service slug -> name for quick lookup
+	const serviceNames: Record<string, string> = {};
+	services.forEach((service) => {
+		const legacy = convertToLegacyFormat(service, 'en');
+		serviceNames[service.slug] = legacy.title;
+	});
 
 	return (
 		<Box>
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-					Dashboard
+					{t('title')}
 				</Typography>
 				<Typography variant="body1" color="text.secondary">
-					Overview of all orders and their statuses
+					{t('description')}
 				</Typography>
 			</Box>
 
@@ -42,7 +54,7 @@ export default async function AdminDashboardPage() {
 			<Grid container spacing={3} sx={{ mb: 4 }}>
 				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
-						title="Total Orders"
+						title={t('stats.totalOrders')}
 						value={metrics.totalOrders}
 						icon={OrdersIcon}
 						color="primary"
@@ -50,7 +62,7 @@ export default async function AdminDashboardPage() {
 				</Grid>
 				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
-						title="Pending"
+						title={t('stats.pending')}
 						value={metrics.pendingOrders}
 						icon={PendingIcon}
 						color="info"
@@ -58,7 +70,7 @@ export default async function AdminDashboardPage() {
 				</Grid>
 				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
-						title="In Progress"
+						title={t('stats.inProgress')}
 						value={metrics.inProgressOrders}
 						icon={InProgressIcon}
 						color="warning"
@@ -66,7 +78,7 @@ export default async function AdminDashboardPage() {
 				</Grid>
 				<Grid size={{ xs: 12, sm: 6, md: 3 }}>
 					<StatsCard
-						title="Completed Today"
+						title={t('stats.completedToday')}
 						value={metrics.completedToday}
 						icon={CompletedIcon}
 						color="success"
@@ -87,14 +99,14 @@ export default async function AdminDashboardPage() {
 			{/* Recent Orders */}
 			<Box sx={{ mb: 2 }}>
 				<Typography variant="h5" fontWeight={600} gutterBottom>
-					Recent Orders
+					{t('recentOrders.title')}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					All orders sorted by most recent
+					{t('recentOrders.description')}
 				</Typography>
 			</Box>
 
-			<OrdersTable orders={orders.slice(0, 20)} />
+			<OrdersTable orders={orders.slice(0, 20)} serviceNames={serviceNames} />
 		</Box>
 	);
 }
