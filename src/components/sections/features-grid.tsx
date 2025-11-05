@@ -8,35 +8,12 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import Image from '@/components/ui/image';
 import GetStarted from '@/components/buttons/get-started-button';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Features here
-const features: Feature[] = [
-	{
-		headline: 'Government Services Concierge',
-		description:
-			'Renew licenses, request permits, and manage official certificates without visiting a service center.',
-	},
-	{
-		headline: 'Certified Translation Desk',
-		description:
-			'Order legal, medical, and academic translations with sworn translators and stamped deliverables.',
-	},
-	{
-		headline: 'Legalization & Corporate Support',
-		description:
-			'Handle embassy legalization, ministry attestations, and corporate filings with guaranteed compliance.',
-	},
-];
-
-const primaryCta = {
-	label: 'Explore services',
-	href: '/services',
-};
 
 interface Feature {
 	headline: string;
@@ -44,6 +21,23 @@ interface Feature {
 }
 
 export default function FeaturesGrid() {
+	const t = useTranslations('Homepage.features');
+	
+	const features: Feature[] = [
+		{
+			headline: t('feature1Headline'),
+			description: t('feature1Description'),
+		},
+		{
+			headline: t('feature2Headline'),
+			description: t('feature2Description'),
+		},
+		{
+			headline: t('feature3Headline'),
+			description: t('feature3Description'),
+		},
+	];
+	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Grid container spacing={4.5}>
@@ -79,8 +73,8 @@ export default function FeaturesGrid() {
 												</Stack>
 												<Box>
 													<GetStarted
-														buttonLabel={primaryCta.label}
-														href={primaryCta.href}
+														buttonLabel={t('exploreServices')}
+														href="/services"
 													/>
 												</Box>
 											</Stack>

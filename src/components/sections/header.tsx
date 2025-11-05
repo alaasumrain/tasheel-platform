@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import {
 	Box,
-	Link,
+	Link as MuiLink,
 	Container,
 	Dialog,
 	DialogContent,
@@ -13,38 +13,41 @@ import {
 } from '@mui/material';
 
 import { IconMenu, IconX as IconClose } from '@tabler/icons-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
 import ThemeToggle from '@/components/ui/theme-toggle';
-
-// Wordmark handled via combined logo asset
-
-// Put Navigation links here
-const navigationLinks: NavigationLink[] = [
-	{
-		label: 'Services',
-		href: '/services',
-	},
-	{
-		label: 'Track Status',
-		href: '/track',
-	},
-	{
-		label: 'Pricing',
-		href: '/#pricing',
-	},
-	{
-		label: 'About',
-		href: '/about',
-	},
-	{
-		label: 'Contact',
-		href: '/contact',
-	},
-];
+import LanguageSwitcher from '@/components/ui/language-switcher';
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
+	const t = useTranslations('Header');
+	const locale = useLocale();
+
+	const navigationLinks: NavigationLink[] = [
+		{
+			label: t('services'),
+			href: '/services',
+		},
+		{
+			label: t('track'),
+			href: '/track',
+		},
+		{
+			label: t('pricing'),
+			href: '/#pricing',
+		},
+		{
+			label: t('about'),
+			href: '/about',
+		},
+		{
+			label: t('contact'),
+			href: '/contact',
+		},
+	];
+
 	return (
 		<>
 			<Box>
@@ -61,7 +64,7 @@ export default function Header() {
 					spacing={3}
 					sx={{
 						display: { xs: 'none', lg: 'flex' },
-						ml: { lg: 6 },
+						marginInlineStart: { lg: 6 },
 						alignItems: 'center',
 						'& a': {
 							whiteSpace: 'nowrap',
@@ -70,7 +73,7 @@ export default function Header() {
 					}}
 				>
 					{navigationLinks.map((link) => (
-						<Link key={link.label} href={link.href} underline="none">
+						<MuiLink key={link.href} component={Link} href={link.href} underline="none" prefetch>
 						<Typography
 							color="textPrimary"
 							sx={{ fontSize: '0.95rem', fontWeight: 600, letterSpacing: 0.2 }}
@@ -78,7 +81,7 @@ export default function Header() {
 						>
 							{link.label}
 						</Typography>
-					</Link>
+					</MuiLink>
 					))}
 				</Stack>
 				<Stack
@@ -87,6 +90,7 @@ export default function Header() {
 					spacing={2.5}
 					sx={{ display: { xs: 'none', lg: 'flex' } }}
 				>
+					<LanguageSwitcher />
 					<ThemeToggle />
 					<GetStarted
 						buttonLabel="Request a Service"
@@ -144,11 +148,13 @@ export default function Header() {
 							</Stack>
 							<Stack alignItems="center" spacing={5}>
 								{navigationLinks.map((link) => (
-									<Link
-										key={link.label}
+									<MuiLink
+										key={link.href}
+										component={Link}
 										href={link.href}
 										onClick={() => setOpen(false)}
 										underline="none"
+										prefetch
 									>
 										<Typography
 											color="textPrimary"
@@ -157,16 +163,19 @@ export default function Header() {
 										>
 											{link.label}
 										</Typography>
-									</Link>
+									</MuiLink>
 								))}
 							</Stack>
 							<Container maxWidth="sm">
-								<GetStarted
-									buttonLabel="Request a Service"
-									fullWidth
-									href="/services"
-									size="large"
-								/>
+								<Stack spacing={2}>
+									<LanguageSwitcher fullWidth />
+									<GetStarted
+										buttonLabel="Request a Service"
+										fullWidth
+										href="/services"
+										size="large"
+									/>
+								</Stack>
 							</Container>
 						</Stack>
 					</Container>
@@ -185,13 +194,13 @@ function LogoWrapper() {
 	const { mode } = useColorScheme();
 	const logoSrc = mode === 'dark' ? '/dark/logo-header.png' : '/light/logo-header.png';
 	return (
-		<Link href="/" underline="none">
+		<MuiLink component={Link} href="/" underline="none" prefetch>
 			<Box
 				component="img"
 				src={logoSrc}
 				alt="Company logo"
 				sx={{ height: { xs: 56, lg: 68 }, width: 'auto' }}
 			/>
-		</Link>
+		</MuiLink>
 	);
 }

@@ -16,14 +16,16 @@ import {
 import { IconArrowRight as IconSend } from '@tabler/icons-react';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
-import { services } from '@/data/services';
+import type { LegacyService } from '@/lib/types/service';
 
 interface QuoteRequestFormProps {
 	preSelectedService?: string;
+	services?: LegacyService[];
 }
 
 export default function QuoteRequestForm({
 	preSelectedService,
+	services = [],
 }: QuoteRequestFormProps) {
 	const formRef = useRef<HTMLFormElement>(null);
 	const { mutate: send, isPending } = useMutation({

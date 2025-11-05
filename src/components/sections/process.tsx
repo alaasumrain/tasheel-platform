@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	Box,
 	CardContent,
@@ -6,35 +8,9 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `From request to delivery in four simple steps`;
-
-// Put Section Items here
-const items: Item[] = [
-	{
-		number: 1,
-		title: 'Choose & Submit',
-		content: `Select your service, upload required documents, and pay securely online.`,
-	},
-	{
-		number: 2,
-		title: 'We Verify',
-		content: `Our team reviews your submission within 2 hours and confirms document completeness.`,
-	},
-	{
-		number: 3,
-		title: 'We Process',
-		content: `We handle all government submissions while you track progress in real-time.`,
-	},
-	{
-		number: 4,
-		title: 'Receive & Done',
-		content: `Get your completed documents delivered digitally or physically to your address.`,
-	},
-];
 
 interface Item {
 	title: string;
@@ -43,6 +19,31 @@ interface Item {
 }
 
 export default function Process() {
+	const t = useTranslations('Homepage.process');
+	
+	const items: Item[] = [
+		{
+			number: 1,
+			title: t('step1Title'),
+			content: t('step1Content'),
+		},
+		{
+			number: 2,
+			title: t('step2Title'),
+			content: t('step2Content'),
+		},
+		{
+			number: 3,
+			title: t('step3Title'),
+			content: t('step3Content'),
+		},
+		{
+			number: 4,
+			title: t('step4Title'),
+			content: t('step4Content'),
+		},
+	];
+	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<RevealSection delay={0.1} direction="up">
@@ -61,7 +62,7 @@ export default function Process() {
 					<Stack spacing={2}>
 						<RevealSection delay={0.3} direction="up">
 							<Typography color="#ffffff" variant="h3" textAlign="center">
-								{headline}
+								{t('headline')}
 							</Typography>
 						</RevealSection>
 						<RevealSection delay={0.5} direction="up">

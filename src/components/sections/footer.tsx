@@ -21,6 +21,7 @@ import {
 	IconBrandInstagram,
 	IconBrandTwitter,
 	IconBrandYoutube,
+	IconBrandWhatsapp,
 } from '@tabler/icons-react';
 
 import { Card } from '@/components/ui/card';
@@ -87,7 +88,13 @@ const footerLinks3: FooterLink[] = [
 ];
 
 // Put Social links here
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+970592345678';
 const socialLinks: SocialLink[] = [
+	{
+		href: `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`,
+		icon: <IconBrandWhatsapp />,
+		label: 'WhatsApp',
+	},
 	{
 		href: '#',
 		icon: <IconBrandFacebook />,

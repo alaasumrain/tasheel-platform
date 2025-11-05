@@ -23,11 +23,15 @@ import {
 	IconButton,
 	Tooltip,
 } from '@mui/material';
-import { IconArrowLeft, IconArrowRight, IconCheck, IconUpload, IconFile, IconX, IconRefresh } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconCheck, IconRefresh, IconX } from '@tabler/icons-react';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
 import type { Service } from '@/data/services';
+import { FileUploadField } from './FileUploadField';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -529,90 +533,46 @@ function Step2Content({
 				);
 
 			case 'file':
-				const file = uploadedFiles[field.name];
 				return (
-					<FormControl fullWidth key={field.name} error={!!errors[field.name]}>
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-						<Box sx={{ position: 'relative' }}>
-							<Box
-								component="label"
-								sx={{
-									mt: 1,
-									p: 3,
-									border: 2,
-									borderStyle: 'dashed',
-									borderColor: file ? 'success.main' : errors[field.name] ? 'error.main' : 'divider',
-									borderRadius: 2,
-									backgroundColor: file ? 'success.lighter' : 'background.paper',
-									cursor: 'pointer',
-									transition: 'all 0.2s',
-									'&:hover': {
-										borderColor: 'primary.main',
-										backgroundColor: 'action.hover',
-									},
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									gap: 1,
+					<FileUploadField
+						key={field.name}
+						label={field.label}
+						name={field.name}
+						value={uploadedFiles[field.name] || null}
+						onChange={(file) => onFileChange(field.name, file)}
+						onRemove={() => onRemoveFile(field.name)}
+						error={errors[field.name]}
+						helperText={field.helperText}
+						accept={field.helperText?.includes('PDF') ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'}
+						maxSize={field.helperText?.includes('5MB') ? 5 * 1024 * 1024 : 10 * 1024 * 1024}
+						required={field.required}
+					/>
+				);
+
+			case 'date':
+				return (
+					<LocalizationProvider dateAdapter={AdapterDateFns} key={field.name}>
+						<FormControl fullWidth required={field.required} error={!!errors[field.name]}>
+							<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+							<DatePicker
+								value={formData[field.name] ? new Date(formData[field.name]) : null}
+								onChange={(newValue) => {
+									if (newValue) {
+										onChange(field.name, newValue.toISOString().split('T')[0]);
+									} else {
+										onChange(field.name, '');
+									}
 								}}
-							>
-								<input
-									type="file"
-									hidden
-									accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-									onChange={(e) => {
-										const selectedFile = e.target.files?.[0] || null;
-										onFileChange(field.name, selectedFile);
-									}}
-								/>
-								{file ? (
-									<>
-										<IconFile size={32} />
-										<Typography variant="body2" fontWeight={600}>
-											{file.name}
-										</Typography>
-										<Typography variant="caption" color="text.secondary">
-											{(file.size / 1024 / 1024).toFixed(2)}MB
-										</Typography>
-										<Typography variant="caption" color="success.main">
-											File selected - Click to change
-										</Typography>
-									</>
-								) : (
-									<>
-										<IconUpload size={32} />
-										<Typography variant="body2" fontWeight={600}>
-											Click to upload file
-										</Typography>
-										<Typography variant="caption" color="text.secondary">
-											PDF, JPG, PNG, DOC, DOCX (Max 10MB)
-										</Typography>
-									</>
-								)}
-							</Box>
-							{file && (
-								<Tooltip title="Remove file">
-									<IconButton
-										size="small"
-										onClick={() => onRemoveFile(field.name)}
-										sx={{
-											position: 'absolute',
-											top: 8,
-											right: 8,
-											bgcolor: 'background.paper',
-											'&:hover': { bgcolor: 'error.main', color: 'white' },
-										}}
-									>
-										<IconX size={18} />
-									</IconButton>
-								</Tooltip>
-							)}
-						</Box>
-						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
-						{!errors[field.name] && field.helperText && (
-							<FormHelperText>{field.helperText}</FormHelperText>
-						)}
-					</FormControl>
+								slotProps={{
+									textField: {
+										error: !!errors[field.name],
+										helperText: errors[field.name] || field.helperText,
+									},
+								}}
+								sx={{ mt: 1 }}
+							/>
+						</FormControl>
+					</LocalizationProvider>
 				);
 
 			default:

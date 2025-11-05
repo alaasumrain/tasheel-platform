@@ -22,17 +22,14 @@ import {
 	Dashboard as DashboardIcon,
 	Receipt as OrdersIcon,
 	Settings as SettingsIcon,
+	People as UsersIcon,
 	Menu as MenuIcon,
 	Logout as LogoutIcon,
+	Category as ServicesIcon,
 } from '@mui/icons-material';
+import { useTranslations } from 'next-intl';
 
 const drawerWidth = 260;
-
-const menuItems = [
-	{ label: 'Dashboard', icon: DashboardIcon, href: '/admin' },
-	{ label: 'Orders', icon: OrdersIcon, href: '/admin/orders' },
-	{ label: 'Settings', icon: SettingsIcon, href: '/admin/settings' },
-];
 
 interface AdminLayoutProps {
 	children: React.ReactNode;
@@ -42,6 +39,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const pathname = usePathname();
 	const router = useRouter();
+	const t = useTranslations('Admin.layout');
+
+	const menuItems = [
+		{ label: t('menu.dashboard'), icon: DashboardIcon, href: '/admin' },
+		{ label: t('menu.orders'), icon: OrdersIcon, href: '/admin/orders' },
+		{ label: t('menu.users'), icon: UsersIcon, href: '/admin/users' },
+		{ label: t('menu.seedServices'), icon: ServicesIcon, href: '/admin/seed-services' },
+		{ label: t('menu.settings'), icon: SettingsIcon, href: '/admin/settings' },
+	];
 
 	const handleDrawerToggle = () => {
 		setMobileOpen(!mobileOpen);
@@ -49,21 +55,21 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
 	const handleLogout = async () => {
 		await fetch('/api/admin/logout', { method: 'POST' });
-		router.push('/login');
+		router.push('/admin/login');
 	};
 
 	const drawer = (
 		<Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
 			<Box sx={{ p: 3, pb: 2 }}>
 				<Typography variant="h5" fontWeight={700} color="primary">
-					Tasheel
+					{t('title')}
 				</Typography>
 				<Typography
 					variant="caption"
 					color="text.secondary"
 					sx={{ display: 'block', mt: 1 }}
 				>
-					Admin Dashboard
+					{t('subtitle')}
 				</Typography>
 			</Box>
 
@@ -115,7 +121,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 					onClick={handleLogout}
 					sx={{ borderRadius: 2 }}
 				>
-					Logout
+					{t('logout')}
 				</Button>
 			</Box>
 		</Box>
@@ -155,7 +161,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 						<MenuIcon />
 					</IconButton>
 					<Typography variant="h6" noWrap component="div" fontWeight={700}>
-						Tasheel Admin
+						{t('title')} {t('subtitle')}
 					</Typography>
 				</Toolbar>
 			</AppBar>

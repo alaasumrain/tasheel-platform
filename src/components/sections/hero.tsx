@@ -11,30 +11,11 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import type { Theme } from '@mui/material/styles';
+import { useTranslations } from 'next-intl';
 
 import GetStarted from '@/components/buttons/get-started-button';
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `Your government services, simplified`;
-
-// Put Section Description here
-const description = `From driver's license renewals to document legalization—submit online, track progress, and receive completed services. No office visits required.`;
-
-// Put Section TrustedBy here
-const trustedBy = `Trusted by 5,000+ residents and 200+ businesses`;
-
-// Put primary CTA here
-const primaryCta = {
-	label: 'Start a request',
-	href: '/contact',
-};
-
-const secondaryCta = {
-	label: 'Track my order',
-	href: '/track',
-};
 
 // Put Section AvatarGroup here
 const avatars: Avatar[] = [
@@ -62,6 +43,8 @@ interface Avatar {
 }
 
 export default function Hero() {
+	const t = useTranslations('Homepage.hero');
+	
 	return (
 		<Container sx={{ pt: { xs: 6, md: 10 }, pb: { md: 0 } }}>
 			<Grid
@@ -81,9 +64,9 @@ export default function Hero() {
 									textAlign: { xs: 'center', md: 'left' },
 								}}
 							>
-								<Typography variant="h1">{headline}</Typography>
+								<Typography variant="h1">{t('headline')}</Typography>
 								<Typography color="text.secondary" variant="h6">
-									{description}
+									{t('description')}
 								</Typography>
 							</Stack>
 						</RevealSection>
@@ -95,8 +78,8 @@ export default function Hero() {
 									sx={{ alignItems: { xs: 'stretch', sm: 'center' } }}
 								>
 									<GetStarted
-										buttonLabel={primaryCta.label}
-										href={primaryCta.href}
+										buttonLabel={t('primaryCta')}
+										href="/contact"
 										size="large"
 										sx={{
 											width: { xs: '100%', sm: 'auto' },
@@ -109,7 +92,7 @@ export default function Hero() {
 									/>
 									<Button
 										component="a"
-										href={secondaryCta.href}
+										href="/track"
 										size="large"
 										variant="contained"
 										color="inherit"
@@ -144,7 +127,7 @@ export default function Hero() {
 											},
 										}}
 									>
-										{secondaryCta.label}
+										{t('secondaryCta')}
 									</Button>
 								</Stack>
 								<Stack
@@ -162,7 +145,7 @@ export default function Hero() {
 										))}
 									</AvatarGroup>
 									<Typography color="text.secondary" variant="body1">
-										{trustedBy}
+										{t('trustedBy')}
 									</Typography>
 								</Stack>
 							</Stack>

@@ -8,23 +8,32 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { getTranslations, getLocale } from 'next-intl/server';
 
+import { getAllServices } from '@/lib/service-queries';
+import { convertToLegacyFormat } from '@/lib/types/service';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
-import { services } from '@/data/services';
 
-export default function ServicesCatalog() {
+export default async function ServicesCatalog() {
+	const t = await getTranslations('Homepage.servicesCatalog');
+	const locale = (await getLocale()) as 'en' | 'ar';
+	const servicesFromDB = await getAllServices();
+	// Limit to first 6 featured services for homepage
+	const featuredServices = servicesFromDB.slice(0, 6);
+	const services = featuredServices.map((s) => convertToLegacyFormat(s, locale));
+	
 	return (
 		<Container id="services" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={{ xs: 3, md: 4 }} sx={{ textAlign: 'center', mb: 6 }}>
 				<Typography color="accent" variant="subtitle1">
-					Tasheel services
+					{t('subtitle')}
 				</Typography>
 				<Typography variant="h2">
-					A complete partner for legalization, translation, and government workflows
+					{t('title')}
 				</Typography>
 				<Typography color="text.secondary" variant="h6">
-					Choose the service you need and our team will handle the rest—from paperwork to final delivery.
+					{t('description')}
 				</Typography>
 			</Stack>
 			<Grid container spacing={{ xs: 2.5, md: 3.5 }}>
@@ -57,7 +66,7 @@ export default function ServicesCatalog() {
 											href={`/services/${service.slug}`}
 											size="large"
 										>
-											Get started
+											{t('getStarted')}
 										</Button>
 									</Box>
 								</CardContent>

@@ -15,10 +15,11 @@ import {
 } from '@mui/material';
 import { Card } from '@/components/ui/card';
 import { Application, ApplicationStatus } from '@/lib/admin-queries';
-import { services } from '@/data/services';
+import { useTranslations } from 'next-intl';
 
 interface OrdersTableProps {
 	orders: Application[];
+	serviceNames?: Record<string, string>; // Map of slug -> name
 }
 
 const statusColors: Record<ApplicationStatus, 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'> = {
@@ -34,22 +35,11 @@ const statusColors: Record<ApplicationStatus, 'default' | 'primary' | 'success' 
 	cancelled: 'default',
 };
 
-const statusLabels: Record<ApplicationStatus, string> = {
-	draft: 'Draft',
-	submitted: 'Submitted',
-	scoping: 'Scoping',
-	quote_sent: 'Quote Sent',
-	in_progress: 'In Progress',
-	review: 'In Review',
-	completed: 'Completed',
-	archived: 'Archived',
-	rejected: 'Rejected',
-	cancelled: 'Cancelled',
-};
-
-function getServiceName(serviceSlug: string): string {
-	const service = services.find((s) => s.slug === serviceSlug);
-	return service?.title || serviceSlug;
+function getServiceName(serviceSlug: string | null, serviceNames?: Record<string, string>): string {
+	if (!serviceSlug) {
+		return 'N/A';
+	}
+	return serviceNames?.[serviceSlug] || serviceSlug;
 }
 
 function formatDate(dateString: string): string {
@@ -63,7 +53,9 @@ function formatDate(dateString: string): string {
 	}).format(date);
 }
 
-export function OrdersTable({ orders }: OrdersTableProps) {
+export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
+	const t = useTranslations('Admin.orders');
+	
 	if (orders.length === 0) {
 		return (
 			<Card
@@ -73,10 +65,10 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 			>
 				<Box sx={{ p: 6, textAlign: 'center' }}>
 					<Typography variant="h6" color="text.secondary">
-						No orders found
+						{t('noOrders')}
 					</Typography>
 					<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-						Orders will appear here when customers submit quote requests
+						{t('noOrdersDescription')}
 					</Typography>
 				</Box>
 			</Card>
@@ -93,13 +85,13 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 				<Table>
 					<TableHead>
 						<TableRow>
-							<TableCell sx={{ fontWeight: 600 }}>Order Number</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>Service</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>Submitted</TableCell>
-							<TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.orderNumber')}</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.customer')}</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.email')}</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.service')}</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.status')}</TableCell>
+							<TableCell sx={{ fontWeight: 600 }}>{t('table.submitted')}</TableCell>
+							<TableCell align="right" sx={{ fontWeight: 600 }}>{t('table.actions')}</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -129,12 +121,12 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 								</TableCell>
 								<TableCell>
 									<Typography variant="body2">
-										{getServiceName(order.service_slug)}
+										{getServiceName(order.service_slug, serviceNames)}
 									</Typography>
 								</TableCell>
 								<TableCell>
 									<Chip
-										label={statusLabels[order.status]}
+										label={t(`statusLabels.${order.status}` as any)}
 										color={statusColors[order.status]}
 										size="small"
 									/>
@@ -151,7 +143,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 										variant="outlined"
 										size="small"
 									>
-										View
+										{t('table.view')}
 									</Button>
 								</TableCell>
 							</TableRow>
