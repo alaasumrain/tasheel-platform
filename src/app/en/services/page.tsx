@@ -1,6 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import ServicesOverview from '@/components/sections/services-overview';
 
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
 	title: 'Our Services | Tasheel Government Services',

@@ -58,7 +58,58 @@
 		"quoteDescription": "Submit a quote request and our team will get back to you within 2 hours with pricing and next steps.",
 		"callUs": "Call +970 2 240 1234",
 		"trackStatus": "Track Status",
-		"notFound": "Service Not Found"
+		"notFound": "Service Not Found",
+		"breadcrumbs": {
+			"home": "Home",
+			"services": "Services"
+		},
+		"categoryLabels": {
+			"government": "Government services",
+			"translation": "Translation services",
+			"legalization": "Legalization services",
+			"business": "Business services"
+		},
+	"pricingFormats": {
+		"fixed": "{amount}",
+		"startingFrom": "Starting from {amount}",
+		"custom": "Custom quote"
+	},
+	"quickView": "Quick view",
+	"quickInfo": "Key information",
+	"metadata": {
+		"documents": "{count, plural, one {# document required} other {# documents required}}",
+		"expressAvailable": "Express available",
+		"turnaroundUnknown": "Flexible timeline"
+	},
+		"filters": {
+			"heading": "Filter services",
+			"clearAll": "Clear filters",
+			"allCategories": "All services",
+			"categories": "Categories",
+			"turnaround": "Turnaround",
+			"pricing": "Pricing",
+			"express": "Express available",
+			"sortLabel": "Sort by",
+			"searchPlaceholder": "Search services (e.g. driver's license, attestation)",
+			"resultsSummary": "{count, plural, one {# service available} other {# services available}}",
+			"turnaroundOptions": {
+				"all": "Any timeline",
+				"express": "0-3 days",
+				"standard": "4-7 days",
+				"extended": "8+ days"
+			},
+			"pricingOptions": {
+				"all": "Any pricing",
+				"fixed": "Fixed price",
+				"starting": "Starts from",
+				"quote": "Needs quote"
+			},
+			"sortOptions": {
+				"recommended": "Recommended",
+				"speed": "Fastest first",
+				"price": "Lowest price"
+			}
+		}
 	},
 	"Admin": {
 		"layout": {
@@ -445,6 +496,81 @@
 		"generating": "Generating PDF...",
 		"download": "Download Invoice"
 	},
+	"OrderConfirmation": {
+		"title": "Request submitted successfully",
+		"subtitle": "Thanks {name}, your request is now with our specialists.",
+		"customerDefaultName": "there",
+		"orderNumberLabel": "Order number",
+		"copyAction": "Copy order number",
+		"copy": "Copy",
+		"copied": "Copied",
+		"copySuccess": "Order number copied to clipboard",
+		"trackButton": "Track my order",
+		"printReceipt": "Print receipt",
+		"emailNotice": "A confirmation email has been sent to {email}. Please check your inbox and spam folder.",
+		"serviceSummaryTitle": "Service summary",
+		"serviceSummaryFallback": "We couldn't load the service data, but our team still received your request.",
+		"pricing": {
+			"label": "Estimated price",
+			"startingFrom": "Starting from {amount}",
+			"customQuote": "Custom quote"
+		},
+		"turnaround": {
+			"label": "Turnaround"
+		},
+		"nextSteps": {
+			"title": "What happens next",
+			"review": {
+				"title": "We review your request",
+				"description": "A specialist checks your information within 2 working hours."
+			},
+			"quote": {
+				"title": "We prepare your quote",
+				"description": "You'll receive a detailed quote in your email with any required follow-up."
+			},
+			"payment": {
+				"title": "Approve & pay securely",
+				"description": "Once you approve the quote, you can complete payment securely online."
+			},
+			"processing": {
+				"title": "We begin processing",
+				"description": "Our operations team coordinates with the relevant authorities and keeps you updated."
+			}
+		},
+		"orderDetailsTitle": "Order details",
+		"submittedOnLabel": "Submitted on",
+		"submittedOnFallback": "Just now",
+		"statusLabel": "Status",
+		"phoneLabel": "Phone number",
+		"helpTitle": "Need help?",
+		"helpDescription": "Send us a WhatsApp message and we'll get back to you during business hours.",
+		"whatsAppButton": "Message us on WhatsApp",
+		"nextActionsTitle": "Next actions",
+		"nextActions": {
+			"reviewRequest": "We'll review your {service} request and confirm any required documents.",
+			"keepEmail": "Keep an eye on your email for updates or additional questions.",
+			"trackUpdates": "Bookmark this page or use your order number to track progress anytime."
+		},
+		"browseMoreServices": "Browse more services",
+		"noOrderTitle": "Order number missing",
+		"noOrderDescription": "Start by browsing our services, submit a request, and you'll see your confirmation here.",
+		"unknownOrderTitle": "We couldn't find that order",
+		"unknownOrderDescription": "Double-check the order number {orderNumber} from your confirmation email and try again, or track your order manually.",
+		"backToServices": "Browse services",
+		"trackManually": "Track an order",
+		"statuses": {
+			"draft": "Draft",
+			"submitted": "Submitted",
+			"scoping": "Scoping",
+			"quote_sent": "Quote sent",
+			"in_progress": "In progress",
+			"review": "In review",
+			"completed": "Completed",
+			"archived": "Archived",
+			"rejected": "Rejected",
+			"cancelled": "Cancelled"
+		}
+	},
 	"Payment": {
 		"title": "Payment",
 		"testingMode": "TESTING MODE",
@@ -622,7 +748,27 @@
 		"description": "Tasheel is your trusted partner for government services, document translation, and legalization. We believe that accessing government services shouldn't require hours of waiting in lines or navigating complex bureaucracy.\n\nOur platform connects you directly with certified professionals who handle everything from driver's license renewals to embassy legalizations—all online, all secure, all transparent.\n\nFounded with a mission to modernize how citizens and businesses interact with government services, Tasheel combines expert knowledge with cutting-edge technology to deliver fast, compliant, and hassle-free service delivery."
 	},
 	"ServicesOverview": {
-		"description": "From driver's license renewals to document attestation—submit online, track progress, and receive completed services. No office visits required."
+		"description": "From driver's license renewals to document attestation—submit online, track progress, and receive completed services. No office visits required.",
+		"searchLabel": "Search services",
+		"searchPlaceholder": "Search services (e.g. driver's license, attestation)",
+		"clearSearch": "Clear search",
+		"searchResultsCount": "{count, plural, one {# service found} other {# services found}}",
+		"noResultsTitle": "No services match your search",
+		"noResultsDescription": "Try different keywords or browse the full catalog.",
+		"filterByCategory": "Filter by category",
+		"allCategories": "All Categories",
+		"sortBy": "Sort by",
+		"sortOptions": {
+			"default": "Default",
+			"priceAsc": "Price: Low to High",
+			"priceDesc": "Price: High to Low",
+			"titleAsc": "Name: A to Z",
+			"titleDesc": "Name: Z to A"
+		},
+		"viewMode": "View",
+		"gridView": "Grid view",
+		"listView": "List view",
+		"filtersApplied": "{count, plural, one {# filter} other {# filters}} applied",
+		"clearFilters": "Clear filters"
 	}
 }
-

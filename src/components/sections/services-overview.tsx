@@ -1,268 +1,32 @@
-import {
-	Box,
-	Button,
-	CardContent,
-	Container,
-	Stack,
-	Typography,
-} from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import {
-	IconArrowRight,
-	IconClock,
-	IconCurrencyShekel,
-} from '@tabler/icons-react';
-import Link from 'next/link';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 import { getAllServices, getServiceCategories } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
-import { Card } from '@/components/ui/card';
-import Image from '@/components/ui/image';
-import RevealSection from '@/components/ui/reveal-section';
+import ServicesCatalogWithSearch from './services-catalog-with-search';
 
 export default async function ServicesOverview() {
-	const t = await getTranslations('Services');
-	const tOverview = await getTranslations('ServicesOverview');
 	const locale = (await getLocale()) as 'en' | 'ar';
+	const tServices = await getTranslations('Services');
 	const servicesFromDB = await getAllServices();
 	const categoriesFromDB = await getServiceCategories();
-	
+
 	// Convert DB services to legacy format for component compatibility
 	const services = servicesFromDB.map((s) => convertToLegacyFormat(s, locale));
-	
-	// Map categories to expected format
+
+	// Map categories to expected format with locale support
 	const serviceCategories = categoriesFromDB.map((cat) => ({
 		slug: cat.slug,
-		name: cat.name,
-		description: cat.description || cat.headline || '',
+		name: locale === 'ar' ? (cat.name_ar || cat.name) : cat.name,
+		description: locale === 'ar'
+			? (cat.description_ar || cat.headline_ar || cat.description || cat.headline || '')
+			: (cat.description || cat.headline || ''),
 	}));
+
 	return (
-		<Box>
-			{/* Hero Section */}
-			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 12.5 } }}>
-				<RevealSection delay={0.1} direction="up">
-					<Stack spacing={3} alignItems="center" textAlign="center">
-						<Typography color="accent" variant="subtitle1">
-							{t('title')}
-						</Typography>
-						<Typography variant="h1" maxWidth={800}>
-							{t('description')}
-						</Typography>
-					<Typography
-						color="text.secondary"
-						variant="h6"
-						component="p"
-						maxWidth={720}
-					>
-						{tOverview('description')}
-					</Typography>
-					</Stack>
-				</RevealSection>
-			</Container>
-
-			{/* Service Categories */}
-			{serviceCategories.map((category, categoryIndex) => {
-				const categoryServices = services.filter(
-					(s) => s.category === category.slug
-				);
-
-				return (
-					<Box
-						key={category.slug}
-						sx={{
-							backgroundColor:
-								categoryIndex % 2 === 0
-									? 'background.default'
-									: 'background.paper',
-							py: { xs: 6.25, md: 12.5 },
-						}}
-					>
-						<Container>
-							<RevealSection
-								delay={0.1 + categoryIndex * 0.1}
-								direction="up"
-							>
-								<Stack spacing={5}>
-									{/* Category Header */}
-									<Stack spacing={2} maxWidth={720}>
-										<Typography color="accent" variant="subtitle1">
-											{category.name}
-										</Typography>
-										<Typography variant="h2">{category.description}</Typography>
-									</Stack>
-
-														{/* Service Cards */}
-														<Grid container spacing={4} justifyContent="center">
-													{categoryServices.map((service) => (
-																			<Grid
-																				size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
-																				key={service.slug}
-																			>
-																				<Card fullHeight>
-																					<CardContent
-																						sx={{															p: 0,
-															display: 'flex',
-															flexDirection: 'column',
-															height: '100%',
-														}}
-													>
-														{/* Service Image */}
-														<Box
-															sx={{
-																position: 'relative',
-																width: '100%',
-																aspectRatio: '16/10',
-																overflow: 'hidden',
-															}}
-														>
-															<Image
-																darkImage={service.image.dark}
-																lightImage={service.image.light}
-																alt={service.title}
-															/>
-														</Box>
-
-														{/* Service Content */}
-														<Stack
-															spacing={2.5}
-															sx={{
-																p: { xs: 3, md: 4 },
-																flexGrow: 1,
-																display: 'flex',
-																flexDirection: 'column',
-															}}
-														>
-															<Stack spacing={1.5} flexGrow={1}>
-																<Typography variant="h5">
-																	{service.title}
-																</Typography>
-																<Typography
-																	color="text.secondary"
-																	variant="body2"
-																>
-																	{service.shortDescription}
-																</Typography>
-															</Stack>
-
-															{/* Quick Info */}
-															<Stack spacing={1}>
-																<Stack
-																	direction="row"
-																	spacing={1}
-																	alignItems="center"
-																>
-																	<IconClock size={18} />
-																	<Typography variant="caption">
-																		{service.turnaroundTime}
-																	</Typography>
-																</Stack>
-								<Stack
-									direction="row"
-									spacing={1}
-									alignItems="center"
-								>
-									<IconCurrencyShekel size={18} />
-									<Typography variant="caption">
-										{service.pricing.type === 'fixed'
-											? `₪${service.pricing.amount}`
-											: service.pricing.type === 'starting'
-												? `From ₪${service.pricing.amount}`
-												: 'Request Quote'}
-									</Typography>
-								</Stack>
-															</Stack>
-
-															{/* CTA Button */}
-															<Button
-																component={Link}
-																href={`/services/${service.slug}`}
-																variant="outlined"
-																endIcon={<IconArrowRight size={18} />}
-																fullWidth
-															>
-																{t('viewDetails')}
-															</Button>
-														</Stack>
-													</CardContent>
-												</Card>
-											</Grid>
-										))}
-									</Grid>
-								</Stack>
-							</RevealSection>
-						</Container>
-					</Box>
-				);
-			})}
-
-			{/* CTA Section */}
-			<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
-				<RevealSection delay={0.4} direction="up">
-					<Card
-						backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
-						borderColor={{ light: '#3949B1', dark: '#3949B1' }}
-						gradientColor={{ light: '#3949B1', dark: '#3949B1' }}
-						gradientOpacity={0.6}
-					>
-						<CardContent
-							sx={{
-								p: { xs: 4, md: 6 },
-								textAlign: 'center',
-							}}
-						>
-							<Stack spacing={4} alignItems="center">
-								<Stack spacing={2} alignItems="center" maxWidth={720}>
-								<Typography variant="h3" color="#ffffff">
-									Can&apos;t find what you&apos;re looking for?
-								</Typography>
-									<Typography variant="h6" color="rgba(255, 255, 255, 0.9)">
-										We handle a wide range of government services. Contact us to
-										discuss your specific requirements.
-									</Typography>
-								</Stack>
-								<Stack
-									direction={{ xs: 'column', sm: 'row' }}
-									spacing={2}
-									justifyContent="center"
-								>
-									<Button
-										component={Link}
-										href="/contact"
-										variant="contained"
-										size="large"
-										sx={{
-											backgroundColor: '#ffffff',
-											color: '#0E21A0',
-											'&:hover': {
-												backgroundColor: '#f5f5f5',
-											},
-										}}
-									>
-										Contact Us
-									</Button>
-									<Button
-										component={Link}
-										href="/track"
-										variant="outlined"
-										size="large"
-										sx={{
-											borderColor: '#ffffff',
-											color: '#ffffff',
-											'&:hover': {
-												borderColor: '#f5f5f5',
-												backgroundColor: 'rgba(255, 255, 255, 0.1)',
-											},
-										}}
-									>
-										Track Your Order
-									</Button>
-								</Stack>
-							</Stack>
-						</CardContent>
-					</Card>
-				</RevealSection>
-			</Container>
-		</Box>
+		<ServicesCatalogWithSearch
+			services={services}
+			categories={serviceCategories}
+			locale={locale}
+		/>
 	);
 }

@@ -22,7 +22,9 @@ import {
 	LinearProgress,
 	IconButton,
 	Tooltip,
+	CardContent,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { IconArrowLeft, IconArrowRight, IconCheck, IconRefresh, IconX } from '@tabler/icons-react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -32,6 +34,11 @@ import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
 import type { Service } from '@/data/services';
 import { FileUploadField } from './FileUploadField';
+import { useRouter } from '@/i18n/navigation';
+import { Card } from '@/components/ui/card';
+import FilePreview from './FilePreview';
+import RequiredDocumentsChecklist from './RequiredDocumentsChecklist';
+import PricingEstimate from './PricingEstimate';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -45,6 +52,7 @@ const steps = ['Your Details', 'Service Requirements', 'Review & Submit'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps) {
+	const router = useRouter();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
@@ -77,6 +85,16 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		}
 	}, [formData, storageKey]);
 
+	const resetFormState = () => {
+		localStorage.removeItem(storageKey);
+		formRef.current?.reset();
+		setFormData({});
+		setActiveStep(0);
+		setRestoredData(false);
+		setErrors({});
+		setUploadedFiles({});
+	};
+
 	const { mutate: send, isPending } = useMutation({
 		mutationFn: submitQuoteRequest,
 		onSuccess: (result) => {
@@ -85,8 +103,12 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				return;
 			}
 			toast.success(result.message.toString());
-			// Clear everything
-			handleClearForm();
+			resetFormState();
+			const orderNumber = result.orderNumber ?? null;
+			const confirmationUrl = orderNumber
+				? `/confirmation?order=${encodeURIComponent(orderNumber)}`
+				: '/confirmation';
+			router.push(confirmationUrl);
 		},
 		onError(error) {
 			toast.error(error.message.toString());
@@ -100,8 +122,18 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	};
 
 	const validatePhone = (phone: string): boolean => {
-		// Palestinian phone number validation (simple)
-		return phone.length >= 9;
+		const cleaned = phone.replace(/[^+\d]/g, '');
+		let digits = cleaned.replace(/^\+/, '');
+
+		if (digits.startsWith('970')) {
+			digits = digits.slice(3);
+		}
+
+		if (digits.startsWith('0')) {
+			digits = digits.slice(1);
+		}
+
+		return /^5[6-9]\d{7}$/.test(digits);
 	};
 
 	const validateStep = (step: number): boolean => {
@@ -116,7 +148,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				newErrors.email = 'Please enter a valid email address';
 			}
 			if (!formData.phone || !validatePhone(formData.phone)) {
-				newErrors.phone = 'Please enter a valid phone number (at least 9 digits)';
+				newErrors.phone = 'Please enter a valid Palestinian mobile number (e.g. 0599123456)';
 			}
 		} else if (step === 1) {
 			// Step 2: Service Requirements
@@ -203,13 +235,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 	const handleClearForm = () => {
 		if (window.confirm('Are you sure you want to clear the form? This will delete all your progress.')) {
-			localStorage.removeItem(storageKey);
-			formRef.current?.reset();
-			setFormData({});
-			setActiveStep(0);
-			setRestoredData(false);
-			setErrors({});
-			setUploadedFiles({});
+			resetFormState();
 			toast.success('Form cleared successfully');
 		}
 	};
@@ -239,7 +265,14 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const renderStepContent = (step: number) => {
 		switch (step) {
 			case 0:
-				return <Step1Content formData={formData} onChange={handleFieldChange} errors={errors} />;
+				return (
+					<Step1Content
+						formData={formData}
+						onChange={handleFieldChange}
+						errors={errors}
+						validatePhone={validatePhone}
+					/>
+				);
 			case 1:
 				return (
 					<Step2Content
@@ -267,7 +300,19 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	};
 
 	const progress = Math.round(((activeStep + 1) / steps.length) * 100);
-	const canContinue = activeStep === 0 ? (formData.name && formData.email && formData.phone) : activeStep === 1 ? (formData.details) : true;
+	const canContinue =
+		activeStep === 0
+			? Boolean(
+					formData.name &&
+						formData.name.length >= 2 &&
+						formData.email &&
+						validateEmail(formData.email) &&
+						formData.phone &&
+						validatePhone(formData.phone)
+				)
+			: activeStep === 1
+				? Boolean(formData.details && formData.details.length >= 10)
+				: true;
 
 	return (
 		<form ref={formRef} onSubmit={handleSubmit}>
@@ -382,10 +427,12 @@ function Step1Content({
 	formData,
 	onChange,
 	errors,
+	validatePhone,
 }: {
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
 	errors: FieldErrors;
+	validatePhone: (phone: string) => boolean;
 }) {
 	return (
 		<Stack spacing={3}>
@@ -409,6 +456,7 @@ function Step1Content({
 						value={formData.name || ''}
 						onChange={(e) => onChange('name', e.target.value)}
 						error={!!errors.name}
+						autoComplete="name"
 					/>
 					{errors.name && <FormHelperText error>{errors.name}</FormHelperText>}
 				</FormControl>
@@ -431,6 +479,7 @@ function Step1Content({
 						value={formData.email || ''}
 						onChange={(e) => onChange('email', e.target.value)}
 						error={!!errors.email}
+						autoComplete="email"
 					/>
 					{errors.email && <FormHelperText error>{errors.email}</FormHelperText>}
 				</FormControl>
@@ -438,7 +487,7 @@ function Step1Content({
 				<FormControl required fullWidth error={!!errors.phone}>
 					<FormLabel htmlFor="phone">
 						Phone Number
-						{formData.phone && formData.phone.length > 8 && !errors.phone && (
+						{formData.phone && validatePhone(formData.phone) && !errors.phone && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
 							</Box>
@@ -448,10 +497,12 @@ function Step1Content({
 						id="phone"
 						name="phone"
 						type="tel"
-						placeholder="+970 XX XXX XXXX"
+						placeholder="+970 59X XXX XXX"
 						value={formData.phone || ''}
 						onChange={(e) => onChange('phone', e.target.value)}
 						error={!!errors.phone}
+						autoComplete="tel"
+						inputMode="tel"
 					/>
 					{errors.phone && <FormHelperText error>{errors.phone}</FormHelperText>}
 				</FormControl>
@@ -664,95 +715,204 @@ function Step3Content({
 	formData: Record<string, string>;
 	uploadedFiles: Record<string, File>;
 }) {
+	// Collect all uploaded files into an array
+	const allUploadedFiles = Object.values(uploadedFiles).filter((file): file is File => file instanceof File);
+	const urgency = (formData.urgency || 'standard') as 'standard' | 'express' | 'urgent';
+
 	return (
-		<Stack spacing={3}>
-			<Typography variant="h5" fontWeight={600}>
-				Review your request
-			</Typography>
+		<Stack spacing={4}>
+			<Box>
+				<Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
+					Review your request
+				</Typography>
+				<Typography variant="body2" color="text.secondary">
+					Please review your information before submitting
+				</Typography>
+			</Box>
 
 			<Alert severity="info" sx={{ borderRadius: 2 }}>
-				Please review your information before submitting. Our team will contact you within 2
-				hours to confirm details and provide a detailed quote.
+				Our team will contact you within 2 hours to confirm details and provide a detailed quote.
 			</Alert>
 
-			{/* Service */}
-			<Box>
-				<Typography variant="subtitle2" color="text.secondary">
-					Service
-				</Typography>
-				<Typography variant="body1" fontWeight={600}>
-					{service.title}
-				</Typography>
-			</Box>
+			{/* Service & Pricing Estimate */}
+			<Card>
+				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+					<Stack spacing={3}>
+						<Box>
+							<Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
+								Service Requested
+							</Typography>
+							<Typography variant="h6" fontWeight={600}>
+								{service.title}
+							</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+								{service.description}
+							</Typography>
+						</Box>
 
-			{/* Contact Info */}
-			<Box>
-				<Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-					Contact Information
-				</Typography>
-				<Stack spacing={0.5}>
-					<Typography variant="body2">
-						<strong>Name:</strong> {formData.name || 'N/A'}
-					</Typography>
-					<Typography variant="body2">
-						<strong>Email:</strong> {formData.email || 'N/A'}
-					</Typography>
-					<Typography variant="body2">
-						<strong>Phone:</strong> {formData.phone || 'N/A'}
-					</Typography>
-				</Stack>
-			</Box>
-
-			{/* Service-Specific Fields */}
-			{serviceFields.length > 0 && (
-				<Box>
-					<Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-						Service Details
-					</Typography>
-					<Stack spacing={0.5}>
-						{serviceFields.map((field) => {
-							if (field.type === 'file') {
-								const file = uploadedFiles[field.name];
-								if (!file) return null;
-								return (
-									<Typography variant="body2" key={field.name}>
-										<strong>{field.label}:</strong> {file.name} ({(file.size / 1024 / 1024).toFixed(2)}MB)
-									</Typography>
-								);
-							}
-							const value = formData[field.name];
-							if (!value) return null;
-							return (
-								<Typography variant="body2" key={field.name}>
-									<strong>{field.label}:</strong> {value}
-								</Typography>
-							);
-						})}
+						{/* Pricing Estimate */}
+						<PricingEstimate service={service} urgency={urgency} locale="en" />
 					</Stack>
-				</Box>
+				</CardContent>
+			</Card>
+
+			{/* Contact Information */}
+			<Card>
+				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+					<Stack spacing={2}>
+						<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+							Contact Information
+						</Typography>
+						<Grid container spacing={2}>
+							<Grid size={{ xs: 12, sm: 4 }}>
+								<Box>
+									<Typography variant="caption" color="text.secondary">
+										Full Name
+									</Typography>
+									<Typography variant="body1" fontWeight={500}>
+										{formData.name || 'N/A'}
+									</Typography>
+								</Box>
+							</Grid>
+							<Grid size={{ xs: 12, sm: 4 }}>
+								<Box>
+									<Typography variant="caption" color="text.secondary">
+										Email Address
+									</Typography>
+									<Typography variant="body1" fontWeight={500}>
+										{formData.email || 'N/A'}
+									</Typography>
+								</Box>
+							</Grid>
+							<Grid size={{ xs: 12, sm: 4 }}>
+								<Box>
+									<Typography variant="caption" color="text.secondary">
+										Phone Number
+									</Typography>
+									<Typography variant="body1" fontWeight={500}>
+										{formData.phone || 'N/A'}
+									</Typography>
+								</Box>
+							</Grid>
+						</Grid>
+					</Stack>
+				</CardContent>
+			</Card>
+
+			{/* Service Requirements */}
+			{serviceFields.some(field => field.type !== 'file' && formData[field.name]) && (
+				<Card>
+					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+						<Stack spacing={2}>
+							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+								Service Requirements
+							</Typography>
+							<Stack spacing={1.5}>
+								{serviceFields.map((field) => {
+									if (field.type === 'file') return null;
+									const value = formData[field.name];
+									if (!value) return null;
+									return (
+										<Box
+											key={field.name}
+											sx={{
+												p: 2,
+												borderRadius: 1,
+												backgroundColor: 'background.default',
+											}}
+										>
+											<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+												{field.label}
+											</Typography>
+											<Typography variant="body2" fontWeight={500}>
+												{value}
+											</Typography>
+										</Box>
+									);
+								})}
+								{formData.urgency && (
+									<Box
+										sx={{
+											p: 2,
+											borderRadius: 1,
+											backgroundColor: 'background.default',
+										}}
+									>
+										<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+											Urgency Level
+										</Typography>
+										<Typography variant="body2" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
+											{formData.urgency}
+										</Typography>
+									</Box>
+								)}
+							</Stack>
+						</Stack>
+					</CardContent>
+				</Card>
 			)}
 
-			{/* Standard Fields */}
-			<Box>
-				<Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-					Request Details
-				</Typography>
-				<Stack spacing={0.5}>
-					<Typography variant="body2">
-						<strong>Urgency:</strong> {formData.urgency || 'Standard'}
-					</Typography>
-					{formData.details && (
-						<Typography variant="body2">
-							<strong>Details:</strong> {formData.details}
-						</Typography>
-					)}
-					{formData.message && (
-						<Typography variant="body2">
-							<strong>Additional Notes:</strong> {formData.message}
-						</Typography>
-					)}
-				</Stack>
-			</Box>
+			{/* Uploaded Documents */}
+			{allUploadedFiles.length > 0 && (
+				<Card>
+					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+						<Stack spacing={3}>
+							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+								Uploaded Documents ({allUploadedFiles.length})
+							</Typography>
+
+							{/* File Previews Grid */}
+							<Grid container spacing={2}>
+								{allUploadedFiles.map((file, index) => (
+									<Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+										<FilePreview file={file} showRemove={false} />
+									</Grid>
+								))}
+							</Grid>
+
+							{/* Required Documents Checklist */}
+							{service.requiredDocuments && service.requiredDocuments.length > 0 && (
+								<Box sx={{ pt: 2 }}>
+									<RequiredDocumentsChecklist
+										requiredDocuments={service.requiredDocuments}
+										uploadedFiles={allUploadedFiles}
+										uploadedFileCount={allUploadedFiles.length}
+									/>
+								</Box>
+							)}
+						</Stack>
+					</CardContent>
+				</Card>
+			)}
+
+			{/* Additional Information */}
+			{(formData.details || formData.message) && (
+				<Card>
+					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+						<Stack spacing={2}>
+							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+								Additional Information
+							</Typography>
+							{formData.details && (
+								<Box>
+									<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+										Additional Details
+									</Typography>
+									<Typography variant="body2">{formData.details}</Typography>
+								</Box>
+							)}
+							{formData.message && (
+								<Box>
+									<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+										Message / Notes
+									</Typography>
+									<Typography variant="body2">{formData.message}</Typography>
+								</Box>
+							)}
+						</Stack>
+					</CardContent>
+				</Card>
+			)}
 		</Stack>
 	);
 }

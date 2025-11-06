@@ -10,13 +10,14 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconCheck, IconClock, IconCurrencyShekel } from '@tabler/icons-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import type { Service } from '@/data/services';
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
 import { Card as CustomCard } from '@/components/ui/card';
+import { PageBreadcrumbs } from '@/components/ui/breadcrumbs';
 
 interface ServiceDetailProps {
 	service: Service;
@@ -24,111 +25,130 @@ interface ServiceDetailProps {
 
 export default function ServiceDetail({ service }: ServiceDetailProps) {
 	const t = useTranslations('Services');
+	const locale = useLocale() as 'en' | 'ar';
+	const categoryLabels = (t.raw('categoryLabels') as Record<string, string>) || {};
+	const categoryLabel =
+		categoryLabels[service.category] ?? service.category.replace('-', ' ');
+
+	const currencyFormatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
+		style: 'currency',
+		currency: 'ILS',
+		currencyDisplay: 'narrowSymbol',
+		maximumFractionDigits: 0,
+	});
+
 	const formatPrice = () => {
 		if (service.pricing.type === 'fixed' && service.pricing.amount !== undefined) {
-			return new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'ILS',
-				currencyDisplay: 'narrowSymbol',
-			}).format(service.pricing.amount);
+			const amount = currencyFormatter.format(service.pricing.amount);
+			return t('pricingFormats.fixed', { amount });
 		}
 
 		if (service.pricing.type === 'starting' && service.pricing.amount !== undefined) {
-			const amount = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'ILS',
-				currencyDisplay: 'narrowSymbol',
-			}).format(service.pricing.amount);
-			return `${t('from')} ${amount}`;
+			const amount = currencyFormatter.format(service.pricing.amount);
+			return t('pricingFormats.startingFrom', { amount });
 		}
 
-		return t('requestQuote');
+		if (service.pricing.note) {
+			return service.pricing.note;
+		}
+
+		return t('pricingFormats.custom');
 	};
+
+	const breadcrumbs = [
+		{ label: t('breadcrumbs.home'), href: '/' },
+		{ label: t('breadcrumbs.services'), href: '/services' },
+		...(categoryLabel ? [{ label: categoryLabel }] : []),
+		{ label: service.title },
+	];
 
 	return (
 		<Box>
 			{/* Hero Section */}
 			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 12.5 } }}>
 				<RevealSection delay={0.1} direction="up">
-					<Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
-						<Grid size={{ xs: 12, md: 6 }}>
-							<Stack spacing={3}>
-								<Typography
-									color="accent"
-									variant="subtitle1"
-									sx={{ textTransform: 'capitalize' }}
-								>
-									{service.category.replace('-', ' ')} {t('title')}
-								</Typography>
-								<Typography variant="h1">{service.title}</Typography>
-								<Typography
-									color="text.secondary"
-									variant="h6"
-									component="p"
-								>
-									{service.description}
-								</Typography>
-
-								{/* Quick Info */}
-								<Grid container spacing={2} sx={{ pt: 2 }}>
-									<Grid size={{ xs: 12, sm: 6 }}>
-										<Stack direction="row" spacing={1} alignItems="center">
-											<IconClock size={20} />
-											<Box>
-												<Typography variant="caption" color="text.secondary">
-													{t('turnaroundTime')}
-												</Typography>
-												<Typography variant="body2" fontWeight={600}>
-													{service.turnaroundTime}
-												</Typography>
-											</Box>
-										</Stack>
-									</Grid>
-									<Grid size={{ xs: 12, sm: 6 }}>
-										<Stack direction="row" spacing={1} alignItems="center">
-									<IconCurrencyShekel size={20} />
-											<Box>
-												<Typography variant="caption" color="text.secondary">
-													{t('startingPrice')}
-												</Typography>
-									<Typography variant="body2" fontWeight={600}>
-										{formatPrice()}
+					<Stack spacing={{ xs: 3, md: 4 }}>
+						<PageBreadcrumbs items={breadcrumbs} />
+						<Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
+							<Grid size={{ xs: 12, md: 6 }}>
+								<Stack spacing={3}>
+									<Typography
+										color="accent"
+										variant="subtitle1"
+										sx={{ textTransform: 'capitalize' }}
+									>
+										{categoryLabel}
 									</Typography>
-											</Box>
-										</Stack>
+									<Typography variant="h1">{service.title}</Typography>
+									<Typography
+										color="text.secondary"
+										variant="h6"
+										component="p"
+									>
+										{service.description}
+									</Typography>
+
+									{/* Quick Info */}
+									<Grid container spacing={2} sx={{ pt: 2 }}>
+										<Grid size={{ xs: 12, sm: 6 }}>
+											<Stack direction="row" spacing={1} alignItems="center">
+												<IconClock size={20} />
+												<Box>
+													<Typography variant="caption" color="text.secondary">
+														{t('turnaroundTime')}
+													</Typography>
+													<Typography variant="body2" fontWeight={600}>
+														{service.turnaroundTime}
+													</Typography>
+												</Box>
+											</Stack>
+										</Grid>
+										<Grid size={{ xs: 12, sm: 6 }}>
+											<Stack direction="row" spacing={1} alignItems="center">
+												<IconCurrencyShekel size={20} />
+												<Box>
+													<Typography variant="caption" color="text.secondary">
+														{t('startingPrice')}
+													</Typography>
+													<Typography variant="body2" fontWeight={600}>
+														{formatPrice()}
+													</Typography>
+												</Box>
+											</Stack>
+										</Grid>
 									</Grid>
-								</Grid>
 
-								<Stack direction="row" spacing={2} sx={{ pt: 1 }}>
-									<Button
-										component={Link}
-										href={`/services/${service.slug}/quote`}
-										variant="contained"
-										size="large"
-									>
-										{t('requestQuote')}
-									</Button>
-									<Button
-										component={Link}
-										href="/track"
-										variant="outlined"
-										size="large"
-									>
-										{t('trackStatus')}
-									</Button>
+									<Stack direction="row" spacing={2} sx={{ pt: 1 }}>
+										<Button
+											component={Link}
+											href={`/services/${service.slug}/quote`}
+											variant="contained"
+											size="large"
+										>
+											{t('requestQuote')}
+										</Button>
+										<Button
+											component={Link}
+											href="/track"
+											variant="outlined"
+											size="large"
+										>
+											{t('trackStatus')}
+										</Button>
+									</Stack>
 								</Stack>
-							</Stack>
-						</Grid>
+							</Grid>
 
-						<Grid size={{ xs: 12, md: 6 }}>
-							<Mockup
-								darkImage={service.image.dark}
-								lightImage={service.image.light}
-								aspectRatio="600/400"
-								borderRadius={24}
-							/>
+							<Grid size={{ xs: 12, md: 6 }}>
+								<Mockup
+									darkImage={service.image.dark}
+									lightImage={service.image.light}
+									aspectRatio="600/400"
+									borderRadius={24}
+								/>
+							</Grid>
 						</Grid>
-					</Grid>
+					</Stack>
 				</RevealSection>
 			</Container>
 

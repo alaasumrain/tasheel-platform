@@ -24,6 +24,7 @@ export default function Header() {
 	const [open, setOpen] = useState(false);
 	const t = useTranslations('Header');
 	const locale = useLocale();
+	const isArabic = locale === 'ar';
 
 	const navigationLinks: NavigationLink[] = [
 		{
@@ -76,7 +77,11 @@ export default function Header() {
 						<MuiLink key={link.href} component={Link} href={link.href} underline="none" prefetch>
 						<Typography
 							color="textPrimary"
-							sx={{ fontSize: '0.95rem', fontWeight: 600, letterSpacing: 0.2 }}
+							sx={{
+								fontSize: '0.95rem',
+								fontWeight: 600,
+								letterSpacing: isArabic ? 0 : 0.2,
+							}}
 							variant="subtitle2"
 						>
 							{link.label}

@@ -1,18 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Chip,
-	Button,
-	Box,
-	Typography,
-} from '@mui/material';
+import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { Chip, Button, Box, Typography, Stack } from '@mui/material';
 import { Card } from '@/components/ui/card';
 import { Application, ApplicationStatus } from '@/lib/admin-queries';
 import { useTranslations } from 'next-intl';
@@ -55,7 +46,99 @@ function formatDate(dateString: string): string {
 
 export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 	const t = useTranslations('Admin.orders');
-	
+	const router = useRouter();
+
+	// Define columns for DataGrid
+	const columns: GridColDef[] = useMemo(() => [
+		{
+			field: 'order_number',
+			headerName: t('table.orderNumber'),
+			width: 150,
+			renderCell: (params: GridRenderCellParams) => (
+				<Typography variant="body2" fontWeight={600}>
+					{params.value || 'N/A'}
+				</Typography>
+			),
+		},
+		{
+			field: 'customer_name',
+			headerName: t('table.customer'),
+			width: 200,
+			renderCell: (params: GridRenderCellParams) => (
+				<Stack>
+					<Typography variant="body2">
+						{params.value || 'N/A'}
+					</Typography>
+					{params.row.customer_phone && (
+						<Typography variant="caption" color="text.secondary">
+							{params.row.customer_phone}
+						</Typography>
+					)}
+				</Stack>
+			),
+		},
+		{
+			field: 'applicant_email',
+			headerName: t('table.email'),
+			width: 220,
+			renderCell: (params: GridRenderCellParams) => (
+				<Typography variant="body2">{params.value}</Typography>
+			),
+		},
+		{
+			field: 'service_slug',
+			headerName: t('table.service'),
+			width: 200,
+			valueGetter: (value) => getServiceName(value, serviceNames),
+			renderCell: (params: GridRenderCellParams) => (
+				<Typography variant="body2">{params.value}</Typography>
+			),
+		},
+		{
+			field: 'status',
+			headerName: t('table.status'),
+			width: 150,
+			renderCell: (params: GridRenderCellParams<Application, ApplicationStatus>) => {
+				const status = params.value || 'submitted';
+				return (
+					<Chip
+						label={t(`statusLabels.${status}` as any)}
+						color={statusColors[status]}
+						size="small"
+					/>
+				);
+			},
+		},
+		{
+			field: 'submitted_at',
+			headerName: t('table.submitted'),
+			width: 180,
+			valueGetter: (value) => new Date(value),
+			renderCell: (params: GridRenderCellParams) => (
+				<Typography variant="body2">
+					{formatDate(params.row.submitted_at)}
+				</Typography>
+			),
+		},
+		{
+			field: 'actions',
+			headerName: t('table.actions'),
+			width: 120,
+			sortable: false,
+			filterable: false,
+			renderCell: (params: GridRenderCellParams) => (
+				<Button
+					onClick={() => router.push(`/admin/orders/${params.row.id}`)}
+					variant="outlined"
+					size="small"
+				>
+					{t('table.view')}
+				</Button>
+			),
+		},
+	], [t, serviceNames, router]);
+
+	// Empty state
 	if (orders.length === 0) {
 		return (
 			<Card
@@ -81,76 +164,47 @@ export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 			borderColor={{ light: '#e0e0e0', dark: '#333333' }}
 			borderRadius={20}
 		>
-			<TableContainer>
-				<Table>
-					<TableHead>
-						<TableRow>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.orderNumber')}</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.customer')}</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.email')}</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.service')}</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.status')}</TableCell>
-							<TableCell sx={{ fontWeight: 600 }}>{t('table.submitted')}</TableCell>
-							<TableCell align="right" sx={{ fontWeight: 600 }}>{t('table.actions')}</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{orders.map((order) => (
-							<TableRow
-								key={order.id}
-								hover
-								sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-							>
-								<TableCell>
-									<Typography variant="body2" fontWeight={600}>
-										{order.order_number || 'N/A'}
-									</Typography>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body2">
-										{order.customer_name || 'N/A'}
-									</Typography>
-									{order.customer_phone && (
-										<Typography variant="caption" color="text.secondary" display="block">
-											{order.customer_phone}
-										</Typography>
-									)}
-								</TableCell>
-								<TableCell>
-									<Typography variant="body2">{order.applicant_email}</Typography>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body2">
-										{getServiceName(order.service_slug, serviceNames)}
-									</Typography>
-								</TableCell>
-								<TableCell>
-									<Chip
-										label={t(`statusLabels.${order.status}` as any)}
-										color={statusColors[order.status]}
-										size="small"
-									/>
-								</TableCell>
-								<TableCell>
-									<Typography variant="body2">
-										{formatDate(order.submitted_at)}
-									</Typography>
-								</TableCell>
-								<TableCell align="right">
-									<Button
-										component={Link}
-										href={`/admin/orders/${order.id}`}
-										variant="outlined"
-										size="small"
-									>
-										{t('table.view')}
-									</Button>
-								</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</TableContainer>
+			<Box sx={{ height: 'auto', width: '100%' }}>
+				<DataGrid
+					rows={orders}
+					columns={columns}
+					initialState={{
+						pagination: {
+							paginationModel: { pageSize: 25 },
+						},
+						sorting: {
+							sortModel: [{ field: 'submitted_at', sort: 'desc' }],
+						},
+					}}
+					pageSizeOptions={[10, 25, 50, 100]}
+					disableRowSelectionOnClick
+					autoHeight
+					slots={{
+						toolbar: GridToolbar,
+					}}
+					slotProps={{
+						toolbar: {
+							showQuickFilter: true,
+							quickFilterProps: { debounceMs: 500 },
+						},
+					}}
+					sx={{
+						border: 'none',
+						'& .MuiDataGrid-cell': {
+							borderColor: 'divider',
+						},
+						'& .MuiDataGrid-columnHeaders': {
+							backgroundColor: 'background.default',
+							borderBottom: '2px solid',
+							borderColor: 'divider',
+						},
+						'& .MuiDataGrid-footerContainer': {
+							borderTop: '2px solid',
+							borderColor: 'divider',
+						},
+					}}
+				/>
+			</Box>
 		</Card>
 	);
 }

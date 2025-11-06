@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	Box,
 	Typography,
@@ -26,7 +26,7 @@ import {
 	WhatsApp as WhatsAppIcon,
 } from '@mui/icons-material';
 import { Card } from '@/components/ui/card';
-import { Application, ApplicationEvent, ApplicationStatus } from '@/lib/admin-queries';
+import { Application, ApplicationEvent, ApplicationStatus, User } from '@/lib/admin-queries';
 import { QuoteCreationCard } from './QuoteCreationCard';
 import { InvoiceCreationCard } from './InvoiceCreationCard';
 import { useTranslations } from 'next-intl';
@@ -73,7 +73,26 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 	const [notes, setNotes] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [snackbar, setSnackbar] = useState<{ message: string; severity: 'success' | 'error' } | null>(null);
+	const [assignedTo, setAssignedTo] = useState<string | null>(order.assigned_to);
+	const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
+	const [assignmentLoading, setAssignmentLoading] = useState(false);
 	const t = useTranslations('Admin.orders');
+
+	// Fetch assignable users
+	useEffect(() => {
+		async function loadUsers() {
+			try {
+				const response = await fetch('/api/admin/users/assignable');
+				if (response.ok) {
+					const users = await response.json();
+					setAssignableUsers(users);
+				}
+			} catch (error) {
+				console.error('Error loading assignable users:', error);
+			}
+		}
+		loadUsers();
+	}, []);
 
 	const statusOptions: { value: ApplicationStatus; label: string }[] = [
 		{ value: 'submitted', label: t('statusLabels.submitted') },
@@ -108,6 +127,32 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 			setSnackbar({ message: t('errorOccurred'), severity: 'error' });
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const handleAssignmentUpdate = async () => {
+		setAssignmentLoading(true);
+		try {
+			const response = await fetch(`/api/admin/orders/${order.id}/assign`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ userId: assignedTo }),
+			});
+
+			if (response.ok) {
+				setSnackbar({
+					message: assignedTo ? 'Order assigned successfully' : 'Assignment removed successfully',
+					severity: 'success'
+				});
+				// Refresh the page to show updated data
+				window.location.reload();
+			} else {
+				setSnackbar({ message: 'Failed to update assignment', severity: 'error' });
+			}
+		} catch {
+			setSnackbar({ message: t('errorOccurred'), severity: 'error' });
+		} finally {
+			setAssignmentLoading(false);
 		}
 	};
 
@@ -370,6 +415,54 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 								{status !== order.status && (
 									<Alert severity="info" sx={{ mt: 2 }}>
 										{t('statusUpdateNotification')}
+									</Alert>
+								)}
+							</Box>
+						</Card>
+
+						{/* Order Assignment */}
+						<Card
+							backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
+							borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+							borderRadius={20}
+						>
+							<Box sx={{ p: 3 }}>
+								<Typography variant="h6" fontWeight={600} gutterBottom>
+									Assign Order
+								</Typography>
+
+								<FormControl fullWidth sx={{ mt: 2 }}>
+									<InputLabel>Assigned To</InputLabel>
+									<Select
+										value={assignedTo || ''}
+										label="Assigned To"
+										onChange={(e) => setAssignedTo(e.target.value || null)}
+									>
+										<MenuItem value="">
+											<em>Unassigned</em>
+										</MenuItem>
+										{assignableUsers.map((user) => (
+											<MenuItem key={user.id} value={user.id}>
+												{user.name || user.email} ({user.role})
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+
+								<Button
+									fullWidth
+									variant="contained"
+									size="large"
+									onClick={handleAssignmentUpdate}
+									disabled={assignmentLoading || assignedTo === order.assigned_to}
+									sx={{ mt: 2 }}
+								>
+									{assignmentLoading ? 'Updating...' : 'Update Assignment'}
+								</Button>
+
+								{assignedTo !== order.assigned_to && (
+									<Alert severity="info" sx={{ mt: 2 }}>
+										Click "Update Assignment" to save changes
 									</Alert>
 								)}
 							</Box>

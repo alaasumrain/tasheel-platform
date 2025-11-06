@@ -12,6 +12,7 @@ export interface Application {
 	submitted_at: string;
 	created_at: string;
 	updated_at: string;
+	assigned_to: string | null; // UUID of assigned user
 }
 
 export type ApplicationStatus =
@@ -322,10 +323,10 @@ export interface User {
  * Get all users
  */
 export async function getUsers() {
-	const { data, error } = await supabase
+	const { data, error} = await supabase
 		.from('users')
 		.select('*')
-		.order('created_at', { ascending: false });
+		.order('created_at', { ascending: false});
 
 	if (error) {
 		console.error('Error fetching users:', error);
@@ -333,4 +334,68 @@ export async function getUsers() {
 	}
 
 	return (data as User[]) || [];
+}
+
+/**
+ * Get users who can be assigned to orders (officers, supervisors, admins)
+ */
+export async function getAssignableUsers() {
+	const { data, error } = await supabase
+		.from('users')
+		.select('*')
+		.in('role', ['admin', 'officer', 'supervisor'])
+		.eq('is_active', true)
+		.order('name', { ascending: true });
+
+	if (error) {
+		console.error('Error fetching assignable users:', error);
+		throw error;
+	}
+
+	return (data as User[]) || [];
+}
+
+/**
+ * Assign an order to a user
+ */
+export async function assignOrder(
+	applicationId: string,
+	userId: string | null,
+	assignedByName?: string
+) {
+	// Update the application
+	const { error: updateError } = await supabase
+		.from('applications')
+		.update({ assigned_to: userId, updated_at: new Date().toISOString() })
+		.eq('id', applicationId);
+
+	if (updateError) {
+		console.error('Error assigning order:', updateError);
+		throw updateError;
+	}
+
+	// Create an event in the timeline
+	const eventData: any = {
+		application_id: applicationId,
+		event_type: 'assignment_changed',
+		notes: userId
+			? `Order assigned${assignedByName ? ` by ${assignedByName}` : ''}`
+			: `Order unassigned${assignedByName ? ` by ${assignedByName}` : ''}`,
+		data: {
+			assigned_to: userId,
+			assigned_by: assignedByName,
+		},
+		created_at: new Date().toISOString(),
+	};
+
+	const { error: eventError } = await supabase
+		.from('application_events')
+		.insert(eventData);
+
+	if (eventError) {
+		console.error('Error creating assignment event:', eventError);
+		// Don't throw, assignment already succeeded
+	}
+
+	return true;
 }
