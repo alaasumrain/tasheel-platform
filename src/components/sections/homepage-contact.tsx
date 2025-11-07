@@ -3,7 +3,7 @@
 import { Box, Button, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import { Card } from '@/components/ui/card';
@@ -11,8 +11,6 @@ import RevealSection from '@/components/ui/reveal-section';
 
 export default function HomepageContact() {
 	const t = useTranslations('Homepage.contact');
-	const locale = useLocale() as 'en' | 'ar';
-	const isRTL = locale === 'ar';
 	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>

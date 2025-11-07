@@ -166,8 +166,9 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 							<Grid container spacing={{ xs: 3, md: 4 }} sx={{ alignItems: 'stretch' }}>
 								{service.processSteps.map((step, index) => (
 									<Grid size={{ xs: 12, md: 6, lg: 3 }} key={index} sx={{ display: 'flex' }}>
-										<CustomCard sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-											<CardContent sx={{ p: { xs: 3, md: 4 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
+										<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+											<CustomCard fullHeight>
+												<CardContent sx={{ p: { xs: 3, md: 4 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
 												<Stack spacing={2.5}>
 													<Box
 														sx={(theme) => ({
@@ -192,7 +193,8 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 													</Typography>
 												</Stack>
 											</CardContent>
-										</CustomCard>
+											</CustomCard>
+										</Box>
 									</Grid>
 								))}
 							</Grid>
@@ -207,8 +209,9 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 					<Grid container spacing={{ xs: 4, md: 6 }} sx={{ alignItems: 'stretch' }}>
 						{/* Required Documents */}
 						<Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex' }}>
-							<CustomCard sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-								<CardContent sx={{ p: { xs: 4, md: 5 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+							<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+								<CustomCard fullHeight>
+									<CardContent sx={{ p: { xs: 4, md: 5 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
 									<Stack spacing={3}>
 										<Typography variant="h4" fontWeight={700}>{t('requiredDocuments')}</Typography>
 										<Stack spacing={2}>
@@ -242,19 +245,21 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 											</Box>
 										)}
 									</Stack>
-								</CardContent>
-							</CustomCard>
+									</CardContent>
+								</CustomCard>
+							</Box>
 						</Grid>
 
 						{/* Service Features */}
 						<Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex' }}>
-							<CustomCard
-								backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
-								borderColor={{ light: 'accent.light', dark: 'accent.light' }}
-								gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
-								gradientOpacity={0.6}
-								sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
-							>
+							<Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+								<CustomCard
+									backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
+									borderColor={{ light: 'accent.light', dark: 'accent.light' }}
+									gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
+									gradientOpacity={0.6}
+									fullHeight
+								>
 								<CardContent sx={{ p: { xs: 4, md: 5 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
 									<Stack spacing={3}>
 									<Typography variant="h4" color="accent.contrastText">
@@ -275,6 +280,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 									</Stack>
 								</CardContent>
 							</CustomCard>
+							</Box>
 						</Grid>
 					</Grid>
 				</RevealSection>
