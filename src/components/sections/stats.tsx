@@ -138,11 +138,11 @@ function StatItem({ stat }: { stat: Stat }) {
 		>
 			<Card
 				backgroundColor={{
-					light: stat.color ? 'accent.main' : 'background.paper',
+					light: stat.color ? 'accent.main' : 'rgba(0, 0, 0, 0.02)',
 					dark: stat.color ? 'success.main' : 'background.paper',
 				}}
 				borderColor={{
-					light: stat.color ? 'accent.light' : 'divider',
+					light: stat.color ? 'accent.light' : 'accent.main',
 					dark: stat.color ? 'success.main' : 'divider',
 				}}
 				borderRadius={24}
@@ -160,7 +160,10 @@ function StatItem({ stat }: { stat: Stat }) {
 					<Stack spacing={1.5}>
 						<Typography
 							sx={[
-								() => ({ color: stat.color ? 'accent.contrastText' : 'primary.main' }),
+								() => ({ 
+									color: stat.color ? 'accent.contrastText' : 'accent.main',
+									fontWeight: 700,
+								}),
 								(theme) =>
 									theme.applyStyles('dark', {
 										color: stat.color ? 'text.primary' : 'primary.main',
@@ -172,7 +175,9 @@ function StatItem({ stat }: { stat: Stat }) {
 						</Typography>
 						<Typography
 							sx={[
-								() => ({ color: stat.color ? 'accent.contrastText' : 'primary.main' }),
+								() => ({ 
+									color: stat.color ? 'accent.contrastText' : 'accent.main',
+								}),
 								(theme) =>
 									theme.applyStyles('dark', {
 										color: stat.color ? 'text.secondary' : 'primary.main',

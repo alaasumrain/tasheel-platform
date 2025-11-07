@@ -63,7 +63,11 @@ const tajawal = localFont({
 export const metadata: Metadata = {
 	title: 'Tasheel — Government services concierge for Palestine',
 	description:
-		'Tasheel helps residents and businesses in Palestine manage government documents, translations, and legalizations entirely online.',
+		'Tasheel helps residents and businesses in Palestine manage government documents, translations, and legalizations entirely online',
+	icons: {
+		icon: '/favicon.png',
+		apple: '/favicon.png',
+	},
 };
 
 export default function RootLayout({

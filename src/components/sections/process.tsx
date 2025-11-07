@@ -48,7 +48,7 @@ export default function Process() {
 		<Container sx={{ py: { xs: 6.25, md: 12.5 }, pt: { xs: 10, md: 16 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Card
-				backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
+				backgroundColor={{ light: '#0E21A0', dark: '#3949B1' }}
 				gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
 				borderColor={{ light: 'accent.light', dark: 'accent.light' }}
 				gradientOpacity={0.6}
@@ -61,7 +61,13 @@ export default function Process() {
 				>
 					<Stack spacing={2}>
 						<RevealSection delay={0.3} direction="up">
-							<Typography color="accent.contrastText" variant="h3" textAlign="center">
+							<Typography 
+								sx={{
+									color: '#ffffff',
+									textAlign: 'center',
+								}}
+								variant="h3"
+							>
 								{t('headline')}
 							</Typography>
 						</RevealSection>
@@ -102,11 +108,22 @@ function ProcessItem({ title, content, number }: Item) {
 						{number}
 					</Typography>
 				</Box>
-				<Stack spacing={1.5}>
-					<Typography color="accent.contrastText" textAlign="center" variant="h5">
+					<Stack spacing={1.5}>
+					<Typography 
+						sx={{
+							color: '#ffffff',
+							textAlign: 'center',
+						}}
+						variant="h5"
+					>
 						{title}
 					</Typography>
-					<Typography color="accent.contrastText" textAlign="center">
+					<Typography 
+						sx={{
+							color: '#ffffff',
+							textAlign: 'center',
+						}}
+					>
 						{content}
 					</Typography>
 				</Stack>
