@@ -17,27 +17,15 @@ import {
 } from '@tabler/icons-react';
 import Image from 'next/image';
 import ReactPlayer from 'react-player';
+import { useTranslations } from 'next-intl';
 import GetStarted from '@/components/buttons/get-started-button';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `See how Tasheel simplifies government services`;
-
-// Put Section SubHeadline here
-const subHeadline = `Watch how it works`;
-
-// Put Section Description here
-const description = `From submitting your first request to receiving completed documents, see how Tasheel makes government services fast, transparent, and hassle-free.`;
 
 // Put Video url here
 const videoUrl = 'https://www.youtube.com/watch?v=LXb3EKWsInQ';
 
-const cta = {
-	label: 'Start a request',
-	href: '/contact',
-};
-
 export default function Video() {
+	const t = useTranslations('Video');
 	const [open, setOpen] = useState(false);
 
 	const handleClose = () => {
@@ -54,13 +42,13 @@ export default function Video() {
 					<RevealSection delay={0.1} direction="up">
 						<Stack spacing={2.5} sx={{ px: { xs: 2, md: 7.5 } }}>
 							<Typography color="accent" variant="subtitle1">
-								{subHeadline}
+								{t('subHeadline')}
 							</Typography>
 							<Box>
 								<Grid container spacing={{ xs: 2, lg: 7.5 }}>
 									<Grid size={{ xs: 12, lg: 6 }}>
 										<Stack spacing={1.5}>
-											<Typography variant="h3">{headline}</Typography>
+											<Typography variant="h3">{t('headline')}</Typography>
 										</Stack>
 									</Grid>
 									<Grid size={{ xs: 12, lg: 6 }}>
@@ -70,10 +58,10 @@ export default function Video() {
 												component={'p'}
 												variant="h6"
 											>
-												{description}
+												{t('description')}
 											</Typography>
 											<Box>
-												<GetStarted buttonLabel={cta.label} href={cta.href} />
+												<GetStarted buttonLabel={t('ctaLabel')} href="/contact" />
 											</Box>
 										</Stack>
 									</Grid>
@@ -125,7 +113,7 @@ export default function Video() {
 						>
 								<Image
 									src="/global/video-poster.jpg"
-									alt="Tasheel platform walkthrough preview"
+									alt={t('imageAlt')}
 									fill
 									style={{ objectFit: 'cover' }}
 								/>

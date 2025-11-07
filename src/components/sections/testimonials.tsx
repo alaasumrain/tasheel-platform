@@ -8,14 +8,12 @@ import {
 import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import RevealSection from '@/components/ui/reveal-section';
 
-// Put content here
-const content = `Tasheel transformed how we manage employee documents. What used to take weeks of back-and-forth with government offices now happens seamlessly online. Our HR team saves 15+ hours per week, and our employees love the transparency.`;
-const name = `Sarah Al-Mansouri`;
-const job = `HR Director, Palestine Logistics Group`;
-
 export default function Testimonials() {
+	const t = useTranslations('Testimonials');
+	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<RevealSection delay={0.1} direction="up">
@@ -43,7 +41,7 @@ export default function Testimonials() {
 								<Image
 									src="/global/testimonials-01.png"
 									style={{ objectFit: 'cover' }}
-									alt="Portrait of Sarah Al-Mansouri"
+									alt={t('imageAlt')}
 									fill
 								/>
 										</Box>
@@ -57,13 +55,13 @@ export default function Testimonials() {
 											color="#ffffff"
 											sx={{ lineHeight: 1.5 }}
 											variant="h4"
-										>{`"${content}"`}</Typography>
+										>{`"${t('content')}"`}</Typography>
 										<Stack spacing={1}>
 											<Typography color="#ffffff" variant="h5">
-												{name}
+												{t('name')}
 											</Typography>
 											<Typography color="#ffffff" variant="subtitle2">
-												{job}
+												{t('job')}
 											</Typography>
 										</Stack>
 									</Stack>
@@ -91,7 +89,7 @@ export default function Testimonials() {
 											<Typography
 												color="#ffffff"
 												variant="h3"
-											>{`"${content}"`}</Typography>
+											>{`"${t('content')}"`}</Typography>
 										</Box>
 										<Stack
 											sx={{
@@ -104,10 +102,10 @@ export default function Testimonials() {
 										>
 											<Stack spacing={1} sx={{ p: 5, pt: 3.5 }}>
 												<Typography color="#ffffff" variant="h5">
-													{name}
+													{t('name')}
 												</Typography>
 												<Typography color="#ffffff" variant="subtitle2">
-													{job}
+													{t('job')}
 												</Typography>
 											</Stack>
 										</Stack>

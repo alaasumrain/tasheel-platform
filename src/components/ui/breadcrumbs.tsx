@@ -1,7 +1,8 @@
 'use client';
 
 import { Breadcrumbs as MuiBreadcrumbs, Link as MuiLink, Typography } from '@mui/material';
-import { IconChevronRight } from '@tabler/icons-react';
+import { IconChevronRight, IconChevronLeft } from '@tabler/icons-react';
+import { useLocale } from 'next-intl';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Link } from '@/i18n/navigation';
@@ -16,9 +17,11 @@ type BreadcrumbsProps = {
 } & Omit<ComponentPropsWithoutRef<typeof MuiBreadcrumbs>, 'children'>;
 
 export function PageBreadcrumbs({ items, ...props }: BreadcrumbsProps) {
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
 	return (
 		<MuiBreadcrumbs
-			separator={<IconChevronRight size={16} />}
+			separator={isRTL ? <IconChevronLeft size={16} /> : <IconChevronRight size={16} />}
 			aria-label="breadcrumb"
 			sx={{
 				'& .MuiBreadcrumbs-separator': {

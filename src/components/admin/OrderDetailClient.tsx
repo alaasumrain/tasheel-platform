@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
 	Box,
 	Typography,
@@ -14,22 +15,22 @@ import {
 	Alert,
 	Snackbar,
 	Stack,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
+	CircularProgress,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import {
 	Email as EmailIcon,
 	Phone as PhoneIcon,
 	WhatsApp as WhatsAppIcon,
+	Download as DownloadIcon,
 } from '@mui/icons-material';
 import { Card } from '@/components/ui/card';
 import { Application, ApplicationEvent, ApplicationStatus, User } from '@/lib/admin-queries';
 import { QuoteCreationCard } from './QuoteCreationCard';
 import { InvoiceCreationCard } from './InvoiceCreationCard';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { createClient } from '@/lib/supabase/client';
+import { getDownloadUrl } from '@/lib/storage';
 
 interface OrderDetailClientProps {
 	order: Application;
@@ -41,6 +42,23 @@ interface PayloadData {
 	urgency?: string;
 	details?: string;
 	message?: string;
+	service_specific?: Record<string, string>;
+	attachments?: Array<{
+		id: string;
+		file_name: string;
+		storage_path: string;
+		file_size: number;
+		content_type: string;
+	}>;
+}
+
+interface Attachment {
+	id: string;
+	file_name: string;
+	storage_path: string;
+	file_size: number;
+	content_type: string | null;
+	created_at: string;
 }
 
 
@@ -57,9 +75,9 @@ const statusColors: Record<ApplicationStatus, 'default' | 'primary' | 'success' 
 	cancelled: 'default',
 };
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, locale: string = 'en'): string {
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('en-US', {
+	return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 		month: 'long',
 		day: 'numeric',
 		year: 'numeric',
@@ -69,6 +87,7 @@ function formatDate(dateString: string): string {
 }
 
 export function OrderDetailClient({ order, events, serviceName }: OrderDetailClientProps) {
+	const router = useRouter();
 	const [status, setStatus] = useState<ApplicationStatus>(order.status);
 	const [notes, setNotes] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -76,7 +95,35 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 	const [assignedTo, setAssignedTo] = useState<string | null>(order.assigned_to);
 	const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
 	const [assignmentLoading, setAssignmentLoading] = useState(false);
+	const [attachments, setAttachments] = useState<Attachment[]>([]);
+	const [loadingAttachments, setLoadingAttachments] = useState(true);
 	const t = useTranslations('Admin.orders');
+	const locale = useLocale() as 'en' | 'ar';
+
+	// Fetch attachments
+	useEffect(() => {
+		async function loadAttachments() {
+			try {
+				const supabase = createClient();
+				const { data, error } = await supabase
+					.from('application_attachments')
+					.select('*')
+					.eq('application_id', order.id)
+					.order('created_at', { ascending: false });
+
+				if (error) {
+					console.error('Error loading attachments:', error);
+				} else {
+					setAttachments(data || []);
+				}
+			} catch (error) {
+				console.error('Error loading attachments:', error);
+			} finally {
+				setLoadingAttachments(false);
+			}
+		}
+		loadAttachments();
+	}, [order.id]);
 
 	// Fetch assignable users
 	useEffect(() => {
@@ -106,6 +153,20 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 		{ value: 'cancelled', label: t('statusLabels.cancelled') },
 	];
 
+		const handleDownloadFile = async (attachment: Attachment) => {
+		try {
+			const url = await getDownloadUrl('CUSTOMER_UPLOADS', attachment.storage_path);
+			if (url) {
+				window.open(url, '_blank');
+			} else {
+				setSnackbar({ message: t('downloadLinkFailed'), severity: 'error' });
+			}
+		} catch (error) {
+			console.error('Error downloading file:', error);
+			setSnackbar({ message: t('downloadError'), severity: 'error' });
+		}
+	};
+
 	const handleStatusUpdate = async () => {
 		setLoading(true);
 		try {
@@ -118,10 +179,14 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 			if (response.ok) {
 				setSnackbar({ message: t('statusUpdated'), severity: 'success' });
 				setNotes('');
-				// Refresh the page to show updated data
-				window.location.reload();
+				// Refresh the page data without full reload
+				router.refresh();
 			} else {
-				setSnackbar({ message: t('statusUpdateFailed'), severity: 'error' });
+				const errorData = await response.json();
+				setSnackbar({ 
+					message: errorData.error || t('statusUpdateFailed'), 
+					severity: 'error' 
+				});
 			}
 		} catch {
 			setSnackbar({ message: t('errorOccurred'), severity: 'error' });
@@ -141,13 +206,17 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 
 			if (response.ok) {
 				setSnackbar({
-					message: assignedTo ? 'Order assigned successfully' : 'Assignment removed successfully',
+					message: assignedTo ? t('orderAssigned') : t('assignmentRemoved'),
 					severity: 'success'
 				});
-				// Refresh the page to show updated data
-				window.location.reload();
+				// Refresh the page data without full reload
+				router.refresh();
 			} else {
-				setSnackbar({ message: 'Failed to update assignment', severity: 'error' });
+				const errorData = await response.json();
+				setSnackbar({ 
+					message: errorData.error || t('assignmentUpdateFailed'), 
+					severity: 'error' 
+				});
 			}
 		} catch {
 			setSnackbar({ message: t('errorOccurred'), severity: 'error' });
@@ -170,7 +239,7 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 					/>
 				</Box>
 				<Typography variant="body1" color="text.secondary">
-					{t('submitted')} {formatDate(order.submitted_at)}
+					{t('submitted')} {formatDate(order.submitted_at, locale)}
 				</Typography>
 			</Box>
 
@@ -179,8 +248,8 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 				<Grid size={{ xs: 12, md: 8 }}>
 					{/* Customer Info */}
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3 }}>
@@ -263,8 +332,8 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 
 					{/* Order Details */}
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3, mt: 3 }}>
@@ -307,6 +376,25 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 													</Typography>
 												</Box>
 											)}
+											{payloadData.service_specific && Object.keys(payloadData.service_specific).length > 0 && (
+												<Box>
+													<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+														{t('serviceSpecificInfo')}
+													</Typography>
+													<Box sx={{ pl: 2 }}>
+														{Object.entries(payloadData.service_specific).map(([key, value]) => (
+															<Box key={key} sx={{ mb: 1 }}>
+																<Typography variant="body2" component="span" fontWeight={600}>
+																	{key.replace(/_/g, ' ')}:
+																</Typography>
+																<Typography variant="body2" component="span" sx={{ ml: 1 }}>
+																	{value}
+																</Typography>
+															</Box>
+														))}
+													</Box>
+												</Box>
+											)}
 										</Box>
 									);
 								})()}
@@ -314,10 +402,70 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 						</Box>
 					</Card>
 
+					{/* Uploaded Documents */}
+					{loadingAttachments ? (
+						<Card
+							backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+							borderColor={{ light: 'divider', dark: 'divider' }}
+							borderRadius={20}
+						>
+							<Box sx={{ p: 3, mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100 }}>
+								<CircularProgress size={24} />
+							</Box>
+						</Card>
+					) : attachments.length > 0 && (
+						<Card
+							backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+							borderColor={{ light: 'divider', dark: 'divider' }}
+							borderRadius={20}
+						>
+							<Box sx={{ p: 3, mt: 3 }}>
+								<Typography variant="h6" fontWeight={600} gutterBottom>
+									{t('uploadedDocuments', { count: attachments.length })}
+								</Typography>
+								<Stack spacing={2} sx={{ mt: 2 }}>
+									{attachments.map((attachment) => (
+										<Box
+											key={attachment.id}
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												p: 2,
+												bgcolor: 'background.default',
+												borderRadius: 2,
+												border: 1,
+												borderColor: 'divider',
+											}}
+										>
+											<Stack spacing={0.5}>
+												<Typography variant="body2" fontWeight={600}>
+													{attachment.file_name}
+												</Typography>
+												<Typography variant="caption" color="text.secondary">
+													{(attachment.file_size / 1024).toFixed(2)} KB
+													{attachment.content_type && ` • ${attachment.content_type}`}
+												</Typography>
+											</Stack>
+											<Button
+												variant="outlined"
+												size="small"
+												startIcon={<DownloadIcon />}
+												onClick={() => handleDownloadFile(attachment)}
+											>
+												{t('download')}
+											</Button>
+										</Box>
+									))}
+								</Stack>
+							</Box>
+						</Card>
+					)}
+
 					{/* Timeline */}
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3, mt: 3 }}>
@@ -350,7 +498,7 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 													</Typography>
 												)}
 												<Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-													{formatDate(event.created_at)}
+													{formatDate(event.created_at, locale)}
 												</Typography>
 											</Box>
 										))}
@@ -366,8 +514,8 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 					<Stack spacing={3}>
 						{/* Status Update */}
 						<Card
-							backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-							borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+							backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+							borderColor={{ light: 'divider', dark: 'divider' }}
 							borderRadius={20}
 						>
 							<Box sx={{ p: 3 }}>
@@ -422,24 +570,24 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 
 						{/* Order Assignment */}
 						<Card
-							backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-							borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+							backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+							borderColor={{ light: 'divider', dark: 'divider' }}
 							borderRadius={20}
 						>
 							<Box sx={{ p: 3 }}>
 								<Typography variant="h6" fontWeight={600} gutterBottom>
-									Assign Order
+									{t('assignOrder')}
 								</Typography>
 
 								<FormControl fullWidth sx={{ mt: 2 }}>
-									<InputLabel>Assigned To</InputLabel>
+									<InputLabel>{t('assignedTo')}</InputLabel>
 									<Select
 										value={assignedTo || ''}
-										label="Assigned To"
+										label={t('assignedTo')}
 										onChange={(e) => setAssignedTo(e.target.value || null)}
 									>
 										<MenuItem value="">
-											<em>Unassigned</em>
+											<em>{t('unassigned')}</em>
 										</MenuItem>
 										{assignableUsers.map((user) => (
 											<MenuItem key={user.id} value={user.id}>
@@ -457,12 +605,12 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 									disabled={assignmentLoading || assignedTo === order.assigned_to}
 									sx={{ mt: 2 }}
 								>
-									{assignmentLoading ? 'Updating...' : 'Update Assignment'}
+									{assignmentLoading ? t('updating') : t('updateAssignment')}
 								</Button>
 
 								{assignedTo !== order.assigned_to && (
 									<Alert severity="info" sx={{ mt: 2 }}>
-										Click "Update Assignment" to save changes
+										{t('assignmentUpdateNotification')}
 									</Alert>
 								)}
 							</Box>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import {
 	BarChart,
 	Bar,
@@ -32,6 +32,7 @@ const statusColors: Record<string, string> = {
 
 export function StatusDistributionChart({ data }: StatusDistributionChartProps) {
 	const t = useTranslations('Admin.orders');
+	const theme = useTheme();
 	const formattedData = data.map((item) => ({
 		...item,
 		label: t(`statusLabels.${item.status}` as any, { defaultValue: item.status }),
@@ -39,8 +40,8 @@ export function StatusDistributionChart({ data }: StatusDistributionChartProps) 
 
 	return (
 		<Card
-			backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-			borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+			backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+			borderColor={{ light: 'divider', dark: 'divider' }}
 			borderRadius={20}
 		>
 			<Box sx={{ p: 3 }}>
@@ -53,24 +54,24 @@ export function StatusDistributionChart({ data }: StatusDistributionChartProps) 
 
 				<ResponsiveContainer width="100%" height={300}>
 					<BarChart data={formattedData}>
-						<CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+						<CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
 						<XAxis
 							dataKey="label"
-							tick={{ fontSize: 12 }}
-							stroke="#666"
+							tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
+							stroke={theme.palette.text.secondary}
 							angle={-45}
 							textAnchor="end"
 							height={80}
 						/>
 						<YAxis
-							tick={{ fontSize: 12 }}
-							stroke="#666"
+							tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
+							stroke={theme.palette.text.secondary}
 							allowDecimals={false}
 						/>
 						<Tooltip
 							contentStyle={{
-								backgroundColor: '#fff',
-								border: '1px solid #e0e0e0',
+								backgroundColor: theme.palette.background.paper,
+								border: `1px solid ${theme.palette.divider}`,
 								borderRadius: 8,
 							}}
 						/>
@@ -78,7 +79,7 @@ export function StatusDistributionChart({ data }: StatusDistributionChartProps) 
 							{formattedData.map((entry, index) => (
 								<Cell
 									key={`cell-${index}`}
-									fill={statusColors[entry.status] || 'rgba(14, 33, 160, 1)'}
+									fill={statusColors[entry.status] || theme.palette.accent.main}
 								/>
 							))}
 						</Bar>

@@ -13,7 +13,8 @@ export async function generateMetadata() {
 	};
 }
 
-export default function LoginPage() {
+export default async function LoginPage() {
+	const t = await getTranslations('Auth.login');
 	return (
 		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: { xs: 6, md: 12 } }}>
 			<Container maxWidth="sm">
@@ -21,10 +22,10 @@ export default function LoginPage() {
 					<Stack spacing={4}>
 						<Stack spacing={2} textAlign="center">
 							<Typography variant="h2" component="h1" fontWeight={700}>
-								Login to Your Account
+								{t('pageTitle')}
 							</Typography>
 							<Typography variant="h6" color="text.secondary">
-								Access your dashboard and manage your requests
+								{t('pageSubtitle')}
 							</Typography>
 						</Stack>
 

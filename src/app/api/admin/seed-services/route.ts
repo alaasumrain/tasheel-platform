@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { checkAdminAuthAPI } from '@/lib/admin-auth';
+import { requireAdminAuthAPI } from '@/lib/admin-auth';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -963,11 +963,8 @@ function generateAllServices(): ServiceSeedData[] {
 
 export async function POST(request: Request) {
 	try {
-		// Check admin auth
-		const authResult = await checkAdminAuthAPI();
-		if (!authResult.isAuthenticated) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		// Require admin authentication
+		await requireAdminAuthAPI();
 
 		// Get all existing services to avoid duplicates
 		const { data: existingServices } = await supabase.from('services').select('slug');
@@ -1005,6 +1002,9 @@ export async function POST(request: Request) {
 			existing: existingSlugs.size,
 		});
 	} catch (error: any) {
+		if (error.message === 'Unauthorized') {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 		console.error('Error in seed services:', error);
 		return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 });
 	}

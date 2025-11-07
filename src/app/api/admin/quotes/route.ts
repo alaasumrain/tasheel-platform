@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
-import { checkAdminAuthAPI } from '@/lib/admin-auth';
+import { requireAdminAuthAPI } from '@/lib/admin-auth';
 import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
 	try {
-		// Check admin auth
-		const authResult = await checkAdminAuthAPI();
-		if (!authResult.isAuthenticated) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		// Require admin authentication
+		await requireAdminAuthAPI();
 
 		const body = await request.json();
 		const { application_id, amount, notes } = body;
@@ -120,9 +117,11 @@ export async function POST(request: Request) {
 		}
 
 		return NextResponse.json({ success: true, invoice });
-	} catch (error) {
+	} catch (error: any) {
+		if (error.message === 'Unauthorized') {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 		console.error('Error in POST /api/admin/quotes:', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 	}
 }
-

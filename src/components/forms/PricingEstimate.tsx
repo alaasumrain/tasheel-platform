@@ -7,6 +7,7 @@ import {
 	IconInfoCircle,
 } from '@tabler/icons-react';
 import type { Service } from '@/data/services';
+import { useTranslations } from 'next-intl';
 
 interface PricingEstimateProps {
 	service: Service;
@@ -16,9 +17,9 @@ interface PricingEstimateProps {
 
 // Urgency pricing multipliers
 const URGENCY_MULTIPLIERS = {
-	standard: { multiplier: 1.0, label: 'Standard Processing', description: 'Normal turnaround time' },
-	express: { multiplier: 1.3, label: 'Express Processing', description: '+30% for faster delivery' },
-	urgent: { multiplier: 1.5, label: 'Urgent Processing', description: '+50% for priority handling' },
+	standard: { multiplier: 1.0, labelKey: 'standard', descriptionKey: 'standardDesc' },
+	express: { multiplier: 1.3, labelKey: 'express', descriptionKey: 'expressDesc' },
+	urgent: { multiplier: 1.5, labelKey: 'urgent', descriptionKey: 'urgentDesc' },
 };
 
 export default function PricingEstimate({
@@ -26,6 +27,7 @@ export default function PricingEstimate({
 	urgency,
 	locale = 'en',
 }: PricingEstimateProps) {
+	const t = useTranslations('Quote.pricingEstimate');
 	const urgencyInfo = URGENCY_MULTIPLIERS[urgency];
 
 	// Format currency
@@ -67,7 +69,7 @@ export default function PricingEstimate({
 							<Stack direction="row" spacing={1} alignItems="center">
 								<IconCurrencyShekel size={20} opacity={0.7} />
 								<Typography variant="body2" color="text.secondary">
-									Base Service Price
+									{t('basePrice')}
 								</Typography>
 							</Stack>
 							<Typography variant="body1" fontWeight={600}>
@@ -84,10 +86,10 @@ export default function PricingEstimate({
 										<IconClock size={20} opacity={0.7} />
 										<Stack>
 											<Typography variant="body2" color="text.secondary">
-												{urgencyInfo.label}
+												{t(`urgency.${urgencyInfo.labelKey}`)}
 											</Typography>
 											<Typography variant="caption" color="text.secondary">
-												{urgencyInfo.description}
+												{t(`urgency.${urgencyInfo.descriptionKey}`)}
 											</Typography>
 										</Stack>
 									</Stack>
@@ -102,7 +104,7 @@ export default function PricingEstimate({
 						<Divider />
 						<Stack direction="row" justifyContent="space-between" alignItems="center">
 							<Typography variant="body1" fontWeight={600}>
-								Estimated Total
+								{t('estimatedTotal')}
 							</Typography>
 							<Typography variant="h6" color="primary.main">
 								{formatCurrency(estimatedTotal)}
@@ -112,7 +114,7 @@ export default function PricingEstimate({
 						{/* Note about pricing type */}
 						{service.pricing.type === 'starting' && (
 							<Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-								* Starting from this price - final cost may vary based on requirements
+								{t('startingFromNote')}
 							</Typography>
 						)}
 
@@ -139,15 +141,14 @@ export default function PricingEstimate({
 				>
 					<Stack spacing={1}>
 						<Typography variant="body2" fontWeight={600}>
-							Custom Quote Required
+							{t('customQuoteRequired')}
 						</Typography>
 						<Typography variant="body2">
-							The pricing for this service varies based on your specific requirements.
-							We'll provide a detailed quote within 24 hours of reviewing your request.
+							{t('customQuoteDescription')}
 						</Typography>
 						{service.pricing.note && (
 							<Typography variant="caption" color="text.secondary">
-								Note: {service.pricing.note}
+								{t('note')}: {service.pricing.note}
 							</Typography>
 						)}
 					</Stack>
@@ -169,10 +170,10 @@ export default function PricingEstimate({
 						<IconClock size={20} />
 						<Stack>
 							<Typography variant="body2" fontWeight={600}>
-								{urgencyInfo.label}
+								{t(`urgency.${urgencyInfo.labelKey}`)}
 							</Typography>
 							<Typography variant="caption" color="text.secondary">
-								Your quote will reflect {urgencyInfo.description.toLowerCase()}
+								{t('quoteWillReflect', { description: t(`urgency.${urgencyInfo.descriptionKey}`) })}
 							</Typography>
 						</Stack>
 					</Stack>

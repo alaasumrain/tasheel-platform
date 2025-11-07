@@ -8,35 +8,12 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import Image from '@/components/ui/image';
 import GetStarted from '@/components/buttons/get-started-button';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Features here
-const features: Feature[] = [
-	{
-		headline: 'Online Document Upload',
-		description:
-			'Securely upload documents from anywhere with drag-and-drop interface, automatic format detection, and encrypted storage.',
-	},
-	{
-		headline: 'Real-Time Tracking',
-		description:
-			'Track your request status 24/7 with live updates, estimated completion times, and instant notifications at every step.',
-	},
-	{
-		headline: 'Digital Signatures & Approval',
-		description:
-			'Sign documents electronically with legally-binding e-signatures and receive digital copies instantly upon completion.',
-	},
-];
-
-const primaryCta = {
-	label: 'Explore platform features',
-	href: '/#services',
-};
 
 interface Feature {
 	headline: string;
@@ -44,14 +21,36 @@ interface Feature {
 }
 
 export default function FeaturesGridRemote() {
+	const t = useTranslations('FeaturesGridRemote');
+	
+	const features: Feature[] = [
+		{
+			headline: t('feature1Headline'),
+			description: t('feature1Description'),
+		},
+		{
+			headline: t('feature2Headline'),
+			description: t('feature2Description'),
+		},
+		{
+			headline: t('feature3Headline'),
+			description: t('feature3Description'),
+		},
+	];
+
+	const primaryCta = {
+		label: t('ctaLabel'),
+		href: '/#services',
+	};
+
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={3} sx={{ mb: { xs: 6, md: 8 }, textAlign: 'center' }}>
 				<Typography variant="h4">
-					Powerful platform features that save you time
+					{t('headline')}
 				</Typography>
 				<Typography color="text.secondary" variant="h6">
-					Everything you need to submit, track, and receive your government services—all in one secure platform.
+					{t('subHeadline')}
 				</Typography>
 			</Stack>
 			<Grid container spacing={6}>
@@ -104,7 +103,7 @@ export default function FeaturesGridRemote() {
                                                     aspectRatio="694/520"
                                                     darkImage="/dark/screenshot-04.jpg"
                                                     lightImage="/light/screenshot-04.jpg"
-                                                    alt="Tasheel document upload interface"
+                                                    alt={t('image1Alt')}
                                                 />
 											</Box>
 										</Grid>
@@ -154,7 +153,7 @@ export default function FeaturesGridRemote() {
                                                     aspectRatio="578/336"
                                                     darkImage="/dark/screenshot-05.jpg"
                                                     lightImage="/light/screenshot-05.jpg"
-                                                    alt="Real-time request tracking dashboard"
+                                                    alt={t('image2Alt')}
                                                 />
 											</Box>
 										</Grid>
@@ -219,7 +218,7 @@ export default function FeaturesGridRemote() {
                                                     aspectRatio="578/336"
                                                     darkImage="/dark/features-grid-03.png"
                                                     lightImage="/light/features-grid-03.png"
-                                                    alt="Digital signature and approval confirmation screen"
+                                                    alt={t('image3Alt')}
                                                 />
 											</Box>
 										</Grid>

@@ -89,11 +89,11 @@ function FaqItem({ question, answer }: Item) {
 	const [open, setOpen] = useState(false);
 	return (
 		<Card
-			backgroundColor={{ light: 'rgba(255, 255, 255, 0.5)', dark: '#282828' }}
-			borderColor={{ light: '#fff', dark: '#555' }}
+			backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+			borderColor={{ light: 'divider', dark: 'divider' }}
 			borderRadius={24}
-			gradientColor={{ light: '#eee', dark: '#555' }}
-			gradientOpacity={0.2}
+			gradientColor={{ light: 'divider', dark: 'divider' }}
+			gradientOpacity={0.1}
 			gradientSize={200}
 		>
 			<CardContent

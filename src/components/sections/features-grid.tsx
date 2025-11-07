@@ -22,6 +22,7 @@ interface Feature {
 
 export default function FeaturesGrid() {
 	const t = useTranslations('Homepage.features');
+	const tAlt = useTranslations('FeaturesGrid');
 	
 	const features: Feature[] = [
 		{
@@ -90,7 +91,7 @@ export default function FeaturesGrid() {
 													aspectRatio="694/520"
 													darkImage="/dark/features-grid-01.png"
 													lightImage="/light/features-grid-01.png"
-													alt="Tasheel concierge dashboard for government services"
+													alt={tAlt('image1Alt')}
 												/>
 											</Box>
 										</Grid>
@@ -140,7 +141,7 @@ export default function FeaturesGrid() {
 													aspectRatio="578/336"
 													darkImage="/dark/features-grid-02.png"
 													lightImage="/light/features-grid-02.png"
-													alt="Certified translation management workspace"
+													alt={tAlt('image2Alt')}
 												/>
 											</Box>
 										</Grid>
@@ -205,7 +206,7 @@ export default function FeaturesGrid() {
 													aspectRatio="578/336"
 													darkImage="/dark/features-grid-03.png"
 													lightImage="/light/features-grid-03.png"
-													alt="Legalization and corporate compliance workflow overview"
+													alt={tAlt('image3Alt')}
 												/>
 											</Box>
 										</Grid>

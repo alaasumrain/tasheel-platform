@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 import { OrderConfirmation } from '@/components/sections/order-confirmation';
 import { getOrderByNumber } from '@/lib/admin-queries';
@@ -10,10 +10,13 @@ type PageProps = {
 	searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export const metadata: Metadata = {
-	title: 'تأكيد الطلب | منصة تسهيل',
-	description: 'راجع تفاصيل طلبك لدى تسهيل وتابع حالة الطلب خطوة بخطوة.',
+export async function generateMetadata(): Promise<Metadata> {
+	const t = await getTranslations('Confirmation');
+	return {
+		title: t('title'),
+		description: t('description'),
 };
+}
 
 export const dynamic = 'force-dynamic';
 

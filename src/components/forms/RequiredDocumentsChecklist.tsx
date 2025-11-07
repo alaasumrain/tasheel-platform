@@ -2,6 +2,7 @@
 
 import { Box, Stack, Typography, Chip } from '@mui/material';
 import { IconCheck, IconAlertTriangle } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 interface RequiredDocumentsChecklistProps {
 	requiredDocuments: string[];
@@ -14,6 +15,8 @@ export default function RequiredDocumentsChecklist({
 	uploadedFiles,
 	uploadedFileCount,
 }: RequiredDocumentsChecklistProps) {
+	const t = useTranslations('Quote.requiredDocuments');
+	
 	// Simple heuristic: if user uploaded files, assume they've covered the requirements
 	// In reality, we'd need to map specific fields to required docs
 	const hasUploads = uploadedFileCount > 0;
@@ -23,13 +26,13 @@ export default function RequiredDocumentsChecklist({
 			{/* Header with status */}
 			<Stack direction="row" spacing={2} alignItems="center">
 				<Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>
-					Required Documents
+					{t('title')}
 				</Typography>
 				<Chip
 					label={
 						hasUploads
-							? `${uploadedFileCount} file${uploadedFileCount !== 1 ? 's' : ''} uploaded`
-							: 'No files uploaded'
+							? t('filesUploaded', { count: uploadedFileCount })
+							: t('noFiles')
 					}
 					size="small"
 					color={hasUploads ? 'success' : 'default'}
@@ -74,7 +77,7 @@ export default function RequiredDocumentsChecklist({
 
 						{/* Status badge */}
 						<Chip
-							label={hasUploads ? 'Ready' : 'Required'}
+							label={hasUploads ? t('ready') : t('required')}
 							size="small"
 							variant="outlined"
 							sx={{
@@ -91,7 +94,7 @@ export default function RequiredDocumentsChecklist({
 			{/* Helper message */}
 			{!hasUploads && (
 				<Typography variant="caption" color="warning.main" sx={{ pl: 1 }}>
-					⚠️ Please upload the required documents to proceed with your request
+					{t('warning')}
 				</Typography>
 			)}
 		</Stack>

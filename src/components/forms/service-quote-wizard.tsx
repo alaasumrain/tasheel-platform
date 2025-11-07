@@ -31,6 +31,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
+import { createDraftApplication, uploadFileImmediately, deleteUploadedFile } from '@/app/actions/file-upload';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
 import type { Service } from '@/data/services';
 import { FileUploadField } from './FileUploadField';
@@ -39,6 +40,7 @@ import { Card } from '@/components/ui/card';
 import FilePreview from './FilePreview';
 import RequiredDocumentsChecklist from './RequiredDocumentsChecklist';
 import PricingEstimate from './PricingEstimate';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -48,20 +50,56 @@ interface FieldErrors {
 	[key: string]: string;
 }
 
-const steps = ['Your Details', 'Service Requirements', 'Review & Submit'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
+interface UploadedAttachment {
+	id: string;
+	storagePath: string;
+	fileName: string;
+	fileSize: number;
+}
 
 export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps) {
 	const router = useRouter();
+	const t = useTranslations('Quote.wizard');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
 	const formRef = useRef<HTMLFormElement>(null);
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 	const [restoredData, setRestoredData] = useState(false);
 	const [errors, setErrors] = useState<FieldErrors>({});
 	const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
+	const [applicationId, setApplicationId] = useState<string | null>(null);
+	const [uploadedAttachments, setUploadedAttachments] = useState<Record<string, UploadedAttachment>>({});
+	const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
 
 	const serviceFields = getServiceFields(service.slug);
 	const storageKey = `quote_draft_${service.slug}`;
+
+	const steps = [
+		t('steps.step1'),
+		t('steps.step2'),
+		t('steps.step3'),
+	];
+
+	// Create draft application on mount
+	useEffect(() => {
+		let mounted = true;
+		const createDraft = async () => {
+			const result = await createDraftApplication(service.slug, locale);
+			if (mounted && result.type === 'success' && result.applicationId) {
+				setApplicationId(result.applicationId);
+			} else if (mounted && result.type === 'error') {
+				console.error('Failed to create draft application:', result.message);
+				toast.error(t('toast.initFailed'));
+			}
+		};
+		createDraft();
+		return () => {
+			mounted = false;
+		};
+	}, [service.slug, locale]);
 
 	// Load saved data from localStorage on mount
 	useEffect(() => {
@@ -71,8 +109,8 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				const parsed = JSON.parse(saved);
 				setFormData(parsed);
 				setRestoredData(true);
-				toast.success('Your previous draft has been restored');
-			} catch (e) {
+				toast.success(t('toast.draftRestored'));
+			} catch {
 				// Invalid saved data, ignore
 			}
 		}
@@ -142,26 +180,50 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		if (step === 0) {
 			// Step 1: Contact Information
 			if (!formData.name || formData.name.length < 2) {
-				newErrors.name = 'Please enter your full name (at least 2 characters)';
+				newErrors.name = t('validation.nameRequired');
 			}
 			if (!formData.email || !validateEmail(formData.email)) {
-				newErrors.email = 'Please enter a valid email address';
+				newErrors.email = t('validation.emailRequired');
 			}
 			if (!formData.phone || !validatePhone(formData.phone)) {
-				newErrors.phone = 'Please enter a valid Palestinian mobile number (e.g. 0599123456)';
+				newErrors.phone = t('validation.phoneRequired');
 			}
 		} else if (step === 1) {
 			// Step 2: Service Requirements
 			// Validate service-specific required fields
 			serviceFields.forEach((field) => {
 				if (field.required && !formData[field.name] && field.type !== 'file') {
-					newErrors[field.name] = `${field.label} is required`;
+					newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+				}
+				// For file fields, check if uploaded
+				if (field.required && field.type === 'file' && !uploadedAttachments[field.name]) {
+					newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
 				}
 			});
 
 			// Validate standard fields
 			if (!formData.details || formData.details.length < 10) {
-				newErrors.details = 'Please provide at least 10 characters of details';
+				newErrors.details = t('validation.detailsRequired');
+			}
+		} else if (step === 2) {
+			// Step 3: Review - Check required documents
+			if (service.requiredDocuments && service.requiredDocuments.length > 0) {
+				const uploadedFileNames = Object.values(uploadedAttachments).map(att => 
+					att.fileName.toLowerCase()
+				);
+				
+				const missingDocs = service.requiredDocuments.filter(doc => {
+					const docKeywords = doc.toLowerCase().split(/\s+/);
+					return !uploadedFileNames.some(fileName => 
+						docKeywords.some(keyword => fileName.includes(keyword))
+					);
+				});
+
+				if (missingDocs.length > 0) {
+					newErrors.requiredDocuments = t('validation.documentsRequired', { 
+						documents: missingDocs.join(', ') 
+					});
+				}
 			}
 		}
 
@@ -176,7 +238,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				setErrors({}); // Clear errors when moving to next step
 			}
 		} else {
-			toast.error('Please fix the errors before continuing');
+			toast.error(t('validation.fixErrors'));
 		}
 	};
 
@@ -197,18 +259,69 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		}
 	};
 
-	const handleFileChange = (fieldName: string, file: File | null) => {
+	const handleFileChange = async (fieldName: string, file: File | null) => {
 		if (file) {
 			// Validate file size
 			if (file.size > MAX_FILE_SIZE) {
 				setErrors((prev) => ({
 					...prev,
-					[fieldName]: `File size must be less than 10MB (current: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+					[fieldName]: t('fileUpload.fileSizeError', { 
+						maxSize: (MAX_FILE_SIZE / 1024 / 1024).toFixed(0),
+						currentSize: (file.size / 1024 / 1024).toFixed(2)
+					}),
 				}));
 				return;
 			}
+
+			// Store file locally for preview
 			setUploadedFiles((prev) => ({ ...prev, [fieldName]: file }));
 			setFormData((prev) => ({ ...prev, [fieldName]: file.name }));
+
+			// Upload immediately if we have an application ID
+			if (applicationId) {
+				setUploadingFiles((prev) => ({ ...prev, [fieldName]: true }));
+				
+				try {
+					const result = await uploadFileImmediately(applicationId, fieldName, file, locale);
+					
+					if (result.type === 'success' && result.attachmentId && result.storagePath) {
+						const attachment: UploadedAttachment = {
+							id: result.attachmentId,
+							storagePath: result.storagePath,
+							fileName: file.name,
+							fileSize: file.size,
+						};
+						setUploadedAttachments((prev) => ({
+							...prev,
+							[fieldName]: attachment,
+						}));
+						toast.success(t('toast.fileUploaded', { fileName: file.name }));
+					} else {
+						toast.error(result.message || t('toast.uploadFailed'));
+						setErrors((prev) => ({
+							...prev,
+							[fieldName]: result.message || t('toast.uploadFailed'),
+						}));
+					}
+				} catch (error) {
+					console.error('Error uploading file:', error);
+					toast.error(t('toast.uploadError'));
+					setErrors((prev) => ({
+						...prev,
+						[fieldName]: t('toast.uploadError'),
+					}));
+				} finally {
+					setUploadingFiles((prev) => {
+						const newState = { ...prev };
+						delete newState[fieldName];
+						return newState;
+					});
+				}
+			} else {
+				// No application ID yet - wait for it
+				toast.loading(t('toast.initializing'));
+			}
+
 			// Clear error
 			if (errors[fieldName]) {
 				setErrors((prev) => {
@@ -220,7 +333,30 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		}
 	};
 
-	const handleRemoveFile = (fieldName: string) => {
+	const handleRemoveFile = async (fieldName: string) => {
+		const attachment = uploadedAttachments[fieldName];
+		
+		// Delete from storage if already uploaded
+		if (attachment) {
+			try {
+				const result = await deleteUploadedFile(attachment.id, attachment.storagePath, locale);
+				if (result.type === 'error') {
+					toast.error(t('toast.removeFailed'));
+					return;
+				}
+			} catch (error) {
+				console.error('Error deleting file:', error);
+				toast.error(t('toast.removeError'));
+				return;
+			}
+		}
+
+		// Remove from state
+		setUploadedAttachments((prev) => {
+			const newState = { ...prev };
+			delete newState[fieldName];
+			return newState;
+		});
 		setUploadedFiles((prev) => {
 			const newFiles = { ...prev };
 			delete newFiles[fieldName];
@@ -234,9 +370,9 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	};
 
 	const handleClearForm = () => {
-		if (window.confirm('Are you sure you want to clear the form? This will delete all your progress.')) {
+		if (window.confirm(t('toast.clearConfirm'))) {
 			resetFormState();
-			toast.success('Form cleared successfully');
+			toast.success(t('toast.formCleared'));
 		}
 	};
 
@@ -245,7 +381,12 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 		// Final validation
 		if (!validateStep(activeStep)) {
-			toast.error('Please fix the errors before submitting');
+			toast.error(t('validation.fixErrorsSubmit'));
+			return;
+		}
+
+		if (!applicationId) {
+			toast.error(t('toast.formInitializing'));
 			return;
 		}
 
@@ -254,10 +395,14 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 		const data = new FormData(formElement);
 
-		// Add uploaded files to FormData
-		Object.entries(uploadedFiles).forEach(([fieldName, file]) => {
-			data.set(fieldName, file);
-		});
+		// Add application ID for draft update
+		data.set('applicationId', applicationId);
+		
+		// Add locale for server-side translations
+		data.set('locale', locale);
+
+		// Files are already uploaded, so we don't need to add them to FormData
+		// The server action will fetch attachments using applicationId
 
 		send(data);
 	};
@@ -281,6 +426,8 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						onChange={handleFieldChange}
 						errors={errors}
 						uploadedFiles={uploadedFiles}
+						uploadedAttachments={uploadedAttachments}
+						uploadingFiles={uploadingFiles}
 						onFileChange={handleFileChange}
 						onRemoveFile={handleRemoveFile}
 					/>
@@ -316,8 +463,9 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 	return (
 		<form ref={formRef} onSubmit={handleSubmit}>
-			{/* Hidden service field */}
-			<input type="hidden" name="service" value={service.slug} />
+					{/* Hidden service field */}
+					<input type="hidden" name="service" value={service.slug} />
+					{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
 
 			<Stack spacing={4}>
 				{/* Restored Data Alert */}
@@ -333,7 +481,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							</Tooltip>
 						}
 					>
-						Your previous draft has been restored. Continue where you left off!
+						{t('draftRestored')}
 					</Alert>
 				)}
 
@@ -364,7 +512,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 					<Box sx={{ mt: 2 }}>
 						<LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
 						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
-							Step {activeStep + 1} of {steps.length} ({progress}% complete)
+							{t('progress', { current: activeStep + 1, total: steps.length, percent: progress })}
 						</Typography>
 					</Box>
 				</Box>
@@ -378,10 +526,10 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						<Button
 							variant="outlined"
 							onClick={handleBack}
-							startIcon={<IconArrowLeft size={18} />}
+							startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
 							disabled={isPending}
 						>
-							Back
+							{t('back')}
 						</Button>
 					)}
 					<Button
@@ -392,18 +540,18 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						disabled={isPending}
 						sx={{ display: { xs: 'none', sm: 'flex' } }}
 					>
-						Clear Form
+						{t('clearForm')}
 					</Button>
 					<Box sx={{ flexGrow: 1 }} />
 					{activeStep < steps.length - 1 ? (
 						<Button
 							variant="contained"
 							onClick={handleNext}
-							endIcon={<IconArrowRight size={18} />}
+							endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
 							size="large"
 							disabled={!canContinue}
 						>
-							Continue
+							{t('continue')}
 						</Button>
 					) : (
 						<Button
@@ -413,7 +561,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
 							size="large"
 						>
-							{isPending ? 'Submitting...' : 'Submit Request'}
+							{isPending ? t('submitting') : t('submitRequest')}
 						</Button>
 					)}
 				</Stack>
@@ -434,16 +582,18 @@ function Step1Content({
 	errors: FieldErrors;
 	validatePhone: (phone: string) => boolean;
 }) {
+	const t = useTranslations('Quote.wizard');
+	
 	return (
 		<Stack spacing={3}>
 			<Typography variant="h5" fontWeight={600}>
-				Let's start with your contact information
+				{t('step1Title')}
 			</Typography>
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth error={!!errors.name}>
 					<FormLabel htmlFor="name">
-						Full Name
+						{t('fullName')}
 						{formData.name && formData.name.length > 2 && !errors.name && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
@@ -465,7 +615,7 @@ function Step1Content({
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth error={!!errors.email}>
 					<FormLabel htmlFor="email">
-						Email Address
+						{t('emailAddress')}
 						{formData.email && formData.email.includes('@') && !errors.email && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
@@ -486,7 +636,7 @@ function Step1Content({
 
 				<FormControl required fullWidth error={!!errors.phone}>
 					<FormLabel htmlFor="phone">
-						Phone Number
+						{t('phoneNumber')}
 						{formData.phone && validatePhone(formData.phone) && !errors.phone && (
 							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
 								<IconCheck size={16} />
@@ -518,6 +668,8 @@ function Step2Content({
 	onChange,
 	errors,
 	uploadedFiles,
+	uploadedAttachments,
+	uploadingFiles,
 	onFileChange,
 	onRemoveFile,
 }: {
@@ -526,9 +678,13 @@ function Step2Content({
 	onChange: (name: string, value: string) => void;
 	errors: FieldErrors;
 	uploadedFiles: Record<string, File>;
+	uploadedAttachments: Record<string, UploadedAttachment>;
+	uploadingFiles: Record<string, boolean>;
 	onFileChange: (fieldName: string, file: File | null) => void;
 	onRemoveFile: (fieldName: string) => void;
 }) {
+	const t = useTranslations('Quote.wizard');
+	
 	const renderField = (field: FormField) => {
 		const commonProps = {
 			id: field.name,
@@ -548,7 +704,7 @@ function Step2Content({
 							error={!!errors[field.name]}
 						>
 							<MenuItem value="" disabled>
-								Select an option
+								{t('selectOption')}
 							</MenuItem>
 							{field.options?.map((option) => (
 								<MenuItem key={option} value={option}>
@@ -584,20 +740,40 @@ function Step2Content({
 				);
 
 			case 'file':
+				const isUploading = uploadingFiles[field.name];
+				const isUploaded = !!uploadedAttachments[field.name];
 				return (
-					<FileUploadField
-						key={field.name}
-						label={field.label}
-						name={field.name}
-						value={uploadedFiles[field.name] || null}
-						onChange={(file) => onFileChange(field.name, file)}
-						onRemove={() => onRemoveFile(field.name)}
-						error={errors[field.name]}
-						helperText={field.helperText}
-						accept={field.helperText?.includes('PDF') ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'}
-						maxSize={field.helperText?.includes('5MB') ? 5 * 1024 * 1024 : 10 * 1024 * 1024}
-						required={field.required}
-					/>
+					<Box key={field.name}>
+						<FileUploadField
+							label={field.label}
+							name={field.name}
+							value={uploadedFiles[field.name] || null}
+							onChange={(file) => onFileChange(field.name, file)}
+							onRemove={() => onRemoveFile(field.name)}
+							error={errors[field.name]}
+							helperText={field.helperText}
+							accept={field.helperText?.includes('PDF') ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'}
+							maxSize={field.helperText?.includes('5MB') ? 5 * 1024 * 1024 : 10 * 1024 * 1024}
+							required={field.required}
+							disabled={isUploading}
+						/>
+						{isUploading && (
+							<Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+								<CircularProgress size={16} />
+								<Typography variant="caption" color="text.secondary">
+									{t('uploading')}
+								</Typography>
+							</Box>
+						)}
+						{isUploaded && !isUploading && (
+							<Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+								<IconCheck size={16} color="success" />
+								<Typography variant="caption" color="success.main">
+									{t('uploadedSuccessfully')}
+								</Typography>
+							</Box>
+						)}
+					</Box>
 				);
 
 			case 'date':
@@ -650,14 +826,14 @@ function Step2Content({
 	return (
 		<Stack spacing={3}>
 			<Typography variant="h5" fontWeight={600}>
-				Service requirements
+				{t('step2Title')}
 			</Typography>
 
 			{serviceFields.map((field) => renderField(field))}
 
 			{/* Standard urgency and details fields */}
 			<FormControl required>
-				<FormLabel htmlFor="urgency">Service Urgency</FormLabel>
+				<FormLabel htmlFor="urgency">{t('serviceUrgency')}</FormLabel>
 				<Select
 					id="urgency"
 					name="urgency"
@@ -666,20 +842,20 @@ function Step2Content({
 					value={formData.urgency || 'standard'}
 					onChange={(e) => onChange('urgency', e.target.value)}
 				>
-					<MenuItem value="standard">Standard (Normal processing)</MenuItem>
-					<MenuItem value="express">Express (Faster processing)</MenuItem>
-					<MenuItem value="urgent">Urgent (Fastest possible, if available)</MenuItem>
+					<MenuItem value="standard">{t('urgencyOptions.standard')}</MenuItem>
+					<MenuItem value="express">{t('urgencyOptions.express')}</MenuItem>
+					<MenuItem value="urgent">{t('urgencyOptions.urgent')}</MenuItem>
 				</Select>
 			</FormControl>
 
 			<FormControl required error={!!errors.details}>
-				<FormLabel htmlFor="details">Additional Details</FormLabel>
+				<FormLabel htmlFor="details">{t('additionalDetails')}</FormLabel>
 				<OutlinedInput
 					id="details"
 					name="details"
 					multiline
 					rows={3}
-					placeholder="Any specific requirements or questions..."
+					placeholder={t('detailsPlaceholder')}
 					value={formData.details || ''}
 					onChange={(e) => onChange('details', e.target.value)}
 					error={!!errors.details}
@@ -688,13 +864,13 @@ function Step2Content({
 			</FormControl>
 
 			<FormControl>
-				<FormLabel htmlFor="message">Additional Notes (Optional)</FormLabel>
+				<FormLabel htmlFor="message">{t('additionalNotes')}</FormLabel>
 				<OutlinedInput
 					id="message"
 					name="message"
 					multiline
 					rows={2}
-					placeholder="Any other information we should know..."
+					placeholder={t('notesPlaceholder')}
 					value={formData.message || ''}
 					onChange={(e) => onChange('message', e.target.value)}
 				/>
@@ -715,6 +891,9 @@ function Step3Content({
 	formData: Record<string, string>;
 	uploadedFiles: Record<string, File>;
 }) {
+	const t = useTranslations('Quote.wizard');
+	const locale = useLocale();
+	
 	// Collect all uploaded files into an array
 	const allUploadedFiles = Object.values(uploadedFiles).filter((file): file is File => file instanceof File);
 	const urgency = (formData.urgency || 'standard') as 'standard' | 'express' | 'urgent';
@@ -723,15 +902,15 @@ function Step3Content({
 		<Stack spacing={4}>
 			<Box>
 				<Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
-					Review your request
+					{t('step3Title')}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					Please review your information before submitting
+					{t('reviewSubtitle')}
 				</Typography>
 			</Box>
 
 			<Alert severity="info" sx={{ borderRadius: 2 }}>
-				Our team will contact you within 2 hours to confirm details and provide a detailed quote.
+				{t('reviewAlert')}
 			</Alert>
 
 			{/* Service & Pricing Estimate */}
@@ -740,7 +919,7 @@ function Step3Content({
 					<Stack spacing={3}>
 						<Box>
 							<Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>
-								Service Requested
+								{t('serviceRequested')}
 							</Typography>
 							<Typography variant="h6" fontWeight={600}>
 								{service.title}
@@ -751,7 +930,7 @@ function Step3Content({
 						</Box>
 
 						{/* Pricing Estimate */}
-						<PricingEstimate service={service} urgency={urgency} locale="en" />
+						<PricingEstimate service={service} urgency={urgency} locale={locale === 'ar' ? 'ar' : 'en'} />
 					</Stack>
 				</CardContent>
 			</Card>
@@ -761,13 +940,13 @@ function Step3Content({
 				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 					<Stack spacing={2}>
 						<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
-							Contact Information
+							{t('contactInfo')}
 						</Typography>
 						<Grid container spacing={2}>
 							<Grid size={{ xs: 12, sm: 4 }}>
 								<Box>
 									<Typography variant="caption" color="text.secondary">
-										Full Name
+										{t('fullName')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{formData.name || 'N/A'}
@@ -777,7 +956,7 @@ function Step3Content({
 							<Grid size={{ xs: 12, sm: 4 }}>
 								<Box>
 									<Typography variant="caption" color="text.secondary">
-										Email Address
+										{t('emailAddress')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{formData.email || 'N/A'}
@@ -787,7 +966,7 @@ function Step3Content({
 							<Grid size={{ xs: 12, sm: 4 }}>
 								<Box>
 									<Typography variant="caption" color="text.secondary">
-										Phone Number
+										{t('phoneNumber')}
 									</Typography>
 									<Typography variant="body1" fontWeight={500}>
 										{formData.phone || 'N/A'}
@@ -805,7 +984,7 @@ function Step3Content({
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={2}>
 							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
-								Service Requirements
+								{t('serviceInfo')}
 							</Typography>
 							<Stack spacing={1.5}>
 								{serviceFields.map((field) => {
@@ -858,7 +1037,7 @@ function Step3Content({
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={3}>
 							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
-								Uploaded Documents ({allUploadedFiles.length})
+								{t('uploadedDocuments', { count: allUploadedFiles.length })}
 							</Typography>
 
 							{/* File Previews Grid */}
@@ -891,12 +1070,12 @@ function Step3Content({
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={2}>
 							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
-								Additional Information
+								{t('additionalInformation')}
 							</Typography>
 							{formData.details && (
 								<Box>
 									<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-										Additional Details
+										{t('additionalDetails')}
 									</Typography>
 									<Typography variant="body2">{formData.details}</Typography>
 								</Box>
@@ -904,7 +1083,7 @@ function Step3Content({
 							{formData.message && (
 								<Box>
 									<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-										Message / Notes
+										{t('additionalNotes')}
 									</Typography>
 									<Typography variant="body2">{formData.message}</Typography>
 								</Box>

@@ -5,14 +5,21 @@
 			"description": "Tasheel helps residents and businesses in Palestine manage government documents, translations, and legalizations entirely online."
 		}
 	},
+	"Confirmation": {
+		"title": "Request Confirmation | Tasheel Platform",
+		"description": "Review your Tasheel order details and track your request status in real time."
+	},
 	"Header": {
 		"home": "Home",
 		"services": "Services",
-		"track": "Track Status",
+		"track": "Track Order",
 		"pricing": "Pricing",
-		"about": "About",
+		"about": "About Us",
 		"contact": "Contact",
-		"login": "Login"
+		"login": "Login",
+		"requestService": "Request a Service",
+		"faqs": "FAQs",
+		"logoAlt": "Company logo"
 	},
 	"Common": {
 		"loading": "Loading...",
@@ -32,7 +39,11 @@
 		"previous": "Previous",
 		"confirm": "Confirm",
 		"yes": "Yes",
-		"no": "No"
+		"no": "No",
+		"tryAgain": "Try Again",
+		"goHome": "Go Home",
+		"errorDescription": "We're sorry, but something unexpected happened. Please try again or return to the homepage.",
+		"errorId": "Error ID"
 	},
 	"Forms": {
 		"required": "This field is required",
@@ -68,6 +79,17 @@
 			"translation": "Translation services",
 			"legalization": "Legalization services",
 			"business": "Business services"
+		},
+		"sidebar": {
+			"beneficiaries": "Beneficiaries",
+			"serviceCost": "Service Cost",
+			"serviceLanguage": "Service Language",
+			"executionTime": "Execution Time",
+			"deliveryChannels": "Delivery Channels",
+			"paymentChannels": "Payment Channels",
+			"shareService": "Share Service Link",
+			"quickAccess": "Quick Access Code",
+			"notSpecified": "Not specified"
 		},
 	"pricingFormats": {
 		"fixed": "{amount}",
@@ -125,6 +147,12 @@
 			"logout": "Logout"
 		},
 		"orders": {
+			"pageTitle": "All Orders",
+			"pageDescription": "Manage and track all customer orders",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"orders": "Orders"
+			},
 			"table": {
 				"orderNumber": "Order Number",
 				"customer": "Customer",
@@ -185,8 +213,22 @@
 				"document_uploaded": "Document Uploaded",
 				"note_added": "Note Added",
 				"assigned_to": "Assigned To",
-				"completed": "Completed"
-			}
+				"completed": "Completed",
+				"submitted": "Submitted"
+			},
+			"downloadLinkFailed": "Failed to generate download link",
+			"downloadError": "Error downloading file",
+			"orderAssigned": "Order assigned successfully",
+			"assignmentRemoved": "Assignment removed successfully",
+			"assignmentUpdateFailed": "Failed to update assignment",
+			"serviceSpecificInfo": "Service-Specific Information",
+			"uploadedDocuments": "Uploaded Documents ({count})",
+			"download": "Download",
+			"assignOrder": "Assign Order",
+			"assignedTo": "Assigned To",
+			"unassigned": "Unassigned",
+			"updateAssignment": "Update Assignment",
+			"assignmentUpdateNotification": "Click \"Update Assignment\" to save changes"
 		},
 		"quote": {
 			"createQuote": "Create Quote",
@@ -197,7 +239,10 @@
 			"creating": "Creating...",
 			"createAndSend": "Create & Send Quote",
 			"cancel": "Cancel",
-			"quoteCreated": "Quote created and sent to customer!"
+			"quoteCreated": "Quote created and sent to customer!",
+			"amountRequired": "Amount is required",
+			"quoteCreationFailed": "Failed to create quote",
+			"errorOccurred": "An error occurred"
 		},
 		"invoice": {
 			"createInvoice": "Create Invoice",
@@ -207,9 +252,14 @@
 			"creating": "Creating...",
 			"createInvoiceButton": "Create Invoice",
 			"cancel": "Cancel",
-			"invoiceCreated": "Invoice created successfully!"
+			"invoiceCreated": "Invoice created successfully!",
+			"fieldsRequired": "Amount and due date are required",
+			"invoiceCreationFailed": "Failed to create invoice",
+			"errorOccurred": "An error occurred"
 		},
 		"users": {
+			"pageTitle": "User Management",
+			"pageDescription": "Manage admin and staff users",
 			"table": {
 				"name": "Name",
 				"email": "Email",
@@ -249,12 +299,39 @@
 			"total": "Total:",
 			"alreadyExisted": "Already existed:",
 			"services": "services"
+		},
+		"settings": {
+			"title": "Settings",
+			"description": "Configure your admin dashboard",
+			"adminInfo": {
+				"title": "Admin Information",
+				"description": "Admin dashboard for managing Tasheel orders and customer requests.",
+				"version": "Version",
+				"environment": "Environment"
+			},
+			"emailConfig": {
+				"title": "Email Configuration",
+				"description": "Email notifications are configured via environment variables.",
+				"resendApi": "Resend API",
+				"contactEmail": "Contact Email",
+				"configured": "✓ Configured",
+				"notConfigured": "✗ Not configured"
+			},
+			"quickLinks": {
+				"title": "Quick Links",
+				"dashboard": "Dashboard",
+				"orders": "Orders",
+				"tracking": "Tracking Page",
+				"quoteForm": "Quote Form"
+			}
 		}
 	},
 	"Auth": {
 		"register": {
 			"title": "Create Account",
 			"description": "Join Tasheel to manage your government services",
+			"pageTitle": "Create Your Account",
+			"pageSubtitle": "Join Tasheel to manage your government services requests",
 			"fields": {
 				"name": "Full Name",
 				"email": "Email",
@@ -280,6 +357,8 @@
 		"login": {
 			"title": "Login",
 			"description": "Access your Tasheel account",
+			"pageTitle": "Login to Your Account",
+			"pageSubtitle": "Access your dashboard and manage your requests",
 			"fields": {
 				"email": "Email",
 				"password": "Password"
@@ -600,22 +679,84 @@
 	},
 	"Homepage": {
 		"hero": {
-			"headline": "Your government services, simplified",
+			"headline": "Your gateway to managing official procedures with ease and confidence",
 			"description": "From driver's license renewals to document legalization—submit online, track progress, and receive completed services. No office visits required.",
 			"trustedBy": "Trusted by 5,000+ residents and 200+ businesses",
-			"primaryCta": "Start a request",
-			"secondaryCta": "Track my order"
+			"primaryCta": "Our Services",
+			"secondaryCta": "Track Order"
 		},
 		"intro": {
 			"subtitle": "Government Services Concierge",
 			"title": "Skip the queues, get it done online",
 			"description": "Upload documents, track progress, receive approvals—all without visiting an office."
 		},
+		"whyUs": {
+			"tagline": "Why us?",
+			"headline": "Tasheel is an integrated platform",
+			"description": "Tasheel is an integrated platform for individuals and businesses to complete official services with ease and confidence: passport & ID issuance/renewals, international driving licenses, legal translation, and submission & follow-up with ministries and municipalities—delivered fast, accurately, and securely via our app and website.",
+			"imageAlt": "Tasheel service representative helping with documents"
+		},
 		"servicesCatalog": {
 			"subtitle": "Tasheel services",
 			"title": "A complete partner for legalization, translation, and government workflows",
 			"description": "Choose the service you need and our team will handle the rest—from paperwork to final delivery.",
 			"getStarted": "Get started"
+		},
+		"serviceCategories": {
+			"subtitle": "Our Services",
+			"title": "Choose Your Service Category",
+			"description": "Select the category that best fits your needs",
+			"corporate": {
+				"title": "Corporate Services",
+				"description": "Business registration, licensing, corporate compliance, and enterprise document processing.",
+				"imageAlt": "Corporate business services"
+			},
+			"residents": {
+				"title": "Resident Services",
+				"description": "Driver's licenses, ID renewals, permits, and official certificates for Palestinian residents.",
+				"imageAlt": "Government services for residents"
+			},
+			"nonResidents": {
+				"title": "Non-Resident Services",
+				"description": "Document legalization, translation, attestation, and international document processing.",
+				"imageAlt": "Services for non-residents"
+			}
+		},
+		"serviceDetails": {
+			"translation": {
+				"title": "Translation Services",
+				"description": "Certified translations for legal, medical, academic, and business documents with sworn translators and official stamps.",
+				"imageAlt": "Translation services workspace"
+			},
+			"documents": {
+				"title": "Documents Services",
+				"description": "Complete document processing, verification, and submission services for all your official needs.",
+				"imageAlt": "Document processing services"
+			},
+			"quotations": {
+				"title": "Quotations",
+				"label": "Quotation Request",
+				"description": "Get detailed quotes for all services. Transparent pricing with no hidden fees.",
+				"imageAlt": "Service quotation request"
+			}
+		},
+		"perfectJob": {
+			"headline": "Let us do the job perfectly!",
+			"description": "Our experienced team handles every detail with precision and care.",
+			"image": "/dark/perfect-job.jpg",
+			"imageAlt": "Tasheel team collaboration"
+		},
+		"contact": {
+			"headline": "Let's start a conversation",
+			"description": "Get in touch with our team to discuss your needs and how we can help.",
+			"phoneLabel": "Phone",
+			"phone": "+970 2 295 0000",
+			"emailLabel": "Email",
+			"email": "info@tasheel.ps",
+			"addressLabel": "Address",
+			"address": "Ramallah, Palestine",
+			"cta": "Schedule an Appointment",
+			"imageAlt": "Tasheel team meeting"
 		},
 		"stats": {
 			"headline": "Trusted by thousands across Palestine",
@@ -687,6 +828,10 @@
 			"description": "Enter your order number below to track your request in real-time. You'll see the current status and estimated completion date.",
 			"orderNumber": "Order Number",
 			"search": "Search",
+			"orderNumberRequired": "Please enter an order number",
+			"noOrderFound": "No order found with this number",
+			"orderNotFound": "Order not found. Please check your order number and try again.",
+			"trackingError": "An error occurred while tracking your order. Please try again.",
 			"status": {
 				"draft": "Draft",
 				"submitted": "Order Received",
@@ -699,8 +844,6 @@
 				"rejected": "Rejected",
 				"cancelled": "Cancelled"
 			},
-			"noOrderFound": "No order found with this number",
-			"orderNumberRequired": "Please enter an order number",
 			"estimatedCompletion": "Estimated Completion",
 			"orderDetails": "Order Details",
 			"service": "Service",
@@ -714,7 +857,8 @@
 			"urgency": "Urgency",
 			"details": "Details",
 			"needHelp": "Need help with your order?",
-			"contactSupport": "Contact support"
+			"contactSupport": "Contact support",
+			"cantFindOrder": "Can't find your order number? Check your confirmation email or"
 		}
 	},
 	"Quote": {
@@ -726,7 +870,148 @@
 		"whatHappensNext1": "Our team reviews your request within 2 hours",
 		"whatHappensNext2": "We contact you via phone or email with a detailed quote",
 		"whatHappensNext3": "Once approved, we begin processing your order",
-		"whatHappensNext4": "Track your order status anytime at tasheel.ps/track"
+		"whatHappensNext4": "Track your order status anytime at tasheel.ps/track",
+		"wizard": {
+			"steps": {
+				"step1": "Your Details",
+				"step2": "Service Requirements",
+				"step3": "Review & Submit"
+			},
+			"step1Title": "Let's start with your contact information",
+			"step2Title": "Service requirements",
+			"step3Title": "Review your request",
+			"fullName": "Full Name",
+			"emailAddress": "Email Address",
+			"phoneNumber": "Phone Number",
+			"serviceUrgency": "Service Urgency",
+			"additionalDetails": "Additional Details",
+			"additionalNotes": "Additional Notes (Optional)",
+			"detailsPlaceholder": "Any specific requirements or questions...",
+			"notesPlaceholder": "Any other information we should know...",
+			"urgencyOptions": {
+				"standard": "Standard (Normal processing)",
+				"express": "Express (Faster processing)",
+				"urgent": "Urgent (Fastest possible, if available)"
+			},
+			"progress": "Step {current} of {total} ({percent}% complete)",
+			"continue": "Continue",
+			"back": "Back",
+			"clearForm": "Clear Form",
+			"submitRequest": "Submit Request",
+			"submitting": "Submitting...",
+			"draftRestored": "Your previous draft has been restored. Continue where you left off!",
+			"uploading": "Uploading...",
+			"uploadedSuccessfully": "Uploaded successfully",
+			"selectOption": "Select an option",
+			"uploadedDocuments": "Uploaded Documents ({count})",
+			"additionalInformation": "Additional Information",
+			"contactInfo": "Contact Information",
+			"serviceInfo": "Service Information",
+			"reviewSubtitle": "Please review your information before submitting",
+			"reviewAlert": "Our team will contact you within 2 hours to confirm details and provide a detailed quote.",
+			"serviceRequested": "Service Requested",
+			"validation": {
+				"nameRequired": "Please enter your full name (at least 2 characters)",
+				"emailRequired": "Please enter a valid email address",
+				"phoneRequired": "Please enter a valid Palestinian mobile number (e.g. 0599123456)",
+				"fieldRequired": "{field} is required",
+				"detailsRequired": "Please provide at least 10 characters of details",
+				"documentsRequired": "Please upload required documents: {documents}",
+				"fixErrors": "Please fix the errors before continuing",
+				"fixErrorsSubmit": "Please fix the errors before submitting"
+			},
+			"toast": {
+				"initFailed": "Failed to initialize form. Please refresh the page.",
+				"draftRestored": "Your previous draft has been restored",
+				"fileUploaded": "{fileName} uploaded successfully",
+				"uploadFailed": "Upload failed. Please try again.",
+				"uploadError": "An error occurred during upload. Please try again.",
+				"initializing": "Initializing... Please wait a moment before uploading.",
+				"removeFailed": "Failed to remove file. Please try again.",
+				"removeError": "Error removing file. Please try again.",
+				"formCleared": "Form cleared successfully",
+				"formInitializing": "Form is still initializing. Please wait a moment and try again.",
+				"clearConfirm": "Are you sure you want to clear the form? This will delete all your progress."
+			}
+		},
+		"sidebar": {
+			"service": "Service",
+			"pricing": "Pricing",
+			"turnaround": "Turnaround",
+			"whatsIncluded": "What's Included",
+			"needFasterQuote": "Need a faster quote? Chat with us on WhatsApp",
+			"quickWhatsAppQuote": "Quick WhatsApp Quote",
+			"note": "Note",
+			"from": "From",
+			"requestQuote": "Request Quote"
+		},
+		"requiredDocuments": {
+			"title": "Required Documents",
+			"filesUploaded": "{count, plural, one {# file uploaded} other {# files uploaded}}",
+			"noFiles": "No files uploaded",
+			"ready": "Ready",
+			"required": "Required",
+			"warning": "⚠️ Please upload the required documents to proceed with your request"
+		},
+		"filePreview": {
+			"image": "Image",
+			"pdf": "PDF",
+			"document": "Document",
+			"bytes": "Bytes",
+			"kb": "KB",
+			"mb": "MB",
+			"gb": "GB"
+		},
+		"pricingEstimate": {
+			"basePrice": "Base Service Price",
+			"estimatedTotal": "Estimated Total",
+			"startingFromNote": "* Starting from this price - final cost may vary based on requirements",
+			"customQuoteRequired": "Custom Quote Required",
+			"customQuoteDescription": "The pricing for this service varies based on your specific requirements. We'll provide a detailed quote within 24 hours of reviewing your request.",
+			"note": "Note",
+			"quoteWillReflect": "Your quote will reflect {description}",
+			"urgency": {
+				"standard": "Standard Processing",
+				"standardDesc": "Normal turnaround time",
+				"express": "Express Processing",
+				"expressDesc": "+30% for faster delivery",
+				"urgent": "Urgent Processing",
+				"urgentDesc": "+50% for priority handling"
+			}
+		},
+		"fileUpload": {
+			"fileSelected": "File selected - Click to change",
+			"dropFileHere": "Drop file here",
+			"clickToUpload": "Click to upload or drag and drop",
+			"removeFile": "Remove file",
+			"maxSize": "Max {size}MB",
+			"fileSizeError": "File size must be less than {maxSize}MB (current: {currentSize}MB)"
+		},
+		"contact": {
+			"name": "Name",
+			"email": "Email",
+			"subject": "Subject",
+			"message": "Message",
+			"sendMessage": "Send Message"
+		},
+		"errors": {
+			"fillAllFields": "Please fill in all required fields.",
+			"submitFailed": "Failed to submit order. Please try again.",
+			"createFailed": "Failed to create order. Please try again.",
+			"emailConfigError": "Email configuration error. Please contact support.",
+			"unexpectedError": "An unexpected error occurred. Please try again.",
+			"orderCreated": "Order {orderNumber} created successfully! Check your email for confirmation.",
+			"initFormFailed": "Failed to initialize form. Please refresh and try again.",
+			"fileUploadFailed": "File upload failed",
+			"saveFileFailed": "Failed to save file record. Please try again.",
+			"uploadError": "An unexpected error occurred during upload.",
+			"removeFileFailed": "Failed to remove file record.",
+			"deleteError": "An unexpected error occurred.",
+			"fillAllFieldsContact": "Please fill in all fields.",
+			"contactError": "Something went wrong. Please try again later.",
+			"messageSent": "Message sent successfully.",
+			"contactRetry": "Something went wrong. Please try again."
+		}
 	},
 	"Legal": {
 		"terms": {
@@ -770,5 +1055,164 @@
 		"listView": "List view",
 		"filtersApplied": "{count, plural, one {# filter} other {# filters}} applied",
 		"clearFilters": "Clear filters"
+	},
+	"Partners": {
+		"headline": "Trusted by residents and businesses across Palestine",
+		"partner1Alt": "Government services partner logo",
+		"partner2Alt": "Enterprise client partner logo",
+		"partner3Alt": "Financial services partner logo",
+		"partner4Alt": "Logistics and delivery partner logo",
+		"partner5Alt": "Technology integration partner logo"
+	},
+	"FeaturesGridRemote": {
+		"headline": "Powerful platform features that save you time",
+		"subHeadline": "Everything you need to submit, track, and receive your government services—all in one secure platform.",
+		"feature1Headline": "Online Document Upload",
+		"feature1Description": "Securely upload documents from anywhere with drag-and-drop interface, automatic format detection, and encrypted storage.",
+		"feature2Headline": "Real-Time Tracking",
+		"feature2Description": "Track your request status 24/7 with live updates, estimated completion times, and instant notifications at every step.",
+		"feature3Headline": "Digital Signatures & Approval",
+		"feature3Description": "Sign documents electronically with legally-binding e-signatures and receive digital copies instantly upon completion.",
+		"ctaLabel": "Explore platform features",
+		"image1Alt": "Tasheel document upload interface",
+		"image2Alt": "Real-time request tracking dashboard",
+		"image3Alt": "Digital signature and approval confirmation screen"
+	},
+	"FeatureLarge": {
+		"headline": "One platform for all your government needs",
+		"feature1": "Submit multiple service requests and manage everything from one dashboard.",
+		"feature2": "Track all your documents in real-time with automated status notifications.",
+		"feature3": "Store completed documents securely with lifetime access and easy download.",
+		"feature4": "Set up renewal reminders so you never miss an expiration date.",
+		"ctaLabel": "Get started now",
+		"imageAlt": "Tasheel dashboard showing active government service requests"
+	},
+	"Video": {
+		"headline": "See how Tasheel simplifies government services",
+		"subHeadline": "Watch how it works",
+		"description": "From submitting your first request to receiving completed documents, see how Tasheel makes government services fast, transparent, and hassle-free.",
+		"ctaLabel": "Start a request",
+		"imageAlt": "Tasheel platform walkthrough preview"
+	},
+	"Testimonials": {
+		"content": "Tasheel transformed how we manage employee documents. What used to take weeks of back-and-forth with government offices now happens seamlessly online. Our HR team saves 15+ hours per week, and our employees love the transparency.",
+		"name": "Sarah Al-Mansouri",
+		"job": "HR Director, Palestine Logistics Group",
+		"imageAlt": "Portrait of Sarah Al-Mansouri"
+	},
+	"Reviews": {
+		"headline": "Residents and teams trust Tasheel",
+		"subHeadline": "Validated by residents, HR teams, and corporate admins across Palestine",
+		"review1Author": "Fatima A., Ramallah resident",
+		"review1Content": "I renewed my Palestinian ID card and driver's license without leaving home. Tasheel coordinated every ministry visit and delivered the approvals to my door.",
+		"review2Author": "Omar R., HR Manager",
+		"review2Content": "Tasheel turns employee residency renewals into a tracked workflow. We upload, they process, and our staff stay compliant with Palestinian regulations.",
+		"review3Author": "Nadia L., Legal Consultant",
+		"review3Content": "Embassy attestations used to take weeks. Tasheel worked with the Palestinian MOFAE and secured stamped documents in four days.",
+		"review4Author": "James P., Operations Director",
+		"review4Content": "The live status dashboard means I always know where our permits stand across the West Bank. No more chasing government offices for updates."
+	},
+	"PricingPlans": {
+		"headline": "Transparent pricing for Palestinian services",
+		"subHeadline": "Clear NIS pricing for our most requested services. Government fees are billed at cost, and every quote includes a detailed breakdown.",
+		"plan1Title": "Government Services",
+		"plan1Feature1": "Palestinian driver's license renewal assistance",
+		"plan1Feature2": "Document verification & preparation",
+		"plan1Feature3": "Ministry of Interior & Transport coordination",
+		"plan1Feature4": "Courier delivery included",
+		"plan1Feature5": "SMS/Email updates",
+		"plan1Cta": "View services",
+		"plan2Title": "Attestation Services",
+		"plan2Feature1": "Marriage certificate attestation",
+		"plan2Feature2": "Birth certificate attestation",
+		"plan2Feature3": "Degree attestation",
+		"plan2Feature4": "Complete mission + MOFAE chain",
+		"plan2Feature5": "Free pickup across the West Bank",
+		"plan2Feature6": "Express service available",
+		"plan2Cta": "View services",
+		"plan3Title": "Business Services",
+		"plan3Feature1": "Commercial license renewal",
+		"plan3Feature2": "Business registration",
+		"plan3Feature3": "Corporate compliance filings",
+		"plan3Feature4": "Ministry of National Economy coordination",
+		"plan3Feature5": "Priority processing",
+		"plan3Cta": "Contact us",
+		"mostPopular": "Most Popular",
+		"startingPrice": "Starting price",
+		"from": "From",
+		"customQuote": "Custom Quote",
+		"contactForPricing": "Contact for pricing"
+	},
+	"Footer": {
+		"headline": "Ready to streamline your government services?",
+		"description": "Partner with Tasheel to digitize submissions, approvals, and translations while our specialists manage every government touchpoint for you.",
+		"logoText": "Tasheel",
+		"copyright": "© 2024 Tasheel. All rights reserved.",
+		"toTop": "To Top",
+		"company": "Company",
+		"features": "Features",
+		"legal": "Legal",
+		"aboutUs": "About Us",
+		"contact": "Contact",
+		"trackStatus": "Track Status",
+		"solutions": "Solutions",
+		"industries": "Industries",
+		"resources": "Resources",
+		"termsConditions": "Terms & Conditions",
+		"privacyPolicy": "Privacy Policy",
+		"cookiePolicy": "Cookie Policy",
+		"logoAlt": "Tasheel logo",
+		"aboutPlatform": "About Tasheel Platform",
+		"helpSupport": "Help and Support",
+		"importantLinks": "Important Links",
+		"contactUs": "Contact Us",
+		"faqs": "FAQs",
+		"news": "News",
+		"accessibility": "Accessibility Tools",
+		"statistics": "Statistical Data",
+		"security": "Information Security",
+		"serviceChannels": "Service Channels",
+		"registration": "Registration & Subscription",
+		"services": "Services",
+		"pricing": "Pricing",
+		"cookieConsent": "This site uses cookies to uniquely identify users and understand their needs to provide easy access and a better user experience. By continuing to use this site, you agree to our use of cookies."
+	},
+	"FeaturesAccordion": {
+		"headline": "Integrations that keep requests moving",
+		"subHeadline": "Tasheel plugs into the portals, workflows, and communication tools your team already uses.",
+		"feature1Title": "Government Portal Integrations",
+		"feature1Content": "Submit and monitor applications through Palestinian Authority portals including the Ministry of Interior eServices, Ministry of Transport, and Civil Affairs.",
+		"feature2Title": "Secure Payment Workflows",
+		"feature2Content": "Collect fees through Stripe, Tap Payments, or bank transfer with automated receipts and reconciliation.",
+		"feature3Title": "Document Vault",
+		"feature3Content": "Encrypt and store passports, certificates, and attestations with granular permissions and audit trails.",
+		"feature4Title": "Notification Engine",
+		"feature4Content": "Keep applicants informed with branded SMS, email, and WhatsApp alerts at each milestone.",
+		"feature5Title": "Calendar & Appointments",
+		"feature5Content": "Sync site visits and biometrics appointments with Google Calendar, Outlook, and Teams schedules."
+	},
+	"VideoButton": {
+		"label": "Watch Video"
+	},
+	"FeaturesSlider": {
+		"headline": "Complete service coverage",
+		"subHeadline": "Your concierge for government, translation, legalization, and corporate filings",
+		"feature1Title": "Government Services",
+		"feature1Description": "Driver's licenses, Palestinian ID renewals, travel permits, and official certificates processed end-to-end.",
+		"feature2Title": "Translation Services",
+		"feature2Description": "Certified and legal translations for contracts, medical reports, diplomas, and corporate documents.",
+		"feature3Title": "Legalization & Attestation",
+		"feature3Description": "Embassy legalization, ministry attestation, and apostille support for global acceptance.",
+		"feature4Title": "Corporate Compliance",
+		"feature4Description": "Company formation, HR onboarding, payroll documents, and ongoing compliance filings."
+	},
+	"SubscribeForm": {
+		"emailPlaceholder": "Enter your email",
+		"subscribeLabel": "Subscribe"
+	},
+	"FeaturesGrid": {
+		"image1Alt": "Tasheel concierge dashboard for government services",
+		"image2Alt": "Certified translation management workspace",
+		"image3Alt": "Legalization and corporate compliance workflow overview"
 	}
 }

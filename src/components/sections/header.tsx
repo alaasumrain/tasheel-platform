@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import {
 	Box,
 	Link as MuiLink,
@@ -12,7 +13,7 @@ import {
 	useColorScheme,
 } from '@mui/material';
 
-import { IconMenu, IconX as IconClose } from '@tabler/icons-react';
+import { IconMenu, IconX as IconClose, IconSearch } from '@tabler/icons-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
@@ -22,9 +23,19 @@ import LanguageSwitcher from '@/components/ui/language-switcher';
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
+	const [isScrolled, setIsScrolled] = useState(false);
 	const t = useTranslations('Header');
 	const locale = useLocale();
+	const pathname = usePathname();
 	const isArabic = locale === 'ar';
+
+	useEffect(() => {
+		const handleScroll = () => {
+			setIsScrolled(window.scrollY > 20);
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
 	const navigationLinks: NavigationLink[] = [
 		{
@@ -36,8 +47,8 @@ export default function Header() {
 			href: '/track',
 		},
 		{
-			label: t('pricing'),
-			href: '/#pricing',
+			label: t('faqs'),
+			href: '/#faq',
 		},
 		{
 			label: t('about'),
@@ -49,37 +60,85 @@ export default function Header() {
 		},
 	];
 
+	const isActiveLink = (href: string) => {
+		if (href === '/') {
+			return pathname === '/' || pathname === '/ar' || pathname === '/en';
+		}
+		return pathname === href || pathname.startsWith(href + '/');
+	};
+
 	return (
 		<>
-			<Box>
+			<Box
+				sx={{
+					bgcolor: 'background.paper',
+					borderBottom: '1px solid',
+					borderColor: 'divider',
+					position: 'sticky',
+					top: 0,
+					zIndex: 1100,
+					transition: 'box-shadow 0.3s ease, transform 0.3s ease',
+					boxShadow: isScrolled ? '0px 2px 8px rgba(0,0,0,0.08)' : 'none',
+					transform: isScrolled ? 'translateY(0)' : 'translateY(0)',
+				}}
+			>
 		<Container maxWidth="lg" sx={{ px: { xs: 2.5, lg: 4 } }}>
 					<Stack
 						alignItems="center"
 						direction={'row'}
 						justifyContent="space-between"
-						sx={{ height: { xs: 100, lg: 110 } }}
+						sx={{ height: { xs: 80, lg: 90 } }}
 					>
 						<LogoWrapper />
 				<Stack
 					direction="row"
-					spacing={3}
 					sx={{
 						display: { xs: 'none', lg: 'flex' },
-						marginInlineStart: { lg: 6 },
+								flex: 1,
+								justifyContent: 'center',
 						alignItems: 'center',
+								gap: { lg: 3, xl: 4 },
+								mx: { lg: 4 },
 						'& a': {
 							whiteSpace: 'nowrap',
 							fontWeight: 500,
+									position: 'relative',
 						},
 					}}
 				>
-					{navigationLinks.map((link) => (
-						<MuiLink key={link.href} component={Link} href={link.href} underline="none" prefetch>
+							{navigationLinks.map((link) => {
+								const isActive = isActiveLink(link.href);
+								return (
+									<MuiLink
+										key={link.href}
+										component={Link}
+										href={link.href}
+										underline="none"
+										prefetch
+										sx={{
+											position: 'relative',
+											px: 1,
+										}}
+									>
+										{isActive && (
+											<Box
+												sx={{
+													position: 'absolute',
+													[isArabic ? 'right' : 'left']: 0,
+													top: '50%',
+													transform: 'translateY(-50%)',
+													width: 3,
+													height: '60%',
+													bgcolor: 'primary.main',
+													borderRadius: 1,
+												}}
+											/>
+										)}
 						<Typography
-							color="textPrimary"
+											color={isActive ? 'primary.main' : 'text.primary'}
 							sx={{
-								fontSize: '0.95rem',
-								fontWeight: 600,
+												fontSize: '1.1rem',
+												fontWeight: isActive ? 700 : 600,
 								letterSpacing: isArabic ? 0 : 0.2,
 							}}
 							variant="subtitle2"
@@ -87,18 +146,26 @@ export default function Header() {
 							{link.label}
 						</Typography>
 					</MuiLink>
-					))}
+								);
+							})}
 				</Stack>
 				<Stack
 					alignItems="center"
 					direction="row"
-					spacing={2.5}
+							spacing={2}
 					sx={{ display: { xs: 'none', lg: 'flex' } }}
 				>
+							<IconButton
+								sx={{
+									color: 'text.primary',
+								}}
+							>
+								<IconSearch size={20} />
+							</IconButton>
 					<LanguageSwitcher />
 					<ThemeToggle />
 					<GetStarted
-						buttonLabel="Request a Service"
+								buttonLabel={t('requestService')}
 						href="/services"
 						size="medium"
 						sx={{ boxShadow: '0px 8px 16px rgba(0,0,0,0.12)' }}
@@ -175,7 +242,7 @@ export default function Header() {
 								<Stack spacing={2}>
 									<LanguageSwitcher fullWidth />
 									<GetStarted
-										buttonLabel="Request a Service"
+										buttonLabel={t('requestService')}
 										fullWidth
 										href="/services"
 										size="large"
@@ -197,13 +264,14 @@ interface NavigationLink {
 
 function LogoWrapper() {
 	const { mode } = useColorScheme();
+	const t = useTranslations('Header');
 	const logoSrc = mode === 'dark' ? '/dark/logo-header.png' : '/light/logo-header.png';
 	return (
 		<MuiLink component={Link} href="/" underline="none" prefetch>
 			<Box
 				component="img"
 				src={logoSrc}
-				alt="Company logo"
+				alt={t('logoAlt')}
 				sx={{ height: { xs: 56, lg: 68 }, width: 'auto' }}
 			/>
 		</MuiLink>

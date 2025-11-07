@@ -19,39 +19,10 @@ import {
 	IconChevronRight as IconNext,
 } from '@tabler/icons-react';
 import { EmblaCarouselType } from 'embla-carousel';
+import { useTranslations, useLocale } from 'next-intl';
 
 import useEmblaCarousel from 'embla-carousel-react';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `Complete service coverage`;
-
-// Put Section SubHeadline here
-const subHeadline = `Your concierge for government, translation, legalization, and corporate filings`;
-
-// Put Section Features here
-const features: Feature[] = [
-	{
-		image: '/global/feature-slider-01.jpg',
-		title: `Government Services`,
-		description: `Driver's licenses, Palestinian ID renewals, travel permits, and official certificates processed end-to-end.`,
-	},
-	{
-		image: '/global/feature-slider-02.jpg',
-		title: `Translation Services`,
-		description: `Certified and legal translations for contracts, medical reports, diplomas, and corporate documents.`,
-	},
-	{
-		image: '/global/feature-slider-03.jpg',
-		title: `Legalization & Attestation`,
-		description: `Embassy legalization, ministry attestation, and apostille support for global acceptance.`,
-	},
-	{
-		image: '/global/feature-slider-04.jpg',
-		title: `Corporate Compliance`,
-		description: `Company formation, HR onboarding, payroll documents, and ongoing compliance filings.`,
-	},
-];
 
 interface Feature {
 	image: string;
@@ -60,10 +31,36 @@ interface Feature {
 }
 
 export default function FeaturesSlider() {
-	const [emblaRef, emblaApi] = useEmblaCarousel();
+	const t = useTranslations('FeaturesSlider');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
+	const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' });
 
 	const [canPrev, setCanPrev] = useState(true);
 	const [canNext, setCanNext] = useState(true);
+
+	const features: Feature[] = [
+		{
+			image: '/global/feature-slider-01.jpg',
+			title: t('feature1Title'),
+			description: t('feature1Description'),
+		},
+		{
+			image: '/global/feature-slider-02.jpg',
+			title: t('feature2Title'),
+			description: t('feature2Description'),
+		},
+		{
+			image: '/global/feature-slider-03.jpg',
+			title: t('feature3Title'),
+			description: t('feature3Description'),
+		},
+		{
+			image: '/global/feature-slider-04.jpg',
+			title: t('feature4Title'),
+			description: t('feature4Description'),
+		},
+	];
 
 	const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
 		setCanPrev(emblaApi.canScrollPrev());
@@ -98,18 +95,18 @@ export default function FeaturesSlider() {
 										sx={{
 											alignItems: { xs: 'center', md: 'flex-start' },
 											px: { xs: 2, md: 0 },
-											textAlign: { xs: 'center', md: 'left' },
+											textAlign: { xs: 'center', md: isRTL ? 'right' : 'left' },
 										}}
 									>
 										<Typography color="accent" variant="subtitle1">
-											{subHeadline}
+											{t('subHeadline')}
 										</Typography>
 										<Typography
 											component="div"
 											sx={{ whiteSpace: 'pre-line' }}
 											variant="h2"
 										>
-											{headline}
+											{t('headline')}
 										</Typography>
 									</Stack>
 								</Grid>
@@ -130,7 +127,7 @@ export default function FeaturesSlider() {
 												'&:hover': { opacity: 1 },
 											}}
 										>
-											<IconPrev size={48} />
+											{isRTL ? <IconNext size={48} /> : <IconPrev size={48} />}
 										</IconButton>
 										<IconButton
 											disabled={!canNext}
@@ -143,7 +140,7 @@ export default function FeaturesSlider() {
 												'&:hover': { opacity: 1 },
 											}}
 										>
-											<IconNext size={48} />
+											{isRTL ? <IconPrev size={48} /> : <IconNext size={48} />}
 										</IconButton>
 									</Stack>
 								</Grid>
@@ -157,7 +154,7 @@ export default function FeaturesSlider() {
 							() => ({
 								position: 'relative',
 								'&:after': {
-									background: `linear-gradient(to left, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
+									background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
 									content: '""',
 									display: canNext ? 'block' : 'none',
 									height: '100%',
@@ -169,7 +166,7 @@ export default function FeaturesSlider() {
 									zIndex: 1,
 								},
 								'&:before': {
-									background: `linear-gradient(to right, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
+									background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
 									content: '""',
 									display: canPrev ? 'block' : 'none',
 									height: '100%',
@@ -184,10 +181,10 @@ export default function FeaturesSlider() {
 							(theme) =>
 								theme.applyStyles('dark', {
 									'&:before': {
-										background: `linear-gradient(to left, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
+										background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
 									},
 									'&:after': {
-										background: `linear-gradient(to right, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
+										background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
 									},
 								}),
 						]}
@@ -207,9 +204,11 @@ export default function FeaturesSlider() {
 										className="embla__slide"
 										sx={[
 											() => ({
-												backgroundColor: '#0E21A0',
+												backgroundColor: 'accent.main',
 												borderRadius: { xs: '24px', md: '32px' },
-												boxShadow: '0px 24px 40px 0px rgba(0, 0, 0, 0.12)',
+												boxShadow: (theme) => theme.palette.mode === 'dark' 
+													? '0px 24px 40px 0px rgba(0, 0, 0, 0.4)' 
+													: '0px 24px 40px 0px rgba(0, 0, 0, 0.12)',
 												position: 'relative',
 												'&:after': {
 													borderTopColor: 'rgba(255, 255, 255, 0.5)',
@@ -235,10 +234,6 @@ export default function FeaturesSlider() {
 													zIndex: 1,
 												},
 											}),
-											(theme) =>
-												theme.applyStyles('dark', {
-													backgroundColor: '#0E21A0',
-												}),
 										]}
 									>
 										<CardMedia
@@ -259,10 +254,10 @@ export default function FeaturesSlider() {
 											}}
 										>
 											<Stack spacing={1.5}>
-												<Typography color="#ffffff" variant="h5">
+												<Typography color="accent.contrastText" variant="h5">
 													{feature.title}
 												</Typography>
-												<Typography color="#ffffff">
+												<Typography color="accent.contrastText">
 													{feature.description}
 												</Typography>
 											</Stack>

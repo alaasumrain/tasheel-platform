@@ -11,10 +11,13 @@ import {
 	TextField,
 	Typography,
 	Alert,
+	Stack,
 } from '@mui/material';
+import { IconArrowRight } from '@tabler/icons-react';
 
 export default function AdminLoginPage() {
 	const router = useRouter();
+	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -28,13 +31,15 @@ export default function AdminLoginPage() {
 			const response = await fetch('/api/admin/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ password }),
+				body: JSON.stringify({ email, password }),
 			});
+
+			const data = await response.json();
 
 			if (response.ok) {
 				router.push('/admin');
 			} else {
-				setError('Invalid password');
+				setError(data.error || 'Invalid email or password');
 			}
 		} catch {
 			setError('An error occurred. Please try again.');
@@ -56,40 +61,57 @@ export default function AdminLoginPage() {
 			<Container maxWidth="sm">
 				<Card sx={{ borderRadius: 4 }}>
 					<CardContent sx={{ p: 4 }}>
-						<Typography variant="h4" component="h1" gutterBottom fontWeight={700}>
-							Admin Login
-						</Typography>
-						<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-							Enter your password to access the admin dashboard
-						</Typography>
+						<Stack spacing={3}>
+							<Box>
+								<Typography variant="h4" component="h1" gutterBottom fontWeight={700}>
+									Admin Login
+								</Typography>
+								<Typography variant="body2" color="text.secondary">
+									Enter your credentials to access the admin dashboard
+								</Typography>
+							</Box>
 
-						{error && (
-							<Alert severity="error" sx={{ mb: 2 }}>
-								{error}
-							</Alert>
-						)}
+							{error && (
+								<Alert severity="error">
+									{error}
+								</Alert>
+							)}
 
-						<form onSubmit={handleSubmit}>
-							<TextField
-								fullWidth
-								type="password"
-								label="Password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								required
-								sx={{ mb: 3 }}
-								autoFocus
-							/>
-							<Button
-								type="submit"
-								variant="contained"
-								fullWidth
-								size="large"
-								disabled={loading}
-							>
-								{loading ? 'Logging in...' : 'Login'}
-							</Button>
-						</form>
+							<form onSubmit={handleSubmit}>
+								<Stack spacing={3}>
+									<TextField
+										fullWidth
+										type="email"
+										label="Email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
+										required
+										autoFocus
+										autoComplete="email"
+									/>
+									<TextField
+										fullWidth
+										type="password"
+										label="Password"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										required
+										autoComplete="current-password"
+									/>
+									<Button
+										type="submit"
+										variant="contained"
+										fullWidth
+										size="large"
+										disabled={loading}
+										endIcon={<IconArrowRight />}
+										sx={{ borderRadius: 2 }}
+									>
+										{loading ? 'Logging in...' : 'Login'}
+									</Button>
+								</Stack>
+							</form>
+						</Stack>
 					</CardContent>
 				</Card>
 			</Container>

@@ -14,10 +14,10 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import type { Service } from '@/data/services';
-import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
 import { Card as CustomCard } from '@/components/ui/card';
 import { PageBreadcrumbs } from '@/components/ui/breadcrumbs';
+import ServiceDetailSidebar from './service-detail-sidebar';
 
 interface ServiceDetailProps {
 	service: Service;
@@ -69,8 +69,9 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={{ xs: 3, md: 4 }}>
 						<PageBreadcrumbs items={breadcrumbs} />
-						<Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
-							<Grid size={{ xs: 12, md: 6 }}>
+						<Grid container spacing={{ xs: 4, md: 6 }} alignItems="flex-start">
+							{/* Main Content - Left Column (Right for Arabic/RTL) */}
+							<Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 1, md: locale === 'ar' ? 2 : 1 } }}>
 								<Stack spacing={3}>
 									<Typography
 										color="accent"
@@ -139,13 +140,9 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 								</Stack>
 							</Grid>
 
-							<Grid size={{ xs: 12, md: 6 }}>
-								<Mockup
-									darkImage={service.image.dark}
-									lightImage={service.image.light}
-									aspectRatio="600/400"
-									borderRadius={24}
-								/>
+							{/* Sidebar - Right Column (Left for Arabic/RTL) */}
+							<Grid size={{ xs: 12, md: 4 }} sx={{ order: { xs: 2, md: locale === 'ar' ? 1 : 2 } }}>
+								<ServiceDetailSidebar service={service} />
 							</Grid>
 						</Grid>
 					</Stack>
@@ -166,30 +163,31 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 								</Typography>
 							</Stack>
 
-							<Grid container spacing={4}>
+							<Grid container spacing={{ xs: 3, md: 4 }}>
 								{service.processSteps.map((step, index) => (
 									<Grid size={{ xs: 12, md: 6, lg: 3 }} key={index}>
 										<CustomCard>
-											<CardContent sx={{ p: { xs: 3, md: 4 } }}>
-												<Stack spacing={2}>
+											<CardContent sx={{ p: { xs: 3, md: 4 }, height: '100%' }}>
+												<Stack spacing={2.5}>
 													<Box
-														sx={{
+														sx={(theme) => ({
 															width: 60,
 															height: 60,
 															borderRadius: '16px',
-															backgroundColor: 'accent.main',
-															color: '#10101E',
+														backgroundColor: 'accent.main',
+														color: theme.palette.mode === 'dark' ? 'accent.contrastText' : 'accent.contrastText',
 															display: 'flex',
 															alignItems: 'center',
 															justifyContent: 'center',
-														}}
+															flexShrink: 0,
+														})}
 													>
-														<Typography variant="h3" component="span">
+														<Typography variant="h3" component="span" fontWeight={700}>
 															{step.number}
 														</Typography>
 													</Box>
-													<Typography variant="h5">{step.title}</Typography>
-													<Typography color="text.secondary" variant="body2">
+													<Typography variant="h5" fontWeight={700}>{step.title}</Typography>
+													<Typography color="text.secondary" variant="body2" sx={{ lineHeight: 1.7 }}>
 														{step.description}
 													</Typography>
 												</Stack>
@@ -206,20 +204,20 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 			{/* Required Documents & Features */}
 			<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 				<RevealSection delay={0.3} direction="up">
-					<Grid container spacing={6}>
+					<Grid container spacing={{ xs: 4, md: 6 }}>
 						{/* Required Documents */}
 						<Grid size={{ xs: 12, lg: 6 }}>
 							<CustomCard>
 								<CardContent sx={{ p: { xs: 4, md: 5 } }}>
 									<Stack spacing={3}>
-										<Typography variant="h4">{t('requiredDocuments')}</Typography>
+										<Typography variant="h4" fontWeight={700}>{t('requiredDocuments')}</Typography>
 										<Stack spacing={2}>
 											{service.requiredDocuments.map((doc, index) => (
-												<Stack direction="row" spacing={2} key={index}>
-													<Box sx={{ color: 'accent.main', pt: 0.5 }}>
+												<Stack direction="row" spacing={2} key={index} alignItems="flex-start">
+													<Box sx={{ color: 'accent.main', pt: 0.5, flexShrink: 0 }}>
 														<IconCheck size={24} />
 													</Box>
-													<Typography color="text.secondary" variant="body1">
+													<Typography color="text.secondary" variant="body1" sx={{ lineHeight: 1.7 }}>
 														{doc}
 													</Typography>
 												</Stack>
@@ -227,15 +225,19 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										</Stack>
 										{service.pricing.note && (
 											<Box
-												sx={{
+												sx={(theme) => ({
 													mt: 2,
-													p: 2,
-													backgroundColor: 'background.default',
+													p: 2.5,
+													backgroundColor: theme.palette.mode === 'dark'
+														? 'rgba(255,255,255,0.05)'
+														: 'rgba(14, 33, 160, 0.04)',
 													borderRadius: 2,
-												}}
+													border: '1px solid',
+													borderColor: 'divider',
+												})}
 											>
-												<Typography variant="caption" color="text.secondary">
-													<strong>Note:</strong> {service.pricing.note}
+												<Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+													<strong>{locale === 'ar' ? 'ملاحظة:' : 'Note:'}</strong> {service.pricing.note}
 												</Typography>
 											</Box>
 										)}
@@ -247,23 +249,23 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 						{/* Service Features */}
 						<Grid size={{ xs: 12, lg: 6 }}>
 							<CustomCard
-								backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
-								borderColor={{ light: '#3949B1', dark: '#3949B1' }}
-								gradientColor={{ light: '#3949B1', dark: '#3949B1' }}
+								backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
+								borderColor={{ light: 'accent.light', dark: 'accent.light' }}
+								gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
 								gradientOpacity={0.6}
 							>
 								<CardContent sx={{ p: { xs: 4, md: 5 } }}>
 									<Stack spacing={3}>
-									<Typography variant="h4" color="#ffffff">
+									<Typography variant="h4" color="accent.contrastText">
 										{t('whatsIncluded')}
 									</Typography>
 										<Stack spacing={2}>
 											{service.features.map((feature, index) => (
 												<Stack direction="row" spacing={2} key={index}>
-													<Box sx={{ color: '#ffffff', pt: 0.5 }}>
+													<Box sx={{ color: 'accent.contrastText', pt: 0.5 }}>
 														<IconCheck size={24} />
 													</Box>
-													<Typography variant="body1" color="#ffffff">
+													<Typography variant="body1" color="accent.contrastText">
 														{feature}
 													</Typography>
 												</Stack>
@@ -294,11 +296,11 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 								}}
 							>
 								<Stack spacing={4} alignItems="center">
-									<Stack spacing={2} alignItems="center" maxWidth={720}>
-										<Typography variant="h3">
+									<Stack spacing={2.5} alignItems="center" maxWidth={720}>
+										<Typography variant="h3" fontWeight={700}>
 											{t('readyToStart')}
 										</Typography>
-										<Typography color="text.secondary" variant="h6">
+										<Typography color="text.secondary" variant="h6" sx={{ lineHeight: 1.7 }}>
 											{t('quoteDescription')}
 										</Typography>
 									</Stack>
@@ -306,22 +308,37 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										direction={{ xs: 'column', sm: 'row' }}
 										spacing={2}
 										justifyContent="center"
+										sx={{ width: '100%', maxWidth: 500 }}
 									>
 										<Button
 											component={Link}
 											href={`/services/${service.slug}/quote`}
 											variant="contained"
 											size="large"
+											sx={{
+												flex: { xs: 1, sm: 'none' },
+												px: 4,
+												py: 1.5,
+												fontWeight: 600,
+												borderRadius: 2,
+											}}
 										>
 											{t('requestQuoteNow')}
 										</Button>
 										<Button
-									component={Link}
-									href="tel:+97022401234"
+											component={Link}
+											href="tel:+97022401234"
 											variant="outlined"
 											size="large"
+											sx={{
+												flex: { xs: 1, sm: 'none' },
+												px: 4,
+												py: 1.5,
+												fontWeight: 600,
+												borderRadius: 2,
+											}}
 										>
-									{t('callUs')}
+											{t('callUs')}
 										</Button>
 									</Stack>
 								</Stack>

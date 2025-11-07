@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { supabaseUrl, supabaseAnonKey } from '../supabase-config';
+import { isSupabaseConfigured, getSupabaseUrl, getSupabaseAnonKey } from '../supabase-config';
 
 /**
  * Updates the user session in middleware.
@@ -10,12 +10,17 @@ import { supabaseUrl, supabaseAnonKey } from '../supabase-config';
  * 3. Can redirect unauthenticated users (currently disabled for gradual rollout)
  */
 export async function updateSession(request: NextRequest, response?: NextResponse) {
+	// If Supabase is not configured, skip auth handling
+	if (!isSupabaseConfigured()) {
+		return response ?? NextResponse.next({ request });
+	}
+
 	const hasCustomResponse = Boolean(response);
 	let supabaseResponse = response ?? NextResponse.next({
 		request,
 	});
 
-	const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+	const supabase = createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
 		cookies: {
 			getAll() {
 				return request.cookies.getAll();

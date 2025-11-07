@@ -1,5 +1,4 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { useTranslations } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
@@ -14,7 +13,8 @@ export async function generateMetadata() {
 	};
 }
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+	const t = await getTranslations('Auth.register');
 	return (
 		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: { xs: 6, md: 12 } }}>
 			<Container maxWidth="sm">
@@ -22,10 +22,10 @@ export default function RegisterPage() {
 					<Stack spacing={4}>
 						<Stack spacing={2} textAlign="center">
 							<Typography variant="h2" component="h1" fontWeight={700}>
-								Create Your Account
+								{t('pageTitle')}
 							</Typography>
 							<Typography variant="h6" color="text.secondary">
-								Join Tasheel to manage your government services requests
+								{t('pageSubtitle')}
 							</Typography>
 						</Stack>
 

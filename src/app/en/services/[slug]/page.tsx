@@ -20,14 +20,13 @@ export async function generateStaticParams() {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps) {
-	const { setRequestLocale } = await import('next-intl/server');
+	const { setRequestLocale, getTranslations } = await import('next-intl/server');
 	setRequestLocale('en');
+	const t = await getTranslations('Services');
 	const resolvedParams = await params;
 	const service = await getServiceFromDB(resolvedParams.slug);
 
 	if (!service) {
-		const { getTranslations } = await import('next-intl/server');
-		const t = await getTranslations('Services');
 		return {
 			title: t('notFound'),
 		};
@@ -36,7 +35,7 @@ export async function generateMetadata({ params }: PageProps) {
 	const legacyService = convertToLegacyFormat(service, 'en');
 
 	return {
-		title: `${legacyService.title} | Tasheel Government Services`,
+		title: `${legacyService.title} | ${t('title')}`,
 		description: legacyService.shortDescription,
 		keywords: [
 			legacyService.title,

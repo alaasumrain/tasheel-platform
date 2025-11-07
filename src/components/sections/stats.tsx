@@ -8,7 +8,7 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
@@ -20,6 +20,8 @@ interface Stat {
 
 export default function Stats() {
 	const t = useTranslations('Homepage.stats');
+	const locale = useLocale();
+	const isRTL = locale === 'ar';
 	
 	const statsRow1: Stat[] = [
 		{
@@ -65,7 +67,7 @@ export default function Stats() {
 							<Grid size={{ xs: 12, lg: 6 }}>
 								<Typography
 									sx={{
-										textAlign: { xs: 'center', lg: 'left' },
+										textAlign: { xs: 'center', lg: isRTL ? 'right' : 'left' },
 										whiteSpace: 'pre-line',
 									}}
 									variant="h2"
@@ -76,7 +78,7 @@ export default function Stats() {
 							<Grid size={{ xs: 12, lg: 6 }}>
 								<Stack
 									spacing={3}
-									sx={{ textAlign: { xs: 'center', lg: 'left' } }}
+									sx={{ textAlign: { xs: 'center', lg: isRTL ? 'right' : 'left' } }}
 								>
 									<Typography
 										color="text.secondary"
@@ -136,16 +138,16 @@ function StatItem({ stat }: { stat: Stat }) {
 		>
 			<Card
 				backgroundColor={{
-					light: stat.color ? '#0E21A0' : 'rgba(255, 255, 255, 0.50)',
-					dark: stat.color ? '#99FF82' : '#282828',
+					light: stat.color ? 'accent.main' : 'background.paper',
+					dark: stat.color ? 'success.main' : 'background.paper',
 				}}
 				borderColor={{
-					light: stat.color ? '#97A0D6' : '#FFF',
-					dark: stat.color ? '#99FF82' : '#444',
+					light: stat.color ? 'accent.light' : 'divider',
+					dark: stat.color ? 'success.main' : 'divider',
 				}}
 				borderRadius={24}
 				gradientOpacity={stat.color ? 0.1 : undefined}
-				gradientColor={{ light: '#EEE', dark: '#444' }}
+				gradientColor={{ light: 'divider', dark: 'divider' }}
 				fullHeight
 			>
 				<CardContent
@@ -158,10 +160,10 @@ function StatItem({ stat }: { stat: Stat }) {
 					<Stack spacing={1.5}>
 						<Typography
 							sx={[
-								() => ({ color: stat.color ? '#ffffff' : 'primary.main' }),
+								() => ({ color: stat.color ? 'accent.contrastText' : 'primary.main' }),
 								(theme) =>
 									theme.applyStyles('dark', {
-										color: stat.color ? '#10101E' : 'primary.main',
+										color: stat.color ? 'text.primary' : 'primary.main',
 									}),
 							]}
 							variant="h3"
@@ -170,10 +172,10 @@ function StatItem({ stat }: { stat: Stat }) {
 						</Typography>
 						<Typography
 							sx={[
-								() => ({ color: stat.color ? '#ffffff' : 'primary.main' }),
+								() => ({ color: stat.color ? 'accent.contrastText' : 'primary.main' }),
 								(theme) =>
 									theme.applyStyles('dark', {
-										color: stat.color ? '#4B4B65' : 'primary.main',
+										color: stat.color ? 'text.secondary' : 'primary.main',
 									}),
 							]}
 							variant="subtitle1"

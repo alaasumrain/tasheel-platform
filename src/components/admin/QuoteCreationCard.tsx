@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
 	Box,
 	Typography,
@@ -21,19 +22,23 @@ interface QuoteCreationCardProps {
 }
 
 export function QuoteCreationCard({ orderId, customerEmail }: QuoteCreationCardProps) {
+	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const [amount, setAmount] = useState('');
 	const [notes, setNotes] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const t = useTranslations('Admin.quote');
 
 	const handleCreateQuote = async () => {
 		if (!amount || isNaN(parseFloat(amount))) {
+			setError(t('amountRequired') || 'Amount is required');
 			return;
 		}
 
 		setLoading(true);
+		setError(null);
 		try {
 			const response = await fetch('/api/admin/quotes', {
 				method: 'POST',
@@ -52,10 +57,16 @@ export function QuoteCreationCard({ orderId, customerEmail }: QuoteCreationCardP
 				setTimeout(() => {
 					setOpen(false);
 					setSuccess(false);
+					// Refresh page data without full reload
+					router.refresh();
 				}, 2000);
+			} else {
+				const errorData = await response.json();
+				setError(errorData.error || t('quoteCreationFailed') || 'Failed to create quote');
 			}
 		} catch (error) {
 			console.error('Error creating quote:', error);
+			setError(t('errorOccurred') || 'An error occurred');
 		} finally {
 			setLoading(false);
 		}
@@ -64,8 +75,8 @@ export function QuoteCreationCard({ orderId, customerEmail }: QuoteCreationCardP
 	return (
 		<>
 			<Card
-				backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-				borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+				backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+				borderColor={{ light: 'divider', dark: 'divider' }}
 				borderRadius={20}
 			>
 				<Box sx={{ p: 3 }}>
@@ -109,6 +120,9 @@ export function QuoteCreationCard({ orderId, customerEmail }: QuoteCreationCardP
 						/>
 						{success && (
 							<Alert severity="success">{t('quoteCreated')}</Alert>
+						)}
+						{error && (
+							<Alert severity="error">{error}</Alert>
 						)}
 					</Box>
 				</DialogContent>

@@ -11,10 +11,11 @@ import {
 	Typography,
 	Chip,
 	Alert,
+	useTheme,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconSearch, IconCheck, IconClock } from '@tabler/icons-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
@@ -36,6 +37,8 @@ const statusColors: Record<string, string> = {
 
 export default function Track() {
 	const t = useTranslations('Homepage.track');
+	const locale = useLocale() as 'en' | 'ar';
+	const theme = useTheme();
 	const searchParams = useSearchParams();
 	const [orderNumber, setOrderNumber] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -71,7 +74,7 @@ export default function Track() {
 			setError('');
 			setOrderData(null);
 
-			const result = await trackOrder(numToTrack.trim());
+			const result = await trackOrder(numToTrack.trim(), locale);
 
 			if (result.type === 'error') {
 				setError(result.message || t('noOrderFound'));
@@ -83,7 +86,7 @@ export default function Track() {
 
 			setLoading(false);
 		},
-		[orderNumber, t],
+		[orderNumber, t, locale],
 	);
 
 	// Auto-load if order param in URL
@@ -119,8 +122,8 @@ export default function Track() {
 
 							<RevealSection delay={0.3} direction="up">
 								<Card
-									backgroundColor={{ light: 'rgba(255,255,255,0.8)', dark: '#1F1F2B' }}
-									borderColor={{ light: '#fff', dark: '#2F2F3B' }}
+									backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+									borderColor={{ light: 'divider', dark: 'divider' }}
 									borderRadius={24}
 								>
 									<Box sx={{ p: { xs: 3, md: 4 } }}>
@@ -140,6 +143,15 @@ export default function Track() {
 												sx={{
 													'& .MuiOutlinedInput-root': {
 														borderRadius: '12px',
+														'& fieldset': {
+															borderColor: 'divider',
+														},
+														'&:hover fieldset': {
+															borderColor: 'primary.main',
+														},
+														'&.Mui-focused fieldset': {
+															borderColor: 'primary.main',
+														},
 													},
 												}}
 											/>
@@ -168,8 +180,11 @@ export default function Track() {
 											<RevealSection delay={0.2} direction="up">
 												<Box sx={{ mt: 4 }}>
 													<Card
-														backgroundColor={{ light: '#F8F9FF', dark: '#16161F' }}
-														borderColor={{ light: '#E8EAFF', dark: '#25253F' }}
+														backgroundColor={{ 
+															light: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(14, 33, 160, 0.02)', 
+															dark: 'rgba(255,255,255,0.02)' 
+														}}
+														borderColor={{ light: 'divider', dark: 'divider' }}
 														borderRadius={16}
 													>
 														<Box sx={{ p: 3 }}>
@@ -197,7 +212,7 @@ export default function Track() {
 																			label={statusLabels[orderData.order.status] || orderData.order.status}
 																			sx={{
 																				backgroundColor: statusColors[orderData.order.status] || '#9E9E9E',
-																				color: '#fff',
+																				color: 'common.white',
 																				fontWeight: 600,
 																				px: 1,
 																			}}
@@ -326,7 +341,7 @@ export default function Track() {
 
 							<Stack spacing={1.5} sx={{ textAlign: 'center', pt: 2 }}>
 								<Typography variant="body2" color="textSecondary">
-									Can&apos;t find your order number? Check your confirmation email or{' '}
+									{t('cantFindOrder')}{' '}
 									<Typography
 										component="a"
 										href="/contact"
@@ -337,7 +352,7 @@ export default function Track() {
 											'&:hover': { textDecoration: 'underline' },
 										}}
 									>
-										contact support
+										{t('contactSupport')}
 									</Typography>
 								</Typography>
 							</Stack>
@@ -358,6 +373,7 @@ function StatusStep({
 	date: string;
 	isFirst?: boolean;
 }) {
+	const theme = useTheme();
 	return (
 		<Stack direction="row" spacing={2} alignItems="flex-start">
 			<Box
@@ -365,7 +381,16 @@ function StatusStep({
 					width: 32,
 					height: 32,
 					borderRadius: '50%',
-					backgroundColor: isFirst ? 'accent.main' : 'rgba(128, 128, 128, 0.2)',
+					backgroundColor: isFirst 
+						? 'accent.main' 
+						: theme.palette.mode === 'dark' 
+							? 'rgba(255,255,255,0.1)' 
+							: 'rgba(0,0,0,0.08)',
+					color: isFirst 
+						? 'common.white' 
+						: theme.palette.mode === 'dark' 
+							? 'text.secondary' 
+							: 'text.secondary',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
@@ -373,9 +398,9 @@ function StatusStep({
 				}}
 			>
 				{isFirst ? (
-					<IconCheck size={18} color="#fff" />
+					<IconCheck size={18} />
 				) : (
-					<IconClock size={18} color="#999" />
+					<IconClock size={18} />
 				)}
 			</Box>
 			<Stack spacing={0.5} sx={{ flexGrow: 1 }}>

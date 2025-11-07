@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { supabaseUrl, supabaseAnonKey } from '../supabase-config';
+import { getSupabaseUrl, getSupabaseAnonKey } from '../supabase-config';
 
 /**
  * Server-side Supabase client for use in Server Components and API routes
@@ -9,7 +9,7 @@ import { supabaseUrl, supabaseAnonKey } from '../supabase-config';
 export async function createClient() {
 	const cookieStore = await cookies();
 
-	return createServerClient(supabaseUrl, supabaseAnonKey, {
+	return createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
 		cookies: {
 			getAll() {
 				return cookieStore.getAll();

@@ -13,45 +13,15 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-
 import {
 	IconChevronLeft as IconPrev,
 	IconChevronRight as IconNext,
 } from '@tabler/icons-react';
 import { EmblaCarouselType } from 'embla-carousel';
+import { useTranslations, useLocale } from 'next-intl';
 
 import useEmblaCarousel from 'embla-carousel-react';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `Residents and teams trust Tasheel`;
-
-// Put Section SubHeadline here
-const subHeadline = `Validated by residents, HR teams, and corporate admins across Palestine`;
-
-// Put Reviews items here
-const reviews: Review[] = [
-	{
-		stars: 5,
-		author: `Fatima A., Ramallah resident`,
-		content: `I renewed my Palestinian ID card and driver&apos;s license without leaving home. Tasheel coordinated every ministry visit and delivered the approvals to my door.`,
-	},
-	{
-		stars: 5,
-		author: `Omar R., HR Manager`,
-		content: `Tasheel turns employee residency renewals into a tracked workflow. We upload, they process, and our staff stay compliant with Palestinian regulations.`,
-	},
-	{
-		stars: 5,
-		author: `Nadia L., Legal Consultant`,
-		content: `Embassy attestations used to take weeks. Tasheel worked with the Palestinian MOFAE and secured stamped documents in four days.`,
-	},
-	{
-		stars: 5,
-		author: `James P., Operations Director`,
-		content: `The live status dashboard means I always know where our permits stand across the West Bank. No more chasing government offices for updates.`,
-	},
-];
 
 interface Review {
 	stars: number;
@@ -60,10 +30,36 @@ interface Review {
 }
 
 export default function Reviews() {
-	const [emblaRef, emblaApi] = useEmblaCarousel();
+	const t = useTranslations('Reviews');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
+	const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: isRTL ? 'rtl' : 'ltr' });
 
 	const [canPrev, setCanPrev] = useState(true);
 	const [canNext, setCanNext] = useState(true);
+
+	const reviews: Review[] = [
+		{
+			stars: 5,
+			author: t('review1Author'),
+			content: t('review1Content'),
+		},
+		{
+			stars: 5,
+			author: t('review2Author'),
+			content: t('review2Content'),
+		},
+		{
+			stars: 5,
+			author: t('review3Author'),
+			content: t('review3Content'),
+		},
+		{
+			stars: 5,
+			author: t('review4Author'),
+			content: t('review4Content'),
+		},
+	];
 
 	const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
 		setCanPrev(emblaApi.canScrollPrev());
@@ -100,21 +96,21 @@ export default function Reviews() {
 										spacing={1.5}
 										sx={{
 											alignItems: { xs: 'center', md: 'flex-start' },
-											textAlign: { xs: 'center', md: 'left' },
+											textAlign: { xs: 'center', md: isRTL ? 'right' : 'left' },
 										}}
 									>
 										<Typography color="accent" variant="subtitle1">
-											{headline}
+											{t('headline')}
 										</Typography>
 										<Typography
 											component="div"
 											sx={{
-												textAlign: { xs: 'center', md: 'left' },
+												textAlign: { xs: 'center', md: isRTL ? 'right' : 'left' },
 												whiteSpace: 'pre-line',
 											}}
 											variant="h2"
 										>
-											{subHeadline}
+											{t('subHeadline')}
 										</Typography>
 									</Stack>
 								</Grid>
@@ -135,7 +131,7 @@ export default function Reviews() {
 												'&:hover': { opacity: 1 },
 											}}
 										>
-											<IconPrev size={48} />
+											{isRTL ? <IconNext size={48} /> : <IconPrev size={48} />}
 										</IconButton>
 										<IconButton
 											disabled={!canNext}
@@ -148,7 +144,7 @@ export default function Reviews() {
 												'&:hover': { opacity: 1 },
 											}}
 										>
-											<IconNext size={48} />
+											{isRTL ? <IconPrev size={48} /> : <IconNext size={48} />}
 										</IconButton>
 									</Stack>
 								</Grid>
@@ -162,7 +158,7 @@ export default function Reviews() {
 							() => ({
 								position: 'relative',
 								'&:after': {
-									background: `linear-gradient(to left, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
+									background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
 									content: '""',
 									display: canNext ? 'block' : 'none',
 									height: '100%',
@@ -174,7 +170,7 @@ export default function Reviews() {
 									zIndex: 1,
 								},
 								'&:before': {
-									background: `linear-gradient(to right, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
+									background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
 									content: '""',
 									display: canPrev ? 'block' : 'none',
 									height: '100%',
@@ -189,10 +185,10 @@ export default function Reviews() {
 							(theme) =>
 								theme.applyStyles('dark', {
 									'&:before': {
-										background: `linear-gradient(to left, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
+										background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
 									},
 									'&:after': {
-										background: `linear-gradient(to right, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
+										background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
 									},
 								}),
 						]}
@@ -240,9 +236,9 @@ export default function Reviews() {
 											}),
 											(theme) =>
 												theme.applyStyles('dark', {
-													backgroundColor: '#222222',
+													backgroundColor: 'background.paper',
 													'&:after': {
-														borderTopColor: '#555555',
+														borderTopColor: 'divider',
 													},
 												}),
 										]}

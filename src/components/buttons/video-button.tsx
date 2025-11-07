@@ -6,18 +6,17 @@ import {
 	IconPlayerPlayFilled as IconPlay,
 	IconX as IconClose,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import ReactPlayer from 'react-player';
 
-// Put Button label here
-const label = 'Watch Video';
-
 export default function Video({
-	buttonLabel = label,
+	buttonLabel,
 	url,
 }: {
 	buttonLabel?: string;
 	url: string;
 }) {
+	const t = useTranslations('VideoButton');
 	const [open, setOpen] = useState(false);
 
 	const handleClose = () => {
@@ -30,7 +29,7 @@ export default function Video({
 	return (
 		<>
 			<Button color="secondary" onClick={handleOpen} startIcon={<IconPlay />}>
-				{buttonLabel}
+				{buttonLabel || t('label')}
 			</Button>
 			<Dialog
 				fullWidth

@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { updateOrderStatus, getOrderById, ApplicationStatus } from '@/lib/admin-queries';
 import { sendOrderStatusEmail } from '@/lib/email-notifications';
+import { requireAdminAuthAPI } from '@/lib/admin-auth';
 
 export async function PATCH(
 	request: NextRequest,
 	context: { params: Promise<{ id: string }> }
 ) {
 	try {
-		// Check admin auth
-		const cookieStore = await cookies();
-		const session = cookieStore.get('admin_session');
-
-		if (!session || session.value !== 'authenticated') {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		// Require admin authentication
+		await requireAdminAuthAPI();
 
 		const { id } = await context.params;
 		const { status, notes } = await request.json();
@@ -38,7 +33,10 @@ export async function PATCH(
 		}
 
 		return NextResponse.json({ success: true });
-	} catch (error) {
+	} catch (error: any) {
+		if (error.message === 'Unauthorized') {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 		console.error('Error updating order status:', error);
 		return NextResponse.json(
 			{ error: 'Failed to update status' },

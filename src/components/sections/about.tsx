@@ -26,7 +26,7 @@ export default function About() {
 					<Stack spacing={{ xs: 2.5, md: 5 }} sx={{ py: { xs: 0, md: 5 } }}>
 						<Stack spacing={1.5}>
 							<Typography
-								color="#FF4B91"
+								color="accent"
 								sx={{ maxWidth: { xs: '100%', md: '80%' } }}
 								variant="h5"
 							>
@@ -53,8 +53,8 @@ export default function About() {
 					<Grid size={{ md: 'grow' }} sx={{ flexGrow: { md: 1 } }}>
 					<Card
 						borderColor={{
-							light: 'rgba(255, 255, 255, 0.5)',
-							dark: 'rgba(255, 255, 255, 0.5)',
+							light: 'divider',
+							dark: 'divider',
 						}}
 						borderRadius={36}
 						fullHeight

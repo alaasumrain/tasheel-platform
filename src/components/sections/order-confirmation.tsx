@@ -17,6 +17,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import {
 	IconArrowRight,
+	IconArrowLeft,
 	IconBrandWhatsapp,
 	IconCheck,
 	IconClipboardCopy,
@@ -179,7 +180,7 @@ export function OrderConfirmation({
 								justifyContent="center"
 								alignItems="center"
 							>
-								<Button component={Link} href="/services" variant="contained" endIcon={<IconArrowRight size={18} />}>
+								<Button component={Link} href="/services" variant="contained" endIcon={locale === 'ar' ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}>
 									{t('backToServices')}
 								</Button>
 								<Button component={Link} href="/track" variant="outlined">
@@ -259,8 +260,11 @@ export function OrderConfirmation({
 							<Card
 								borderRadius={28}
 								gradientOpacity={0.2}
-								backgroundColor={{ light: '#F8F9FF', dark: '#1A1C2C' }}
-								borderColor={{ light: '#E0E5FF', dark: '#2F3360' }}
+								backgroundColor={{ 
+									light: 'rgba(14, 33, 160, 0.02)', 
+									dark: 'rgba(255, 255, 255, 0.02)' 
+								}}
+								borderColor={{ light: 'divider', dark: 'divider' }}
 							>
 								<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 									<Grid container spacing={3} alignItems="center">
@@ -293,7 +297,7 @@ export function OrderConfirmation({
 													href={trackHref}
 													variant="contained"
 													size="large"
-													endIcon={<IconArrowRight size={20} />}
+													endIcon={locale === 'ar' ? <IconArrowLeft size={20} /> : <IconArrowRight size={20} />}
 												>
 													{t('trackButton')}
 												</Button>
@@ -378,8 +382,8 @@ export function OrderConfirmation({
 													key={step.title}
 													borderRadius={20}
 													gradientOpacity={0.1}
-													backgroundColor={{ light: '#FFFFFF', dark: '#1C1E32' }}
-													borderColor={{ light: '#E6E8F5', dark: '#2A2D4E' }}
+													backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+													borderColor={{ light: 'divider', dark: 'divider' }}
 												>
 													<CardContent sx={{ p: { xs: 3, md: 3.5 } }}>
 														<Stack direction="row" spacing={2} alignItems="flex-start">
@@ -460,12 +464,12 @@ export function OrderConfirmation({
 							</Card>
 
 							<Card
-								backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
-								borderColor={{ light: '#2F3CC7', dark: '#2F3CC7' }}
-								gradientColor={{ light: '#0E21A0', dark: '#0E21A0' }}
+								backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
+								borderColor={{ light: 'accent.main', dark: 'accent.main' }}
+								gradientColor={{ light: 'accent.main', dark: 'accent.main' }}
 								gradientOpacity={0.4}
 							>
-								<CardContent sx={{ p: { xs: 4, md: 5 }, color: '#ffffff' }}>
+								<CardContent sx={{ p: { xs: 4, md: 5 }, color: 'accent.contrastText' }}>
 									<Stack spacing={3}>
 										<Stack spacing={1}>
 											<Typography variant="h3" sx={{ fontSize: '1.5rem' }}>
@@ -526,7 +530,7 @@ export function OrderConfirmation({
 										<Button
 											onClick={() => router.push('/services')}
 											variant="text"
-											endIcon={<IconArrowRight size={18} />}
+											endIcon={locale === 'ar' ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
 											sx={{ alignSelf: 'flex-start' }}
 										>
 											{t('browseMoreServices')}

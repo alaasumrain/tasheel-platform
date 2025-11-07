@@ -1,169 +1,161 @@
 'use client';
 
 import {
-	Avatar,
-	AvatarGroup,
 	Box,
 	Button,
 	Container,
 	Stack,
 	Typography,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import type { Theme } from '@mui/material/styles';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
-import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section AvatarGroup here
-const avatars: Avatar[] = [
-	{
-		alt: 'Tasheel government services specialist',
-		src: '/global/person-01.jpg',
-	},
-	{
-		alt: 'Document processing coordinator',
-		src: '/global/person-02.jpg',
-	},
-	{
-		alt: 'Client success manager',
-		src: '/global/person-03.jpg',
-	},
-	{
-		alt: 'Compliance and approvals lead',
-		src: '/global/person-04.jpg',
-	},
-];
-
-interface Avatar {
-	alt: string;
-	src: string;
-}
 
 export default function Hero() {
 	const t = useTranslations('Homepage.hero');
 	
 	return (
-		<Container sx={{ pt: { xs: 6, md: 10 }, pb: { md: 0 } }}>
-			<Grid
-				alignItems="center"
-				container
-				spacing={{ xs: 6, md: 8 }}
-				sx={{ px: { xs: 3.75, md: 7.5 } }}
+		<Box
+			sx={{
+				position: 'relative',
+				minHeight: { xs: '70vh', md: '85vh' },
+				display: 'flex',
+				alignItems: 'center',
+				overflow: 'hidden',
+			}}
+		>
+			{/* Background Image */}
+			<Box
+				sx={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					zIndex: 0,
+				}}
 			>
-				<Grid size={{ xs: 12, md: 6 }}>
-					<Stack spacing={4}>
+				<Image
+					src="/dark/hero.jpg"
+					alt="Tasheel customer service team"
+					fill
+					style={{
+						objectFit: 'cover',
+					}}
+					priority
+				/>
+			</Box>
+			
+			{/* Dark Overlay */}
+			<Box
+				sx={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					zIndex: 1,
+					bgcolor: 'rgba(0, 0, 0, 0.55)',
+				}}
+			/>
+			
+			{/* Content */}
+			<Container
+				maxWidth="lg"
+				sx={{
+					position: 'relative',
+					zIndex: 2,
+					py: { xs: 8, md: 12 },
+				}}
+			>
 						<RevealSection delay={0}>
 							<Stack
-								spacing={2}
+						spacing={4}
+						sx={{
+							alignItems: 'center',
+							textAlign: 'center',
+							maxWidth: { md: 800 },
+							mx: 'auto',
+						}}
+					>
+						<Stack spacing={2.5}>
+							<Typography
+								variant="h1"
 								sx={{
-									alignItems: { xs: 'center', md: 'flex-start' },
-									maxWidth: 640,
-									textAlign: { xs: 'center', md: 'left' },
+									color: 'common.white',
+									fontWeight: 700,
+									fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+									lineHeight: 1.2,
 								}}
 							>
-								<Typography variant="h1">{t('headline')}</Typography>
-								<Typography color="text.secondary" variant="h6">
+								{t('headline')}
+							</Typography>
+							<Typography
+								variant="h6"
+								sx={{
+									color: 'rgba(255, 255, 255, 0.9)',
+									fontSize: { xs: '1.25rem', md: '1.5rem' },
+									fontWeight: 400,
+								}}
+							>
 									{t('description')}
 								</Typography>
 							</Stack>
-						</RevealSection>
+						
 						<RevealSection delay={0.15}>
-							<Stack spacing={3}>
 								<Stack
 									direction={{ xs: 'column', sm: 'row' }}
 									spacing={2.5}
-									sx={{ alignItems: { xs: 'stretch', sm: 'center' } }}
-								>
-									<GetStarted
-										buttonLabel={t('primaryCta')}
-										href="/contact"
-										size="large"
 										sx={{
-											width: { xs: '100%', sm: 'auto' },
-											boxShadow: (theme: Theme) =>
-												theme.palette.mode === 'dark'
-													? '0px 18px 32px rgba(0,0,0,0.45)'
-													: '0px 18px 36px rgba(31, 48, 146, 0.25)',
-											fontWeight: 600,
+									alignItems: 'center',
+									justifyContent: 'center',
 										}}
-									/>
+							>
 									<Button
-										component="a"
+									component={Link}
 										href="/track"
 										size="large"
-										variant="contained"
-										color="inherit"
+									variant="outlined"
 										sx={{
-											borderRadius: 999,
-											px: 3.5,
-											py: 1.25,
-											width: { xs: '100%', sm: 'auto' },
+										borderRadius: 2,
+										px: 4,
+										py: 1.5,
+										borderColor: 'common.white',
+										color: 'common.white',
 											fontWeight: 600,
-											boxShadow: (theme: Theme) =>
-												theme.palette.mode === 'dark'
-													? '0px 16px 28px rgba(0,0,0,0.45)'
-													: '0px 20px 32px rgba(15,25,55,0.12)',
-											bgcolor: (theme: Theme) =>
-												theme.palette.mode === 'dark'
-													? 'rgba(255,255,255,0.08)'
-													: 'rgba(255,255,255,0.92)',
-											color: (theme: Theme) =>
-												theme.palette.mode === 'dark'
-													? theme.palette.common.white
-													: theme.palette.text.primary,
-											border: (theme: Theme) =>
-												theme.palette.mode === 'dark'
-													? '1px solid rgba(255,255,255,0.18)'
-													: '1px solid rgba(15,25,55,0.08)',
-											backdropFilter: 'blur(6px)',
+										fontSize: '1rem',
 											'&:hover': {
-												bgcolor: (theme: Theme) =>
-													theme.palette.mode === 'dark'
-														? 'rgba(255,255,255,0.14)'
-														: 'rgba(255,255,255,1)',
+											borderColor: 'common.white',
+											bgcolor: 'rgba(255, 255, 255, 0.1)',
 											},
 										}}
 									>
 										{t('secondaryCta')}
 									</Button>
-								</Stack>
-								<Stack
-									alignItems={{ xs: 'center', sm: 'center' }}
-									direction={{ xs: 'column', sm: 'row' }}
-									sx={{ textAlign: { xs: 'center', sm: 'left' } }}
-									spacing={1.5}
-								>
-									<AvatarGroup
-										max={4}
-										sx={{ '& .MuiAvatar-root': { borderWidth: 4 } }}
-									>
-										{avatars.map((avatar, index) => (
-											<Avatar alt={avatar.alt} src={avatar.src} key={index} />
-										))}
-									</AvatarGroup>
-									<Typography color="text.secondary" variant="body1">
-										{t('trustedBy')}
-									</Typography>
-								</Stack>
+								<GetStarted
+									buttonLabel={t('primaryCta')}
+									href="/services"
+									size="large"
+									sx={{
+										px: 4,
+										py: 1.5,
+										fontSize: '1rem',
+										fontWeight: 600,
+										boxShadow: (theme: Theme) =>
+											theme.palette.mode === 'dark'
+												? '0px 18px 32px rgba(0,0,0,0.45)'
+												: '0px 18px 36px rgba(31, 48, 146, 0.25)',
+									}}
+								/>
 							</Stack>
 						</RevealSection>
 					</Stack>
-				</Grid>
-				<Grid size={{ xs: 12, md: 6 }}>
-					<RevealSection delay={0.2} direction="up" distance={60}>
-						<Box sx={{ mx: { md: 'auto' }, maxWidth: 540, width: '100%' }}>
-							<Mockup
-								darkImage="/dark/hero.jpg"
-								lightImage="/light/hero.jpg"
-								aspectRatio="1271/831"
-							/>
-						</Box>
 					</RevealSection>
-				</Grid>
-			</Grid>
 		</Container>
+		</Box>
 	);
 }

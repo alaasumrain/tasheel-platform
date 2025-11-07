@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST() {
-	const cookieStore = await cookies();
-	cookieStore.delete('admin_session');
-	return NextResponse.json({ success: true });
+	try {
+		const supabase = await createClient();
+		await supabase.auth.signOut();
+
+		return NextResponse.json({ success: true });
+	} catch (error) {
+		console.error('Admin logout error:', error);
+		return NextResponse.json(
+			{ error: 'An error occurred during logout' },
+			{ status: 500 }
+		);
+	}
 }

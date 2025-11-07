@@ -8,6 +8,7 @@ import {
 	IconPhoto,
 	IconX,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 interface FilePreviewProps {
 	file: File;
@@ -20,6 +21,7 @@ export default function FilePreview({
 	onRemove,
 	showRemove = true,
 }: FilePreviewProps) {
+	const t = useTranslations('Quote.filePreview');
 	const [preview, setPreview] = useState<string | null>(null);
 
 	// Generate preview for images
@@ -39,9 +41,9 @@ export default function FilePreview({
 
 	// Format file size
 	const formatSize = (bytes: number): string => {
-		if (bytes === 0) return '0 Bytes';
+		if (bytes === 0) return `0 ${t('bytes')}`;
 		const k = 1024;
-		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const sizes = [t('bytes'), t('kb'), t('mb'), t('gb')];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
 		return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 	};
@@ -50,12 +52,12 @@ export default function FilePreview({
 	const getFileTypeInfo = () => {
 		const type = file.type;
 		if (type.startsWith('image/')) {
-			return { label: 'Image', icon: IconPhoto, color: 'success' as const };
+			return { label: t('image'), icon: IconPhoto, color: 'success' as const };
 		}
 		if (type === 'application/pdf') {
-			return { label: 'PDF', icon: IconFileText, color: 'error' as const };
+			return { label: t('pdf'), icon: IconFileText, color: 'error' as const };
 		}
-		return { label: 'Document', icon: IconFile, color: 'default' as const };
+		return { label: t('document'), icon: IconFile, color: 'default' as const };
 	};
 
 	const fileTypeInfo = getFileTypeInfo();

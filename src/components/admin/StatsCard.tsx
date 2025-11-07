@@ -24,8 +24,8 @@ export function StatsCard({ title, value, icon: Icon, color = 'primary' }: Stats
 
 	return (
 		<Card
-			backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-			borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+			backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+			borderColor={{ light: 'divider', dark: 'divider' }}
 			borderRadius={20}
 		>
 			<Box sx={{ p: 3 }}>

@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 import { Button, OutlinedInput } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -11,13 +12,8 @@ import { IconMail } from '@tabler/icons-react';
 
 import { addSubscriber } from '@/app/actions/kit-add-subscriber';
 
-// Put Email placeholder here
-const emailPlaceholder = `Enter your email`;
-
-// Put Subscribe button label here
-const subscribeLabel = `Subscribe`;
-
 export default function SubscribeForm() {
+	const t = useTranslations('SubscribeForm');
 	const formRef = useRef<HTMLFormElement>(null);
 	const { mutate: send, isPending } = useMutation({
 		mutationFn: addSubscriber,
@@ -46,7 +42,7 @@ export default function SubscribeForm() {
 						disabled={isPending}
 						name="email"
 						fullWidth
-						placeholder={emailPlaceholder}
+						placeholder={t('emailPlaceholder')}
 						startAdornment={<IconMail />}
 					/>
 				</Grid>
@@ -58,7 +54,7 @@ export default function SubscribeForm() {
 						fullWidth
 						type="submit"
 					>
-						{subscribeLabel}
+						{t('subscribeLabel')}
 					</Button>
 				</Grid>
 			</Grid>

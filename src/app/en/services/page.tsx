@@ -1,15 +1,17 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import ServicesOverview from '@/components/sections/services-overview';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-	title: 'Our Services | Tasheel Government Services',
-	description:
-		'Complete government services including driver\'s license renewal, document attestation, translation, legalization, and business registration. Submit online and track progress.',
+export async function generateMetadata() {
+	const t = await getTranslations('Metadata.home');
+	return {
+		title: t('title'),
+		description: t('description'),
 	keywords:
 		'government services Palestine, Ramallah, driver license renewal, document attestation, translation services, MOFAE attestation, embassy legalization, business registration',
 };
+}
 
 export default async function Page() {
 	setRequestLocale('en');

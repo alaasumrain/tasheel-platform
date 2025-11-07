@@ -44,11 +44,15 @@ let theme = createTheme({
 		light: {
 			palette: {
 				accent: {
-					main: '#FF4B91',
+					main: '#0E21A0',
+					light: '#3949B1',
+					dark: '#0A1A7A',
 					contrastText: '#ffffff',
 				},
 				primary: {
 					main: 'rgba(14, 33, 160, 1)',
+					light: '#3949B1',
+					dark: '#0A1A7A',
 				},
 				secondary: {
 					main: 'rgba(255, 255, 255, 0.5)',
@@ -61,16 +65,18 @@ let theme = createTheme({
 					secondary: 'rgba(75, 75, 101, 1)',
 				},
 				background: {
-					default: 'rgba(231, 233, 246, 1)',
-					paper: 'rgba(231, 233, 246, 1)',
+					default: '#FFFFFF',
+					paper: '#FFFFFF',
 				},
 			},
 		},
 		dark: {
 			palette: {
 				accent: {
-					main: '#99FF82',
-					contrastText: '#10101E',
+					main: '#3949B1',
+					light: '#5A6BC8',
+					dark: '#0E21A0',
+					contrastText: '#ffffff',
 				},
 				primary: {
 					main: '#DDDDDD',
@@ -177,10 +183,10 @@ theme = createTheme(theme, {
 						}),
 					},
 					'&.MuiButton-containedAccent:not(.Mui-disabled)': {
-						borderTop: '2px solid #FF8EBA',
+						borderTop: '2px solid #3949B1',
 						...theme.applyStyles('dark', {
-							backgroundColor: '#DDDDDD',
-							borderTop: '2px solid #FFFFFF',
+							backgroundColor: '#3949B1',
+							borderTop: '2px solid #5A6BC8',
 						}),
 					},
 				},

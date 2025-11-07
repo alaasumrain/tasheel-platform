@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
 	Box,
 	Typography,
@@ -24,19 +25,23 @@ interface InvoiceCreationCardProps {
 }
 
 export function InvoiceCreationCard({ orderId, applicationId }: InvoiceCreationCardProps) {
+	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const [amount, setAmount] = useState('');
 	const [dueDate, setDueDate] = useState<Date | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const t = useTranslations('Admin.invoice');
 
 	const handleCreateInvoice = async () => {
 		if (!amount || isNaN(parseFloat(amount)) || !dueDate) {
+			setError(t('fieldsRequired') || 'Amount and due date are required');
 			return;
 		}
 
 		setLoading(true);
+		setError(null);
 		try {
 			const response = await fetch('/api/admin/invoices', {
 				method: 'POST',
@@ -55,10 +60,16 @@ export function InvoiceCreationCard({ orderId, applicationId }: InvoiceCreationC
 				setTimeout(() => {
 					setOpen(false);
 					setSuccess(false);
+					// Refresh page data without full reload
+					router.refresh();
 				}, 2000);
+			} else {
+				const errorData = await response.json();
+				setError(errorData.error || t('invoiceCreationFailed') || 'Failed to create invoice');
 			}
 		} catch (error) {
 			console.error('Error creating invoice:', error);
+			setError(t('errorOccurred') || 'An error occurred');
 		} finally {
 			setLoading(false);
 		}
@@ -67,8 +78,8 @@ export function InvoiceCreationCard({ orderId, applicationId }: InvoiceCreationC
 	return (
 		<>
 			<Card
-				backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-				borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+				backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+				borderColor={{ light: 'divider', dark: 'divider' }}
 				borderRadius={20}
 			>
 				<Box sx={{ p: 3 }}>
@@ -116,6 +127,9 @@ export function InvoiceCreationCard({ orderId, applicationId }: InvoiceCreationC
 						</LocalizationProvider>
 						{success && (
 							<Alert severity="success">{t('invoiceCreated')}</Alert>
+						)}
+						{error && (
+							<Alert severity="error">{error}</Alert>
 						)}
 					</Box>
 				</DialogContent>

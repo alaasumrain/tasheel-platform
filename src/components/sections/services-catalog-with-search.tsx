@@ -5,13 +5,8 @@ import {
 	alpha,
 	Box,
 	Button,
-	CardContent,
 	Chip,
 	Container,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
 	Divider,
 	FormControl,
 	FormControlLabel,
@@ -21,26 +16,23 @@ import {
 	MenuItem,
 	OutlinedInput,
 	Paper,
+	Pagination,
 	Select,
 	Stack,
 	Switch,
 	Typography,
+	useTheme,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import {
 	IconArrowRight,
-	IconBolt,
-	IconClock,
-	IconCurrencyShekel,
-	IconFileText,
+	IconArrowLeft,
 	IconSearch,
 	IconX,
 } from '@tabler/icons-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
-import { Card } from '@/components/ui/card';
-import Image from '@/components/ui/image';
 import RevealSection from '@/components/ui/reveal-section';
 import type { Service } from '@/data/services';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
@@ -121,7 +113,7 @@ function getPricingValue(service: Service): number {
 function formatPriceLabel(
 	service: Service,
 	formatter: Intl.NumberFormat,
-	t: any,
+	t: ReturnType<typeof useTranslations<'Services'>>,
 ): string {
 	if (service.pricing.type === 'fixed' && service.pricing.amount !== undefined) {
 		return t('pricingFormats.fixed', { amount: formatter.format(service.pricing.amount) });
@@ -146,6 +138,8 @@ export default function ServicesCatalogWithSearch({
 	const t = useTranslations('Services');
 	const tOverview = useTranslations('ServicesOverview');
 	const tCommon = useTranslations('Common');
+	const theme = useTheme();
+	const currentLocale = useLocale() as 'en' | 'ar';
 
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -157,7 +151,8 @@ export default function ServicesCatalogWithSearch({
 	const [pricingFilter, setPricingFilter] = useState<PricingFilter>('all');
 	const [expressOnly, setExpressOnly] = useState(false);
 	const [sortOption, setSortOption] = useState<SortOption>('recommended');
-	const [quickViewService, setQuickViewService] = useState<Service | null>(null);
+	const [page, setPage] = useState(1);
+	const servicesPerPage = 12; // Show 12 services per page (4 rows x 3 columns)
 
 	const currencyFormatter = useMemo(
 		() =>
@@ -321,6 +316,17 @@ export default function ServicesCatalogWithSearch({
 		return ordered;
 	}, [filteredServices, sortOption]);
 
+	// Pagination logic
+	const totalPages = Math.ceil(sortedServices.length / servicesPerPage);
+	const startIndex = (page - 1) * servicesPerPage;
+	const endIndex = startIndex + servicesPerPage;
+	const paginatedServices = sortedServices.slice(startIndex, endIndex);
+
+	// Reset to page 1 when filters change
+	useEffect(() => {
+		setPage(1);
+	}, [searchQuery, selectedCategories, turnaroundFilter, pricingFilter, expressOnly, sortOption]);
+
 const analyticsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 const hasTrackedFilters = useRef(false);
 
@@ -388,13 +394,6 @@ const handleToggleCategory = useCallback((slug: string) => {
 	});
 }, []);
 
-const handleQuickView = useCallback((service: Service) => {
-	setQuickViewService(service);
-	trackServicesEvent('services_quick_view_opened', {
-		serviceSlug: service.slug,
-	});
-}, []);
-
 const handleTurnaroundChange = useCallback((value: TurnaroundFilter) => {
 	setTurnaroundFilter(value);
 	trackServicesEvent('services_turnaround_filter', { value });
@@ -415,21 +414,10 @@ const handleSortChange = useCallback((value: SortOption) => {
 	trackServicesEvent('services_sort_change', { value });
 }, []);
 
-	const handleCloseQuickView = useCallback(() => {
-		setQuickViewService(null);
-	}, []);
-
-	const handleQuoteClick = useCallback((service: Service, source: 'card' | 'quick-view') => {
-		trackServicesEvent('services_quote_cta', {
-			serviceSlug: service.slug,
-			source,
-		});
-	}, []);
-
-	const handleDetailsClick = useCallback((service: Service, source: 'card' | 'quick-view') => {
+	const handleDetailsClick = useCallback((service: Service) => {
 		trackServicesEvent('services_details_cta', {
 			serviceSlug: service.slug,
-			source,
+			source: 'card',
 		});
 	}, []);
 
@@ -445,7 +433,7 @@ const handleSortChange = useCallback((value: SortOption) => {
 	}, [searchQuery, selectedCategories, turnaroundFilter, pricingFilter, expressOnly, sortOption]);
 
 	return (
-		<Box>
+		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
 			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 8 } }}>
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={4} alignItems="center" textAlign="center">
@@ -486,13 +474,24 @@ const handleSortChange = useCallback((value: SortOption) => {
 										</InputAdornment>
 									) : undefined
 								}
-								sx={{
+								sx={(theme) => ({
 									borderRadius: 3,
 									bgcolor: 'background.paper',
 									'& .MuiOutlinedInput-notchedOutline': {
-										borderColor: 'divider',
+										borderColor: theme.palette.mode === 'dark' 
+											? 'rgba(255,255,255,0.1)' 
+											: 'rgba(0,0,0,0.12)',
 									},
-								}}
+									'&:hover .MuiOutlinedInput-notchedOutline': {
+										borderColor: theme.palette.mode === 'dark' 
+											? 'rgba(255,255,255,0.2)' 
+											: 'rgba(0,0,0,0.2)',
+									},
+									'&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+										borderColor: 'primary.main',
+										borderWidth: 2,
+									},
+								})}
 							/>
 							{activeFiltersCount > 0 && (
 								<Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
@@ -508,47 +507,81 @@ const handleSortChange = useCallback((value: SortOption) => {
 				<Paper
 					elevation={0}
 					sx={(theme) => ({
-						px: { xs: 2, md: 3 },
-						py: { xs: 2.5, md: 3 },
+						px: { xs: 3, md: 4 },
+						py: { xs: 3, md: 4 },
 						mb: { xs: 4, md: 6 },
-						borderRadius: 4,
+						borderRadius: 3,
 						border: '1px solid',
-						borderColor: 'divider',
-						backgroundColor: alpha(theme.palette.background.paper, 0.92),
-						backdropFilter: 'blur(8px)',
+						borderColor: theme.palette.mode === 'dark' 
+							? 'rgba(255,255,255,0.1)' 
+							: 'rgba(0,0,0,0.08)',
+						backgroundColor: 'background.paper',
 						position: { md: 'sticky' },
 						top: { md: theme.spacing(11) },
 						zIndex: theme.zIndex.appBar - 1,
+						boxShadow: theme.palette.mode === 'dark'
+							? '0px 2px 8px rgba(0,0,0,0.2)'
+							: '0px 2px 8px rgba(0,0,0,0.04)',
 					})}
 				>
-					<Stack spacing={3}>
+					<Stack spacing={3.5}>
 						<Stack
 							direction={{ xs: 'column', md: 'row' }}
 							justifyContent="space-between"
 							alignItems={{ xs: 'flex-start', md: 'center' }}
 							spacing={2}
 						>
-							<Stack spacing={0.5}>
-								<Typography variant="h6">{t('filters.heading')}</Typography>
-								<Typography variant="body2" color="text.secondary">
+							<Stack spacing={1}>
+								<Typography variant="h5" fontWeight={700}>{t('filters.heading')}</Typography>
+								<Typography variant="body1" color="text.secondary" fontWeight={500}>
 									{t('filters.resultsSummary', { count: sortedServices.length })}
 								</Typography>
 							</Stack>
-							<Button variant="text" onClick={handleResetFilters} disabled={activeFiltersCount === 0}>
+							<Button 
+								variant="outlined" 
+								onClick={handleResetFilters} 
+								disabled={activeFiltersCount === 0}
+								sx={{
+									borderRadius: 2,
+									px: 3,
+									py: 1,
+									fontWeight: 600,
+								}}
+							>
 								{t('filters.clearAll')}
 							</Button>
 						</Stack>
 
-						<Stack spacing={2}>
-							<Typography variant="subtitle2" color="text.secondary">
+						<Stack spacing={2.5}>
+							<Typography variant="subtitle1" fontWeight={600} color="text.primary">
 								{t('filters.categories')}
 							</Typography>
-							<Stack direction="row" flexWrap="wrap" gap={1.2}>
+							<Stack direction="row" flexWrap="wrap" gap={1.5}>
 								<Chip
 									label={t('filters.allCategories')}
 									variant={selectedCategories.length === 0 ? 'filled' : 'outlined'}
 									onClick={handleClearCategories}
 									size="medium"
+									sx={(theme) => ({
+										fontSize: '0.9375rem',
+										fontWeight: 600,
+										height: 36,
+										px: 1,
+										bgcolor: selectedCategories.length === 0 
+											? 'primary.main' 
+											: 'transparent',
+										color: selectedCategories.length === 0 
+											? 'primary.contrastText' 
+											: 'text.primary',
+										borderColor: 'divider',
+										'&:hover': {
+											bgcolor: selectedCategories.length === 0 
+												? 'primary.dark' 
+												: theme.palette.mode === 'dark'
+													? 'rgba(255,255,255,0.05)'
+													: 'rgba(0,0,0,0.04)',
+										},
+									})}
 								/>
 								{categories.map((category) => {
 									const isActive = selectedCategories.includes(category.slug);
@@ -560,6 +593,22 @@ const handleSortChange = useCallback((value: SortOption) => {
 											variant={isActive ? 'filled' : 'outlined'}
 											size="medium"
 											onClick={() => handleToggleCategory(category.slug)}
+											sx={(theme) => ({
+												fontSize: '0.9375rem',
+												fontWeight: 600,
+												height: 36,
+												px: 1,
+												bgcolor: isActive ? 'primary.main' : 'transparent',
+												color: isActive ? 'primary.contrastText' : 'text.primary',
+												borderColor: 'divider',
+												'&:hover': {
+													bgcolor: isActive 
+														? 'primary.dark' 
+														: theme.palette.mode === 'dark'
+															? 'rgba(255,255,255,0.05)'
+															: 'rgba(0,0,0,0.04)',
+												},
+											})}
 										/>
 									);
 								})}
@@ -574,55 +623,103 @@ const handleSortChange = useCallback((value: SortOption) => {
 							alignItems={{ xs: 'flex-start', lg: 'center' }}
 							justifyContent="space-between"
 						>
-							<Stack direction={{ xs: 'column', md: 'row' }} spacing={2.5} flexWrap="wrap">
-								<Stack spacing={1}>
-									<Typography variant="subtitle2" color="text.secondary">
+							<Stack direction={{ xs: 'column', md: 'row' }} spacing={3} flexWrap="wrap">
+								<Stack spacing={1.5}>
+									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
 										{t('filters.turnaround')}
 									</Typography>
-								<Stack direction="row" flexWrap="wrap" gap={1}>
-									{turnaroundOptions.map((option) => (
-										<Chip
-											key={option.value}
-											label={option.label}
-											variant={turnaroundFilter === option.value ? 'filled' : 'outlined'}
-											onClick={() => handleTurnaroundChange(option.value)}
-										/>
-									))}
-								</Stack>
+									<Stack direction="row" flexWrap="wrap" gap={1.5}>
+										{turnaroundOptions.map((option) => (
+											<Chip
+												key={option.value}
+												label={option.label}
+												variant={turnaroundFilter === option.value ? 'filled' : 'outlined'}
+												onClick={() => handleTurnaroundChange(option.value)}
+												sx={(theme) => ({
+													fontSize: '0.9375rem',
+													fontWeight: 600,
+													height: 36,
+													px: 1.5,
+													bgcolor: turnaroundFilter === option.value ? 'primary.main' : 'transparent',
+													color: turnaroundFilter === option.value ? 'primary.contrastText' : 'text.primary',
+													borderColor: 'divider',
+													'&:hover': {
+														bgcolor: turnaroundFilter === option.value 
+															? 'primary.dark' 
+															: theme.palette.mode === 'dark'
+																? 'rgba(255,255,255,0.05)'
+																: 'rgba(0,0,0,0.04)',
+													},
+												})}
+											/>
+										))}
+									</Stack>
 								</Stack>
 
-								<Stack spacing={1}>
-									<Typography variant="subtitle2" color="text.secondary">
+								<Stack spacing={1.5}>
+									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
 										{t('filters.pricing')}
 									</Typography>
-								<Stack direction="row" flexWrap="wrap" gap={1}>
-									{pricingOptions.map((option) => (
-										<Chip
-											key={option.value}
-											label={option.label}
-											variant={pricingFilter === option.value ? 'filled' : 'outlined'}
-											onClick={() => handlePricingChange(option.value)}
-										/>
-									))}
-								</Stack>
+									<Stack direction="row" flexWrap="wrap" gap={1.5}>
+										{pricingOptions.map((option) => (
+											<Chip
+												key={option.value}
+												label={option.label}
+												variant={pricingFilter === option.value ? 'filled' : 'outlined'}
+												onClick={() => handlePricingChange(option.value)}
+												sx={(theme) => ({
+													fontSize: '0.9375rem',
+													fontWeight: 600,
+													height: 36,
+													px: 1.5,
+													bgcolor: pricingFilter === option.value ? 'primary.main' : 'transparent',
+													color: pricingFilter === option.value ? 'primary.contrastText' : 'text.primary',
+													borderColor: 'divider',
+													'&:hover': {
+														bgcolor: pricingFilter === option.value 
+															? 'primary.dark' 
+															: theme.palette.mode === 'dark'
+																? 'rgba(255,255,255,0.05)'
+																: 'rgba(0,0,0,0.04)',
+													},
+												})}
+											/>
+										))}
+									</Stack>
 								</Stack>
 
-								<FormControlLabel
-									control={<Switch checked={expressOnly} onChange={(event) => handleExpressToggle(event.target.checked)} />}
-									label={t('filters.express')}
-								/>
+								<Stack spacing={1.5} alignItems="flex-start">
+									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
+										{t('filters.express')}
+									</Typography>
+									<FormControlLabel
+										control={
+											<Switch 
+												checked={expressOnly} 
+												onChange={(event) => handleExpressToggle(event.target.checked)}
+												sx={{ ml: 1 }}
+											/>
+										}
+										label=""
+										sx={{ m: 0 }}
+									/>
+								</Stack>
 							</Stack>
 
-							<FormControl size="small" sx={{ minWidth: { xs: '100%', lg: 220 } }}>
-								<InputLabel id="services-sort-label">{t('filters.sortLabel')}</InputLabel>
+							<FormControl size="medium" sx={{ minWidth: { xs: '100%', lg: 240 } }}>
+								<InputLabel id="services-sort-label" sx={{ fontWeight: 600 }}>{t('filters.sortLabel')}</InputLabel>
 								<Select
 									labelId="services-sort-label"
 									label={t('filters.sortLabel')}
 									value={sortOption}
 									onChange={(event) => handleSortChange(event.target.value as SortOption)}
+									sx={{
+										fontWeight: 600,
+										fontSize: '0.9375rem',
+									}}
 								>
 									{sortOptions.map((option) => (
-										<MenuItem key={option.value} value={option.value}>
+										<MenuItem key={option.value} value={option.value} sx={{ fontWeight: 600 }}>
 											{option.label}
 										</MenuItem>
 									))}
@@ -635,146 +732,166 @@ const handleSortChange = useCallback((value: SortOption) => {
 
 			<Container sx={{ pb: { xs: 6, md: 10 } }}>
 				<Grid container spacing={{ xs: 3, md: 4 }}>
-					{sortedServices.map((service, index) => {
-						const documentCount = service.requiredDocuments?.length ?? 0;
-						const expressAvailable = hasExpressOption(service);
+					{paginatedServices.map((service, index) => {
 						const priceLabel = formatPriceLabel(service, currencyFormatter, t);
-						const turnaroundLabel = service.turnaroundTime || t('metadata.turnaroundUnknown');
-						const hasImage = Boolean(service.image?.light);
-
+						// Get category name for tag
+						const categoryName = categories.find(cat => cat.slug === service.category)?.name || service.category;
+						
+						// Category-based color scheme for visual distinction
+						const getCategoryColor = (categorySlug: string): { bg: string; text: string } => {
+							const colorMap: Record<string, { bg: string; text: string }> = {
+								'government': { bg: alpha(theme.palette.primary.main, 0.1), text: 'primary.main' },
+								'translation': { bg: alpha(theme.palette.info.main, 0.1), text: 'info.main' },
+								'legalization': { bg: alpha(theme.palette.success.main, 0.1), text: 'success.main' },
+								'business': { bg: alpha(theme.palette.warning.main, 0.1), text: 'warning.main' },
+							};
+							return colorMap[categorySlug] || { bg: alpha(theme.palette.primary.main, 0.1), text: 'primary.main' };
+						};
+						
+						const categoryColor = getCategoryColor(service.category);
+						
 						return (
 							<Grid key={service.slug} size={{ xs: 12, sm: 6, lg: 4 }}>
 								<RevealSection delay={0.1 + index * 0.06} direction="up">
-									<Card fullHeight>
-										<CardContent
-											sx={{
-												p: 0,
-												display: 'flex',
-												flexDirection: 'column',
-												height: '100%',
-											}}
-										>
-											<Box sx={{ position: 'relative', overflow: 'hidden', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-												{hasImage ? (
-													<Image
-														lightImage={service.image.light}
-														darkImage={service.image.dark || service.image.light}
-														alt={service.title}
-														aspectRatio="16/10"
-													/>
-												) : (
-													<Box
-														sx={{
-															py: 6,
-															px: 3,
-															background: (theme) => alpha(theme.palette.primary.main, 0.08),
-															textAlign: 'center',
-														}}
-													>
-														<Typography variant="subtitle2" color="primary">
-															{service.category.toUpperCase()}
-														</Typography>
-													</Box>
-												)}
+									<Paper
+										elevation={0}
+										sx={(theme) => ({
+											height: '100%',
+											display: 'flex',
+											flexDirection: 'column',
+											borderRadius: 3,
+											border: '1px solid',
+											borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+											bgcolor: 'background.paper',
+											transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+											overflow: 'hidden',
+											'&:hover': {
+												boxShadow: theme.palette.mode === 'dark'
+													? '0px 8px 24px rgba(0,0,0,0.4)'
+													: '0px 8px 24px rgba(0,0,0,0.12)',
+												transform: 'translateY(-4px)',
+												borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)',
+											},
+										})}
+									>
+										<Stack spacing={2.5} sx={{ flexGrow: 1, p: 3 }}>
+											{/* Category Tag */}
+											<Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+												<Chip
+													label={categoryName}
+													size="small"
+													sx={{
+														bgcolor: categoryColor.bg,
+														color: categoryColor.text,
+														fontWeight: 600,
+														fontSize: '0.75rem',
+														height: 24,
+													}}
+												/>
 											</Box>
 
-											<Stack spacing={2.5} sx={{ flexGrow: 1, px: 3, pt: 3 }}>
-												<Stack spacing={1}>
-													<Typography
-														variant="h4"
-														sx={{
-															fontSize: '1.2rem',
-															minHeight: 60,
-															display: '-webkit-box',
-															WebkitLineClamp: 2,
-															WebkitBoxOrient: 'vertical',
-															overflow: 'hidden',
-														}}
-													>
-														{service.title}
-													</Typography>
-													<Typography
-														variant="body2"
-														color="text.secondary"
-														sx={{
-															minHeight: 66,
-															display: '-webkit-box',
-															WebkitLineClamp: 3,
-															WebkitBoxOrient: 'vertical',
-															overflow: 'hidden',
-														}}
-													>
-														{service.shortDescription}
-													</Typography>
-												</Stack>
+											{/* Title */}
+											<Typography
+												variant="h6"
+												sx={{
+													fontWeight: 700,
+													fontSize: { xs: '1rem', md: '1.125rem' },
+													lineHeight: 1.4,
+													minHeight: { xs: 48, md: 54 },
+													display: '-webkit-box',
+													WebkitLineClamp: 2,
+													WebkitBoxOrient: 'vertical',
+													overflow: 'hidden',
+												}}
+											>
+												{service.title}
+											</Typography>
 
+											{/* Description */}
+											<Typography
+												variant="body2"
+												color="text.secondary"
+												sx={{
+													fontSize: { xs: '0.875rem', md: '0.9375rem' },
+													lineHeight: 1.6,
+													minHeight: { xs: 60, md: 72 },
+													display: '-webkit-box',
+													WebkitLineClamp: 3,
+													WebkitBoxOrient: 'vertical',
+													overflow: 'hidden',
+												}}
+											>
+												{service.shortDescription}
+											</Typography>
+
+											{/* Audience Tags & Service Fee */}
+											<Stack spacing={1.5} sx={{ mt: 'auto' }}>
 												<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+													{/* Audience tags - simplified for now, can be enhanced later */}
 													<Chip
-														icon={<IconClock size={16} />}
-														label={turnaroundLabel}
+														label={locale === 'ar' ? 'مواطن' : 'Citizen'}
 														size="small"
-														variant="outlined"
+														sx={{
+															bgcolor: alpha(theme.palette.success.main, 0.1),
+															color: 'success.main',
+															fontSize: '0.75rem',
+															height: 24,
+														}}
 													/>
 													<Chip
-														icon={<IconCurrencyShekel size={16} />}
-														label={priceLabel}
+														label={locale === 'ar' ? 'مقيم' : 'Resident'}
 														size="small"
-														variant="outlined"
+														sx={{
+															bgcolor: alpha(theme.palette.info.main, 0.1),
+															color: 'info.main',
+															fontSize: '0.75rem',
+															height: 24,
+														}}
 													/>
-													{documentCount > 0 && (
-														<Chip
-															size="small"
-															sx={{ fontWeight: 500 }}
-															icon={<IconFileText size={16} />}
-															label={t('metadata.documents', { count: documentCount })}
-															variant="outlined"
-														/>
-													)}
-													{expressAvailable && (
-														<Chip
-															icon={<IconBolt size={16} />}
-															label={t('metadata.expressAvailable')}
-															size="small"
-															variant="outlined"
-															color="success"
-														/>
-													)}
 												</Stack>
-											</Stack>
 
-											<Box sx={{ mt: 'auto', px: 3, pb: 3 }}>
-												<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-													<Button
-														variant="text"
-														onClick={() => handleQuickView(service)}
-													>
-														{t('quickView')}
-													</Button>
-													<Button
-														component={Link}
-														href={`/services/${service.slug}/quote`}
-														variant="contained"
-														size="large"
-														fullWidth
-														onClick={() => handleQuoteClick(service, 'card')}
-													>
-														{t('requestQuote')}
-													</Button>
-													<Button
-														component={Link}
-														href={`/services/${service.slug}`}
-														variant="outlined"
-														size="large"
-														endIcon={<IconArrowRight size={18} />}
-														fullWidth
-														onClick={() => handleDetailsClick(service, 'card')}
-													>
-														{t('viewDetails')}
-													</Button>
-												</Stack>
-											</Box>
-										</CardContent>
-									</Card>
+												{/* Service Fee */}
+												<Typography
+													variant="body2"
+													color="text.secondary"
+													sx={{
+														fontSize: '0.875rem',
+														fontWeight: 500,
+													}}
+												>
+													{locale === 'ar' ? 'رسوم الخدمة' : 'Service fee'}: {priceLabel}
+												</Typography>
+											</Stack>
+										</Stack>
+
+										{/* Details Link */}
+										<Box sx={{ px: 3, pb: 3, pt: 1 }}>
+											<Button
+												component={Link}
+												href={`/services/${service.slug}`}
+												variant="text"
+												endIcon={currentLocale === 'ar' ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
+												onClick={() => handleDetailsClick(service)}
+												fullWidth
+												sx={(theme) => ({
+													color: 'primary.main',
+													fontWeight: 600,
+													textTransform: 'none',
+													borderRadius: 2,
+													px: 2,
+													py: 1.25,
+													justifyContent: 'space-between',
+													'&:hover': {
+														bgcolor: theme.palette.mode === 'dark' 
+															? 'rgba(255,255,255,0.05)' 
+															: 'rgba(14, 33, 160, 0.04)',
+													},
+												})}
+											>
+												{locale === 'ar' ? 'تفاصيل' : t('viewDetails')}
+											</Button>
+										</Box>
+									</Paper>
 								</RevealSection>
 							</Grid>
 						);
@@ -792,79 +909,32 @@ const handleSortChange = useCallback((value: SortOption) => {
 						</Button>
 					</Stack>
 				)}
-			</Container>
 
-			<Dialog open={Boolean(quickViewService)} onClose={handleCloseQuickView} fullWidth maxWidth="md">
-				{quickViewService && (
-					<>
-						<DialogTitle>{quickViewService.title}</DialogTitle>
-						<DialogContent dividers>
-							<Stack spacing={3}>
-								{quickViewService.description && (
-									<Stack spacing={1}>
-										<Typography variant="subtitle1">{t('quickInfo')}</Typography>
-										<Typography variant="body1" color="text.secondary">
-											{quickViewService.description}
-										</Typography>
-									</Stack>
-								)}
-
-								{quickViewService.requiredDocuments && quickViewService.requiredDocuments.length > 0 && (
-									<Stack spacing={1.5}>
-										<Typography variant="subtitle1">{t('requiredDocuments')}</Typography>
-										<Stack component="ul" spacing={0.75} sx={{ pl: 2.5 }}>
-											{quickViewService.requiredDocuments.map((doc, idx) => (
-												<Typography component="li" variant="body2" key={idx}>
-													{doc}
-												</Typography>
-											))}
-										</Stack>
-									</Stack>
-								)}
-
-								{quickViewService.features && quickViewService.features.length > 0 && (
-									<Stack spacing={1.5}>
-										<Typography variant="subtitle1">{t('whatsIncluded')}</Typography>
-										<Stack direction="row" flexWrap="wrap" gap={1}>
-											{quickViewService.features.map((feature, idx) => (
-												<Chip key={idx} label={feature} variant="outlined" />
-											))}
-										</Stack>
-									</Stack>
-								)}
-
-								{quickViewService.pricing?.note && (
-									<Box>
-										<Typography variant="subtitle2" color="text.secondary">
-											{quickViewService.pricing.note}
-										</Typography>
-									</Box>
-								)}
-							</Stack>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={handleCloseQuickView}>{tCommon('close')}</Button>
-							<Button
-								component={Link}
-								href={`/services/${quickViewService.slug}/quote`}
-								variant="contained"
-								onClick={() => quickViewService && handleQuoteClick(quickViewService, 'quick-view')}
-							>
-								{t('requestQuote')}
-							</Button>
-							<Button
-								component={Link}
-								href={`/services/${quickViewService.slug}`}
-								variant="outlined"
-								endIcon={<IconArrowRight size={18} />}
-								onClick={() => quickViewService && handleDetailsClick(quickViewService, 'quick-view')}
-							>
-								{t('viewDetails')}
-							</Button>
-						</DialogActions>
-					</>
+				{/* Pagination */}
+				{sortedServices.length > 0 && totalPages > 1 && (
+					<Stack spacing={2} alignItems="center" sx={{ mt: 6 }}>
+						<Pagination
+							count={totalPages}
+							page={page}
+							onChange={(_, value) => setPage(value)}
+							color="primary"
+							size="large"
+							sx={{
+								'& .MuiPaginationItem-root': {
+									fontSize: '1rem',
+									fontWeight: 600,
+								},
+							}}
+						/>
+						<Typography variant="body2" color="text.secondary">
+							{locale === 'ar' 
+								? `عرض ${startIndex + 1}-${Math.min(endIndex, sortedServices.length)} من ${sortedServices.length} خدمة`
+								: `Showing ${startIndex + 1}-${Math.min(endIndex, sortedServices.length)} of ${sortedServices.length} services`}
+						</Typography>
+					</Stack>
 				)}
-			</Dialog>
+			</Container>
 		</Box>
 	);
 }
+

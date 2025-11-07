@@ -19,21 +19,23 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
 	const { slug } = await params;
-	const { getTranslations } = await import('next-intl/server');
-	const t = await getTranslations('Services');
+	const { getTranslations, setRequestLocale } = await import('next-intl/server');
+	setRequestLocale('ar');
+	const t = await getTranslations('Quote');
+	const tServices = await getTranslations('Services');
 	const serviceFromDB = await getServiceFromDB(slug);
 
 	if (!serviceFromDB) {
 		return {
-			title: t('notFound'),
+			title: tServices('notFound'),
 		};
 	}
 
 	const service = convertToLegacyFormat(serviceFromDB, 'ar');
 
 	return {
-		title: `Request Quote - ${service.title} | Tasheel`,
-		description: `Get a personalized quote for ${service.title}. ${service.shortDescription}`,
+		title: `${t('requestQuote')} - ${service.title} | ${tServices('title')}`,
+		description: `${t('description')} ${service.title}. ${service.shortDescription}`,
 	};
 }
 
@@ -90,8 +92,8 @@ export default async function QuotePage({ params }: PageProps) {
 
 						{/* Main Content */}
 						<Grid container spacing={{ xs: 4, md: 6 }}>
-							{/* Form */}
-							<Grid size={{ xs: 12, md: 7 }}>
+							{/* Form - Right Column (Left for Arabic/RTL) */}
+							<Grid size={{ xs: 12, md: 7 }} sx={{ order: { xs: 1, md: locale === 'ar' ? 2 : 1 } }}>
 								<Card borderRadius={24}>
 									<Box sx={{ p: { xs: 3, md: 4 } }}>
 										<ServiceQuoteWizard service={service} />
@@ -99,8 +101,8 @@ export default async function QuotePage({ params }: PageProps) {
 								</Card>
 							</Grid>
 
-							{/* Sidebar */}
-							<Grid size={{ xs: 12, md: 5 }}>
+							{/* Sidebar - Left Column (Right for Arabic/RTL) */}
+							<Grid size={{ xs: 12, md: 5 }} sx={{ order: { xs: 2, md: locale === 'ar' ? 1 : 2 } }}>
 								<ServiceQuoteSidebar service={service} />
 							</Grid>
 						</Grid>

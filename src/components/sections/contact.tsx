@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 
 import { getAllServices } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
@@ -14,10 +15,8 @@ import { Card } from '@/components/ui/card';
 import QuoteRequestForm from '@/components/forms/quote-request-form';
 import RevealSection from '@/components/ui/reveal-section';
 
-// Put content here
-const headline = `Request a quote`;
-
 export default async function Contact() {
+	const t = await getTranslations('Quote');
 	const servicesFromDB = await getAllServices();
 	const services = servicesFromDB.map((s) => convertToLegacyFormat(s, 'en'));
 	return (
@@ -32,10 +31,10 @@ export default async function Contact() {
 				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
 						backgroundColor={{
-							light: 'rgba(255, 255, 255, 0.5)',
-							dark: 'rgba(34, 34, 34, 1)',
+							light: 'background.paper',
+							dark: 'background.paper',
 						}}
-						borderColor={{ light: '#ffffff', dark: 'rgba(68, 68, 68, 1)' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={36}
 					>
 						<CardContent
@@ -45,7 +44,7 @@ export default async function Contact() {
 							}}
 						>
 							<Stack spacing={4}>
-								<Typography variant="h3">{headline}</Typography>
+								<Typography variant="h3">{t('requestQuote')}</Typography>
 								<QuoteRequestForm services={services} />
 							</Stack>
 						</CardContent>

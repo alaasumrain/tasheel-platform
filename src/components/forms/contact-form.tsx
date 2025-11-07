@@ -10,11 +10,15 @@ import {
 	OutlinedInput,
 	Stack,
 } from '@mui/material';
-import { IconArrowRight as IconSend } from '@tabler/icons-react';
+import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { sendMessage } from '@/app/actions/resend-send-message';
 
 export default function ContactForm() {
+	const t = useTranslations('Quote.contact');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
 	const formRef = useRef<HTMLFormElement>(null);
 	const { mutate: send, isPending } = useMutation({
 		mutationFn: sendMessage,
@@ -32,6 +36,7 @@ export default function ContactForm() {
 	});
 
 	const handleSubmit = (formData: FormData) => {
+		formData.set('locale', locale);
 		send(formData);
 	};
 
@@ -40,20 +45,20 @@ export default function ContactForm() {
 			<Stack spacing={3}>
 				<Stack spacing={1}>
 					<FormControl disabled={isPending} required>
-						<FormLabel htmlFor="name">{`Name`}</FormLabel>
+						<FormLabel htmlFor="name">{t('name')}</FormLabel>
 						<OutlinedInput id="name" name="name" required />
 					</FormControl>
 				</Stack>
 				<FormControl disabled={isPending} required>
-					<FormLabel htmlFor="email">{`Email`}</FormLabel>
+					<FormLabel htmlFor="email">{t('email')}</FormLabel>
 					<OutlinedInput id="email" name="email" type="email" required />
 				</FormControl>
 				<FormControl disabled={isPending} required>
-					<FormLabel htmlFor="subject">{`Subject`}</FormLabel>
+					<FormLabel htmlFor="subject">{t('subject')}</FormLabel>
 					<OutlinedInput id="subject" name="subject" type="text" required />
 				</FormControl>
 				<FormControl disabled={isPending} required>
-					<FormLabel htmlFor="message">{`Message`}</FormLabel>
+					<FormLabel htmlFor="message">{t('message')}</FormLabel>
 					<OutlinedInput
 						id="message"
 						multiline
@@ -65,12 +70,12 @@ export default function ContactForm() {
 				</FormControl>
 				<Button
 					disabled={isPending}
-					endIcon={<IconSend />}
+					endIcon={isRTL ? <IconArrowLeft /> : <IconArrowRight />}
 					fullWidth
 					loading={isPending}
 					type="submit"
 				>
-					{`Send Message`}
+					{t('sendMessage')}
 				</Button>
 			</Stack>
 		</form>

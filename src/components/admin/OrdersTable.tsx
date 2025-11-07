@@ -6,7 +6,7 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-
 import { Chip, Button, Box, Typography, Stack } from '@mui/material';
 import { Card } from '@/components/ui/card';
 import { Application, ApplicationStatus } from '@/lib/admin-queries';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface OrdersTableProps {
 	orders: Application[];
@@ -33,9 +33,9 @@ function getServiceName(serviceSlug: string | null, serviceNames?: Record<string
 	return serviceNames?.[serviceSlug] || serviceSlug;
 }
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, locale: string = 'en'): string {
 	const date = new Date(dateString);
-	return new Intl.DateTimeFormat('en-US', {
+	return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric',
@@ -46,6 +46,7 @@ function formatDate(dateString: string): string {
 
 export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 	const t = useTranslations('Admin.orders');
+	const locale = useLocale() as 'en' | 'ar';
 	const router = useRouter();
 
 	// Define columns for DataGrid
@@ -116,7 +117,7 @@ export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 			valueGetter: (value) => new Date(value),
 			renderCell: (params: GridRenderCellParams) => (
 				<Typography variant="body2">
-					{formatDate(params.row.submitted_at)}
+					{formatDate(params.row.submitted_at, locale)}
 				</Typography>
 			),
 		},
@@ -136,14 +137,14 @@ export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 				</Button>
 			),
 		},
-	], [t, serviceNames, router]);
+	], [t, serviceNames, router, locale]);
 
 	// Empty state
 	if (orders.length === 0) {
 		return (
 			<Card
-				backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-				borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+				backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+				borderColor={{ light: 'divider', dark: 'divider' }}
 				borderRadius={20}
 			>
 				<Box sx={{ p: 6, textAlign: 'center' }}>
@@ -160,8 +161,8 @@ export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 
 	return (
 		<Card
-			backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-			borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+			backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+			borderColor={{ light: 'divider', dark: 'divider' }}
 			borderRadius={20}
 		>
 			<Box sx={{ height: 'auto', width: '100%' }}>

@@ -9,64 +9,13 @@ import {
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { IconCheck, IconX, IconArrowRight } from '@tabler/icons-react';
+import { IconCheck, IconX, IconArrowRight, IconArrowLeft } from '@tabler/icons-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 
-const headline = `Transparent pricing for Palestinian services`;
-const subHeadline = `Clear NIS pricing for our most requested services. Government fees are billed at cost, and every quote includes a detailed breakdown.`;
 const currency = 'ILS';
-
-const pricingPlans: PricingPlan[] = [
-	{
-		title: 'Government Services',
-		monthlyPrice: 275,
-		yearlyPrice: null,
-		includedFeatures: [
-			`Palestinian driver&apos;s license renewal assistance`,
-			`Document verification & preparation`,
-			`Ministry of Interior & Transport coordination`,
-			`Courier delivery included`,
-			`SMS/Email updates`,
-		],
-		excludedFeatures: [],
-		ctaLabel: 'View services',
-		ctaHref: '/services',
-	},
-	{
-		title: 'Attestation Services',
-		monthlyPrice: 520,
-		yearlyPrice: null,
-		includedFeatures: [
-			`Marriage certificate attestation`,
-			`Birth certificate attestation`,
-			`Degree attestation`,
-			`Complete mission + MOFAE chain`,
-			`Free pickup across the West Bank`,
-			`Express service available`,
-		],
-		excludedFeatures: [],
-		popular: true,
-		ctaLabel: 'View services',
-		ctaHref: '/services',
-	},
-	{
-		title: 'Business Services',
-		monthlyPrice: 980,
-		yearlyPrice: null,
-		includedFeatures: [
-			`Commercial license renewal`,
-			`Business registration`,
-			`Corporate compliance filings`,
-			`Ministry of National Economy coordination`,
-			`Priority processing`,
-		],
-		excludedFeatures: [],
-		ctaLabel: 'Contact us',
-		ctaHref: '/contact',
-	},
-];
 
 interface PricingPlan {
 	title: string;
@@ -81,15 +30,66 @@ interface PricingPlan {
 	ctaHref?: string;
 }
 
-
 export default function PricingPlans() {
+	const t = useTranslations('PricingPlans');
+	
+	const pricingPlans: PricingPlan[] = [
+		{
+			title: t('plan1Title'),
+			monthlyPrice: 275,
+			yearlyPrice: null,
+			includedFeatures: [
+				t('plan1Feature1'),
+				t('plan1Feature2'),
+				t('plan1Feature3'),
+				t('plan1Feature4'),
+				t('plan1Feature5'),
+			],
+			excludedFeatures: [],
+			ctaLabel: t('plan1Cta'),
+			ctaHref: '/services',
+		},
+		{
+			title: t('plan2Title'),
+			monthlyPrice: 520,
+			yearlyPrice: null,
+			includedFeatures: [
+				t('plan2Feature1'),
+				t('plan2Feature2'),
+				t('plan2Feature3'),
+				t('plan2Feature4'),
+				t('plan2Feature5'),
+				t('plan2Feature6'),
+			],
+			excludedFeatures: [],
+			popular: true,
+			ctaLabel: t('plan2Cta'),
+			ctaHref: '/services',
+		},
+		{
+			title: t('plan3Title'),
+			monthlyPrice: 980,
+			yearlyPrice: null,
+			includedFeatures: [
+				t('plan3Feature1'),
+				t('plan3Feature2'),
+				t('plan3Feature3'),
+				t('plan3Feature4'),
+				t('plan3Feature5'),
+			],
+			excludedFeatures: [],
+			ctaLabel: t('plan3Cta'),
+			ctaHref: '/contact',
+		},
+	];
+
 	return (
 		<Container id="pricing" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Stack spacing={{ xs: 6, md: 8 }}>
 					<Box>
 						<Stack spacing={1.5} textAlign="center">
-							<Typography variant="h2">{headline}</Typography>
+							<Typography variant="h2">{t('headline')}</Typography>
 							<Typography
 								color="textSecondary"
 								component={'p'}
@@ -97,7 +97,7 @@ export default function PricingPlans() {
 								maxWidth={800}
 								sx={{ mx: 'auto' }}
 							>
-								{subHeadline}
+								{t('subHeadline')}
 							</Typography>
 						</Stack>
 					</Box>
@@ -123,6 +123,8 @@ function PricingPlanCard({
 	plan: PricingPlan;
 	currency: string;
 }) {
+	const t = useTranslations('PricingPlans');
+	const locale = useLocale() as 'en' | 'ar';
 
 	const formattedMonthlyPrice =
 		plan.monthlyPrice !== undefined && plan.monthlyPrice !== null
@@ -145,8 +147,8 @@ function PricingPlanCard({
 
 	return (
 		<Card
-			backgroundColor={{ light: 'rgba(255, 255, 255, 0.5)', dark: '#282828' }}
-			borderColor={{ light: 'rgba(255, 255, 255, 1)', dark: '#444' }}
+			backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+			borderColor={{ light: 'divider', dark: 'divider' }}
 			borderRadius={36}
 		>
 			<CardContent
@@ -164,30 +166,25 @@ function PricingPlanCard({
 							spacing={2}
 						>
 							<Typography variant="subtitle1">{plan.title}</Typography>
-							{plan.popular && <Chip color="accent" label="Most Popular" />}
+							{plan.popular && <Chip color="accent" label={t('mostPopular')} />}
 						</Stack>
 						<Typography variant="h3">
-							{isCustomPlan && 'Custom Quote'}
-							{!isCustomPlan && `From ${formattedMonthlyPrice}`}
+							{isCustomPlan && t('customQuote')}
+							{!isCustomPlan && `${t('from')} ${formattedMonthlyPrice}`}
 						</Typography>
 						<Typography sx={{ fontWeight: 600 }} variant="body1">
-							{isCustomPlan && 'Contact for pricing'}
-							{!isCustomPlan && 'Starting price'}
+							{isCustomPlan && t('contactForPricing')}
+							{!isCustomPlan && t('startingPrice')}
 						</Typography>
 					</Stack>
 					<Box
-						sx={[
-							() => ({
-								background: 'rgba(200, 209, 216, 1)',
-								height: 2,
-							}),
-							(theme) =>
-								theme.applyStyles('dark', {
-									background: '#111',
-									boxShadow: '0px 2px 0px 0px #444',
-									height: 2,
-								}),
-						]}
+						sx={(theme) => ({
+							background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+							boxShadow: theme.palette.mode === 'dark' 
+								? '0px 2px 0px 0px rgba(255,255,255,0.1)' 
+								: '0px 2px 0px 0px rgba(0,0,0,0.1)',
+							height: 2,
+						})}
 					/>
 					<Stack spacing={{ xs: 3, md: 5 }}>
 						<Stack spacing={2}>
@@ -225,10 +222,10 @@ function PricingPlanCard({
 						</Stack>
 
 						<Button
-							endIcon={<IconArrowRight size={24} />}
+							endIcon={locale === 'ar' ? <IconArrowLeft size={24} /> : <IconArrowRight size={24} />}
 							onClick={handlePrimaryAction}
 						>
-							{plan.ctaLabel ?? 'Request Quote'}
+							{plan.ctaLabel ?? t('plan1Cta')}
 						</Button>
 					</Stack>
 				</Stack>

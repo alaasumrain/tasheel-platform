@@ -3,10 +3,12 @@ import { OrdersTable } from '@/components/admin/OrdersTable';
 import { getOrders } from '@/lib/admin-queries';
 import { getAllServices } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
 export default async function OrdersPage() {
+	const t = await getTranslations('Admin.orders');
 	const orders = await getOrders();
 	const services = await getAllServices();
 	
@@ -21,10 +23,10 @@ export default async function OrdersPage() {
 		<Box>
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-					All Orders
+					{t('pageTitle')}
 				</Typography>
 				<Typography variant="body1" color="text.secondary">
-					Manage and track all customer orders
+					{t('pageDescription')}
 				</Typography>
 			</Box>
 

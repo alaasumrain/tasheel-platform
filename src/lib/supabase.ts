@@ -1,8 +1,8 @@
 // Legacy server-side client - use createClient from @/lib/supabase/server for new code
 import { createClient as createLegacyClient } from '@supabase/supabase-js';
-import { supabaseUrl, supabaseAnonKey } from './supabase-config';
+import { getSupabaseUrl, getSupabaseAnonKey } from './supabase-config';
 
-export const supabase = createLegacyClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createLegacyClient(getSupabaseUrl(), getSupabaseAnonKey());
 
 // Types for our database tables
 export type ApplicationStatus =

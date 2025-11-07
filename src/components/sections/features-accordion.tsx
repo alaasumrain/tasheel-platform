@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useCountUp } from 'use-count-up';
+import { useTranslations, useLocale } from 'next-intl';
 
 import Mockup from '@/components/ui/mockup';
 import RevealSection from '@/components/ui/reveal-section';
@@ -25,52 +26,48 @@ interface Feature {
 	imageLight: string;
 }
 
-// Put Section Headline here
-const headline = `Integrations that keep requests moving`;
-
-// Put Section SubHeadline here
-const subHeadline = `Tasheel plugs into the portals, workflows, and communication tools your team already uses.`;
-
-// Put Section Features here
-const features: Feature[] = [
-	{
-		imageDark: '/dark/screenshot-01.jpg',
-		imageLight: '/light/screenshot-01.jpg',
-		title: `Government Portal Integrations`,
-		content: `Submit and monitor applications through Palestinian Authority portals including the Ministry of Interior eServices, Ministry of Transport, and Civil Affairs.`,
-	},
-	{
-		imageDark: '/dark/screenshot-02.jpg',
-		imageLight: '/light/screenshot-02.jpg',
-		title: `Secure Payment Workflows`,
-		content: `Collect fees through Stripe, Tap Payments, or bank transfer with automated receipts and reconciliation.`,
-	},
-	{
-		imageDark: '/dark/screenshot-03.jpg',
-		imageLight: '/light/screenshot-03.jpg',
-		title: `Document Vault`,
-		content: `Encrypt and store passports, certificates, and attestations with granular permissions and audit trails.`,
-	},
-	{
-		imageDark: '/dark/screenshot-04.jpg',
-		imageLight: '/light/screenshot-04.jpg',
-		title: `Notification Engine`,
-		content: `Keep applicants informed with branded SMS, email, and WhatsApp alerts at each milestone.`,
-	},
-	{
-		imageDark: '/dark/screenshot-05.jpg',
-		imageLight: '/light/screenshot-05.jpg',
-		title: `Calendar & Appointments`,
-		content: `Sync site visits and biometrics appointments with Google Calendar, Outlook, and Teams schedules.`,
-	},
-];
-
 // duration to display each feature in seconds
 const duration = 5;
 
 export default function FeaturesAccordion() {
+	const t = useTranslations('FeaturesAccordion');
+	const locale = useLocale();
+	const isRTL = locale === 'ar';
 	const [activeStep, setActiveStep] = useState<number>(-1);
 	const [mounted, setMounted] = useState(false);
+
+const features: Feature[] = [
+	{
+		imageDark: '/dark/screenshot-01.jpg',
+		imageLight: '/light/screenshot-01.jpg',
+			title: t('feature1Title'),
+			content: t('feature1Content'),
+	},
+	{
+		imageDark: '/dark/screenshot-02.jpg',
+		imageLight: '/light/screenshot-02.jpg',
+			title: t('feature2Title'),
+			content: t('feature2Content'),
+	},
+	{
+		imageDark: '/dark/screenshot-03.jpg',
+		imageLight: '/light/screenshot-03.jpg',
+			title: t('feature3Title'),
+			content: t('feature3Content'),
+	},
+	{
+		imageDark: '/dark/screenshot-04.jpg',
+		imageLight: '/light/screenshot-04.jpg',
+			title: t('feature4Title'),
+			content: t('feature4Content'),
+	},
+	{
+		imageDark: '/dark/screenshot-05.jpg',
+		imageLight: '/light/screenshot-05.jpg',
+			title: t('feature5Title'),
+			content: t('feature5Content'),
+	},
+];
 
 	const { reset } = useCountUp({
 		isCounting: true,
@@ -97,7 +94,7 @@ export default function FeaturesAccordion() {
 					<Container disableGutters sx={{ maxWidth: '560px !important' }}>
 						<Stack spacing={1.5}>
 							<Typography textAlign={'center'} variant="h2">
-								{headline}
+								{t('headline')}
 							</Typography>
 							<Typography
 								color="textSecondary"
@@ -105,7 +102,7 @@ export default function FeaturesAccordion() {
 								textAlign={'center'}
 								variant="h6"
 							>
-								{subHeadline}
+								{t('subHeadline')}
 							</Typography>
 						</Stack>
 					</Container>
@@ -129,23 +126,23 @@ export default function FeaturesAccordion() {
 											},
 											'& .completed': {
 												'& .MuiStepLabel-iconContainer': {
-													backgroundColor: '#3949B1',
+													backgroundColor: 'accent.light',
 												},
 											},
 											'& .MuiStepLabel-iconContainer': {
-												backgroundColor: '#97A0D6',
+												backgroundColor: 'accent.light',
 												borderRadius: '50vh',
 												height: 20,
-												mr: 2.5,
+												[isRTL ? 'ml' : 'mr']: 2.5,
 												overflow: 'hidden',
 												position: 'relative',
 												width: 20,
 												zIndex: 1,
 												'&:after': {
-													backgroundColor: '#3949B1',
+													backgroundColor: 'accent.main',
 													content: '""',
 													height: '0px',
-													left: 0,
+													[isRTL ? 'right' : 'left']: 0,
 													position: 'absolute',
 													top: 0,
 													width: 20,
@@ -170,21 +167,21 @@ export default function FeaturesAccordion() {
 											},
 											'& .MuiStepContent-root': {
 												border: 'none',
-												ml: 2.5,
+												[isRTL ? 'mr' : 'ml']: 2.5,
 												'&:after': {
-													backgroundColor: '#3949B1',
+													backgroundColor: 'accent.main',
 													bottom: '100%',
 													content: '""',
-													left: 8,
+													[isRTL ? 'right' : 'left']: 8,
 													position: 'absolute',
 													top: 30,
 													width: 4,
 												},
 												'&:before': {
-													backgroundColor: '#97A0D6',
+													backgroundColor: 'accent.light',
 													bottom: -30,
 													content: '""',
-													left: 8,
+													[isRTL ? 'right' : 'left']: 8,
 													position: 'absolute',
 													top: 30,
 													width: 4,
@@ -197,7 +194,7 @@ export default function FeaturesAccordion() {
 												},
 												'&.completed': {
 													'&:before': {
-														backgroundColor: '#3949B1',
+														backgroundColor: 'accent.main',
 													},
 												},
 												'&.MuiStepContent-last': {

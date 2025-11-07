@@ -3,16 +3,19 @@
 import { getOrderByNumber, getOrderEvents } from '@/lib/admin-queries';
 import { getServiceBySlug } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
+import { getTranslations } from 'next-intl/server';
 
-export async function trackOrder(orderNumber: string) {
+export async function trackOrder(orderNumber: string, locale: string = 'en') {
 	try {
+		const t = await getTranslations({ locale, namespace: 'Homepage.track' });
+		
 		// Fetch order from Supabase
 		const order = await getOrderByNumber(orderNumber);
 
 		if (!order) {
 			return {
 				type: 'error' as const,
-				message: 'Order not found. Please check your order number and try again.',
+				message: t('orderNotFound'),
 			};
 		}
 
@@ -25,7 +28,7 @@ export async function trackOrder(orderNumber: string) {
 			: null;
 
 		const legacyService = serviceFromDB
-			? convertToLegacyFormat(serviceFromDB, 'en')
+			? convertToLegacyFormat(serviceFromDB, locale)
 			: null;
 
 		return {
@@ -43,9 +46,10 @@ export async function trackOrder(orderNumber: string) {
 		};
 	} catch (error) {
 		console.error('Error tracking order:', error);
+		const t = await getTranslations({ locale, namespace: 'Homepage.track' });
 		return {
 			type: 'error' as const,
-			message: 'An error occurred while tracking your order. Please try again.',
+			message: t('trackingError'),
 		};
 	}
 }

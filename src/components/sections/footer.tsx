@@ -3,17 +3,16 @@
 import {
 	Box,
 	Button,
-	CardContent,
 	Container,
 	IconButton,
 	Stack,
-	Tooltip,
 	Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useColorScheme } from '@mui/material';
-
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { Link as MuiLink } from '@mui/material';
 
 import {
 	IconArrowUp as IconTop,
@@ -22,102 +21,11 @@ import {
 	IconBrandTwitter,
 	IconBrandYoutube,
 	IconBrandWhatsapp,
+	IconPhone,
 } from '@tabler/icons-react';
 
-import { Card } from '@/components/ui/card';
-import SubscribeForm from '@/components/forms/subscribe-form';
-
-// Put Headline here
-const headline = `Ready to streamline your government services?`;
-
-// Put Description here
-const description = `Partner with Tasheel to digitize submissions, approvals, and translations while our specialists manage every government touchpoint for you.`;
-
-// Put Logo text here
-const logoText = `Tasheel`;
-
-// Put Copyright here
-const copyright = `© 2024 Tasheel. All rights reserved.`; // Put Copyright here
-
-// Put Footer links row 1 here
-const footerLinks1: FooterLink[] = [
-	{
-		href: '/about',
-		label: 'About Us',
-	},
-	{
-		href: '/contact',
-		label: 'Contact',
-	},
-	{
-		href: '/track',
-		label: 'Track Status',
-	},
-];
-
-// Put Footer links row 2 here
-const footerLinks2: FooterLink[] = [
-	{
-		href: '/#services',
-		label: 'Solutions',
-	},
-	{
-		href: '/#industries',
-		label: 'Industries',
-	},
-	{
-		href: '/#resources',
-		label: 'Resources',
-	},
-];
-
-// Put Footer links row 3 here
-const footerLinks3: FooterLink[] = [
-	{
-		href: '/terms',
-		label: 'Terms & Conditions',
-	},
-	{
-		href: '/privacy',
-		label: 'Privacy Policy',
-	},
-	{
-		href: '/cookies',
-		label: 'Cookie Policy',
-	},
-];
-
-// Put Social links here
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+970592345678';
-const socialLinks: SocialLink[] = [
-	{
-		href: `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`,
-		icon: <IconBrandWhatsapp />,
-		label: 'WhatsApp',
-	},
-	{
-		href: '#',
-		icon: <IconBrandFacebook />,
-		label: 'Facebook',
-	},
-	{
-		href: '#',
-		icon: <IconBrandInstagram />,
-		label: 'Instagram',
-	},
-	{
-		href: '#',
-		icon: <IconBrandTwitter />,
-		label: 'Twitter',
-	},
-	{
-		href: '#',
-		icon: <IconBrandYoutube />,
-		label: 'Youtube',
-	},
-];
-
 export default function Footer() {
+	const t = useTranslations('Footer');
 	const { mode } = useColorScheme();
 
 	const handleToTop = () => {
@@ -126,201 +34,242 @@ export default function Footer() {
 			behavior: 'smooth',
 		});
 	};
+
+	const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+970592345678';
+	const phoneNumber = '+970 2 295 0000';
+
 	return (
-		<Container id="company" sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<>
+			{/* Main Footer */}
 			<Box
 				sx={{
-					position: 'absolute',
-					left: '50%',
-					//top: '-50%',
-					transform: 'translate(-50%, -50%)',
-					zIndex: 100,
+					bgcolor: 'background.paper',
+					borderTop: '1px solid',
+					borderColor: 'divider',
+					pt: { xs: 6, md: 8 },
+					pb: { xs: 4, md: 6 },
 				}}
 			>
-				<Button
-					color="secondary"
-					onClick={handleToTop}
-					size="small"
-					startIcon={<IconTop />}
-					sx={[
-						() => ({
-							pl: 2,
-							pr: 2.5,
-							py: 1,
-						}),
-						(theme) =>
-							theme.applyStyles('light', {
-								background: `#f1f1f1`,
-							}),
-					]}
-				>
-					{'To Top'}
-				</Button>
-			</Box>
-			<Card
-				backgroundColor={{ light: 'rgba(16, 16, 30, 1)', dark: '#181818' }}
-				borderColor={{ light: 'rgba(25, 25, 48, 1)', dark: '#444444' }}
-				gradientColor={{ light: 'rgba(25, 25, 48, 1)', dark: '#444444' }}
-				gradientSize={200}
-				gradientOpacity={0.2}
-			>
-				<CardContent sx={{ px: { xs: 2.5, md: 7.5 } }}>
-					<Stack spacing={{ md: 8, xs: 6 }}>
-						<Box>
-							<Grid container spacing={{ md: 8, xs: 2 }}>
-								<Grid size={{ xs: 12, lg: 6 }}>
-									<Typography color="#ffffff" variant="h2">
-										{headline}
+				<Container maxWidth="lg">
+					<Grid container spacing={{ xs: 4, md: 6 }}>
+						{/* About Tasheel Platform */}
+						<Grid size={{ xs: 12, md: 6, lg: 3 }}>
+							<Stack spacing={2}>
+								<Typography variant="h6" fontWeight={700}>
+									{t('aboutPlatform')}
 									</Typography>
-								</Grid>
-								<Grid size={{ xs: 12, lg: 6 }}>
-									<Stack spacing={{ xs: 2, md: 3 }}>
-										<Typography
-											color="rgba(160, 160, 174, 1)"
-											variant="subtitle1"
+								<Stack spacing={1.5}>
+									{[
+										{ href: '/about', label: t('aboutUs') },
+										{ href: '/privacy', label: t('privacyPolicy') },
+										{ href: '/terms', label: t('termsConditions') },
+										{ href: '/#faq', label: t('faqs') },
+										{ href: '/news', label: t('news') },
+										{ href: '/accessibility', label: t('accessibility') },
+										{ href: '/statistics', label: t('statistics') },
+										{ href: '/security', label: t('security') },
+									].map((link) => (
+										<MuiLink
+											key={link.href}
+											component={Link}
+											href={link.href}
+											underline="none"
+											prefetch
 										>
-											{description}
-										</Typography>
-										<SubscribeForm />
+											<Typography
+												color="text.secondary"
+												variant="body2"
+												sx={{
+													'&:hover': {
+														color: 'primary.main',
+													},
+												}}
+											>
+												{link.label}
+											</Typography>
+										</MuiLink>
+												))}
+											</Stack>
+										</Stack>
+									</Grid>
+
+						{/* Help and Support */}
+						<Grid size={{ xs: 12, md: 6, lg: 3 }}>
+										<Stack spacing={2}>
+								<Typography variant="h6" fontWeight={700}>
+									{t('helpSupport')}
+											</Typography>
+											<Stack spacing={1.5}>
+									{[
+										{ href: '/contact', label: t('contact') },
+										{ href: '/#faq', label: t('faqs') },
+										{ href: '/service-channels', label: t('serviceChannels') },
+										{ href: '/registration', label: t('registration') },
+									].map((link) => (
+										<MuiLink
+											key={link.href}
+											component={Link}
+											href={link.href}
+											underline="none"
+											prefetch
+										>
+														<Typography
+												color="text.secondary"
+												variant="body2"
+												sx={{
+													'&:hover': {
+														color: 'primary.main',
+													},
+												}}
+														>
+															{link.label}
+														</Typography>
+										</MuiLink>
+												))}
+											</Stack>
+										</Stack>
+									</Grid>
+
+						{/* Important Links */}
+						<Grid size={{ xs: 12, md: 6, lg: 3 }}>
+										<Stack spacing={2}>
+								<Typography variant="h6" fontWeight={700}>
+									{t('importantLinks')}
+											</Typography>
+											<Stack spacing={1.5}>
+									{[
+										{ href: '/services', label: t('services') },
+										{ href: '/track', label: t('trackStatus') },
+										{ href: '/pricing', label: t('pricing') },
+									].map((link) => (
+										<MuiLink
+											key={link.href}
+											component={Link}
+											href={link.href}
+											underline="none"
+											prefetch
+										>
+														<Typography
+												color="text.secondary"
+												variant="body2"
+												sx={{
+													'&:hover': {
+														color: 'primary.main',
+													},
+												}}
+														>
+															{link.label}
+														</Typography>
+										</MuiLink>
+												))}
+											</Stack>
+										</Stack>
+									</Grid>
+
+						{/* Contact Us */}
+						<Grid size={{ xs: 12, md: 6, lg: 3 }}>
+										<Stack spacing={2}>
+								<Typography variant="h6" fontWeight={700}>
+									{t('contactUs')}
+											</Typography>
+								<Stack spacing={2}>
+									<Button
+										component="a"
+										href={`tel:${phoneNumber.replace(/\s/g, '')}`}
+										startIcon={<IconPhone size={20} />}
+										variant="contained"
+										color="primary"
+										sx={{
+											borderRadius: 2,
+											px: 3,
+											py: 1.5,
+											textTransform: 'none',
+											fontWeight: 600,
+										}}
+									>
+										{phoneNumber}
+									</Button>
+									<Stack direction="row" spacing={1.5}>
+										{[
+											{ href: `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`, icon: <IconBrandWhatsapp />, label: 'WhatsApp' },
+											{ href: '#', icon: <IconBrandFacebook />, label: 'Facebook' },
+											{ href: '#', icon: <IconBrandTwitter />, label: 'Twitter' },
+											{ href: '#', icon: <IconBrandYoutube />, label: 'YouTube' },
+										].map((social) => (
+											<IconButton
+												key={social.label}
+												component="a"
+												href={social.href}
+												target="_blank"
+												rel="noopener noreferrer"
+												sx={{
+													border: '1px solid',
+													borderColor: 'divider',
+													color: 'text.secondary',
+													'&:hover': {
+														bgcolor: 'primary.main',
+														color: 'white',
+														borderColor: 'primary.main',
+													},
+												}}
+														>
+												{social.icon}
+											</IconButton>
+												))}
 									</Stack>
+											</Stack>
+										</Stack>
+									</Grid>
 								</Grid>
-							</Grid>
-						</Box>
-						<Card
-							backgroundColor={{
-								light: 'rgba(25, 25, 48, 1)',
-								dark: '#282828',
-							}}
-							borderColor={{ light: 'rgba(75, 75, 101, 1)', dark: '#555' }}
-							gradientColor={{ light: 'rgba(75, 75, 101, 1)', dark: '#555' }}
-							gradientOpacity={0.2}
-							gradientSize={200}
-						>
-							<CardContent>
-								<Grid container spacing={{ md: 8, xs: 4 }}>
-									<Grid size={{ xs: 12, md: 12, lg: 'grow' }}>
-										<Stack spacing={{ xs: 2.25, md: 4.5 }}>
-											<Stack alignItems="center" direction="row" spacing={1.5}>
-												<Box>
+
+					{/* Logo and Copyright */}
+					<Box sx={{ mt: { xs: 6, md: 8 }, pt: { xs: 4, md: 6 }, borderTop: '1px solid', borderColor: 'divider' }}>
+						<Stack direction={{ xs: 'column', md: 'row' }} spacing={3} justifyContent="space-between" alignItems="center">
+							<Stack direction="row" spacing={2} alignItems="center">
+								<Box>
 									{mode === 'dark' && (
-										<img src="/dark/logo-footer.png" alt="Tasheel logo" />
+										<img src="/dark/logo-footer.png" alt={t('logoAlt')} style={{ height: 40 }} />
 									)}
 									{mode === 'light' && (
-										<img src="/light/logo-footer.png" alt="Tasheel logo" />
+										<img src="/light/logo-footer.png" alt={t('logoAlt')} style={{ height: 40 }} />
 									)}
-												</Box>
-												<Typography
-													color="#ffffff"
-													component={'div'}
-													variant="h4"
-												>
-													{logoText}
-												</Typography>
-											</Stack>
-											<Typography
-												color="rgba(160, 160, 174, 1)"
-												variant="body1"
-											>
-												{copyright}
-											</Typography>
-											<Stack
-												direction="row"
-												spacing={1}
-												sx={{ transform: 'translateX(-16px)' }}
-											>
-												{socialLinks.map((link) => (
-													<Tooltip
-														placement="top"
-														title={link.label}
-														key={link.label}
-													>
-														<IconButton
-															sx={{
-																color: '#A0A0AE',
-															}}
-															size="large"
-														>
-															{link.icon}
-														</IconButton>
-													</Tooltip>
-												))}
-											</Stack>
-										</Stack>
-									</Grid>
-									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
-										<Stack spacing={2}>
-											<Typography color="#ffffff" variant="subtitle1">
-												{`Company`}
-											</Typography>
-											<Stack spacing={1.5}>
-												{footerLinks1.map((link) => (
-													<Link key={link.label} href={link.href}>
-														<Typography
-															color="rgba(160, 160, 174, 1)"
-															variant="body1"
-														>
-															{link.label}
-														</Typography>
-													</Link>
-												))}
-											</Stack>
-										</Stack>
-									</Grid>
-									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
-										<Stack spacing={2}>
-											<Typography color="#ffffff" variant="subtitle1">
-												{`Features`}
-											</Typography>
-											<Stack spacing={1.5}>
-												{footerLinks2.map((link) => (
-													<Link key={link.label} href={link.href}>
-														<Typography
-															color="rgba(160, 160, 174, 1)"
-															variant="body1"
-														>
-															{link.label}
-														</Typography>
-													</Link>
-												))}
-											</Stack>
-										</Stack>
-									</Grid>
-									<Grid size={{ xs: 12, md: 4, lg: "auto" }}>
-										<Stack spacing={2}>
-											<Typography color="#ffffff" variant="subtitle1">
-												{`Legal`}
-											</Typography>
-											<Stack spacing={1.5}>
-												{footerLinks3.map((link) => (
-													<Link key={link.label} href={link.href}>
-														<Typography
-															color="rgba(160, 160, 174, 1)"
-															variant="body1"
-														>
-															{link.label}
-														</Typography>
-													</Link>
-												))}
-											</Stack>
-										</Stack>
-									</Grid>
-								</Grid>
-							</CardContent>
-						</Card>
+								</Box>
+								<Typography variant="body2" color="text.secondary">
+									{t('copyright')}
+								</Typography>
+							</Stack>
+							<Button
+								onClick={handleToTop}
+								startIcon={<IconTop />}
+								variant="outlined"
+								size="small"
+								sx={{
+									borderRadius: 2,
+									textTransform: 'none',
+								}}
+							>
+								{t('toTop')}
+							</Button>
 					</Stack>
-				</CardContent>
-			</Card>
+					</Box>
+				</Container>
+			</Box>
+
+			{/* Cookie Consent Banner */}
+			<Box
+				sx={{
+					bgcolor: 'background.default',
+					borderTop: '1px solid',
+					borderColor: 'divider',
+					py: 2,
+				}}
+			>
+				<Container maxWidth="lg">
+					<Typography variant="body2" color="text.secondary" textAlign="center">
+						{t('cookieConsent')}
+					</Typography>
 		</Container>
+			</Box>
+		</>
 	);
-}
-
-interface FooterLink {
-	href: string;
-	label: string;
-}
-
-interface SocialLink {
-	href: string;
-	icon: React.ReactNode;
-	label: string;
 }

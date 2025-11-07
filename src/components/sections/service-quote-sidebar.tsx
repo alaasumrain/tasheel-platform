@@ -11,6 +11,7 @@ import {
 	IconCheck,
 	IconBrandWhatsapp,
 } from '@tabler/icons-react';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
 import type { Service } from '@/data/services';
@@ -20,29 +21,34 @@ interface ServiceQuoteSidebarProps {
 }
 
 export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProps) {
+	const t = useTranslations('Quote.sidebar');
+	const locale = useLocale() as 'en' | 'ar';
+
 	const formatPrice = () => {
 		if (service.pricing.type === 'fixed' && service.pricing.amount !== undefined) {
 			return `₪${service.pricing.amount}`;
 		}
 
 		if (service.pricing.type === 'starting' && service.pricing.amount !== undefined) {
-			return `From ₪${service.pricing.amount}`;
+			return `${t('from')} ₪${service.pricing.amount}`;
 		}
 
-		return 'Request Quote';
+		return t('requestQuote');
 	};
 
 	const whatsappMessage = encodeURIComponent(
-		`Hi! I'd like to get a quote for: ${service.title}`
+		locale === 'ar' 
+			? `مرحباً! أود الحصول على عرض سعر لـ: ${service.title}`
+			: `Hi! I'd like to get a quote for: ${service.title}`
 	);
 	const whatsappUrl = `https://wa.me/970590000000?text=${whatsappMessage}`;
 
 	return (
 		<Box sx={{ position: 'sticky', top: 100 }}>
 			<Card
-				backgroundColor={{ light: '#0E21A0', dark: '#0E21A0' }}
-				borderColor={{ light: '#3949B1', dark: '#3949B1' }}
-				gradientColor={{ light: '#3949B1', dark: '#3949B1' }}
+				backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
+				borderColor={{ light: 'accent.light', dark: 'accent.light' }}
+				gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
 				gradientOpacity={0.6}
 				borderRadius={24}
 			>
@@ -50,10 +56,10 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 				<Stack spacing={3}>
 					{/* Service Title */}
 					<Box>
-						<Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-							Service
+						<Typography variant="overline" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+							{t('service')}
 						</Typography>
-						<Typography variant="h5" color="#fff" fontWeight={700}>
+						<Typography variant="h5" color="accent.contrastText" fontWeight={700}>
 							{service.title}
 						</Typography>
 					</Box>
@@ -72,13 +78,13 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 									justifyContent: 'center',
 								}}
 							>
-								<IconCurrencyShekel size={20} color="#fff" />
+								<IconCurrencyShekel size={20} style={{ color: 'inherit' }} />
 							</Box>
 							<Box>
-								<Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-									Pricing
+								<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+									{t('pricing')}
 								</Typography>
-								<Typography variant="body1" color="#fff" fontWeight={600}>
+								<Typography variant="body1" color="accent.contrastText" fontWeight={600}>
 									{formatPrice()}
 								</Typography>
 							</Box>
@@ -96,13 +102,13 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 									justifyContent: 'center',
 								}}
 							>
-								<IconClock size={20} color="#fff" />
+								<IconClock size={20} style={{ color: 'inherit' }} />
 							</Box>
 							<Box>
-								<Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-									Turnaround
+								<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+									{t('turnaround')}
 								</Typography>
-								<Typography variant="body1" color="#fff" fontWeight={600}>
+								<Typography variant="body1" color="accent.contrastText" fontWeight={600}>
 									{service.turnaroundTime}
 								</Typography>
 							</Box>
@@ -111,16 +117,16 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 
 					{/* What's Included */}
 					<Box>
-						<Typography variant="h6" color="#fff" sx={{ mb: 2 }}>
-							What's Included
+						<Typography variant="h6" color="accent.contrastText" sx={{ mb: 2 }}>
+							{t('whatsIncluded')}
 						</Typography>
 						<Stack spacing={1.5}>
 							{service.features.slice(0, 4).map((feature, index) => (
 								<Stack direction="row" spacing={1.5} alignItems="flex-start" key={index}>
-									<Box sx={{ color: '#fff', pt: 0.25 }}>
+									<Box sx={{ color: 'accent.contrastText', pt: 0.25 }}>
 										<IconCheck size={20} />
 									</Box>
-									<Typography variant="body2" color="#fff">
+									<Typography variant="body2" color="accent.contrastText">
 										{feature}
 									</Typography>
 								</Stack>
@@ -131,8 +137,8 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 					{/* Divider */}
 					<Box sx={{ borderTop: 1, borderColor: 'rgba(255,255,255,0.2)', pt: 3 }}>
 						<Stack spacing={2}>
-							<Typography variant="body2" color="rgba(255,255,255,0.9)">
-								Need a faster quote? Chat with us on WhatsApp
+							<Typography variant="body2" sx={{ color: 'accent.contrastText', opacity: 0.9 }}>
+								{t('needFasterQuote')}
 							</Typography>
 							<Button
 								variant="outlined"
@@ -144,14 +150,14 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 								rel="noopener noreferrer"
 								sx={{
 									borderColor: 'rgba(255,255,255,0.5)',
-									color: '#fff',
+									color: 'accent.contrastText',
 									'&:hover': {
-										borderColor: '#fff',
+										borderColor: 'accent.contrastText',
 										backgroundColor: 'rgba(255,255,255,0.1)',
 									},
 								}}
 							>
-								Quick WhatsApp Quote
+								{t('quickWhatsAppQuote')}
 							</Button>
 						</Stack>
 					</Box>
@@ -165,8 +171,8 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 								borderRadius: 2,
 							}}
 						>
-							<Typography variant="caption" color="rgba(255,255,255,0.9)">
-								<strong>Note:</strong> {service.pricing.note}
+							<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.9 }}>
+								<strong>{t('note')}:</strong> {service.pricing.note}
 							</Typography>
 						</Box>
 					)}

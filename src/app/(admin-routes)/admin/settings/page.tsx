@@ -1,39 +1,42 @@
 import { Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
+import { getTranslations } from 'next-intl/server';
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+	const t = await getTranslations('Admin.settings');
+	
 	return (
 		<Box>
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-					Settings
+					{t('title')}
 				</Typography>
 				<Typography variant="body1" color="text.secondary">
-					Configure your admin dashboard
+					{t('description')}
 				</Typography>
 			</Box>
 
 			<Grid container spacing={3}>
 				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Admin Information
+								{t('adminInfo.title')}
 							</Typography>
 							<Box sx={{ mt: 2 }}>
 								<Typography variant="body2" color="text.secondary" paragraph>
-									Admin dashboard for managing Tasheel orders and customer requests.
+									{t('adminInfo.description')}
 								</Typography>
 								<Typography variant="body2" color="text.secondary">
-									<strong>Version:</strong> 1.0.0
+									<strong>{t('adminInfo.version')}:</strong> 1.0.0
 								</Typography>
 								<Typography variant="body2" color="text.secondary">
-									<strong>Environment:</strong> {process.env.NODE_ENV || 'development'}
+									<strong>{t('adminInfo.environment')}:</strong> {process.env.NODE_ENV || 'development'}
 								</Typography>
 							</Box>
 						</Box>
@@ -42,25 +45,25 @@ export default function SettingsPage() {
 
 				<Grid size={{ xs: 12, md: 6 }}>
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Email Configuration
+								{t('emailConfig.title')}
 							</Typography>
 							<Box sx={{ mt: 2 }}>
 								<Typography variant="body2" color="text.secondary" paragraph>
-									Email notifications are configured via environment variables.
+									{t('emailConfig.description')}
 								</Typography>
 								<Typography variant="body2" color="text.secondary">
-									<strong>Resend API:</strong>{' '}
-									{process.env.RESEND_API_KEY ? '✓ Configured' : '✗ Not configured'}
+									<strong>{t('emailConfig.resendApi')}:</strong>{' '}
+									{process.env.RESEND_API_KEY ? t('emailConfig.configured') : t('emailConfig.notConfigured')}
 								</Typography>
 								<Typography variant="body2" color="text.secondary">
-									<strong>Contact Email:</strong>{' '}
-									{process.env.CONTACT_EMAIL || 'Not configured'}
+									<strong>{t('emailConfig.contactEmail')}:</strong>{' '}
+									{process.env.CONTACT_EMAIL || t('emailConfig.notConfigured')}
 								</Typography>
 							</Box>
 						</Box>
@@ -69,26 +72,26 @@ export default function SettingsPage() {
 
 				<Grid size={{ xs: 12 }}>
 					<Card
-						backgroundColor={{ light: '#ffffff', dark: '#1a1a1a' }}
-						borderColor={{ light: '#e0e0e0', dark: '#333333' }}
+						backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+						borderColor={{ light: 'divider', dark: 'divider' }}
 						borderRadius={20}
 					>
 						<Box sx={{ p: 3 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom>
-								Quick Links
+								{t('quickLinks.title')}
 							</Typography>
 							<Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
 								<Typography variant="body2">
-									• <strong>Dashboard:</strong> /admin
+									• <strong>{t('quickLinks.dashboard')}:</strong> /admin
 								</Typography>
 								<Typography variant="body2">
-									• <strong>Orders:</strong> /admin/orders
+									• <strong>{t('quickLinks.orders')}:</strong> /admin/orders
 								</Typography>
 								<Typography variant="body2">
-									• <strong>Tracking Page:</strong> /track
+									• <strong>{t('quickLinks.tracking')}:</strong> /track
 								</Typography>
 								<Typography variant="body2">
-									• <strong>Quote Form:</strong> /
+									• <strong>{t('quickLinks.quoteForm')}:</strong> /
 								</Typography>
 							</Box>
 						</Box>

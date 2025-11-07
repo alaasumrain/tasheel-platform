@@ -5,6 +5,7 @@ import { getOrderById, getOrderEvents } from '@/lib/admin-queries';
 import { getServiceBySlug } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
 import { OrderDetailClient } from '@/components/admin/OrderDetailClient';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,7 @@ export default async function OrderDetailPage({
 }: {
 	params: Promise<{ id: string }>;
 }) {
+	const t = await getTranslations('Admin.orders');
 	const { id } = await params;
 
 	try {
@@ -39,10 +41,10 @@ export default async function OrderDetailPage({
 			<Box>
 				<Breadcrumbs sx={{ mb: 3 }}>
 					<MuiLink component={Link} href="/admin" underline="hover" color="inherit">
-						Dashboard
+						{t('breadcrumbs.dashboard')}
 					</MuiLink>
 					<MuiLink component={Link} href="/admin/orders" underline="hover" color="inherit">
-						Orders
+						{t('breadcrumbs.orders')}
 					</MuiLink>
 					<Typography color="text.primary">{order.order_number}</Typography>
 				</Breadcrumbs>

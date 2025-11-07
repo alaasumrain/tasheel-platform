@@ -1,11 +1,9 @@
 'use client';
 import { ComponentPropsWithoutRef } from 'react';
 import { Box, Container, Stack, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import RevealSection from '@/components/ui/reveal-section';
-
-// Put Section Headline here
-const headline = `Trusted by residents and businesses across Palestine`;
 
 // Put Section Partners here
 interface Partner {
@@ -13,36 +11,38 @@ interface Partner {
 	alt: string;
 }
 
+export default function Partners() {
+	const t = useTranslations('Partners');
+
 const partners: Partner[] = [
 	{
 		src: '/global/partner-01.svg',
-		alt: 'Government services partner logo',
+			alt: t('partner1Alt'),
 	},
 	{
 		src: '/global/partner-02.svg',
-		alt: 'Enterprise client partner logo',
+			alt: t('partner2Alt'),
 	},
 	{
 		src: '/global/partner-03.svg',
-		alt: 'Financial services partner logo',
+			alt: t('partner3Alt'),
 	},
 	{
 		src: '/global/partner-04.svg',
-		alt: 'Logistics and delivery partner logo',
+			alt: t('partner4Alt'),
 	},
 	{
 		src: '/global/partner-05.svg',
-		alt: 'Technology integration partner logo',
+			alt: t('partner5Alt'),
 	},
 ];
 
-export default function Partners() {
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<Stack spacing={{ xs: 4, md: 8 }}>
 				<RevealSection delay={0}>
 					<Typography textAlign={'center'} variant="h3">
-						{headline}
+						{t('headline')}
 					</Typography>
 				</RevealSection>
 				<RevealSection delay={0.15}>
