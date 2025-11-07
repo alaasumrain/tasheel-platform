@@ -67,7 +67,7 @@ export default function ServiceDetails() {
 										borderRadius={24}
 										backgroundColor={{ light: 'rgba(255,255,255,0.8)', dark: '#1F1F2B' }}
 										borderColor={{ light: '#fff', dark: '#2F2F3B' }}
-										sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+										fullHeight
 									>
 										<Box sx={{ position: 'relative', width: '100%', height: { xs: 250, md: 320 }, overflow: 'hidden', flexShrink: 0 }}>
 											<Image

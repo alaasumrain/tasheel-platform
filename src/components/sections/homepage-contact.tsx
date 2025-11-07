@@ -41,15 +41,16 @@ export default function HomepageContact() {
 					</RevealSection>
 					<RevealSection delay={0.5} direction="right">
 						<Grid size={{ xs: 12, md: 6 }}>
-							<Card
-								backgroundColor={{
-									light: 'rgba(255, 255, 255, 0.5)',
-									dark: 'rgba(34, 34, 34, 1)',
-								}}
-								borderColor={{ light: '#ffffff', dark: 'rgba(68, 68, 68, 1)' }}
-								borderRadius={36}
-								sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-							>
+							<Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+								<Card
+									backgroundColor={{
+										light: 'rgba(255, 255, 255, 0.5)',
+										dark: 'rgba(34, 34, 34, 1)',
+									}}
+									borderColor={{ light: '#ffffff', dark: 'rgba(68, 68, 68, 1)' }}
+									borderRadius={36}
+									fullHeight
+								>
 								<CardContent
 									sx={{
 										p: { xs: 4, md: 6 },
@@ -199,6 +200,7 @@ export default function HomepageContact() {
 									</Stack>
 								</CardContent>
 							</Card>
+							</Box>
 						</Grid>
 					</RevealSection>
 				</Grid>

@@ -84,7 +84,7 @@ export default function ServicesCatalog() {
 										borderRadius={24}
 										backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
 										borderColor={{ light: 'divider', dark: 'divider' }}
-										sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+										fullHeight
 									>
 										<Box sx={{ position: 'relative', width: '100%', height: 240, overflow: 'hidden', flexShrink: 0 }}>
 											<Image
