@@ -154,44 +154,9 @@ export default function Reviews() {
 				</RevealSection>
 				<RevealSection delay={0.3} direction="up">
 					<Box
-						sx={[
-							() => ({
-								position: 'relative',
-								'&:after': {
-									background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
-									content: '""',
-									display: canNext ? 'block' : 'none',
-									height: '100%',
-									right: 0,
-									pointerEvents: 'none',
-									position: 'absolute',
-									top: 0,
-									width: '10%',
-									zIndex: 1,
-								},
-								'&:before': {
-									background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(231, 233, 246, 1), rgba(231, 233, 246, 0))`,
-									content: '""',
-									display: canPrev ? 'block' : 'none',
-									height: '100%',
-									left: 0,
-									pointerEvents: 'none',
-									position: 'absolute',
-									top: 0,
-									width: '10%',
-									zIndex: 1,
-								},
-							}),
-							(theme) =>
-								theme.applyStyles('dark', {
-									'&:before': {
-										background: `linear-gradient(to ${isRTL ? 'right' : 'left'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
-									},
-									'&:after': {
-										background: `linear-gradient(to ${isRTL ? 'left' : 'right'}, rgba(17, 17, 17, 0) 0%,rgba(17, 17, 17, 1) 100%)`,
-									},
-								}),
-						]}
+						sx={{
+							position: 'relative',
+						}}
 					>
 						<Box className="embla" ref={emblaRef}>
 							<Box

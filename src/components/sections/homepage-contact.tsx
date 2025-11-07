@@ -1,9 +1,9 @@
 'use client';
 
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, CardContent, Container, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import { Card } from '@/components/ui/card';
@@ -11,6 +11,8 @@ import RevealSection from '@/components/ui/reveal-section';
 
 export default function HomepageContact() {
 	const t = useTranslations('Homepage.contact');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
 	
 	return (
 		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
@@ -41,70 +43,164 @@ export default function HomepageContact() {
 					</RevealSection>
 					<RevealSection delay={0.5} direction="right">
 						<Grid size={{ xs: 12, md: 6 }}>
-							<Stack spacing={{ xs: 3, md: 4 }} sx={{ py: { xs: 0, md: 4 }, height: '100%', justifyContent: 'center' }}>
-								<Stack spacing={2}>
-									<Typography variant="h2" fontWeight={700}>
-										{t('headline')}
-									</Typography>
-									{t('description') && (
-										<Typography color="text.secondary" variant="h6" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
-											{t('description')}
-										</Typography>
-									)}
-								</Stack>
-								
-								<Stack spacing={2.5}>
-									{t('phone') && (
-										<Stack direction="row" spacing={2} alignItems="center">
-											<Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('phoneLabel')}:
-											</Typography>
-											<Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('phone')}
-											</Typography>
-										</Stack>
-									)}
-									{t('email') && (
-										<Stack direction="row" spacing={2} alignItems="center">
-											<Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('emailLabel')}:
-											</Typography>
-											<Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('email')}
-											</Typography>
-										</Stack>
-									)}
-									{t('address') && (
-										<Stack direction="row" spacing={2} alignItems="flex-start">
-											<Typography variant="body1" fontWeight={600} sx={{ minWidth: 80, fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('addressLabel')}:
-											</Typography>
-											<Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-												{t('address')}
-											</Typography>
-										</Stack>
-									)}
-								</Stack>
-								
-								<Box sx={{ mt: { xs: 2, md: 4 } }}>
-									<Button
-										component={Link}
-										href="/contact"
-										size="large"
-										variant="contained"
-										color="accent"
-										fullWidth
-										sx={{
-											px: 4,
-											py: 1.5,
-											fontWeight: 600,
-											textTransform: 'uppercase',
+							<Card
+								backgroundColor={{
+									light: 'rgba(255, 255, 255, 0.5)',
+									dark: 'rgba(34, 34, 34, 1)',
+								}}
+								borderColor={{ light: '#ffffff', dark: 'rgba(68, 68, 68, 1)' }}
+								borderRadius={36}
+								sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+							>
+								<CardContent
+									sx={{
+										p: { xs: 4, md: 6 },
+										paddingBottom: { xs: '40px !important', md: '48px !important' },
+										flexGrow: 1,
+										display: 'flex',
+										flexDirection: 'column',
+										justifyContent: 'center',
+									}}
+								>
+									<Stack 
+										spacing={{ xs: 4, md: 5 }} 
+										sx={{ 
+											textAlign: 'center',
+											alignItems: 'center',
+											maxWidth: { md: 500 },
+											mx: 'auto',
 										}}
 									>
-										{t('cta')}
-									</Button>
-								</Box>
-							</Stack>
+										<Stack spacing={2} sx={{ alignItems: 'center' }}>
+											<Typography variant="h2" fontWeight={700}>
+												{t('headline')}
+											</Typography>
+											{t('description') && (
+												<Typography 
+													color="text.secondary" 
+													variant="h6" 
+													sx={{ 
+														fontSize: { xs: '1rem', md: '1.25rem' },
+														maxWidth: { md: 400 },
+													}}
+												>
+													{t('description')}
+												</Typography>
+											)}
+										</Stack>
+										
+										<Stack 
+											spacing={3} 
+											sx={{ 
+												width: '100%',
+												alignItems: 'center',
+											}}
+										>
+											{t('phone') && (
+												<Stack 
+													direction="column" 
+													spacing={0.5} 
+													alignItems="center"
+													sx={{ width: '100%' }}
+												>
+													<Typography 
+														variant="body2" 
+														color="text.secondary" 
+														sx={{ 
+															fontSize: { xs: '0.875rem', md: '0.9375rem' },
+															textTransform: 'uppercase',
+															letterSpacing: '0.5px',
+														}}
+													>
+														{t('phoneLabel')}
+													</Typography>
+													<Typography 
+														variant="body1" 
+														fontWeight={600} 
+														sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}
+													>
+														{t('phone')}
+													</Typography>
+												</Stack>
+											)}
+											{t('email') && (
+												<Stack 
+													direction="column" 
+													spacing={0.5} 
+													alignItems="center"
+													sx={{ width: '100%' }}
+												>
+													<Typography 
+														variant="body2" 
+														color="text.secondary" 
+														sx={{ 
+															fontSize: { xs: '0.875rem', md: '0.9375rem' },
+															textTransform: 'uppercase',
+															letterSpacing: '0.5px',
+														}}
+													>
+														{t('emailLabel')}
+													</Typography>
+													<Typography 
+														variant="body1" 
+														fontWeight={600} 
+														sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}
+													>
+														{t('email')}
+													</Typography>
+												</Stack>
+											)}
+											{t('address') && (
+												<Stack 
+													direction="column" 
+													spacing={0.5} 
+													alignItems="center"
+													sx={{ width: '100%' }}
+												>
+													<Typography 
+														variant="body2" 
+														color="text.secondary" 
+														sx={{ 
+															fontSize: { xs: '0.875rem', md: '0.9375rem' },
+															textTransform: 'uppercase',
+															letterSpacing: '0.5px',
+														}}
+													>
+														{t('addressLabel')}
+													</Typography>
+													<Typography 
+														variant="body1" 
+														fontWeight={600} 
+														sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}
+													>
+														{t('address')}
+													</Typography>
+												</Stack>
+											)}
+										</Stack>
+										
+										<Box sx={{ width: '100%', pt: 2 }}>
+											<Button
+												component={Link}
+												href="/contact"
+												size="large"
+												variant="contained"
+												color="accent"
+												fullWidth
+												sx={{
+													px: 4,
+													py: 1.5,
+													fontWeight: 600,
+													textTransform: 'uppercase',
+													borderRadius: 2,
+												}}
+											>
+												{t('cta')}
+											</Button>
+										</Box>
+									</Stack>
+								</CardContent>
+							</Card>
 						</Grid>
 					</RevealSection>
 				</Grid>

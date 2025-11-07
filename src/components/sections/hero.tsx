@@ -71,6 +71,9 @@ export default function Hero() {
 					position: 'relative',
 					zIndex: 2,
 					py: { xs: 8, md: 12 },
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
 				}}
 			>
 						<RevealSection delay={0}>
@@ -80,7 +83,7 @@ export default function Hero() {
 							alignItems: 'center',
 							textAlign: 'center',
 							maxWidth: { md: 800 },
-							mx: 'auto',
+							width: '100%',
 						}}
 					>
 						<Stack spacing={2.5}>
@@ -110,7 +113,7 @@ export default function Hero() {
 						<RevealSection delay={0.15}>
 								<Stack
 									direction={{ xs: 'column', sm: 'row' }}
-									spacing={2.5}
+									spacing={{ xs: 3, sm: 6 }}
 										sx={{
 									alignItems: 'center',
 									justifyContent: 'center',

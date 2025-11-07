@@ -77,11 +77,19 @@ export default function ServiceDetails() {
 												style={{ objectFit: 'cover' }}
 											/>
 										</Box>
-										<Box sx={{ p: 4, textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+										<Box sx={{ 
+											p: 4, 
+											textAlign: 'center', 
+											flexGrow: 1, 
+											display: 'flex', 
+											flexDirection: 'column',
+											minHeight: { xs: 200, md: 220 },
+											justifyContent: 'space-between'
+										}}>
 											<Typography variant="h3" fontWeight={700} sx={{ mb: 2 }}>
 												{t(`${service.key}.title`)}
 											</Typography>
-											<Typography color="text.secondary" variant="body1" sx={{ fontSize: { xs: '1rem', md: '1.125rem' }, flexGrow: 1 }}>
+											<Typography color="text.secondary" variant="body1" sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
 												{t(`${service.key}.description`)}
 											</Typography>
 										</Box>

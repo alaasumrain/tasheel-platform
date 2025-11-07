@@ -2,7 +2,6 @@
 
 import { Box, Container, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/ui/card';
@@ -19,25 +18,26 @@ export default function WhyUs() {
 					container
 					direction={{ xs: 'column-reverse', md: 'row' }}
 					spacing={{ xs: 0, md: 4, lg: 8 }}
+					justifyContent="center"
 				>
 					<RevealSection delay={0.3} direction="left">
-						<Grid size={{ xs: 12, md: 6 }}>
-							<Stack spacing={{ xs: 2.5, md: 5 }} sx={{ py: { xs: 0, md: 5 } }}>
-								<Stack spacing={1.5}>
+						<Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mx: 'auto' }}>
+							<Stack spacing={{ xs: 2.5, md: 5 }} sx={{ py: { xs: 0, md: 5 }, width: '100%', maxWidth: { md: '100%' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+								<Stack spacing={1.5} sx={{ alignItems: 'center', width: '100%', textAlign: 'center' }}>
 									<Typography
 										color="accent"
-										sx={{ maxWidth: { xs: '100%', md: '80%' } }}
 										variant="h5"
+										sx={{ fontWeight: 600, textAlign: 'center', width: '100%', display: 'block' }}
 									>
 										{t('tagline')}
 									</Typography>
 									<Typography
 										variant="h2"
-										sx={{ maxWidth: { xs: '100%', md: '80%' } }}
+										sx={{ fontWeight: 700, fontSize: { xs: '2rem', md: '2.5rem', lg: '3rem' }, textAlign: 'center', width: '100%', display: 'block' }}
 									>
 										{t('headline')}
 									</Typography>
-									<Typography color="text.secondary" variant="body1" sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
+									<Typography color="text.secondary" variant="body1" sx={{ fontSize: { xs: '1rem', md: '1.125rem' }, lineHeight: 1.7, textAlign: 'center', width: '100%', display: 'block' }}>
 										{t('description')}
 									</Typography>
 								</Stack>
@@ -55,13 +55,16 @@ export default function WhyUs() {
 								fullHeight
 							>
 								<Box sx={{ position: 'relative', width: '100%', height: '100%', minHeight: { xs: 350, md: 450 } }}>
-									<Image
+									<Box
+										component="img"
 										src="/dark/about.jpg"
 										alt={t('imageAlt')}
-										fill
-										style={{ objectFit: 'cover' }}
-										priority
-										unoptimized
+										sx={{
+											width: '100%',
+											height: '100%',
+											objectFit: 'cover',
+											display: 'block',
+										}}
 									/>
 								</Box>
 							</Card>

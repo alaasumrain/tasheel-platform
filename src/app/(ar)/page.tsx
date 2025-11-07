@@ -18,8 +18,8 @@ export default async function Page() {
 			<WhyUs />
 			<Stats />
 			<ServicesCatalog />
-			<Process />
 			<ServiceDetails />
+			<Process />
 			<Reviews />
 			<Faq />
 			<HomepageContact />
