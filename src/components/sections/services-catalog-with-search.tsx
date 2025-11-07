@@ -586,10 +586,11 @@ const handleSortChange = useCallback((value: SortOption) => {
 								{categories.map((category) => {
 									const isActive = selectedCategories.includes(category.slug);
 									const count = categoryCounts[category.slug] || 0;
+									const categoryLabel = t(`categoryLabels.${category.slug}` as any) || category.name;
 									return (
 										<Chip
 											key={category.slug}
-											label={`${category.name} (${count})`}
+											label={`${categoryLabel} (${count})`}
 											variant={isActive ? 'filled' : 'outlined'}
 											size="medium"
 											onClick={() => handleToggleCategory(category.slug)}
@@ -731,11 +732,11 @@ const handleSortChange = useCallback((value: SortOption) => {
 			</Container>
 
 			<Container sx={{ pb: { xs: 6, md: 10 } }}>
-				<Grid container spacing={{ xs: 3, md: 4 }}>
+				<Grid container spacing={{ xs: 3, md: 4 }} sx={{ alignItems: 'stretch' }}>
 					{paginatedServices.map((service, index) => {
 						const priceLabel = formatPriceLabel(service, currencyFormatter, t);
-						// Get category name for tag
-						const categoryName = categories.find(cat => cat.slug === service.category)?.name || service.category;
+						// Get category name for tag - use translation if available
+						const categoryLabel = t(`categoryLabels.${service.category}` as any) || categories.find(cat => cat.slug === service.category)?.name || service.category;
 						
 						// Category-based color scheme for visual distinction
 						const getCategoryColor = (categorySlug: string): { bg: string; text: string } => {
@@ -751,11 +752,12 @@ const handleSortChange = useCallback((value: SortOption) => {
 						const categoryColor = getCategoryColor(service.category);
 						
 						return (
-							<Grid key={service.slug} size={{ xs: 12, sm: 6, lg: 4 }}>
+							<Grid key={service.slug} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
 								<RevealSection delay={0.1 + index * 0.06} direction="up">
 									<Paper
 										elevation={0}
 										sx={(theme) => ({
+											width: '100%',
 											height: '100%',
 											display: 'flex',
 											flexDirection: 'column',
@@ -778,7 +780,7 @@ const handleSortChange = useCallback((value: SortOption) => {
 											{/* Category Tag */}
 											<Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
 												<Chip
-													label={categoryName}
+													label={categoryLabel}
 													size="small"
 													sx={{
 														bgcolor: categoryColor.bg,
@@ -926,11 +928,13 @@ const handleSortChange = useCallback((value: SortOption) => {
 								},
 							}}
 						/>
-						<Typography variant="body2" color="text.secondary">
-							{locale === 'ar' 
-								? `عرض ${startIndex + 1}-${Math.min(endIndex, sortedServices.length)} من ${sortedServices.length} خدمة`
-								: `Showing ${startIndex + 1}-${Math.min(endIndex, sortedServices.length)} of ${sortedServices.length} services`}
-						</Typography>
+					<Typography variant="body2" color="text.secondary">
+						{t('pagination.showing', {
+							start: startIndex + 1,
+							end: Math.min(endIndex, sortedServices.length),
+							total: sortedServices.length,
+						})}
+					</Typography>
 					</Stack>
 				)}
 			</Container>

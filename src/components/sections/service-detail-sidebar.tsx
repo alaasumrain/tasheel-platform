@@ -27,9 +27,11 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
-const QRCode = dynamic(() => import('qrcode.react').then((mod) => mod.default), {
-	ssr: false,
-});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const QRCodeSVG = dynamic(
+	() => import('qrcode.react').then((mod: any) => ({ default: mod.QRCodeSVG })),
+	{ ssr: false }
+) as any;
 
 import { Card } from '@/components/ui/card';
 import type { Service } from '@/data/services';
@@ -239,7 +241,7 @@ export default function ServiceDetailSidebar({ service }: ServiceDetailSidebarPr
 								borderColor: 'divider',
 							}}
 						>
-							<QRCode value={currentUrl} size={200} />
+							<QRCodeSVG value={currentUrl} size={200} />
 						</Box>
 						<Typography variant="body2" color="text.secondary" textAlign="center">
 							{locale === 'ar' 

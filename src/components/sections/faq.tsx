@@ -54,7 +54,7 @@ export default function Faq() {
 	];
 	
 	return (
-		<Container id="faq" maxWidth="md" sx={{ py: { xs: 5, md: 12.5 } }}>
+		<Container id="faq" maxWidth="md" sx={{ py: { xs: 6.25, md: 12.5 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Stack spacing={{ xs: 4, md: 8 }}>
 				<Stack spacing={1.5}>

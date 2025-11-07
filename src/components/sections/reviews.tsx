@@ -84,7 +84,7 @@ export default function Reviews() {
 	return (
 		<Stack
 			alignItems={{ lg: 'center' }}
-			sx={{ pt: { xs: 6.25, md: 12.5 }, pb: { xs: 2.25, md: 4.5 } }}
+			sx={{ py: { xs: 6.25, md: 12.5 } }}
 		>
 			<Stack spacing={{ xs: 4, md: 8 }}>
 				<RevealSection delay={0.1} direction="up">

@@ -45,7 +45,7 @@ export default function Process() {
 	];
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 6.25, md: 12.5 }, pt: { xs: 10, md: 16 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Card
 				backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}

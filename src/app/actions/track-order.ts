@@ -28,7 +28,7 @@ export async function trackOrder(orderNumber: string, locale: string = 'en') {
 			: null;
 
 		const legacyService = serviceFromDB
-			? convertToLegacyFormat(serviceFromDB, locale)
+			? convertToLegacyFormat(serviceFromDB, locale as 'ar' | 'en')
 			: null;
 
 		return {

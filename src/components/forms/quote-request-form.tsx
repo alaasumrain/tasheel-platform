@@ -14,6 +14,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { IconArrowRight as IconSend } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
 import type { LegacyService } from '@/lib/types/service';
@@ -27,6 +28,7 @@ export default function QuoteRequestForm({
 	preSelectedService,
 	services = [],
 }: QuoteRequestFormProps) {
+	const t = useTranslations('Quote');
 	const formRef = useRef<HTMLFormElement>(null);
 	const { mutate: send, isPending } = useMutation({
 		mutationFn: submitQuoteRequest,
@@ -53,11 +55,11 @@ export default function QuoteRequestForm({
 				{/* Name & Email */}
 				<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 					<FormControl disabled={isPending} required fullWidth>
-						<FormLabel htmlFor="name">Name</FormLabel>
+						<FormLabel htmlFor="name">{t('wizard.fullName')}</FormLabel>
 						<OutlinedInput id="name" name="name" required />
 					</FormControl>
 					<FormControl disabled={isPending} required fullWidth>
-						<FormLabel htmlFor="email">Email</FormLabel>
+						<FormLabel htmlFor="email">{t('wizard.emailAddress')}</FormLabel>
 						<OutlinedInput id="email" name="email" type="email" required />
 					</FormControl>
 				</Stack>
@@ -65,17 +67,17 @@ export default function QuoteRequestForm({
 				{/* Phone & Service Selection */}
 				<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 					<FormControl disabled={isPending} required fullWidth>
-						<FormLabel htmlFor="phone">Phone Number</FormLabel>
+						<FormLabel htmlFor="phone">{t('wizard.phoneNumber')}</FormLabel>
 					<OutlinedInput
 						id="phone"
 						name="phone"
 						type="tel"
-						placeholder="+970 XX XXX XXXX"
+						placeholder="+970 59X XXX XXX"
 						required
 					/>
 					</FormControl>
 					<FormControl disabled={isPending} required fullWidth>
-						<FormLabel htmlFor="service">Service Required</FormLabel>
+						<FormLabel htmlFor="service">{t('wizard.serviceRequired')}</FormLabel>
 						<Select
 							id="service"
 							name="service"
@@ -83,7 +85,7 @@ export default function QuoteRequestForm({
 							required
 						>
 							<MenuItem value="" disabled>
-								Select a service
+								{t('wizard.selectOption')}
 							</MenuItem>
 							{services.map((service) => (
 								<MenuItem key={service.slug} value={service.slug}>
@@ -96,12 +98,12 @@ export default function QuoteRequestForm({
 
 				{/* Urgency */}
 				<FormControl disabled={isPending} required>
-					<FormLabel htmlFor="urgency">Service Urgency</FormLabel>
+					<FormLabel htmlFor="urgency">{t('wizard.serviceUrgency')}</FormLabel>
 					<Select id="urgency" name="urgency" defaultValue="standard" required>
-						<MenuItem value="standard">Standard (Normal processing)</MenuItem>
-						<MenuItem value="express">Express (Faster processing)</MenuItem>
+						<MenuItem value="standard">{t('wizard.urgencyOptions.standard')}</MenuItem>
+						<MenuItem value="express">{t('wizard.urgencyOptions.express')}</MenuItem>
 						<MenuItem value="urgent">
-							Urgent (Fastest possible, if available)
+							{t('wizard.urgencyOptions.urgent')}
 						</MenuItem>
 					</Select>
 				</FormControl>
@@ -109,33 +111,32 @@ export default function QuoteRequestForm({
 				{/* Document/Service Details */}
 				<FormControl disabled={isPending} required>
 					<FormLabel htmlFor="details">
-						Document/Service Details
+						{t('wizard.additionalDetails')}
 					</FormLabel>
 					<OutlinedInput
 						id="details"
 						name="details"
 						multiline
 						rows={3}
-						placeholder="E.g., Palestinian marriage certificate issued in Nablus (2020) needing MOFAE attestation for family reunification"
+						placeholder={t('wizard.detailsPlaceholder')}
 						required
 					/>
 					<Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-						Please provide details about your document(s) or specific
-						requirements
+						{t('wizard.detailsHelper')}
 					</Typography>
 				</FormControl>
 
 				{/* Additional Message */}
 				<FormControl disabled={isPending}>
 					<FormLabel htmlFor="message">
-						Additional Notes (Optional)
+						{t('wizard.additionalNotes')}
 					</FormLabel>
 					<OutlinedInput
 						id="message"
 						name="message"
 						multiline
 						rows={2}
-						placeholder="Any other information we should know..."
+						placeholder={t('wizard.notesPlaceholder')}
 					/>
 				</FormControl>
 
@@ -149,9 +150,7 @@ export default function QuoteRequestForm({
 						borderRadius: 1,
 					}}
 				>
-					<strong>Note:</strong> After submitting this form, our team will
-					contact you within 2 hours to confirm details and arrange document
-					pickup (if required) or provide upload instructions.
+					<strong>{t('wizard.note')}:</strong> {t('wizard.submitNote')}
 				</Typography>
 
 				{/* Submit Button */}
@@ -163,7 +162,7 @@ export default function QuoteRequestForm({
 					type="submit"
 					size="large"
 				>
-					Request Quote
+					{t('requestQuote')}
 				</Button>
 			</Stack>
 		</form>

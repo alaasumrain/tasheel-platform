@@ -2,9 +2,12 @@ import { setRequestLocale } from 'next-intl/server';
 
 import Hero from '@/components/sections/hero';
 import WhyUs from '@/components/sections/why-us';
+import Stats from '@/components/sections/stats';
 import ServicesCatalog from '@/components/sections/services-catalog';
+import Process from '@/components/sections/process';
 import ServiceDetails from '@/components/sections/service-details';
-import PerfectJob from '@/components/sections/perfect-job';
+import Reviews from '@/components/sections/reviews';
+import Faq from '@/components/sections/faq';
 import HomepageContact from '@/components/sections/homepage-contact';
 
 export default async function Page() {
@@ -13,9 +16,12 @@ export default async function Page() {
 		<>
 			<Hero />
 			<WhyUs />
+			<Stats />
 			<ServicesCatalog />
+			<Process />
 			<ServiceDetails />
-			<PerfectJob />
+			<Reviews />
+			<Faq />
 			<HomepageContact />
 		</>
 	);

@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
@@ -39,14 +38,16 @@ export default function Hero() {
 					zIndex: 0,
 				}}
 			>
-				<Image
+				<Box
+					component="img"
 					src="/dark/hero.jpg"
 					alt="Tasheel customer service team"
-					fill
-					style={{
+					sx={{
+						width: '100%',
+						height: '100%',
 						objectFit: 'cover',
+						display: 'block',
 					}}
-					priority
 				/>
 			</Box>
 			

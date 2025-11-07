@@ -3,17 +3,18 @@
 import Link from 'next/link';
 import { Button } from '@mui/material';
 import { IconMail as IconMail } from '@tabler/icons-react';
-
-// Put Button label here
-const label = 'Contact us';
+import { useTranslations } from 'next-intl';
 
 export default function ContactButton({
-	buttonLabel = label,
+	buttonLabel,
 	fullWidth = false,
 }: {
 	buttonLabel?: string;
 	fullWidth?: boolean;
 }) {
+	const t = useTranslations('Buttons');
+	const label = buttonLabel || t('contactUs');
+	
 	return (
 		<Button
 			color="secondary"
@@ -22,7 +23,7 @@ export default function ContactButton({
 			href={'/contact'}
 			startIcon={<IconMail />}
 		>
-			{buttonLabel}
+			{label}
 		</Button>
 	);
 }

@@ -22,20 +22,21 @@ export default function HomepageContact() {
 				>
 					<RevealSection delay={0.3} direction="left">
 						<Grid size={{ xs: 12, md: 6 }}>
-							<Card
-								borderRadius={36}
-								fullHeight
-								sx={{ height: { xs: 350, md: '100%' } }}
-							>
-								<Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-									<Image
-										src="/dark/homepage-contact.jpg"
-										alt={t('imageAlt')}
-										fill
-										style={{ objectFit: 'cover' }}
-									/>
-								</Box>
-							</Card>
+							<Box sx={{ height: { xs: 350, md: '100%' } }}>
+								<Card
+									borderRadius={36}
+									fullHeight
+								>
+									<Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+										<Image
+											src="/dark/homepage-contact.jpg"
+											alt={t('imageAlt')}
+											fill
+											style={{ objectFit: 'cover' }}
+										/>
+									</Box>
+								</Card>
+							</Box>
 						</Grid>
 					</RevealSection>
 					<RevealSection delay={0.5} direction="right">
@@ -85,13 +86,14 @@ export default function HomepageContact() {
 									)}
 								</Stack>
 								
-								<Box>
+								<Box sx={{ mt: { xs: 2, md: 4 } }}>
 									<Button
 										component={Link}
 										href="/contact"
 										size="large"
 										variant="contained"
 										color="accent"
+										fullWidth
 										sx={{
 											px: 4,
 											py: 1.5,

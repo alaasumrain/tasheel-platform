@@ -61,6 +61,7 @@ export default function WhyUs() {
 										fill
 										style={{ objectFit: 'cover' }}
 										priority
+										unoptimized
 									/>
 								</Box>
 							</Card>

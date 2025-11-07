@@ -56,8 +56,9 @@
 		"title": "Our Services",
 		"description": "Browse our comprehensive catalog of government services and translations",
 		"viewDetails": "View Details",
-		"requestQuote": "Request Quote",
-		"requestQuoteNow": "Request Quote Now",
+		"requestQuote": "Start Service",
+		"requestQuoteNow": "Start Service Now",
+		"startService": "Start Service",
 		"startingPrice": "Pricing",
 		"from": "From",
 		"turnaroundTime": "Turnaround Time",
@@ -862,7 +863,7 @@
 		}
 	},
 	"Quote": {
-		"requestQuote": "Request a Quote",
+		"requestQuote": "Start Service",
 		"title": "Get your personalized quote",
 		"description": "Fill out the form below and our team will get back to you within 2 hours with a detailed quote and next steps.",
 		"backTo": "Back to",
@@ -943,7 +944,7 @@
 			"quickWhatsAppQuote": "Quick WhatsApp Quote",
 			"note": "Note",
 			"from": "From",
-			"requestQuote": "Request Quote"
+			"requestQuote": "Start Service"
 		},
 		"requiredDocuments": {
 			"title": "Required Documents",
