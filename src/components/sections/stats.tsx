@@ -161,7 +161,7 @@ function StatItem({ stat }: { stat: Stat }) {
 						<Typography
 							sx={[
 								() => ({ 
-									color: stat.color ? 'accent.contrastText' : 'accent.main',
+									color: 'text.primary',
 									fontWeight: 700,
 								}),
 								(theme) =>
@@ -176,7 +176,7 @@ function StatItem({ stat }: { stat: Stat }) {
 						<Typography
 							sx={[
 								() => ({ 
-									color: stat.color ? 'accent.contrastText' : 'accent.main',
+									color: 'text.primary',
 								}),
 								(theme) =>
 									theme.applyStyles('dark', {

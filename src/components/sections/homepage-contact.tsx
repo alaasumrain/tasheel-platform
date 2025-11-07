@@ -71,7 +71,7 @@ export default function HomepageContact() {
 												fontWeight={600} 
 												sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}
 											>
-												{t('phone')}
+												<span dir="ltr">{t('phone')}</span>
 											</Typography>
 										</Stack>
 									</Grid>

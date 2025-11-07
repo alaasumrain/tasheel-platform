@@ -507,10 +507,10 @@ const handleSortChange = useCallback((value: SortOption) => {
 				<Paper
 					elevation={0}
 					sx={(theme) => ({
-						px: { xs: 3, md: 4 },
-						py: { xs: 3, md: 4 },
-						mb: { xs: 4, md: 6 },
-						borderRadius: 3,
+						px: { xs: 2.5, md: 3 },
+						py: { xs: 2.5, md: 3 },
+						mb: { xs: 3, md: 4 },
+						borderRadius: 2,
 						border: '1px solid',
 						borderColor: theme.palette.mode === 'dark' 
 							? 'rgba(255,255,255,0.1)' 
@@ -524,16 +524,18 @@ const handleSortChange = useCallback((value: SortOption) => {
 							: '0px 2px 8px rgba(0,0,0,0.04)',
 					})}
 				>
-					<Stack spacing={3.5}>
+					<Stack spacing={2}>
 						<Stack
-							direction={{ xs: 'column', md: 'row' }}
+							direction={{ xs: 'column', sm: 'row' }}
 							justifyContent="space-between"
-							alignItems={{ xs: 'flex-start', md: 'center' }}
-							spacing={2}
+							alignItems={{ xs: 'flex-start', sm: 'center' }}
+							spacing={1.5}
 						>
-							<Stack spacing={1}>
-								<Typography variant="h5" fontWeight={700}>{t('filters.heading')}</Typography>
-								<Typography variant="body1" color="text.secondary" fontWeight={500}>
+							<Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+								<Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
+									{t('filters.heading')}
+								</Typography>
+								<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
 									{t('filters.resultsSummary', { count: sortedServices.length })}
 								</Typography>
 							</Stack>
@@ -541,106 +543,112 @@ const handleSortChange = useCallback((value: SortOption) => {
 								variant="outlined" 
 								onClick={handleResetFilters} 
 								disabled={activeFiltersCount === 0}
+								size="small"
 								sx={{
-									borderRadius: 2,
-									px: 3,
-									py: 1,
+									borderRadius: 1.5,
+									px: 2,
+									py: 0.75,
 									fontWeight: 600,
+									fontSize: '0.875rem',
+									minWidth: 'auto',
 								}}
 							>
 								{t('filters.clearAll')}
 							</Button>
 						</Stack>
 
-						<Stack spacing={2.5}>
-							<Typography variant="subtitle1" fontWeight={600} color="text.primary">
-								{t('filters.categories')}
-							</Typography>
-							<Stack direction="row" flexWrap="wrap" gap={1.5}>
-								<Chip
-									label={t('filters.allCategories')}
-									variant={selectedCategories.length === 0 ? 'filled' : 'outlined'}
-									onClick={handleClearCategories}
-									size="medium"
-									sx={(theme) => ({
-										fontSize: '0.9375rem',
-										fontWeight: 600,
-										height: 36,
-										px: 1,
-										bgcolor: selectedCategories.length === 0 
-											? 'primary.main' 
-											: 'transparent',
-										color: selectedCategories.length === 0 
-											? 'primary.contrastText' 
-											: 'text.primary',
-										borderColor: 'divider',
-										'&:hover': {
+						<Stack spacing={1.5}>
+							<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={1}>
+								<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
+									{t('filters.categories')}:
+								</Typography>
+								<Stack direction="row" flexWrap="wrap" gap={0.75}>
+									<Chip
+										label={t('filters.allCategories')}
+										variant={selectedCategories.length === 0 ? 'filled' : 'outlined'}
+										onClick={handleClearCategories}
+										size="small"
+										sx={(theme) => ({
+											fontSize: '0.8125rem',
+											fontWeight: 600,
+											height: 28,
+											px: 1,
 											bgcolor: selectedCategories.length === 0 
-												? 'primary.dark' 
-												: theme.palette.mode === 'dark'
-													? 'rgba(255,255,255,0.05)'
-													: 'rgba(0,0,0,0.04)',
-										},
+												? 'primary.main' 
+												: 'transparent',
+											color: selectedCategories.length === 0 
+												? 'primary.contrastText' 
+												: 'text.primary',
+											borderColor: 'divider',
+											'&:hover': {
+												bgcolor: selectedCategories.length === 0 
+													? 'primary.dark' 
+													: theme.palette.mode === 'dark'
+														? 'rgba(255,255,255,0.05)'
+														: 'rgba(0,0,0,0.04)',
+											},
+										})}
+									/>
+									{categories.map((category) => {
+										const isActive = selectedCategories.includes(category.slug);
+										const count = categoryCounts[category.slug] || 0;
+										const categoryLabel = t(`categoryLabels.${category.slug}` as any) || category.name;
+										return (
+											<Chip
+												key={category.slug}
+												label={`${categoryLabel} (${count})`}
+												variant={isActive ? 'filled' : 'outlined'}
+												size="small"
+												onClick={() => handleToggleCategory(category.slug)}
+												sx={(theme) => ({
+													fontSize: '0.8125rem',
+													fontWeight: 600,
+													height: 28,
+													px: 1,
+													bgcolor: isActive ? 'primary.main' : 'transparent',
+													color: isActive ? 'primary.contrastText' : 'text.primary',
+													borderColor: 'divider',
+													'&:hover': {
+														bgcolor: isActive 
+															? 'primary.dark' 
+															: theme.palette.mode === 'dark'
+																? 'rgba(255,255,255,0.05)'
+																: 'rgba(0,0,0,0.04)',
+													},
+												})}
+											/>
+										);
 									})}
-								/>
-								{categories.map((category) => {
-									const isActive = selectedCategories.includes(category.slug);
-									const count = categoryCounts[category.slug] || 0;
-									const categoryLabel = t(`categoryLabels.${category.slug}` as any) || category.name;
-									return (
-										<Chip
-											key={category.slug}
-											label={`${categoryLabel} (${count})`}
-											variant={isActive ? 'filled' : 'outlined'}
-											size="medium"
-											onClick={() => handleToggleCategory(category.slug)}
-											sx={(theme) => ({
-												fontSize: '0.9375rem',
-												fontWeight: 600,
-												height: 36,
-												px: 1,
-												bgcolor: isActive ? 'primary.main' : 'transparent',
-												color: isActive ? 'primary.contrastText' : 'text.primary',
-												borderColor: 'divider',
-												'&:hover': {
-													bgcolor: isActive 
-														? 'primary.dark' 
-														: theme.palette.mode === 'dark'
-															? 'rgba(255,255,255,0.05)'
-															: 'rgba(0,0,0,0.04)',
-												},
-											})}
-										/>
-									);
-								})}
+								</Stack>
 							</Stack>
 						</Stack>
 
-						<Divider />
+						<Divider sx={{ my: 0.5 }} />
 
 						<Stack
 							direction={{ xs: 'column', lg: 'row' }}
-							spacing={3}
+							spacing={2}
 							alignItems={{ xs: 'flex-start', lg: 'center' }}
 							justifyContent="space-between"
 						>
-							<Stack direction={{ xs: 'column', md: 'row' }} spacing={3} flexWrap="wrap">
-								<Stack spacing={1.5}>
-									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
-										{t('filters.turnaround')}
+							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap" gap={1.5}>
+								<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={0.75}>
+									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
+										{t('filters.turnaround')}:
 									</Typography>
-									<Stack direction="row" flexWrap="wrap" gap={1.5}>
+									<Stack direction="row" flexWrap="wrap" gap={0.75}>
 										{turnaroundOptions.map((option) => (
 											<Chip
 												key={option.value}
 												label={option.label}
 												variant={turnaroundFilter === option.value ? 'filled' : 'outlined'}
 												onClick={() => handleTurnaroundChange(option.value)}
+												size="small"
 												sx={(theme) => ({
-													fontSize: '0.9375rem',
+													fontSize: '0.8125rem',
 													fontWeight: 600,
-													height: 36,
-													px: 1.5,
+													height: 28,
+													px: 1,
 													bgcolor: turnaroundFilter === option.value ? 'primary.main' : 'transparent',
 													color: turnaroundFilter === option.value ? 'primary.contrastText' : 'text.primary',
 													borderColor: 'divider',
@@ -657,22 +665,23 @@ const handleSortChange = useCallback((value: SortOption) => {
 									</Stack>
 								</Stack>
 
-								<Stack spacing={1.5}>
-									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
-										{t('filters.pricing')}
+								<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={0.75}>
+									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
+										{t('filters.pricing')}:
 									</Typography>
-									<Stack direction="row" flexWrap="wrap" gap={1.5}>
+									<Stack direction="row" flexWrap="wrap" gap={0.75}>
 										{pricingOptions.map((option) => (
 											<Chip
 												key={option.value}
 												label={option.label}
 												variant={pricingFilter === option.value ? 'filled' : 'outlined'}
 												onClick={() => handlePricingChange(option.value)}
+												size="small"
 												sx={(theme) => ({
-													fontSize: '0.9375rem',
+													fontSize: '0.8125rem',
 													fontWeight: 600,
-													height: 36,
-													px: 1.5,
+													height: 28,
+													px: 1,
 													bgcolor: pricingFilter === option.value ? 'primary.main' : 'transparent',
 													color: pricingFilter === option.value ? 'primary.contrastText' : 'text.primary',
 													borderColor: 'divider',
@@ -689,26 +698,22 @@ const handleSortChange = useCallback((value: SortOption) => {
 									</Stack>
 								</Stack>
 
-								<Stack spacing={1.5} alignItems="flex-start">
-									<Typography variant="subtitle1" fontWeight={600} color="text.primary">
-										{t('filters.express')}
+								<Stack direction="row" alignItems="center" spacing={1}>
+									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
+										{t('filters.express')}:
 									</Typography>
-									<FormControlLabel
-										control={
-											<Switch 
-												checked={expressOnly} 
-												onChange={(event) => handleExpressToggle(event.target.checked)}
-												sx={{ ml: 1 }}
-											/>
-										}
-										label=""
-										sx={{ m: 0 }}
+									<Switch 
+										checked={expressOnly} 
+										onChange={(event) => handleExpressToggle(event.target.checked)}
+										size="small"
 									/>
 								</Stack>
 							</Stack>
 
-							<FormControl size="medium" sx={{ minWidth: { xs: '100%', lg: 240 } }}>
-								<InputLabel id="services-sort-label" sx={{ fontWeight: 600 }}>{t('filters.sortLabel')}</InputLabel>
+							<FormControl size="small" sx={{ minWidth: { xs: '100%', lg: 200 }, mt: { xs: 1, lg: 0 } }}>
+								<InputLabel id="services-sort-label" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
+									{t('filters.sortLabel')}
+								</InputLabel>
 								<Select
 									labelId="services-sort-label"
 									label={t('filters.sortLabel')}
@@ -716,11 +721,12 @@ const handleSortChange = useCallback((value: SortOption) => {
 									onChange={(event) => handleSortChange(event.target.value as SortOption)}
 									sx={{
 										fontWeight: 600,
-										fontSize: '0.9375rem',
+										fontSize: '0.8125rem',
+										height: 36,
 									}}
 								>
 									{sortOptions.map((option) => (
-										<MenuItem key={option.value} value={option.value} sx={{ fontWeight: 600 }}>
+										<MenuItem key={option.value} value={option.value} sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
 											{option.label}
 										</MenuItem>
 									))}

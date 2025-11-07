@@ -7,11 +7,13 @@ import {
 	Container,
 	Stack,
 	Typography,
+	useColorScheme,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconCheck, IconClock, IconCurrencyShekel } from '@tabler/icons-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import Image from 'next/image';
 
 import type { Service } from '@/data/services';
 import RevealSection from '@/components/ui/reveal-section';
@@ -26,9 +28,15 @@ interface ServiceDetailProps {
 export default function ServiceDetail({ service }: ServiceDetailProps) {
 	const t = useTranslations('Services');
 	const locale = useLocale() as 'en' | 'ar';
+	const { mode } = useColorScheme();
 	const categoryLabels = (t.raw('categoryLabels') as Record<string, string>) || {};
 	const categoryLabel =
 		categoryLabels[service.category] ?? service.category.replace('-', ' ');
+	
+	// Get service image with fallback
+	const serviceImage = mode === 'dark' 
+		? (service.image_dark || service.image_light || '/dark/services/default-service.jpg')
+		: (service.image_light || service.image_dark || '/light/services/default-service.jpg');
 
 	const currencyFormatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 		style: 'currency',
@@ -69,6 +77,32 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={{ xs: 3, md: 4 }}>
 						<PageBreadcrumbs items={breadcrumbs} />
+						
+						{/* Service Image */}
+						{(service.image_light || service.image_dark) && (
+							<Box
+								sx={{
+									position: 'relative',
+									width: '100%',
+									height: { xs: 250, md: 400 },
+									borderRadius: 3,
+									overflow: 'hidden',
+									mb: 2,
+								}}
+							>
+								<Image
+									src={serviceImage}
+									alt={service.title}
+									fill
+									style={{ objectFit: 'cover' }}
+									onError={(e) => {
+										// Hide image if it fails to load
+										e.currentTarget.style.display = 'none';
+									}}
+								/>
+							</Box>
+						)}
+						
 						<Grid container spacing={{ xs: 4, md: 6 }} alignItems="flex-start">
 							{/* Main Content - Left Column (Right for Arabic/RTL) */}
 							<Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 1, md: locale === 'ar' ? 2 : 1 } }}>
@@ -345,7 +379,7 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 												borderRadius: 2,
 											}}
 										>
-											{t('callUs')}
+											{t('callUs')} <span dir="ltr">{t('callUsPhone')}</span>
 										</Button>
 									</Stack>
 								</Stack>

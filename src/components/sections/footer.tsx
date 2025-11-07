@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { useColorScheme } from '@mui/material';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Link as MuiLink } from '@mui/material';
 
@@ -27,6 +27,8 @@ import {
 export default function Footer() {
 	const t = useTranslations('Footer');
 	const { mode } = useColorScheme();
+	const locale = useLocale();
+	const isRTL = locale === 'ar';
 
 	const handleToTop = () => {
 		window.scrollTo({
@@ -176,7 +178,8 @@ export default function Footer() {
 									<Button
 										component="a"
 										href={`tel:${phoneNumber.replace(/\s/g, '')}`}
-										startIcon={<IconPhone size={20} />}
+										startIcon={!isRTL ? <IconPhone size={20} /> : undefined}
+										endIcon={isRTL ? <IconPhone size={20} /> : undefined}
 										variant="contained"
 										color="primary"
 										sx={{
@@ -185,9 +188,14 @@ export default function Footer() {
 											py: 1.5,
 											textTransform: 'none',
 											fontWeight: 600,
+											direction: 'ltr',
+											'& .MuiButton-endIcon': {
+												marginLeft: 0,
+												marginRight: '8px',
+											},
 										}}
 									>
-										{phoneNumber}
+										<span dir="ltr">{phoneNumber}</span>
 									</Button>
 									<Stack direction="row" spacing={1.5}>
 										{[
