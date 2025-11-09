@@ -1524,5 +1524,9 @@
 		"image1Alt": "Tasheel concierge dashboard for government services",
 		"image2Alt": "Certified translation management workspace",
 		"image3Alt": "Legalization and corporate compliance workflow overview"
+	},
+	"Buttons": {
+		"getStarted": "Get Started",
+		"contactUs": "Contact Us"
 	}
 }
