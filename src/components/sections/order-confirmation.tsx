@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
 	Alert,
 	Box,
@@ -26,8 +26,10 @@ import {
 	IconInbox,
 	IconPrinter,
 	IconShieldCheck,
+	IconUserPlus,
 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Link, useRouter } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
@@ -77,6 +79,17 @@ export function OrderConfirmation({
 	const t = useTranslations('OrderConfirmation');
 	const router = useRouter();
 	const [copied, setCopied] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+	const supabase = createClientComponentClient();
+
+	// Check if user is logged in
+	useEffect(() => {
+		const checkAuth = async () => {
+			const { data: { user } } = await supabase.auth.getUser();
+			setIsLoggedIn(!!user);
+		};
+		checkAuth();
+	}, [supabase]);
 
 	const handleCopy = async () => {
 		if (!orderNumber) return;
@@ -314,6 +327,45 @@ export function OrderConfirmation({
 								<Alert severity="info" sx={{ borderRadius: 2 }}>
 									{t('emailNotice', { email: customerEmail })}
 								</Alert>
+							)}
+
+							{/* Account Creation Prompt */}
+							{isLoggedIn === false && customerEmail && (
+								<Card
+									backgroundColor={{ light: 'primary.main', dark: 'primary.main' }}
+									borderColor={{ light: 'primary.main', dark: 'primary.main' }}
+									gradientOpacity={0.2}
+								>
+									<CardContent sx={{ p: { xs: 3, md: 4 }, color: 'primary.contrastText' }}>
+										<Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between">
+											<Stack spacing={1} flex={1}>
+												<Typography variant="h6" fontWeight={600}>
+													{t('createAccount.title')}
+												</Typography>
+												<Typography variant="body2" sx={{ opacity: 0.9 }}>
+													{t('createAccount.description')}
+												</Typography>
+											</Stack>
+											<Button
+												component={Link}
+												href={`/register?email=${encodeURIComponent(customerEmail)}${customerName ? `&name=${encodeURIComponent(customerName)}` : ''}`}
+												variant="contained"
+												size="large"
+												startIcon={<IconUserPlus size={20} />}
+												sx={{
+													backgroundColor: 'rgba(255, 255, 255, 0.2)',
+													color: 'primary.contrastText',
+													border: '1px solid rgba(255, 255, 255, 0.3)',
+													'&:hover': {
+														backgroundColor: 'rgba(255, 255, 255, 0.3)',
+													},
+												}}
+											>
+												{t('createAccount.button')}
+											</Button>
+										</Stack>
+									</CardContent>
+								</Card>
 							)}
 						</Stack>
 					</CardContent>

@@ -4,16 +4,19 @@ import { createTheme } from '@mui/material/styles';
 declare module '@mui/material/styles' {
 	interface Palette {
 		accent: Palette['primary'];
+		genevaAccent: Palette['primary'];
 	}
 
 	interface PaletteOptions {
 		accent: PaletteOptions['primary'];
+		genevaAccent: PaletteOptions['primary'];
 	}
 }
 
 declare module '@mui/material/Button' {
 	interface ButtonPropsColorOverrides {
 		accent: true;
+		genevaAccent: true;
 	}
 }
 declare module '@mui/material/Chip' {
@@ -41,66 +44,78 @@ let theme = createTheme({
 		},
 	},
 	colorSchemes: {
-		light: {
-			palette: {
-				accent: {
-					main: '#0E21A0',
-					light: '#3949B1',
-					dark: '#0A1A7A',
-					contrastText: '#ffffff',
-				},
-				primary: {
-					main: 'rgba(14, 33, 160, 1)',
-					light: '#3949B1',
-					dark: '#0A1A7A',
-				},
-				secondary: {
-					main: 'rgba(255, 255, 255, 0.5)',
-				},
-				success: {
-					main: '#99FF82',
-				},
-				text: {
-					primary: 'rgba(16, 16, 30, 1)',
-					secondary: 'rgba(75, 75, 101, 1)',
-				},
-				background: {
-					default: '#FFFFFF',
-					paper: '#FFFFFF',
-				},
-			},
-		},
-		dark: {
-			palette: {
-				accent: {
-					main: '#3949B1',
-					light: '#5A6BC8',
-					dark: '#0E21A0',
-					contrastText: '#ffffff',
-				},
-				primary: {
-					main: '#DDDDDD',
-					light: '#0E21A0',
-					dark: '#DDDDDD',
-				},
-				secondary: {
-					main: '#333333',
-					light: 'rgba(255, 255, 255, 0.5)',
-					dark: '#333333',
-				},
-				success: {
-					main: '#99FF82',
-				},
-				text: {
-					primary: '#FFFFFF',
-					secondary: '#A0A0AE',
-				},
-				background: {
-					default: 'rgba(17, 17, 17, 1)',
-					paper: 'rgba(17, 17, 17, 1)',
+			light: {
+				palette: {
+					accent: {
+						main: '#0E21A0',
+						light: '#3949B1',
+						dark: '#0A1A7A',
+						contrastText: '#ffffff',
+					},
+					genevaAccent: {
+						main: '#FF4B91',
+						light: '#FF8EBA',
+						dark: '#FF1A6D',
+						contrastText: '#ffffff',
+					},
+					primary: {
+						main: 'rgba(14, 33, 160, 1)',
+						light: '#3949B1',
+						dark: '#0A1A7A',
+					},
+					secondary: {
+						main: 'rgba(255, 255, 255, 0.5)',
+					},
+					success: {
+						main: '#99FF82',
+					},
+					text: {
+						primary: 'rgba(16, 16, 30, 1)',
+						secondary: 'rgba(75, 75, 101, 1)',
+					},
+					background: {
+						default: '#FFFFFF',
+						paper: '#FFFFFF',
+					},
 				},
 			},
-		},
+			dark: {
+				palette: {
+					accent: {
+						main: '#3949B1',
+						light: '#5A6BC8',
+						dark: '#0E21A0',
+						contrastText: '#ffffff',
+					},
+					genevaAccent: {
+						main: '#99FF82',
+						light: '#B3FFA3',
+						dark: '#7FFF5C',
+						contrastText: '#10101E',
+					},
+					primary: {
+						main: '#DDDDDD',
+						light: '#0E21A0',
+						dark: '#DDDDDD',
+					},
+					secondary: {
+						main: '#333333',
+						light: 'rgba(255, 255, 255, 0.5)',
+						dark: '#333333',
+					},
+					success: {
+						main: '#99FF82',
+					},
+					text: {
+						primary: '#FFFFFF',
+						secondary: '#A0A0AE',
+					},
+					background: {
+						default: 'rgba(17, 17, 17, 1)',
+						paper: 'rgba(17, 17, 17, 1)',
+					},
+				},
+			},
 	},
 	typography: {
 		fontFamily: 'var(--font-mona-sans)',
@@ -183,10 +198,10 @@ theme = createTheme(theme, {
 						}),
 					},
 					'&.MuiButton-containedAccent:not(.Mui-disabled)': {
-						borderTop: '2px solid #3949B1',
+						borderTop: '2px solid #FF8EBA',
 						...theme.applyStyles('dark', {
-							backgroundColor: '#3949B1',
-							borderTop: '2px solid #5A6BC8',
+							backgroundColor: '#DDDDDD',
+							borderTop: '2px solid #FFFFFF',
 						}),
 					},
 				},

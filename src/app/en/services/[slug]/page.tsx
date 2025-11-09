@@ -60,5 +60,5 @@ export default async function Page({ params }: PageProps) {
 	}
 
 	const legacyService = convertToLegacyFormat(service, 'en');
-	return <ServiceDetail service={legacyService} />;
+	return <ServiceDetail service={legacyService} originalService={service} />;
 }

@@ -5,6 +5,7 @@ import {
 	Stack,
 	Typography,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import {
 	IconClock,
 	IconCurrencyShekel,
@@ -23,6 +24,8 @@ interface ServiceQuoteSidebarProps {
 export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProps) {
 	const t = useTranslations('Quote.sidebar');
 	const locale = useLocale() as 'en' | 'ar';
+	const theme = useTheme();
+	const isDark = theme.palette.mode === 'dark';
 
 	const formatPrice = () => {
 		if (service.pricing.type === 'fixed' && service.pricing.amount !== undefined) {
@@ -46,8 +49,8 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 	return (
 		<Box sx={{ position: 'sticky', top: 100 }}>
 			<Card
-				backgroundColor={{ light: 'accent.main', dark: 'accent.main' }}
-				borderColor={{ light: 'accent.light', dark: 'accent.light' }}
+				backgroundColor={{ light: 'background.paper', dark: 'accent.main' }}
+				borderColor={{ light: 'divider', dark: 'accent.light' }}
 				gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
 				gradientOpacity={0.6}
 				borderRadius={24}
@@ -56,10 +59,10 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 				<Stack spacing={3}>
 					{/* Service Title */}
 					<Box>
-						<Typography variant="overline" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+						<Typography variant="overline" sx={{ color: 'text.secondary', opacity: 0.7 }}>
 							{t('service')}
 						</Typography>
-						<Typography variant="h5" color="accent.contrastText" fontWeight={700}>
+						<Typography variant="h5" color="text.primary" fontWeight={700}>
 							{service.title}
 						</Typography>
 					</Box>
@@ -72,19 +75,22 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 									width: 40,
 									height: 40,
 									borderRadius: '12px',
-									backgroundColor: 'rgba(255,255,255,0.15)',
+									backgroundColor: isDark 
+										? 'rgba(255,255,255,0.15)' 
+										: 'rgba(14, 33, 160, 0.08)',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
+									color: 'primary.main',
 								}}
 							>
-								<IconCurrencyShekel size={20} style={{ color: 'inherit' }} />
+								<IconCurrencyShekel size={20} />
 							</Box>
 							<Box>
-								<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+								<Typography variant="caption" color="text.secondary">
 									{t('pricing')}
 								</Typography>
-								<Typography variant="body1" color="accent.contrastText" fontWeight={600}>
+								<Typography variant="body1" color="text.primary" fontWeight={600}>
 									{formatPrice()}
 								</Typography>
 							</Box>
@@ -96,19 +102,22 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 									width: 40,
 									height: 40,
 									borderRadius: '12px',
-									backgroundColor: 'rgba(255,255,255,0.15)',
+									backgroundColor: isDark 
+										? 'rgba(255,255,255,0.15)' 
+										: 'rgba(14, 33, 160, 0.08)',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
+									color: 'primary.main',
 								}}
 							>
-								<IconClock size={20} style={{ color: 'inherit' }} />
+								<IconClock size={20} />
 							</Box>
 							<Box>
-								<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.7 }}>
+								<Typography variant="caption" color="text.secondary">
 									{t('turnaround')}
 								</Typography>
-								<Typography variant="body1" color="accent.contrastText" fontWeight={600}>
+								<Typography variant="body1" color="text.primary" fontWeight={600}>
 									{service.turnaroundTime}
 								</Typography>
 							</Box>
@@ -117,16 +126,16 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 
 					{/* What's Included */}
 					<Box>
-						<Typography variant="h6" color="accent.contrastText" sx={{ mb: 2 }}>
+						<Typography variant="h6" color="text.primary" sx={{ mb: 2 }}>
 							{t('whatsIncluded')}
 						</Typography>
 						<Stack spacing={1.5}>
 							{service.features.slice(0, 4).map((feature, index) => (
 								<Stack direction="row" spacing={1.5} alignItems="flex-start" key={index}>
-									<Box sx={{ color: 'accent.contrastText', pt: 0.25 }}>
+									<Box sx={{ color: 'primary.main', pt: 0.25 }}>
 										<IconCheck size={20} />
 									</Box>
-									<Typography variant="body2" color="accent.contrastText">
+									<Typography variant="body2" color="text.secondary">
 										{feature}
 									</Typography>
 								</Stack>
@@ -135,9 +144,9 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 					</Box>
 
 					{/* Divider */}
-					<Box sx={{ borderTop: 1, borderColor: 'rgba(255,255,255,0.2)', pt: 3 }}>
+					<Box sx={{ borderTop: 1, borderColor: 'divider', pt: 3 }}>
 						<Stack spacing={2}>
-							<Typography variant="body2" sx={{ color: 'accent.contrastText', opacity: 0.9 }}>
+							<Typography variant="body2" color="text.secondary">
 								{t('needFasterQuote')}
 							</Typography>
 							<Button
@@ -149,11 +158,11 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 								target="_blank"
 								rel="noopener noreferrer"
 								sx={{
-									borderColor: 'rgba(255,255,255,0.5)',
-									color: 'accent.contrastText',
+									borderColor: 'divider',
+									color: 'text.primary',
 									'&:hover': {
-										borderColor: 'accent.contrastText',
-										backgroundColor: 'rgba(255,255,255,0.1)',
+										borderColor: 'primary.main',
+										backgroundColor: 'action.hover',
 									},
 								}}
 							>
@@ -167,11 +176,13 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 						<Box
 							sx={{
 								p: 2,
-								backgroundColor: 'rgba(255,255,255,0.1)',
+								backgroundColor: isDark 
+									? 'rgba(255,255,255,0.1)' 
+									: 'rgba(14, 33, 160, 0.04)',
 								borderRadius: 2,
 							}}
 						>
-							<Typography variant="caption" sx={{ color: 'accent.contrastText', opacity: 0.9 }}>
+							<Typography variant="caption" color="text.secondary">
 								<strong>{t('note')}:</strong> {service.pricing.note}
 							</Typography>
 						</Box>

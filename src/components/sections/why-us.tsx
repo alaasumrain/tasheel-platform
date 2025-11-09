@@ -11,8 +11,9 @@ export default function WhyUs() {
 	const t = useTranslations('Homepage.whyUs');
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
-			<RevealSection delay={0.1} direction="up">
+		<Box sx={{ position: 'relative', zIndex: 1, backgroundColor: 'background.default' }}>
+			<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+				<RevealSection delay={0.1} direction="up">
 				<Grid
 					alignItems={{ md: 'stretch' }}
 					container
@@ -71,8 +72,9 @@ export default function WhyUs() {
 						</Grid>
 					</RevealSection>
 				</Grid>
-			</RevealSection>
-		</Container>
+				</RevealSection>
+			</Container>
+		</Box>
 	);
 }
 

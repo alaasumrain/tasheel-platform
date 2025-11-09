@@ -41,6 +41,7 @@ import FilePreview from './FilePreview';
 import RequiredDocumentsChecklist from './RequiredDocumentsChecklist';
 import PricingEstimate from './PricingEstimate';
 import { useTranslations, useLocale } from 'next-intl';
+import QuoteOrderSummary from './quote-order-summary';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -160,18 +161,26 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	};
 
 	const validatePhone = (phone: string): boolean => {
+		if (!phone || phone.trim().length === 0) return false;
+		
 		const cleaned = phone.replace(/[^+\d]/g, '');
+		if (cleaned.length < 9) return false;
+		
 		let digits = cleaned.replace(/^\+/, '');
 
+		// Handle +970 prefix
 		if (digits.startsWith('970')) {
 			digits = digits.slice(3);
 		}
 
+		// Handle 0 prefix
 		if (digits.startsWith('0')) {
 			digits = digits.slice(1);
 		}
 
-		return /^5[6-9]\d{7}$/.test(digits);
+		// Palestinian mobile numbers: 5[6-9]XXXXXXX (9 digits starting with 56-59)
+		// More lenient: accept 9-10 digits starting with 5
+		return /^5\d{8,9}$/.test(digits);
 	};
 
 	const validateStep = (step: number): boolean => {
@@ -179,7 +188,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 		if (step === 0) {
 			// Step 1: Contact Information
-			if (!formData.name || formData.name.length < 2) {
+			if (!formData.name || formData.name.trim().length < 2) {
 				newErrors.name = t('validation.nameRequired');
 			}
 			if (!formData.email || !validateEmail(formData.email)) {
@@ -192,21 +201,50 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 			// Step 2: Service Requirements
 			// Validate service-specific required fields
 			serviceFields.forEach((field) => {
-				if (field.required && !formData[field.name] && field.type !== 'file') {
-					newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
-				}
-				// For file fields, check if uploaded
-				if (field.required && field.type === 'file' && !uploadedAttachments[field.name]) {
-					newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+				if (field.required) {
+					if (field.type === 'file') {
+						// For file fields, check if uploaded
+						if (!uploadedAttachments[field.name]) {
+							newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+						}
+					} else {
+						// For other fields, check if value exists
+						const value = formData[field.name];
+						if (!value || (typeof value === 'string' && value.trim().length === 0)) {
+							newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+						}
+						// Additional validation for specific field types
+						if (field.type === 'email' && value && !validateEmail(value)) {
+							newErrors[field.name] = t('validation.emailInvalid');
+						}
+						if (field.type === 'tel' && value && !validatePhone(value)) {
+							newErrors[field.name] = t('validation.phoneInvalid');
+						}
+					}
 				}
 			});
 
 			// Validate standard fields
-			if (!formData.details || formData.details.length < 10) {
+			if (!formData.details || formData.details.trim().length < 10) {
 				newErrors.details = t('validation.detailsRequired');
 			}
 		} else if (step === 2) {
-			// Step 3: Review - Check required documents
+			// Step 3: Review - Final validation
+			// Re-validate critical fields
+			if (!formData.name || formData.name.trim().length < 2) {
+				newErrors.name = t('validation.nameRequired');
+			}
+			if (!formData.email || !validateEmail(formData.email)) {
+				newErrors.email = t('validation.emailRequired');
+			}
+			if (!formData.phone || !validatePhone(formData.phone)) {
+				newErrors.phone = t('validation.phoneRequired');
+			}
+			if (!formData.details || formData.details.trim().length < 10) {
+				newErrors.details = t('validation.detailsRequired');
+			}
+			
+			// Check required documents (warning only, not blocking)
 			if (service.requiredDocuments && service.requiredDocuments.length > 0) {
 				const uploadedFileNames = Object.values(uploadedAttachments).map(att => 
 					att.fileName.toLowerCase()
@@ -219,7 +257,8 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 					);
 				});
 
-				if (missingDocs.length > 0) {
+				// Only warn if critical documents are missing
+				if (missingDocs.length > 0 && missingDocs.length === service.requiredDocuments.length) {
 					newErrors.requiredDocuments = t('validation.documentsRequired', { 
 						documents: missingDocs.join(', ') 
 					});
@@ -379,8 +418,18 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		// Final validation
-		if (!validateStep(activeStep)) {
+		// Final validation on all steps
+		let isValid = true;
+		for (let step = 0; step < steps.length; step++) {
+			if (!validateStep(step)) {
+				isValid = false;
+				// Jump to first step with errors
+				setActiveStep(step);
+				break;
+			}
+		}
+
+		if (!isValid) {
 			toast.error(t('validation.fixErrorsSubmit'));
 			return;
 		}
@@ -400,6 +449,13 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		
 		// Add locale for server-side translations
 		data.set('locale', locale);
+
+		// Add all form fields (including service-specific ones)
+		Object.keys(formData).forEach(key => {
+			if (formData[key] && key !== 'applicationId') {
+				data.set(key, formData[key]);
+			}
+		});
 
 		// Files are already uploaded, so we don't need to add them to FormData
 		// The server action will fetch attachments using applicationId
@@ -451,121 +507,150 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		activeStep === 0
 			? Boolean(
 					formData.name &&
-						formData.name.length >= 2 &&
-						formData.email &&
-						validateEmail(formData.email) &&
-						formData.phone &&
-						validatePhone(formData.phone)
+					formData.name.trim().length >= 2 &&
+					formData.email &&
+					validateEmail(formData.email) &&
+					formData.phone &&
+					validatePhone(formData.phone)
 				)
 			: activeStep === 1
-				? Boolean(formData.details && formData.details.length >= 10)
+				? Boolean(
+					formData.details && 
+					formData.details.trim().length >= 10 &&
+					// Check all required service fields
+					serviceFields.every(field => {
+						if (!field.required) return true;
+						if (field.type === 'file') {
+							return !!uploadedAttachments[field.name];
+						}
+						const value = formData[field.name];
+						return value && (typeof value !== 'string' || value.trim().length > 0);
+					})
+				)
 				: true;
 
 	return (
 		<form ref={formRef} onSubmit={handleSubmit}>
-					{/* Hidden service field */}
-					<input type="hidden" name="service" value={service.slug} />
-					{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
+			{/* Hidden service field */}
+			<input type="hidden" name="service" value={service.slug} />
+			{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
 
-			<Stack spacing={4}>
-				{/* Restored Data Alert */}
-				{restoredData && (
-					<Alert
-						severity="success"
-						sx={{ borderRadius: 2 }}
-						action={
-							<Tooltip title="Clear saved draft">
-								<IconButton size="small" onClick={handleClearForm}>
-									<IconX size={18} />
-								</IconButton>
-							</Tooltip>
-						}
-					>
-						{t('draftRestored')}
-					</Alert>
-				)}
+			<Grid container spacing={4} alignItems="flex-start">
+				{/* Form Column */}
+				<Grid size={{ xs: 12, md: 8 }} sx={{ order: locale === 'ar' ? 2 : 1 }}>
+					<Stack spacing={4}>
+						{/* Restored Data Alert */}
+						{restoredData && (
+							<Alert
+								severity="success"
+								sx={{ borderRadius: 2 }}
+								action={
+									<Tooltip title="Clear saved draft">
+										<IconButton size="small" onClick={handleClearForm}>
+											<IconX size={18} />
+										</IconButton>
+									</Tooltip>
+								}
+							>
+								{t('draftRestored')}
+							</Alert>
+						)}
 
-				{/* Stepper */}
-				<Box>
-					<Stepper activeStep={activeStep} alternativeLabel>
-						{steps.map((label, index) => (
-							<Step key={label}>
-								<StepLabel
-									onClick={() => {
-										// Allow going back to previous steps
-										if (index < activeStep) {
-											setActiveStep(index);
-										}
-									}}
-									sx={{
-										cursor: index < activeStep ? 'pointer' : 'default',
-										'& .MuiStepLabel-label': {
-											fontSize: { xs: '0.75rem', sm: '0.875rem' }
-										}
-									}}
+						{/* Stepper */}
+						<Box>
+							<Stepper activeStep={activeStep} alternativeLabel>
+								{steps.map((label, index) => (
+									<Step key={label}>
+										<StepLabel
+											onClick={() => {
+												// Allow going back to previous steps
+												if (index < activeStep) {
+													setActiveStep(index);
+												}
+											}}
+											sx={{
+												cursor: index < activeStep ? 'pointer' : 'default',
+												'& .MuiStepLabel-label': {
+													fontSize: { xs: '0.75rem', sm: '0.875rem' }
+												}
+											}}
+										>
+											{label}
+										</StepLabel>
+									</Step>
+								))}
+							</Stepper>
+							<Box sx={{ mt: 2 }}>
+								<LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
+								<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+									{t('progress', { current: activeStep + 1, total: steps.length, percent: progress })}
+								</Typography>
+							</Box>
+						</Box>
+
+						{/* Step Content */}
+						<Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
+
+						{/* Navigation Buttons */}
+						<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ gap: 1 }}>
+							{activeStep > 0 && (
+								<Button
+									variant="outlined"
+									onClick={handleBack}
+									startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
+									disabled={isPending}
 								>
-									{label}
-								</StepLabel>
-							</Step>
-						))}
-					</Stepper>
-					<Box sx={{ mt: 2 }}>
-						<LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
-						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
-							{t('progress', { current: activeStep + 1, total: steps.length, percent: progress })}
-						</Typography>
-					</Box>
-				</Box>
+									{t('back')}
+								</Button>
+							)}
+							<Button
+								variant="text"
+								color="error"
+								onClick={handleClearForm}
+								startIcon={<IconRefresh size={18} />}
+								disabled={isPending}
+								sx={{ display: { xs: 'none', sm: 'flex' } }}
+							>
+								{t('clearForm')}
+							</Button>
+							<Box sx={{ flexGrow: 1 }} />
+							{activeStep < steps.length - 1 ? (
+								<Button
+									variant="contained"
+									onClick={handleNext}
+									endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
+									size="large"
+									disabled={!canContinue}
+								>
+									{t('continue')}
+								</Button>
+							) : (
+								<Button
+									type="submit"
+									variant="contained"
+									disabled={isPending}
+									startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
+									size="large"
+								>
+									{isPending ? t('submitting') : t('submitRequest')}
+								</Button>
+							)}
+						</Stack>
+					</Stack>
+				</Grid>
 
-				{/* Step Content */}
-				<Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
-
-				{/* Navigation Buttons */}
-				<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ gap: 1 }}>
-					{activeStep > 0 && (
-						<Button
-							variant="outlined"
-							onClick={handleBack}
-							startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
-							disabled={isPending}
-						>
-							{t('back')}
-						</Button>
-					)}
-					<Button
-						variant="text"
-						color="error"
-						onClick={handleClearForm}
-						startIcon={<IconRefresh size={18} />}
-						disabled={isPending}
-						sx={{ display: { xs: 'none', sm: 'flex' } }}
-					>
-						{t('clearForm')}
-					</Button>
-					<Box sx={{ flexGrow: 1 }} />
-					{activeStep < steps.length - 1 ? (
-						<Button
-							variant="contained"
-							onClick={handleNext}
-							endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
-							size="large"
-							disabled={!canContinue}
-						>
-							{t('continue')}
-						</Button>
-					) : (
-						<Button
-							type="submit"
-							variant="contained"
-							disabled={isPending}
-							startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
-							size="large"
-						>
-							{isPending ? t('submitting') : t('submitRequest')}
-						</Button>
-					)}
-				</Stack>
-			</Stack>
+				{/* Order Summary Sidebar */}
+				<Grid size={{ xs: 12, md: 4 }} sx={{ order: locale === 'ar' ? 1 : 2 }}>
+					<QuoteOrderSummary
+						service={service}
+						activeStep={activeStep}
+						totalSteps={steps.length}
+						formData={formData}
+						uploadedAttachments={uploadedAttachments}
+						locale={locale}
+					/>
+				</Grid>
+			</Grid>
 		</form>
 	);
 }
@@ -583,6 +668,8 @@ function Step1Content({
 	validatePhone: (phone: string) => boolean;
 }) {
 	const t = useTranslations('Quote.wizard');
+	const locale = useLocale() as 'en' | 'ar';
+	const isRTL = locale === 'ar';
 	
 	return (
 		<Stack spacing={3}>
@@ -592,10 +679,21 @@ function Step1Content({
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth error={!!errors.name}>
-					<FormLabel htmlFor="name">
+					<FormLabel htmlFor="name" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
 						{t('fullName')}
 						{formData.name && formData.name.length > 2 && !errors.name && (
-							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+							<Box 
+								component="span" 
+								sx={{ 
+									position: 'absolute',
+									[isRTL ? 'left' : 'right']: 0,
+									top: '50%',
+									transform: 'translateY(-50%)',
+									color: 'success.main',
+									display: 'flex',
+									alignItems: 'center',
+								}}
+							>
 								<IconCheck size={16} />
 							</Box>
 						)}
@@ -614,10 +712,21 @@ function Step1Content({
 
 			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 				<FormControl required fullWidth error={!!errors.email}>
-					<FormLabel htmlFor="email">
+					<FormLabel htmlFor="email" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
 						{t('emailAddress')}
 						{formData.email && formData.email.includes('@') && !errors.email && (
-							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+							<Box 
+								component="span" 
+								sx={{ 
+									position: 'absolute',
+									[isRTL ? 'left' : 'right']: 0,
+									top: '50%',
+									transform: 'translateY(-50%)',
+									color: 'success.main',
+									display: 'flex',
+									alignItems: 'center',
+								}}
+							>
 								<IconCheck size={16} />
 							</Box>
 						)}
@@ -635,10 +744,21 @@ function Step1Content({
 				</FormControl>
 
 				<FormControl required fullWidth error={!!errors.phone}>
-					<FormLabel htmlFor="phone">
+					<FormLabel htmlFor="phone" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
 						{t('phoneNumber')}
 						{formData.phone && validatePhone(formData.phone) && !errors.phone && (
-							<Box component="span" sx={{ ml: 1, color: 'success.main' }}>
+							<Box 
+								component="span" 
+								sx={{ 
+									position: 'absolute',
+									[isRTL ? 'left' : 'right']: 0,
+									top: '50%',
+									transform: 'translateY(-50%)',
+									color: 'success.main',
+									display: 'flex',
+									alignItems: 'center',
+								}}
+							>
 								<IconCheck size={16} />
 							</Box>
 						)}
@@ -647,14 +767,22 @@ function Step1Content({
 						id="phone"
 						name="phone"
 						type="tel"
-						placeholder="+970 59X XXX XXX"
+						placeholder={locale === 'ar' ? "+970 59X XXX XXX" : "+970 59X XXX XXX"}
 						value={formData.phone || ''}
 						onChange={(e) => onChange('phone', e.target.value)}
 						error={!!errors.phone}
 						autoComplete="tel"
 						inputMode="tel"
 					/>
-					{errors.phone && <FormHelperText error>{errors.phone}</FormHelperText>}
+					{errors.phone ? (
+						<FormHelperText error>{errors.phone}</FormHelperText>
+					) : (
+						<FormHelperText>
+							{locale === 'ar' 
+								? 'مثال: +970 592 123 456 أو 0592123456'
+								: 'Example: +970 592 123 456 or 0592123456'}
+						</FormHelperText>
+					)}
 				</FormControl>
 			</Stack>
 		</Stack>

@@ -22,13 +22,8 @@ import { getCustomerProfile } from '@/lib/supabase/auth-helpers';
 
 export async function POST(request: Request) {
 	try {
-		const customer = await getCustomerProfile();
-		if (!customer) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
-
 		const body = await request.json();
-		const { invoiceId, amount, currency, transactionId, status } = body;
+		const { invoiceId, amount, currency, transactionId, status, isPlaceholder } = body;
 
 		if (!invoiceId || !amount || !transactionId) {
 			return NextResponse.json(
@@ -39,10 +34,10 @@ export async function POST(request: Request) {
 
 		const supabase = await createClient();
 
-		// Verify invoice belongs to customer
+		// Get invoice (for placeholder mode, we don't require auth)
 		const { data: invoice, error: invoiceError } = await supabase
 			.from('invoices')
-			.select('*, applications!inner(customer_id)')
+			.select('*, applications(id, order_number, applicant_email, customer_name, customer_phone, customer_id)')
 			.eq('id', invoiceId)
 			.single();
 
@@ -50,10 +45,17 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
 		}
 
-		// Check if customer owns this invoice
-		const application = invoice.applications as any;
-		if (application.customer_id !== customer.id) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+		// For placeholder mode, skip auth check
+		// For real payments, verify customer owns invoice
+		if (!isPlaceholder) {
+			const customer = await getCustomerProfile();
+			if (!customer) {
+				return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+			}
+			const application = invoice.applications as any;
+			if (application?.customer_id && application.customer_id !== customer.id) {
+				return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+			}
 		}
 
 		// Update invoice status
@@ -105,34 +107,40 @@ export async function POST(request: Request) {
 		// Send payment confirmation email
 		try {
 			const { sendPaymentConfirmedEmail } = await import('@/lib/email-notifications');
-			const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.application_id}`;
-			const invoiceUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.application_id}`;
+			const customerEmail = invoice.applications?.applicant_email || (invoice as any).customer_email;
+			const customerName = invoice.applications?.customer_name || (invoice as any).customer_name;
+			const customerPhone = invoice.applications?.customer_phone || (invoice as any).customer_phone;
 			
-			await sendPaymentConfirmedEmail({
-				orderNumber: invoice.invoice_number,
-				customerEmail: customer.email,
-				customerName: customer.name || undefined,
-				amount: amount,
-				currency: currency,
-				transactionId: transactionId,
-				dashboardUrl,
-				invoiceUrl,
-			});
+			if (customerEmail) {
+				const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.application_id}`;
+				const invoiceUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.application_id}`;
+				
+				await sendPaymentConfirmedEmail({
+					orderNumber: invoice.applications?.order_number || invoice.invoice_number,
+					customerEmail,
+					customerName: customerName || undefined,
+					amount: amount,
+					currency: currency,
+					transactionId: transactionId,
+					dashboardUrl,
+					invoiceUrl,
+				});
 
-			// Send WhatsApp notification if phone number available
-			if (customer.phone) {
-				try {
-					const { sendPaymentConfirmedWhatsApp } = await import('@/lib/whatsapp-notifications');
-					await sendPaymentConfirmedWhatsApp({
-						orderNumber: invoice.invoice_number,
-						customerPhone: customer.phone,
-						customerName: customer.name || undefined,
-						amount: amount,
-						currency: currency,
-						transactionId: transactionId,
-					});
-				} catch (whatsappError) {
-					console.log('WhatsApp notification skipped:', whatsappError);
+				// Send WhatsApp notification if phone number available
+				if (customerPhone) {
+					try {
+						const { sendPaymentConfirmedWhatsApp } = await import('@/lib/whatsapp-notifications');
+						await sendPaymentConfirmedWhatsApp({
+							orderNumber: invoice.applications?.order_number || invoice.invoice_number,
+							customerPhone,
+							customerName: customerName || undefined,
+							amount: amount,
+							currency: currency,
+							transactionId: transactionId,
+						});
+					} catch (whatsappError) {
+						console.log('WhatsApp notification skipped:', whatsappError);
+					}
 				}
 			}
 		} catch (emailError) {

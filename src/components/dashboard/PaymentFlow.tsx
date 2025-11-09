@@ -30,25 +30,20 @@ interface PaymentFlowProps {
 /**
  * Payment Flow Component
  * 
- * ⚠️ TESTING MODE - Payment Gateway Integration Pending
+ * ✅ Payment Gateway Integration Ready
  * 
- * This component provides a complete payment flow UI for testing purposes.
- * 
- * TODO: Integrate with actual payment gateway (PalPay or PayTabs):
- * 1. Replace test flow with actual gateway redirect/iframe
- * 2. Implement webhook handler at /api/payment/webhook
- * 3. Update payment status in database after successful payment
- * 4. Send confirmation email to customer
+ * Supports:
+ * - PalPay integration (production/sandbox)
+ * - PayTabs integration (production/sandbox)
+ * - Placeholder mode (when gateway not configured)
  * 
  * Payment Gateway Options:
  * - PalPay: https://www.palpay.ps/
  * - PayTabs: https://www.paytabs.com/
  * 
- * Recommended Integration:
- * - Use server-side API route to create payment session
- * - Redirect customer to gateway payment page
- * - Handle callback/webhook to update payment status
- * - Store transaction ID and gateway response in payments table
+ * Configuration:
+ * Set PAYMENT_GATEWAY_TYPE, PAYMENT_GATEWAY_API_KEY, PAYMENT_GATEWAY_MERCHANT_ID
+ * Or set PAYMENT_USE_PLACEHOLDER=true for testing without gateway
  */
 
 const steps = ['Review', 'Payment', 'Confirmation'];
@@ -83,49 +78,60 @@ export function PaymentFlow({
 		setError(null);
 
 		try {
-			// TODO: Replace with actual payment gateway integration
-			// Example flow:
-			// 1. Call API to create payment session
-			// const response = await fetch('/api/payment/create-session', {
-			//   method: 'POST',
-			//   body: JSON.stringify({ invoiceId, amount, currency })
-			// });
-			// const { paymentUrl } = await response.json();
-			// 2. Redirect to payment gateway
-			// window.location.href = paymentUrl;
+			// Create payment session with gateway
+			const response = await fetch('/api/payment/create-session', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					invoiceId,
+					amount,
+					currency,
+				}),
+			});
 
-			// TESTING: Simulate payment processing
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || 'Failed to create payment session');
+			}
 
-			// Simulate success (90% of the time for testing)
-			const success = Math.random() > 0.1;
+			const { paymentUrl, placeholder } = await response.json();
 
-			if (success) {
-				// TODO: In production, this would be handled by webhook
-				// Update payment status via API
-				const response = await fetch('/api/payment/test-complete', {
+			// If placeholder mode, simulate payment success
+			if (placeholder) {
+				// Simulate payment processing delay
+				await new Promise(resolve => setTimeout(resolve, 1500));
+				
+				// Call test-complete endpoint to mark as paid
+				const completeResponse = await fetch('/api/payment/test-complete', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
 						invoiceId,
 						amount,
 						currency,
-						transactionId: `TEST-${Date.now()}`,
+						transactionId: `PLACEHOLDER-${Date.now()}`,
 						status: 'completed',
+						isPlaceholder: true, // Skip auth check
 					}),
 				});
 
-				if (!response.ok) {
-					throw new Error('Failed to update payment status');
+				if (completeResponse.ok) {
+					handleNext();
+				} else {
+					const errorData = await completeResponse.json().catch(() => ({}));
+					throw new Error(errorData.error || 'Failed to complete placeholder payment');
 				}
+				return;
+			}
 
-				handleNext();
+			// Redirect to payment gateway
+			if (paymentUrl) {
+				window.location.href = paymentUrl;
 			} else {
-				throw new Error(t('paymentFailed'));
+				throw new Error('Payment URL not received');
 			}
 		} catch (err: any) {
 			setError(err.message || t('paymentError'));
-		} finally {
 			setProcessing(false);
 		}
 	};
@@ -141,10 +147,6 @@ export function PaymentFlow({
 					{t('title')}
 				</Typography>
 
-				{/* Testing Notice */}
-				<Alert severity="info" sx={{ mb: 3 }}>
-					<strong>{t('testingMode')}</strong> {t('testingModeDescription')}
-				</Alert>
 
 				{/* Stepper */}
 				<Stepper activeStep={activeStep} sx={{ mb: 4 }}>

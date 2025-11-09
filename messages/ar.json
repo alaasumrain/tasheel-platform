@@ -72,6 +72,10 @@
 		"callUsPhone": "+970 2 240 1234",
 		"trackStatus": "تتبع الطلب",
 		"notFound": "الخدمة غير موجودة",
+		"comingSoon": "قيد التطوير",
+		"comingSoonTooltip": "ستكون هذه الخدمة متاحة قريباً",
+		"availableNow": "متاح الآن",
+		"startButtonDisabled": "قيد التطوير",
 		"breadcrumbs": {
 			"home": "الرئيسية",
 			"services": "الخدمات"
@@ -111,6 +115,7 @@
 		"filters": {
 			"heading": "تصفية الخدمات",
 			"clearAll": "مسح التصفية",
+			"activeFilters": "التصفيات النشطة",
 			"allCategories": "جميع الخدمات",
 			"categories": "الفئات",
 			"turnaround": "وقت الإنجاز",
@@ -595,6 +600,11 @@
 		"trackButton": "تتبع طلبي",
 		"printReceipt": "طباعة الإيصال",
 		"emailNotice": "تم إرسال رسالة تأكيد إلى بريدك الإلكتروني {email}. يرجى التحقق من صندوق الوارد والبريد غير الهام.",
+		"createAccount": {
+			"title": "أنشئ حساباً لتتبع أسهل",
+			"description": "سجّل باستخدام بريدك الإلكتروني لتتبع جميع طلباتك في مكان واحد والحصول على تحديثات فورية.",
+			"button": "إنشاء حساب"
+		},
 		"serviceSummaryTitle": "ملخص الخدمة",
 		"serviceSummaryFallback": "تعذر تحميل بيانات الخدمة، لكن فريقنا استلم طلبك بالكامل.",
 		"pricing": {
@@ -676,7 +686,26 @@
 		"paymentError": "حدث خطأ أثناء الدفع. يرجى المحاولة مرة أخرى.",
 		"successTitle": "تم الدفع بنجاح!",
 		"successDescription": "تمت معالجة دفعتك بنجاح. ستتلقى رسالة تأكيد بالبريد الإلكتروني قريباً.",
-		"done": "تم"
+		"done": "تم",
+		"success": {
+			"title": "تم الدفع بنجاح",
+			"description": "تم تأكيد دفعتك للطلب {orderNumber}.",
+			"orderNumber": "رقم الطلب",
+			"amount": "المبلغ المدفوع",
+			"transactionId": "رقم المعاملة",
+			"viewOrder": "عرض الطلب",
+			"goToDashboard": "الذهاب إلى لوحة التحكم",
+			"confirmationEmail": "تم إرسال رسالة تأكيد إلى عنوان بريدك الإلكتروني.",
+			"invalidRequest": "طلب دفع غير صالح"
+		},
+		"cancel": {
+			"title": "تم إلغاء الدفع",
+			"description": "تم إلغاء دفعتك. يمكنك إعادة محاولة الدفع في أي وقت.",
+			"orderNumber": "رقم الطلب: {orderNumber}",
+			"retryPayment": "إعادة محاولة الدفع",
+			"goToDashboard": "الذهاب إلى لوحة التحكم",
+			"helpText": "إذا كنت بحاجة إلى مساعدة، يرجى الاتصال بفريق الدعم."
+		}
 	},
 	"WhatsApp": {
 		"openChat": "الدردشة على واتساب",
@@ -925,7 +954,9 @@
 			"validation": {
 				"nameRequired": "يرجى إدخال اسمك الكامل (على الأقل حرفين)",
 				"emailRequired": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+				"emailInvalid": "يرجى إدخال عنوان بريد إلكتروني صحيح",
 				"phoneRequired": "يرجى إدخال رقم هاتف فلسطيني صحيح (مثال: 0599123456)",
+				"phoneInvalid": "يرجى إدخال رقم هاتف فلسطيني صحيح",
 				"fieldRequired": "{field} مطلوب",
 				"detailsRequired": "يرجى تقديم تفاصيل لا تقل عن 10 أحرف",
 				"documentsRequired": "يرجى رفع المستندات المطلوبة: {documents}",
@@ -944,6 +975,19 @@
 				"formCleared": "تم مسح النموذج بنجاح",
 				"formInitializing": "النموذج لا يزال قيد التهيئة. يرجى الانتظار قليلاً والمحاولة مرة أخرى.",
 				"clearConfirm": "هل أنت متأكد أنك تريد مسح النموذج؟ سيتم حذف جميع تقدمك."
+			},
+			"summary": {
+				"progress": "التقدم",
+				"step1": "معلوماتك",
+				"step2": "متطلبات الخدمة",
+				"step3": "المراجعة والإرسال",
+				"serviceDetails": "تفاصيل الخدمة",
+				"uploadedFiles": "الملفات المرفوعة",
+				"noFilesYet": "لم يتم رفع أي ملفات بعد",
+				"contactInfo": "معلومات الاتصال",
+				"name": "الاسم",
+				"email": "البريد الإلكتروني",
+				"phone": "الهاتف"
 			}
 		},
 		"sidebar": {

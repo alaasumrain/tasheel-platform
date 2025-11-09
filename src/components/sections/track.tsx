@@ -91,6 +91,7 @@ export default function Track() {
 
 	// Auto-load if order param in URL
 	useEffect(() => {
+		if (!searchParams) return;
 		const orderParam = searchParams.get('order');
 		if (orderParam) {
 			setOrderNumber(orderParam);

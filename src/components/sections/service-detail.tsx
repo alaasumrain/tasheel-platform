@@ -6,6 +6,7 @@ import {
 	CardContent,
 	Container,
 	Stack,
+	Tooltip,
 	Typography,
 	useColorScheme,
 } from '@mui/material';
@@ -20,12 +21,17 @@ import RevealSection from '@/components/ui/reveal-section';
 import { Card as CustomCard } from '@/components/ui/card';
 import { PageBreadcrumbs } from '@/components/ui/breadcrumbs';
 import ServiceDetailSidebar from './service-detail-sidebar';
+import Stats from './stats';
+import Process from './process';
+import Reviews from './reviews';
+import Faq from './faq';
 
 interface ServiceDetailProps {
 	service: Service;
+	originalService?: any; // Raw DB service to check availability
 }
 
-export default function ServiceDetail({ service }: ServiceDetailProps) {
+export default function ServiceDetail({ service, originalService }: ServiceDetailProps) {
 	const t = useTranslations('Services');
 	const locale = useLocale() as 'en' | 'ar';
 	const { mode } = useColorScheme();
@@ -33,10 +39,15 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 	const categoryLabel =
 		categoryLabels[service.category] ?? service.category.replace('-', ' ');
 	
+	// Check availability from database (like "in stock" / "out of stock")
+	// Check is_available first, fallback to is_active
+	const isAvailable = originalService?.is_available !== false && originalService?.is_active !== false;
+	const isComingSoon = !isAvailable;
+	
 	// Get service image with fallback
-	const serviceImage = mode === 'dark' 
-		? (service.image_dark || service.image_light || '/dark/services/default-service.jpg')
-		: (service.image_light || service.image_dark || '/light/services/default-service.jpg');
+	const serviceImage = mode === 'dark'
+		? ((service as any).image_dark || (service as any).image_light || '/dark/services/default-service.jpg')
+		: ((service as any).image_light || (service as any).image_dark || '/light/services/default-service.jpg');
 
 	const currencyFormatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 		style: 'currency',
@@ -73,21 +84,24 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 	return (
 		<Box>
 			{/* Hero Section */}
-			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 12.5 } }}>
+			<Container maxWidth="lg" sx={{ pt: { xs: 3, md: 5 }, pb: { xs: 4, md: 6 } }}>
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={{ xs: 3, md: 4 }}>
 						<PageBreadcrumbs items={breadcrumbs} />
 						
 						{/* Service Image */}
-						{(service.image_light || service.image_dark) && (
+						{((service as any).image_light || (service as any).image_dark) && (
 							<Box
 								sx={{
 									position: 'relative',
 									width: '100%',
-									height: { xs: 250, md: 400 },
+									height: { xs: 200, md: 320 },
 									borderRadius: 3,
 									overflow: 'hidden',
-									mb: 2,
+									mb: 1,
+									boxShadow: (theme) => theme.palette.mode === 'dark'
+										? '0px 4px 16px rgba(0,0,0,0.3)'
+										: '0px 4px 16px rgba(0,0,0,0.08)',
 								}}
 							>
 								<Image
@@ -103,49 +117,82 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 							</Box>
 						)}
 						
-						<Grid container spacing={{ xs: 4, md: 6 }} alignItems="flex-start">
+						<Grid container spacing={{ xs: 3, md: 4 }} alignItems="flex-start">
 							{/* Main Content - Left Column (Right for Arabic/RTL) */}
 							<Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 1, md: locale === 'ar' ? 2 : 1 } }}>
 								<Stack spacing={3}>
-									<Typography
-										color="accent"
-										variant="subtitle1"
-										sx={{ textTransform: 'capitalize' }}
-									>
-										{categoryLabel}
-									</Typography>
-									<Typography variant="h1">{service.title}</Typography>
-									<Typography
-										color="text.secondary"
-										variant="h6"
-										component="p"
-									>
-										{service.description}
-									</Typography>
+									<Stack spacing={1.5}>
+										<Typography
+											color="accent"
+											variant="subtitle2"
+											sx={{ textTransform: 'capitalize', fontWeight: 600, fontSize: { xs: '0.8125rem', md: '0.875rem' } }}
+										>
+											{categoryLabel}
+										</Typography>
+										<Typography variant="h2" sx={{ fontSize: { xs: '1.75rem', md: '2.25rem', lg: '2.5rem' }, lineHeight: 1.3 }}>
+											{service.title}
+										</Typography>
+										<Typography
+											color="text.secondary"
+											variant="body1"
+											component="p"
+											sx={{ fontSize: { xs: '0.9375rem', md: '1rem' }, lineHeight: 1.65 }}
+										>
+											{service.description}
+										</Typography>
+									</Stack>
 
 									{/* Quick Info */}
-									<Grid container spacing={2} sx={{ pt: 2 }}>
+									<Grid container spacing={2.5} sx={{ pt: 0.5 }}>
 										<Grid size={{ xs: 12, sm: 6 }}>
-											<Stack direction="row" spacing={1} alignItems="center">
-												<IconClock size={20} />
+											<Stack direction="row" spacing={1.5} alignItems="center">
+												<Box
+													sx={{
+														width: 40,
+														height: 40,
+														borderRadius: 1.5,
+														bgcolor: 'primary.main',
+														color: 'primary.contrastText',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														flexShrink: 0,
+													}}
+												>
+													<IconClock size={20} />
+												</Box>
 												<Box>
-													<Typography variant="caption" color="text.secondary">
+													<Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
 														{t('turnaroundTime')}
 													</Typography>
-													<Typography variant="body2" fontWeight={600}>
+													<Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>
 														{service.turnaroundTime}
 													</Typography>
 												</Box>
 											</Stack>
 										</Grid>
 										<Grid size={{ xs: 12, sm: 6 }}>
-											<Stack direction="row" spacing={1} alignItems="center">
-												<IconCurrencyShekel size={20} />
+											<Stack direction="row" spacing={1.5} alignItems="center">
+												<Box
+													sx={{
+														width: 40,
+														height: 40,
+														borderRadius: 1.5,
+														bgcolor: 'accent.main',
+														color: 'accent.contrastText',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														flexShrink: 0,
+													}}
+												>
+													<IconCurrencyShekel size={20} />
+												</Box>
 												<Box>
-													<Typography variant="caption" color="text.secondary">
+													<Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
 														{t('startingPrice')}
 													</Typography>
-													<Typography variant="body2" fontWeight={600}>
+													<Typography variant="body2" fontWeight={700} sx={{ fontSize: '0.9375rem' }}>
 														{formatPrice()}
 													</Typography>
 												</Box>
@@ -153,20 +200,37 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										</Grid>
 									</Grid>
 
-									<Stack direction="row" spacing={2} sx={{ pt: 1 }}>
-										<Button
-											component={Link}
-											href={`/services/${service.slug}/quote`}
-											variant="contained"
-											size="large"
-										>
-											{t('startService')}
-										</Button>
+									<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1.5 }}>
+										<Tooltip title={isComingSoon ? t('comingSoonTooltip') : ''} arrow>
+											<span>
+												<Button
+													component={Link}
+													href={`/services/${service.slug}/quote`}
+													variant="contained"
+													size="medium"
+													disabled={isComingSoon}
+													sx={{
+														px: 3,
+														py: 1.25,
+														fontSize: '0.9375rem',
+														fontWeight: 600,
+													}}
+												>
+													{isComingSoon ? t('startButtonDisabled') : t('startService')}
+												</Button>
+											</span>
+										</Tooltip>
 										<Button
 											component={Link}
 											href="/track"
 											variant="outlined"
-											size="large"
+											size="medium"
+											sx={{
+												px: 3,
+												py: 1.25,
+												fontSize: '0.9375rem',
+												fontWeight: 600,
+											}}
 										>
 											{t('trackStatus')}
 										</Button>
@@ -320,6 +384,18 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 				</RevealSection>
 			</Container>
 
+			{/* Stats Section */}
+			<Stats />
+
+			{/* General Process Section */}
+			<Process />
+
+			{/* Reviews Section */}
+			<Reviews />
+
+			{/* FAQ Section */}
+			<Faq />
+
 			{/* CTA Section */}
 			<Box
 				sx={{
@@ -351,21 +427,26 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
 										justifyContent="center"
 										sx={{ width: '100%', maxWidth: 500 }}
 									>
-										<Button
-											component={Link}
-											href={`/services/${service.slug}/quote`}
-											variant="contained"
-											size="large"
-											sx={{
-												flex: { xs: 1, sm: 'none' },
-												px: 4,
-												py: 1.5,
-												fontWeight: 600,
-												borderRadius: 2,
-											}}
-										>
-											{t('startService')}
-										</Button>
+										<Tooltip title={isComingSoon ? t('comingSoonTooltip') : ''} arrow>
+											<span>
+												<Button
+													component={Link}
+													href={`/services/${service.slug}/quote`}
+													variant="contained"
+													size="large"
+													disabled={isComingSoon}
+													sx={{
+														flex: { xs: 1, sm: 'none' },
+														px: 4,
+														py: 1.5,
+														fontWeight: 600,
+														borderRadius: 2,
+													}}
+												>
+													{isComingSoon ? t('startButtonDisabled') : t('startService')}
+												</Button>
+											</span>
+										</Tooltip>
 										<Button
 											component={Link}
 											href="tel:+97022401234"

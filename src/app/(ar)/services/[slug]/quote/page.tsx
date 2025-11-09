@@ -1,5 +1,5 @@
-import { notFound } from 'next/navigation';
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { notFound, redirect } from 'next/navigation';
+import { Box, Container, Stack, Typography, Button } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import Link from 'next/link';
 import { IconArrowLeft } from '@tabler/icons-react';
@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import ServiceQuoteWizard from '@/components/forms/service-quote-wizard';
 import ServiceQuoteSidebar from '@/components/sections/service-quote-sidebar';
 import RevealSection from '@/components/ui/reveal-section';
+import { Link as I18nLink } from '@/i18n/navigation';
 
 
 interface PageProps {
@@ -53,6 +54,31 @@ export default async function QuotePage({ params }: PageProps) {
 	}
 
 	const service = convertToLegacyFormat(serviceFromDB, locale);
+
+	// Check availability from database (like "in stock" / "out of stock")
+	// Check is_available first, fallback to is_active
+	const isAvailable = serviceFromDB?.is_available !== false && serviceFromDB?.is_active !== false;
+	
+	if (!isAvailable) {
+		// Redirect to service detail page with Coming Soon message
+		return (
+			<Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+				<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 12.5 } }}>
+					<RevealSection delay={0.1} direction="up">
+						<Stack spacing={4} alignItems="center" textAlign="center">
+							<Typography variant="h2">{tServices('comingSoon')}</Typography>
+							<Typography variant="h6" color="text.secondary">
+								{tServices('comingSoonTooltip')}
+							</Typography>
+							<Button component={I18nLink} href={`/services/${service.slug}`} variant="contained" size="large">
+								{t('backTo')} {service.title}
+							</Button>
+						</Stack>
+					</RevealSection>
+				</Container>
+			</Box>
+		);
+	}
 
 	return (
 		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>

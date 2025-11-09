@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Card } from '@/components/ui/card';
+import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
 import { getTranslations } from 'next-intl/server';
 
 export default async function SettingsPage() {
@@ -8,6 +9,12 @@ export default async function SettingsPage() {
 	
 	return (
 		<Box>
+			<AdminBreadcrumbs
+				items={[
+					{ label: 'Dashboard', href: '/admin' },
+					{ label: 'Settings' },
+				]}
+			/>
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
 					{t('title')}

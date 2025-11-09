@@ -8,6 +8,7 @@ import {
 	Chip,
 	Container,
 	Divider,
+	Drawer,
 	FormControl,
 	FormControlLabel,
 	IconButton,
@@ -15,12 +16,13 @@ import {
 	InputLabel,
 	MenuItem,
 	OutlinedInput,
-	Paper,
 	Pagination,
 	Select,
 	Stack,
 	Switch,
+	Tooltip,
 	Typography,
+	useMediaQuery,
 	useTheme,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -29,14 +31,20 @@ import {
 	IconArrowLeft,
 	IconSearch,
 	IconX,
+	IconFilter,
+	IconLayoutGrid,
+	IconLayoutList,
 } from '@tabler/icons-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
 import RevealSection from '@/components/ui/reveal-section';
 import type { Service } from '@/data/services';
+import type { Service as DBService } from '@/lib/types/service';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { trackServicesEvent } from '@/lib/analytics';
+import ServicesFilterSidebar from './services-filter-sidebar';
+import ServiceCard from './service-card';
 
 type TurnaroundFilter = 'all' | 'express' | 'standard' | 'extended';
 type PricingFilter = 'all' | 'fixed' | 'starting' | 'quote';
@@ -50,6 +58,7 @@ interface ServiceCategory {
 
 interface ServicesWithSearchProps {
 	services: Service[];
+	originalServices?: DBService[];
 	categories: ServiceCategory[];
 	locale: 'en' | 'ar';
 }
@@ -132,6 +141,7 @@ function formatPriceLabel(
 
 export default function ServicesCatalogWithSearch({
 	services,
+	originalServices,
 	categories,
 	locale,
 }: ServicesWithSearchProps) {
@@ -140,6 +150,12 @@ export default function ServicesCatalogWithSearch({
 	const tCommon = useTranslations('Common');
 	const theme = useTheme();
 	const currentLocale = useLocale() as 'en' | 'ar';
+
+	// Create a map of slug to original service for bilingual search
+	const originalServicesMap = useMemo(() => {
+		if (!originalServices) return new Map<string, DBService>();
+		return new Map(originalServices.map(s => [s.slug, s]));
+	}, [originalServices]);
 
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -152,7 +168,10 @@ export default function ServicesCatalogWithSearch({
 	const [expressOnly, setExpressOnly] = useState(false);
 	const [sortOption, setSortOption] = useState<SortOption>('recommended');
 	const [page, setPage] = useState(1);
+	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+	const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 	const servicesPerPage = 12; // Show 12 services per page (4 rows x 3 columns)
+	const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
 	const currencyFormatter = useMemo(
 		() =>
@@ -205,6 +224,8 @@ export default function ServicesCatalogWithSearch({
 
 	// Hydrate state from URL search params
 	useEffect(() => {
+		if (!searchParams) return;
+		
 		const qParam = searchParams.get('q') ?? '';
 		if (qParam !== searchQuery) {
 			setSearchQuery(qParam);
@@ -258,7 +279,7 @@ export default function ServicesCatalogWithSearch({
 		if (sortOption !== 'recommended') params.set('sort', sortOption);
 
 		const newQuery = params.toString();
-		const currentQuery = searchParams.toString();
+		const currentQuery = searchParams?.toString() || '';
 
 		if (newQuery === currentQuery) return;
 
@@ -268,11 +289,36 @@ export default function ServicesCatalogWithSearch({
 	const filteredServices = useMemo(() => {
 		return services.filter((service) => {
 			const query = searchQuery.trim().toLowerCase();
-			const matchesSearch =
-				!query ||
-				service.title.toLowerCase().includes(query) ||
-				service.shortDescription.toLowerCase().includes(query) ||
-				service.description.toLowerCase().includes(query);
+			
+			// Bilingual search - check both English and Arabic fields
+			let matchesSearch = !query;
+			if (query) {
+				const originalService = originalServicesMap.get(service.slug);
+				
+				// Check current locale fields
+				const currentTitle = service.title.toLowerCase();
+				const currentShortDesc = service.shortDescription.toLowerCase();
+				const currentDesc = service.description.toLowerCase();
+				
+				// Check bilingual fields from original service
+				const enTitle = originalService?.name_en?.toLowerCase() || '';
+				const arTitle = originalService?.name_ar?.toLowerCase() || '';
+				const enShortDesc = originalService?.short_description_en?.toLowerCase() || '';
+				const arShortDesc = originalService?.short_description_ar?.toLowerCase() || '';
+				const enDesc = originalService?.description_en?.toLowerCase() || '';
+				const arDesc = originalService?.description_ar?.toLowerCase() || '';
+				
+				matchesSearch = 
+					currentTitle.includes(query) ||
+					currentShortDesc.includes(query) ||
+					currentDesc.includes(query) ||
+					enTitle.includes(query) ||
+					arTitle.includes(query) ||
+					enShortDesc.includes(query) ||
+					arShortDesc.includes(query) ||
+					enDesc.includes(query) ||
+					arDesc.includes(query);
+			}
 
 			if (!matchesSearch) return false;
 
@@ -295,26 +341,43 @@ export default function ServicesCatalogWithSearch({
 
 			return true;
 		});
-	}, [services, searchQuery, selectedCategories, turnaroundFilter, pricingFilter, expressOnly]);
+	}, [services, searchQuery, selectedCategories, turnaroundFilter, pricingFilter, expressOnly, originalServicesMap]);
 
 	const sortedServices = useMemo(() => {
 		const ordered = [...filteredServices];
+		
+		// Separate available and coming soon services (like "in stock" vs "out of stock")
+		const availableServices = ordered.filter(s => {
+			const originalService = originalServicesMap.get(s.slug);
+			return originalService?.is_available !== false && originalService?.is_active !== false;
+		});
+		const comingSoonServices = ordered.filter(s => {
+			const originalService = originalServicesMap.get(s.slug);
+			return originalService?.is_available === false || originalService?.is_active === false;
+		});
+		
+		let sortedAvailable = availableServices;
+		let sortedComingSoon = comingSoonServices;
+		
 		if (sortOption === 'speed') {
-			ordered.sort((a, b) => {
+			sortedAvailable = [...availableServices].sort((a, b) => {
 				const aDays = getTurnaroundDays(a.turnaroundTime) ?? Number.POSITIVE_INFINITY;
 				const bDays = getTurnaroundDays(b.turnaroundTime) ?? Number.POSITIVE_INFINITY;
 				return aDays - bDays;
 			});
-			return ordered;
+			sortedComingSoon = [...comingSoonServices].sort((a, b) => {
+				const aDays = getTurnaroundDays(a.turnaroundTime) ?? Number.POSITIVE_INFINITY;
+				const bDays = getTurnaroundDays(b.turnaroundTime) ?? Number.POSITIVE_INFINITY;
+				return aDays - bDays;
+			});
+		} else if (sortOption === 'price') {
+			sortedAvailable = [...availableServices].sort((a, b) => getPricingValue(a) - getPricingValue(b));
+			sortedComingSoon = [...comingSoonServices].sort((a, b) => getPricingValue(a) - getPricingValue(b));
 		}
-
-		if (sortOption === 'price') {
-			ordered.sort((a, b) => getPricingValue(a) - getPricingValue(b));
-			return ordered;
-		}
-
-		return ordered;
-	}, [filteredServices, sortOption]);
+		
+		// Always show available services first, then coming soon
+		return [...sortedAvailable, ...sortedComingSoon];
+	}, [filteredServices, sortOption, originalServicesMap]);
 
 	// Pagination logic
 	const totalPages = Math.ceil(sortedServices.length / servicesPerPage);
@@ -432,518 +495,388 @@ const handleSortChange = useCallback((value: SortOption) => {
 		return count;
 	}, [searchQuery, selectedCategories, turnaroundFilter, pricingFilter, expressOnly, sortOption]);
 
+	// Active filters for display
+	const activeFilters = useMemo(() => {
+		const filters: Array<{ label: string; onRemove: () => void }> = [];
+		if (selectedCategories.length > 0) {
+			selectedCategories.forEach((slug) => {
+				const category = categories.find((c) => c.slug === slug);
+				if (category) {
+					filters.push({
+						label: t(`categoryLabels.${slug}` as any) || category.name,
+						onRemove: () => handleToggleCategory(slug),
+					});
+				}
+			});
+		}
+		if (turnaroundFilter !== 'all') {
+			filters.push({
+				label: turnaroundOptions.find((o) => o.value === turnaroundFilter)?.label || '',
+				onRemove: () => handleTurnaroundChange('all'),
+			});
+		}
+		if (pricingFilter !== 'all') {
+			filters.push({
+				label: pricingOptions.find((o) => o.value === pricingFilter)?.label || '',
+				onRemove: () => handlePricingChange('all'),
+			});
+		}
+		if (expressOnly) {
+			filters.push({
+				label: t('filters.express'),
+				onRemove: () => handleExpressToggle(false),
+			});
+		}
+		return filters;
+	}, [selectedCategories, turnaroundFilter, pricingFilter, expressOnly, categories, turnaroundOptions, pricingOptions, t, handleToggleCategory, handleTurnaroundChange, handlePricingChange, handleExpressToggle]);
+
 	return (
 		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-			<Container sx={{ pt: { xs: 3, md: 6 }, pb: { xs: 6.25, md: 8 } }}>
-				<RevealSection delay={0.1} direction="up">
-					<Stack spacing={4} alignItems="center" textAlign="center">
-						<Stack spacing={3} alignItems="center">
-							<Typography color="accent" variant="subtitle1">
-								{t('title')}
-							</Typography>
-							<Typography variant="h1" maxWidth={800}>
-								{t('description')}
-							</Typography>
-							<Typography color="text.secondary" variant="h6" component="p" maxWidth={720}>
-								{tOverview('description')}
-							</Typography>
-						</Stack>
-
-						<Box sx={{ width: '100%', maxWidth: 600 }}>
-							<OutlinedInput
-								fullWidth
-								placeholder={t('filters.searchPlaceholder')}
-								value={searchQuery}
-								onChange={(event) => setSearchQuery(event.target.value)}
-								startAdornment={
-									<InputAdornment position="start">
-										<IconSearch size={20} />
-									</InputAdornment>
-								}
-								endAdornment={
-									searchQuery ? (
-										<InputAdornment position="end">
-											<IconButton
-												edge="end"
-												aria-label={tCommon('clear')}
-												onClick={() => setSearchQuery('')}
-												size="small"
-											>
-												<IconX size={18} />
-											</IconButton>
-										</InputAdornment>
-									) : undefined
-								}
-								sx={(theme) => ({
-									borderRadius: 3,
-									bgcolor: 'background.paper',
-									'& .MuiOutlinedInput-notchedOutline': {
-										borderColor: theme.palette.mode === 'dark' 
-											? 'rgba(255,255,255,0.1)' 
-											: 'rgba(0,0,0,0.12)',
-									},
-									'&:hover .MuiOutlinedInput-notchedOutline': {
-										borderColor: theme.palette.mode === 'dark' 
-											? 'rgba(255,255,255,0.2)' 
-											: 'rgba(0,0,0,0.2)',
-									},
-									'&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-										borderColor: 'primary.main',
-										borderWidth: 2,
-									},
-								})}
-							/>
-							{activeFiltersCount > 0 && (
-								<Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-									{t('filters.resultsSummary', { count: sortedServices.length })}
-								</Typography>
-							)}
-						</Box>
+			{/* Hero Section */}
+			<Container maxWidth="md" sx={{ pt: { xs: 2, md: 3 }, pb: { xs: 3, md: 4 } }}>
+				<Stack spacing={2.5} alignItems="center" textAlign="center">
+					<Stack spacing={1.5} alignItems="center">
+						<Typography color="accent" variant="subtitle2" sx={{ fontSize: { xs: '0.8125rem', md: '0.875rem' } }}>
+							{t('title')}
+						</Typography>
+						<Typography variant="h3" maxWidth={520} sx={{ fontSize: { xs: '1.5rem', md: '1.875rem' }, lineHeight: 1.3 }}>
+							{t('description')}
+						</Typography>
+						<Typography color="text.secondary" variant="body2" component="p" maxWidth={480} sx={{ fontSize: { xs: '0.875rem', md: '0.9375rem' } }}>
+							{tOverview('description')}
+						</Typography>
 					</Stack>
-				</RevealSection>
+				</Stack>
 			</Container>
 
-			<Container sx={{ pb: { xs: 5, md: 7 } }}>
-				<Paper
-					elevation={0}
-					sx={(theme) => ({
-						px: { xs: 2.5, md: 3 },
-						py: { xs: 2.5, md: 3 },
-						mb: { xs: 3, md: 4 },
-						borderRadius: 2,
-						border: '1px solid',
-						borderColor: theme.palette.mode === 'dark' 
-							? 'rgba(255,255,255,0.1)' 
-							: 'rgba(0,0,0,0.08)',
-						backgroundColor: 'background.paper',
-						position: { md: 'sticky' },
-						top: { md: theme.spacing(11) },
-						zIndex: theme.zIndex.appBar - 1,
-						boxShadow: theme.palette.mode === 'dark'
-							? '0px 2px 8px rgba(0,0,0,0.2)'
-							: '0px 2px 8px rgba(0,0,0,0.04)',
-					})}
+			{/* Top Bar */}
+			<Container maxWidth="lg" sx={{ pb: { xs: 2, md: 3 } }}>
+				<Stack
+					direction={{ xs: 'column', sm: 'row' }}
+					spacing={2}
+					alignItems={{ xs: 'stretch', sm: 'center' }}
+					justifyContent="space-between"
 				>
-					<Stack spacing={2}>
-						<Stack
-							direction={{ xs: 'column', sm: 'row' }}
-							justifyContent="space-between"
-							alignItems={{ xs: 'flex-start', sm: 'center' }}
-							spacing={1.5}
-						>
-							<Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
-								<Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1rem', md: '1.125rem' } }}>
-									{t('filters.heading')}
-								</Typography>
-								<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-									{t('filters.resultsSummary', { count: sortedServices.length })}
-								</Typography>
-							</Stack>
-							<Button 
-								variant="outlined" 
-								onClick={handleResetFilters} 
-								disabled={activeFiltersCount === 0}
-								size="small"
+					{/* Search */}
+					<Box sx={{ flex: 1, maxWidth: { sm: 400 } }}>
+						<OutlinedInput
+							fullWidth
+							placeholder={t('filters.searchPlaceholder')}
+							value={searchQuery}
+							onChange={(event) => setSearchQuery(event.target.value)}
+							startAdornment={
+								<InputAdornment position="start">
+									<IconSearch size={18} />
+								</InputAdornment>
+							}
+							endAdornment={
+								searchQuery ? (
+									<InputAdornment position="end">
+										<IconButton
+											edge="end"
+											aria-label={tCommon('clear')}
+											onClick={() => setSearchQuery('')}
+											size="small"
+										>
+											<IconX size={16} />
+										</IconButton>
+									</InputAdornment>
+								) : undefined
+							}
+							sx={(theme) => ({
+								borderRadius: 2,
+								bgcolor: 'background.paper',
+								height: 44,
+								'& .MuiOutlinedInput-notchedOutline': {
+									borderColor: theme.palette.mode === 'dark' 
+										? 'rgba(255,255,255,0.1)' 
+										: 'rgba(0,0,0,0.12)',
+								},
+								'&:hover .MuiOutlinedInput-notchedOutline': {
+									borderColor: theme.palette.mode === 'dark' 
+										? 'rgba(255,255,255,0.2)' 
+										: 'rgba(0,0,0,0.2)',
+								},
+								'&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+									borderColor: 'primary.main',
+									borderWidth: 2,
+								},
+							})}
+						/>
+					</Box>
+
+					{/* View Toggle & Sort & Mobile Filter Button */}
+					<Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexWrap: 'wrap', gap: 1 }}>
+						{/* Mobile Filter Button */}
+						{isMobile && (
+							<IconButton
+								onClick={() => setFilterDrawerOpen(true)}
 								sx={{
-									borderRadius: 1.5,
-									px: 2,
-									py: 0.75,
+									border: '1px solid',
+									borderColor: 'divider',
+									bgcolor: 'background.paper',
+									minWidth: 44,
+									minHeight: 44,
+								}}
+								aria-label={t('filters.heading')}
+							>
+								<IconFilter size={18} />
+							</IconButton>
+						)}
+
+						{/* View Toggle */}
+						<Stack direction="row" spacing={0.5} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, p: 0.5 }}>
+							<IconButton
+								size="small"
+								onClick={() => setViewMode('grid')}
+								sx={{
+									bgcolor: viewMode === 'grid' ? 'primary.main' : 'transparent',
+									color: viewMode === 'grid' ? 'primary.contrastText' : 'text.primary',
+									minWidth: 36,
+									minHeight: 36,
+									'&:hover': {
+										bgcolor: viewMode === 'grid' ? 'primary.dark' : 'action.hover',
+									},
+								}}
+								aria-label="Grid view"
+							>
+								<IconLayoutGrid size={18} />
+							</IconButton>
+							<IconButton
+								size="small"
+								onClick={() => setViewMode('list')}
+								sx={{
+									bgcolor: viewMode === 'list' ? 'primary.main' : 'transparent',
+									color: viewMode === 'list' ? 'primary.contrastText' : 'text.primary',
+									minWidth: 36,
+									minHeight: 36,
+									'&:hover': {
+										bgcolor: viewMode === 'list' ? 'primary.dark' : 'action.hover',
+									},
+								}}
+								aria-label="List view"
+							>
+								<IconLayoutList size={18} />
+							</IconButton>
+						</Stack>
+
+						{/* Sort */}
+						<FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 }, flex: { xs: '1 1 100%', sm: 'none' } }}>
+							<InputLabel id="services-sort-label" sx={{ fontWeight: 600, fontSize: '0.75rem' }}>
+								{t('filters.sortLabel')}
+							</InputLabel>
+							<Select
+								labelId="services-sort-label"
+								label={t('filters.sortLabel')}
+								value={sortOption}
+								onChange={(event) => handleSortChange(event.target.value as SortOption)}
+								sx={{
 									fontWeight: 600,
-									fontSize: '0.875rem',
-									minWidth: 'auto',
+									fontSize: '0.8125rem',
+									height: 44,
 								}}
 							>
-								{t('filters.clearAll')}
-							</Button>
-						</Stack>
+								{sortOptions.map((option) => (
+									<MenuItem key={option.value} value={option.value} sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
+										{option.label}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
+					</Stack>
+				</Stack>
+			</Container>
 
-						<Stack spacing={1.5}>
-							<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={1}>
-								<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
-									{t('filters.categories')}:
+			{/* Two-Column Layout */}
+			<Container maxWidth="lg" sx={{ pb: { xs: 4, md: 6 } }}>
+				<Box
+					sx={{
+						display: 'flex',
+						flexDirection: { xs: 'column', md: 'row' },
+						gap: 3,
+						alignItems: 'flex-start',
+					}}
+				>
+					{/* Main Content - Left */}
+					<Stack sx={{ flex: 1, width: { xs: '100%', md: 'calc(100% - 316px)' } }} spacing={2}>
+						{/* Active Filters Bar */}
+						{activeFilters.length > 0 && (
+							<Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center" sx={{ gap: 1 }}>
+								<Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem', mr: locale === 'ar' ? 0 : 1, ml: locale === 'ar' ? 1 : 0 }}>
+									{t('filters.activeFilters')}:
 								</Typography>
-								<Stack direction="row" flexWrap="wrap" gap={0.75}>
+								{activeFilters.map((filter, index) => (
 									<Chip
-										label={t('filters.allCategories')}
-										variant={selectedCategories.length === 0 ? 'filled' : 'outlined'}
-										onClick={handleClearCategories}
+										key={index}
+										label={filter.label}
 										size="small"
-										sx={(theme) => ({
-											fontSize: '0.8125rem',
+										onDelete={filter.onRemove}
+										sx={{
+											fontSize: '0.75rem',
 											fontWeight: 600,
 											height: 28,
-											px: 1,
-											bgcolor: selectedCategories.length === 0 
-												? 'primary.main' 
-												: 'transparent',
-											color: selectedCategories.length === 0 
-												? 'primary.contrastText' 
-												: 'text.primary',
-											borderColor: 'divider',
-											'&:hover': {
-												bgcolor: selectedCategories.length === 0 
-													? 'primary.dark' 
-													: theme.palette.mode === 'dark'
-														? 'rgba(255,255,255,0.05)'
-														: 'rgba(0,0,0,0.04)',
+											bgcolor: 'primary.main',
+											color: 'primary.contrastText',
+											'& .MuiChip-deleteIcon': {
+												color: 'primary.contrastText',
+												'&:hover': {
+													color: 'primary.contrastText',
+													opacity: 0.8,
+												},
 											},
-										})}
+										}}
 									/>
-									{categories.map((category) => {
-										const isActive = selectedCategories.includes(category.slug);
-										const count = categoryCounts[category.slug] || 0;
-										const categoryLabel = t(`categoryLabels.${category.slug}` as any) || category.name;
-										return (
-											<Chip
-												key={category.slug}
-												label={`${categoryLabel} (${count})`}
-												variant={isActive ? 'filled' : 'outlined'}
-												size="small"
-												onClick={() => handleToggleCategory(category.slug)}
-												sx={(theme) => ({
-													fontSize: '0.8125rem',
-													fontWeight: 600,
-													height: 28,
-													px: 1,
-													bgcolor: isActive ? 'primary.main' : 'transparent',
-													color: isActive ? 'primary.contrastText' : 'text.primary',
-													borderColor: 'divider',
-													'&:hover': {
-														bgcolor: isActive 
-															? 'primary.dark' 
-															: theme.palette.mode === 'dark'
-																? 'rgba(255,255,255,0.05)'
-																: 'rgba(0,0,0,0.04)',
-													},
-												})}
-											/>
-										);
-									})}
-								</Stack>
+								))}
 							</Stack>
-						</Stack>
+						)}
 
-						<Divider sx={{ my: 0.5 }} />
-
-						<Stack
-							direction={{ xs: 'column', lg: 'row' }}
-							spacing={2}
-							alignItems={{ xs: 'flex-start', lg: 'center' }}
-							justifyContent="space-between"
-						>
-							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap" gap={1.5}>
-								<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={0.75}>
-									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
-										{t('filters.turnaround')}:
-									</Typography>
-									<Stack direction="row" flexWrap="wrap" gap={0.75}>
-										{turnaroundOptions.map((option) => (
-											<Chip
-												key={option.value}
-												label={option.label}
-												variant={turnaroundFilter === option.value ? 'filled' : 'outlined'}
-												onClick={() => handleTurnaroundChange(option.value)}
-												size="small"
-												sx={(theme) => ({
-													fontSize: '0.8125rem',
-													fontWeight: 600,
-													height: 28,
-													px: 1,
-													bgcolor: turnaroundFilter === option.value ? 'primary.main' : 'transparent',
-													color: turnaroundFilter === option.value ? 'primary.contrastText' : 'text.primary',
-													borderColor: 'divider',
-													'&:hover': {
-														bgcolor: turnaroundFilter === option.value 
-															? 'primary.dark' 
-															: theme.palette.mode === 'dark'
-																? 'rgba(255,255,255,0.05)'
-																: 'rgba(0,0,0,0.04)',
-													},
-												})}
+						{/* Services Grid/List */}
+						{viewMode === 'grid' ? (
+							<Grid container spacing={{ xs: 2.5, md: 3 }} sx={{ alignItems: 'stretch' }}>
+								{paginatedServices.map((service) => {
+									const categoryLabel = t(`categoryLabels.${service.category}` as any) || categories.find(cat => cat.slug === service.category)?.name || service.category;
+									const originalService = originalServicesMap.get(service.slug);
+									return (
+										<Grid key={service.slug} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
+											<ServiceCard
+												service={service}
+												locale={locale}
+												currencyFormatter={currencyFormatter}
+												viewMode="grid"
+												categoryLabel={categoryLabel}
+												categories={categories}
+												originalService={originalService}
 											/>
-										))}
-									</Stack>
-								</Stack>
-
-								<Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" gap={0.75}>
-									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem', minWidth: 'fit-content' }}>
-										{t('filters.pricing')}:
-									</Typography>
-									<Stack direction="row" flexWrap="wrap" gap={0.75}>
-										{pricingOptions.map((option) => (
-											<Chip
-												key={option.value}
-												label={option.label}
-												variant={pricingFilter === option.value ? 'filled' : 'outlined'}
-												onClick={() => handlePricingChange(option.value)}
-												size="small"
-												sx={(theme) => ({
-													fontSize: '0.8125rem',
-													fontWeight: 600,
-													height: 28,
-													px: 1,
-													bgcolor: pricingFilter === option.value ? 'primary.main' : 'transparent',
-													color: pricingFilter === option.value ? 'primary.contrastText' : 'text.primary',
-													borderColor: 'divider',
-													'&:hover': {
-														bgcolor: pricingFilter === option.value 
-															? 'primary.dark' 
-															: theme.palette.mode === 'dark'
-																? 'rgba(255,255,255,0.05)'
-																: 'rgba(0,0,0,0.04)',
-													},
-												})}
-											/>
-										))}
-									</Stack>
-								</Stack>
-
-								<Stack direction="row" alignItems="center" spacing={1}>
-									<Typography variant="body2" fontWeight={600} color="text.secondary" sx={{ fontSize: '0.8125rem' }}>
-										{t('filters.express')}:
-									</Typography>
-									<Switch 
-										checked={expressOnly} 
-										onChange={(event) => handleExpressToggle(event.target.checked)}
-										size="small"
-									/>
-								</Stack>
-							</Stack>
-
-							<FormControl size="small" sx={{ minWidth: { xs: '100%', lg: 200 }, mt: { xs: 1, lg: 0 } }}>
-								<InputLabel id="services-sort-label" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
-									{t('filters.sortLabel')}
-								</InputLabel>
-								<Select
-									labelId="services-sort-label"
-									label={t('filters.sortLabel')}
-									value={sortOption}
-									onChange={(event) => handleSortChange(event.target.value as SortOption)}
-									sx={{
-										fontWeight: 600,
-										fontSize: '0.8125rem',
-										height: 36,
-									}}
-								>
-									{sortOptions.map((option) => (
-										<MenuItem key={option.value} value={option.value} sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
-											{option.label}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-						</Stack>
-					</Stack>
-				</Paper>
-			</Container>
-
-			<Container sx={{ pb: { xs: 6, md: 10 } }}>
-				<Grid container spacing={{ xs: 3, md: 4 }} sx={{ alignItems: 'stretch' }}>
-					{paginatedServices.map((service, index) => {
-						const priceLabel = formatPriceLabel(service, currencyFormatter, t);
-						// Get category name for tag - use translation if available
-						const categoryLabel = t(`categoryLabels.${service.category}` as any) || categories.find(cat => cat.slug === service.category)?.name || service.category;
-						
-						// Category-based color scheme for visual distinction
-						const getCategoryColor = (categorySlug: string): { bg: string; text: string } => {
-							const colorMap: Record<string, { bg: string; text: string }> = {
-								'government': { bg: alpha(theme.palette.primary.main, 0.1), text: 'primary.main' },
-								'translation': { bg: alpha(theme.palette.info.main, 0.1), text: 'info.main' },
-								'legalization': { bg: alpha(theme.palette.success.main, 0.1), text: 'success.main' },
-								'business': { bg: alpha(theme.palette.warning.main, 0.1), text: 'warning.main' },
-							};
-							return colorMap[categorySlug] || { bg: alpha(theme.palette.primary.main, 0.1), text: 'primary.main' };
-						};
-						
-						const categoryColor = getCategoryColor(service.category);
-						
-						return (
-							<Grid key={service.slug} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
-								<RevealSection delay={0.1 + index * 0.06} direction="up">
-									<Paper
-										elevation={0}
-										sx={(theme) => ({
-											width: '100%',
-											height: '100%',
-											display: 'flex',
-											flexDirection: 'column',
-											borderRadius: 3,
-											border: '1px solid',
-											borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-											bgcolor: 'background.paper',
-											transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-											overflow: 'hidden',
-											'&:hover': {
-												boxShadow: theme.palette.mode === 'dark'
-													? '0px 8px 24px rgba(0,0,0,0.4)'
-													: '0px 8px 24px rgba(0,0,0,0.12)',
-												transform: 'translateY(-4px)',
-												borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)',
-											},
-										})}
-									>
-										<Stack spacing={2.5} sx={{ flexGrow: 1, p: 3 }}>
-											{/* Category Tag */}
-											<Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-												<Chip
-													label={categoryLabel}
-													size="small"
-													sx={{
-														bgcolor: categoryColor.bg,
-														color: categoryColor.text,
-														fontWeight: 600,
-														fontSize: '0.75rem',
-														height: 24,
-													}}
-												/>
-											</Box>
-
-											{/* Title */}
-											<Typography
-												variant="h6"
-												sx={{
-													fontWeight: 700,
-													fontSize: { xs: '1rem', md: '1.125rem' },
-													lineHeight: 1.4,
-													minHeight: { xs: 48, md: 54 },
-													display: '-webkit-box',
-													WebkitLineClamp: 2,
-													WebkitBoxOrient: 'vertical',
-													overflow: 'hidden',
-												}}
-											>
-												{service.title}
-											</Typography>
-
-											{/* Description */}
-											<Typography
-												variant="body2"
-												color="text.secondary"
-												sx={{
-													fontSize: { xs: '0.875rem', md: '0.9375rem' },
-													lineHeight: 1.6,
-													minHeight: { xs: 60, md: 72 },
-													display: '-webkit-box',
-													WebkitLineClamp: 3,
-													WebkitBoxOrient: 'vertical',
-													overflow: 'hidden',
-												}}
-											>
-												{service.shortDescription}
-											</Typography>
-
-											{/* Audience Tags & Service Fee */}
-											<Stack spacing={1.5} sx={{ mt: 'auto' }}>
-												<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-													{/* Audience tags - simplified for now, can be enhanced later */}
-													<Chip
-														label={locale === 'ar' ? 'مواطن' : 'Citizen'}
-														size="small"
-														sx={{
-															bgcolor: alpha(theme.palette.success.main, 0.1),
-															color: 'success.main',
-															fontSize: '0.75rem',
-															height: 24,
-														}}
-													/>
-													<Chip
-														label={locale === 'ar' ? 'مقيم' : 'Resident'}
-														size="small"
-														sx={{
-															bgcolor: alpha(theme.palette.info.main, 0.1),
-															color: 'info.main',
-															fontSize: '0.75rem',
-															height: 24,
-														}}
-													/>
-												</Stack>
-
-												{/* Service Fee */}
-												<Typography
-													variant="body2"
-													color="text.secondary"
-													sx={{
-														fontSize: '0.875rem',
-														fontWeight: 500,
-													}}
-												>
-													{locale === 'ar' ? 'رسوم الخدمة' : 'Service fee'}: {priceLabel}
-												</Typography>
-											</Stack>
-										</Stack>
-
-										{/* Details Link */}
-										<Box sx={{ px: 3, pb: 3, pt: 1 }}>
-											<Button
-												component={Link}
-												href={`/services/${service.slug}`}
-												variant="text"
-												endIcon={currentLocale === 'ar' ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
-												onClick={() => handleDetailsClick(service)}
-												fullWidth
-												sx={(theme) => ({
-													color: 'primary.main',
-													fontWeight: 600,
-													textTransform: 'none',
-													borderRadius: 2,
-													px: 2,
-													py: 1.25,
-													justifyContent: 'space-between',
-													'&:hover': {
-														bgcolor: theme.palette.mode === 'dark' 
-															? 'rgba(255,255,255,0.05)' 
-															: 'rgba(14, 33, 160, 0.04)',
-													},
-												})}
-											>
-												{locale === 'ar' ? 'تفاصيل' : t('viewDetails')}
-											</Button>
-										</Box>
-									</Paper>
-								</RevealSection>
+										</Grid>
+									);
+								})}
 							</Grid>
-						);
-					})}
-				</Grid>
+						) : (
+							<Stack spacing={2}>
+								{paginatedServices.map((service) => {
+									const categoryLabel = t(`categoryLabels.${service.category}` as any) || categories.find(cat => cat.slug === service.category)?.name || service.category;
+									const originalService = originalServicesMap.get(service.slug);
+									return (
+										<ServiceCard
+											key={service.slug}
+											service={service}
+											locale={locale}
+											currencyFormatter={currencyFormatter}
+											viewMode="list"
+											categoryLabel={categoryLabel}
+											categories={categories}
+											originalService={originalService}
+										/>
+									);
+								})}
+							</Stack>
+						)}
 
-				{sortedServices.length === 0 && (
-					<Stack spacing={2} alignItems="center" textAlign="center" sx={{ py: 8 }}>
-						<Typography variant="h4">{tOverview('noResultsTitle')}</Typography>
-						<Typography color="text.secondary" maxWidth={420}>
-							{tOverview('noResultsDescription')}
-						</Typography>
-						<Button variant="outlined" onClick={handleResetFilters}>
-							{tOverview('clearSearch')}
-						</Button>
+						{/* Empty State */}
+						{sortedServices.length === 0 && (
+							<Stack spacing={2} alignItems="center" textAlign="center" sx={{ py: 6 }}>
+								<Typography variant="h5" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>{tOverview('noResultsTitle')}</Typography>
+								<Typography color="text.secondary" maxWidth={400} sx={{ fontSize: { xs: '0.875rem', md: '0.9375rem' } }}>
+									{tOverview('noResultsDescription')}
+								</Typography>
+								<Button variant="outlined" onClick={handleResetFilters} size="medium">
+									{tOverview('clearSearch')}
+								</Button>
+							</Stack>
+						)}
+
+						{/* Pagination */}
+						{sortedServices.length > 0 && totalPages > 1 && (
+							<Stack spacing={2} alignItems="center" sx={{ mt: 4 }}>
+								<Pagination
+									count={totalPages}
+									page={page}
+									onChange={(_, value) => setPage(value)}
+									color="primary"
+									size="large"
+									sx={{
+										'& .MuiPaginationItem-root': {
+											fontSize: '1rem',
+											fontWeight: 600,
+										},
+									}}
+								/>
+								<Typography variant="body2" color="text.secondary">
+									{t('pagination.showing', {
+										start: startIndex + 1,
+										end: Math.min(endIndex, sortedServices.length),
+										total: sortedServices.length,
+									})}
+								</Typography>
+							</Stack>
+						)}
 					</Stack>
-				)}
 
-				{/* Pagination */}
-				{sortedServices.length > 0 && totalPages > 1 && (
-					<Stack spacing={2} alignItems="center" sx={{ mt: 6 }}>
-						<Pagination
-							count={totalPages}
-							page={page}
-							onChange={(_, value) => setPage(value)}
-							color="primary"
-							size="large"
-							sx={{
-								'& .MuiPaginationItem-root': {
-									fontSize: '1rem',
-									fontWeight: 600,
-								},
-							}}
+					{/* Filter Sidebar - Right */}
+					{!isMobile && (
+						<ServicesFilterSidebar
+							categories={categories}
+							categoryCounts={categoryCounts}
+							selectedCategories={selectedCategories}
+							onToggleCategory={handleToggleCategory}
+							onClearCategories={handleClearCategories}
+							turnaroundFilter={turnaroundFilter}
+							onTurnaroundChange={handleTurnaroundChange}
+							pricingFilter={pricingFilter}
+							onPricingChange={handlePricingChange}
+							expressOnly={expressOnly}
+							onExpressToggle={handleExpressToggle}
+							onResetFilters={handleResetFilters}
+							activeFiltersCount={activeFiltersCount}
+							resultsCount={sortedServices.length}
+							locale={locale}
 						/>
-					<Typography variant="body2" color="text.secondary">
-						{t('pagination.showing', {
-							start: startIndex + 1,
-							end: Math.min(endIndex, sortedServices.length),
-							total: sortedServices.length,
-						})}
-					</Typography>
-					</Stack>
-				)}
+					)}
+				</Box>
 			</Container>
+
+			{/* Mobile Filter Drawer */}
+			<Drawer
+				anchor={locale === 'ar' ? 'right' : 'left'}
+				open={filterDrawerOpen}
+				onClose={() => setFilterDrawerOpen(false)}
+				PaperProps={{
+					sx: {
+						width: { xs: '85%', sm: 320 },
+						p: 2,
+					},
+				}}
+			>
+				<Stack spacing={2}>
+					<Stack direction="row" justifyContent="space-between" alignItems="center">
+						<Typography variant="h6">{t('filters.heading')}</Typography>
+						<IconButton onClick={() => setFilterDrawerOpen(false)} size="small">
+							<IconX size={20} />
+						</IconButton>
+					</Stack>
+					<ServicesFilterSidebar
+						categories={categories}
+						categoryCounts={categoryCounts}
+						selectedCategories={selectedCategories}
+						onToggleCategory={handleToggleCategory}
+						onClearCategories={handleClearCategories}
+						turnaroundFilter={turnaroundFilter}
+						onTurnaroundChange={handleTurnaroundChange}
+						pricingFilter={pricingFilter}
+						onPricingChange={handlePricingChange}
+						expressOnly={expressOnly}
+						onExpressToggle={handleExpressToggle}
+						onResetFilters={() => {
+							handleResetFilters();
+							setFilterDrawerOpen(false);
+						}}
+						activeFiltersCount={activeFiltersCount}
+						resultsCount={sortedServices.length}
+						locale={locale}
+						inDrawer={true}
+					/>
+				</Stack>
+			</Drawer>
 		</Box>
 	);
 }

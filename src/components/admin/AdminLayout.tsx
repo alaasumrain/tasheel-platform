@@ -27,6 +27,7 @@ import {
 	Logout as LogoutIcon,
 	Category as ServicesIcon,
 } from '@mui/icons-material';
+import { ToastProvider } from './ToastProvider';
 import { useTranslations } from 'next-intl';
 
 const drawerWidth = 260;
@@ -45,7 +46,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 		{ label: t('menu.dashboard'), icon: DashboardIcon, href: '/admin' },
 		{ label: t('menu.orders'), icon: OrdersIcon, href: '/admin/orders' },
 		{ label: t('menu.users'), icon: UsersIcon, href: '/admin/users' },
-		{ label: t('menu.seedServices'), icon: ServicesIcon, href: '/admin/seed-services' },
+		{ label: t('menu.services'), icon: ServicesIcon, href: '/admin/services' },
 		{ label: t('menu.settings'), icon: SettingsIcon, href: '/admin/settings' },
 	];
 
@@ -59,7 +60,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 	};
 
 	const drawer = (
-		<Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+		<Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
 			<Box sx={{ p: 3, pb: 2 }}>
 				<Typography variant="h5" fontWeight={700} color="primary">
 					{t('title')}
@@ -128,7 +129,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 	);
 
 	return (
-		<Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+		<Box sx={{ 
+			display: 'flex', 
+			minHeight: '100vh', 
+			bgcolor: 'background.default',
+		}}>
 			{/* AppBar */}
 			<AppBar
 				position="fixed"
@@ -136,7 +141,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 				sx={[
 					() => ({
 						width: { md: `calc(100% - ${drawerWidth}px)` },
-						ml: { md: `${drawerWidth}px` },
+						mr: { md: `${drawerWidth}px` },
 						bgcolor: 'rgba(255,255,255,0.85)',
 						color: 'text.primary',
 						boxShadow: 'none',
@@ -169,11 +174,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 			{/* Drawer */}
 			<Box
 				component="nav"
-				sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+				sx={{ 
+					width: { md: drawerWidth }, 
+					flexShrink: { md: 0 },
+					position: { md: 'fixed' },
+					height: { md: '100vh' },
+					top: { md: 0 },
+					right: { md: 0 },
+					zIndex: { md: 1200 },
+				}}
 			>
 				{/* Mobile drawer */}
 				<Drawer
 					variant="temporary"
+					anchor="right"
 					open={mobileOpen}
 					onClose={handleDrawerToggle}
 					ModalProps={{ keepMounted: true }}
@@ -182,28 +196,36 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 						'& .MuiDrawer-paper': {
 							boxSizing: 'border-box',
 							width: drawerWidth,
+							boxShadow: 'none',
 						},
 					}}
 				>
 					{drawer}
 				</Drawer>
 
-				{/* Desktop drawer */}
-				<Drawer
-					variant="permanent"
-					sx={{
-						display: { xs: 'none', md: 'block' },
-						'& .MuiDrawer-paper': {
-							boxSizing: 'border-box',
-							width: drawerWidth,
-							borderRight: 1,
-							borderColor: 'divider',
-						},
-					}}
-					open
-				>
-					{drawer}
-				</Drawer>
+					{/* Desktop drawer */}
+					<Drawer
+						variant="permanent"
+						anchor="right"
+						sx={{
+							display: { xs: 'none', md: 'block' },
+							'& .MuiDrawer-paper': {
+								boxSizing: 'border-box',
+								width: drawerWidth,
+								height: '100vh',
+								borderLeft: 1,
+								borderRight: 0,
+								borderColor: 'divider',
+								position: 'relative',
+								boxShadow: 'none',
+								elevation: 0,
+								overflow: 'hidden',
+							},
+						}}
+						open
+					>
+						{drawer}
+					</Drawer>
 			</Box>
 
 			{/* Main content */}
@@ -212,11 +234,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 				sx={{
 					flexGrow: 1,
 					p: { xs: 3, md: 4 },
-					width: { md: `calc(100% - ${drawerWidth}px)` },
+					width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+					mr: { md: `${drawerWidth}px` },
 					mt: '84px',
 				}}
 			>
-				{children}
+				<ToastProvider>
+					{children}
+				</ToastProvider>
 			</Box>
 		</Box>
 	);

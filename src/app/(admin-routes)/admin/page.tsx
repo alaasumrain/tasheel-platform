@@ -10,6 +10,7 @@ import { StatsCard } from '@/components/admin/StatsCard';
 import { OrdersTable } from '@/components/admin/OrdersTable';
 import { OrdersTimelineChart } from '@/components/admin/OrdersTimelineChart';
 import { StatusDistributionChart } from '@/components/admin/StatusDistributionChart';
+import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
 import {
 	getOrders,
 	getDashboardMetrics,
@@ -41,6 +42,7 @@ export default async function AdminDashboardPage() {
 
 	return (
 		<Box>
+			<AdminBreadcrumbs items={[{ label: 'Dashboard' }]} />
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
 					{t('title')}

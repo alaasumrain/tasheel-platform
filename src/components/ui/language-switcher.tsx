@@ -17,7 +17,7 @@ export default function LanguageSwitcher({ fullWidth = false }: LanguageSwitcher
 
 	// Extract locale-less pathname (works with both (ar)/ and en/ folder structure)
 	// Remove /en or /ar prefix if present, default to / if empty
-	const pathname = nextPathname.replace(/^\/(en|ar)/, '') || '/';
+	const pathname = nextPathname?.replace(/^\/(en|ar)/, '') || '/';
 
 	const isDark = mode === 'dark';
 	const navColor = isDark ? '#F8FAFF' : '#0F172A';

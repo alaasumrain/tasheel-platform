@@ -62,9 +62,9 @@ export default function Header() {
 
 	const isActiveLink = (href: string) => {
 		if (href === '/') {
-			return pathname === '/' || pathname === '/ar' || pathname === '/en';
-		}
-		return pathname === href || pathname.startsWith(href + '/');
+		return pathname === '/' || pathname === '/ar' || pathname === '/en';
+	}
+	return pathname ? (pathname === href || pathname.startsWith(href + '/')) : false;
 	};
 
 	return (

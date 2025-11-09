@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
-import { Box, Typography, Breadcrumbs, Link as MuiLink } from '@mui/material';
-import Link from 'next/link';
+import { Box } from '@mui/material';
 import { getOrderById, getOrderEvents } from '@/lib/admin-queries';
 import { getServiceBySlug } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
 import { OrderDetailClient } from '@/components/admin/OrderDetailClient';
+import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
 import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
@@ -39,15 +39,13 @@ export default async function OrderDetailPage({
 
 		return (
 			<Box>
-				<Breadcrumbs sx={{ mb: 3 }}>
-					<MuiLink component={Link} href="/admin" underline="hover" color="inherit">
-						{t('breadcrumbs.dashboard')}
-					</MuiLink>
-					<MuiLink component={Link} href="/admin/orders" underline="hover" color="inherit">
-						{t('breadcrumbs.orders')}
-					</MuiLink>
-					<Typography color="text.primary">{order.order_number}</Typography>
-				</Breadcrumbs>
+				<AdminBreadcrumbs
+					items={[
+						{ label: 'Dashboard', href: '/admin' },
+						{ label: 'Orders', href: '/admin/orders' },
+						{ label: order.order_number || `Order ${id}` },
+					]}
+				/>
 
 				<OrderDetailClient order={order} events={events} serviceName={serviceName} />
 			</Box>

@@ -448,6 +448,46 @@ export const serviceFormFields: Record<string, FormField[]> = {
 			options: ['Yes', 'No'],
 		},
 	],
+
+	// INTERNATIONAL DRIVING LICENSE
+	'international-driving-license': [
+		{
+			name: 'passport_number',
+			label: 'Passport Number',
+			type: 'text',
+			required: true,
+			placeholder: 'e.g., P1234567',
+			helperText: 'Enter your passport number',
+		},
+		{
+			name: 'existing_license_number',
+			label: 'Existing License Number',
+			type: 'text',
+			required: true,
+			placeholder: 'e.g., 123456789',
+			helperText: 'Enter your current Palestinian driver\'s license number',
+		},
+		{
+			name: 'license_expiry_date',
+			label: 'License Expiry Date',
+			type: 'date',
+			required: true,
+		},
+		{
+			name: 'passport_upload',
+			label: 'Upload Passport Copy',
+			type: 'file',
+			required: true,
+			helperText: 'PDF, JPG, or PNG (Max 10MB). Clear photo of passport page',
+		},
+		{
+			name: 'license_upload',
+			label: 'Upload Existing License Copy',
+			type: 'file',
+			required: true,
+			helperText: 'PDF, JPG, or PNG (Max 10MB). Clear photo of both sides',
+		},
+	],
 };
 
 // Helper function to get fields for a service

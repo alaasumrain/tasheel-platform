@@ -36,12 +36,12 @@ export function UsersTable({ users }: UsersTableProps) {
 	
 	const handleEdit = (user: User) => {
 		// TODO: Implement edit user functionality
-		console.log('Edit user:', user);
+		// Edit functionality not yet implemented
 	};
 
 	const handleDelete = (user: User) => {
 		// TODO: Implement delete user functionality
-		console.log('Delete user:', user);
+		// Delete functionality not yet implemented
 	};
 
 	if (users.length === 0) {

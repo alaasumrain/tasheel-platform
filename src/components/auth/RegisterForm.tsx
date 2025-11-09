@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import {
 	Button,
@@ -23,7 +23,33 @@ export default function RegisterForm() {
 	const t = useTranslations('Auth.register');
 	const formRef = useRef<HTMLFormElement>(null);
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [formData, setFormData] = useState({
+		name: '',
+		email: '',
+		phone: '',
+	});
+
+	// Pre-fill form from URL params
+	useEffect(() => {
+		const emailParam = searchParams?.get('email');
+		const nameParam = searchParams?.get('name');
+		if (emailParam) {
+			setFormData(prev => ({ ...prev, email: emailParam }));
+			if (formRef.current) {
+				const emailInput = formRef.current.querySelector('[name="email"]') as HTMLInputElement;
+				if (emailInput) emailInput.value = emailParam;
+			}
+		}
+		if (nameParam) {
+			setFormData(prev => ({ ...prev, name: nameParam }));
+			if (formRef.current) {
+				const nameInput = formRef.current.querySelector('[name="name"]') as HTMLInputElement;
+				if (nameInput) nameInput.value = nameParam;
+			}
+		}
+	}, [searchParams]);
 
 	const supabase = createClient();
 

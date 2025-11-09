@@ -1,4 +1,5 @@
-import { supabase } from './supabase';
+import { buildQuery, type QueryOptions } from './utils/query-builder';
+import { createClient } from './supabase/server';
 
 export interface Application {
 	id: string;
@@ -48,41 +49,72 @@ export interface OrdersFilter {
 	search?: string;
 	dateFrom?: string;
 	dateTo?: string;
+	page?: number;
+	pageSize?: number;
+	sortColumn?: string;
+	sortDirection?: 'asc' | 'desc';
+}
+
+export interface PaginatedResult<T> {
+	data: T[];
+	total: number;
+	page: number;
+	pageSize: number;
+	totalPages: number;
 }
 
 /**
- * Get all orders with optional filters
+ * Get all orders with optional filters, sorting, and pagination
  */
-export async function getOrders(filters?: OrdersFilter) {
-	let query = supabase
+export async function getOrders(filters?: OrdersFilter): Promise<Application[]>;
+export async function getOrders(filters?: OrdersFilter & { paginated?: false }): Promise<Application[]>;
+export async function getOrders(filters?: OrdersFilter & { paginated: true }): Promise<PaginatedResult<Application>>;
+export async function getOrders(filters?: OrdersFilter & { paginated?: boolean }): Promise<Application[] | PaginatedResult<Application>> {
+	const supabaseClient = await createClient();
+	
+	let query = supabaseClient
 		.from('applications')
-		.select('*')
-		.order('submitted_at', { ascending: false });
+		.select('*', { count: filters?.paginated ? 'exact' : undefined });
 
-	// Apply filters
-	if (filters?.status) {
-		query = query.eq('status', filters.status);
+	// Build query with search, filters, sorting
+	const queryOptions: QueryOptions = {
+		search: filters?.search,
+		searchFields: ['order_number', 'customer_name', 'applicant_email', 'customer_phone'],
+		filters: {
+			...(filters?.status && { status: filters.status }),
+			...(filters?.dateFrom && { submitted_at_gte: filters.dateFrom }),
+			...(filters?.dateTo && { submitted_at_lte: filters.dateTo }),
+		},
+		sortColumn: filters?.sortColumn || 'submitted_at',
+		sortDirection: filters?.sortDirection || 'desc',
+		page: filters?.page,
+		pageSize: filters?.pageSize,
+	};
+
+	const { query: builtQuery, skip, take } = buildQuery(query, queryOptions);
+
+	// Apply pagination if needed
+	if (filters?.paginated) {
+		builtQuery.range(skip, skip + take - 1);
 	}
 
-	if (filters?.search) {
-		query = query.or(
-			`order_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%,applicant_email.ilike.%${filters.search}%`
-		);
-	}
-
-	if (filters?.dateFrom) {
-		query = query.gte('submitted_at', filters.dateFrom);
-	}
-
-	if (filters?.dateTo) {
-		query = query.lte('submitted_at', filters.dateTo);
-	}
-
-	const { data, error } = await query;
+	const { data, error, count } = await builtQuery;
 
 	if (error) {
 		console.error('Error fetching orders:', error);
 		throw error;
+	}
+
+	if (filters?.paginated) {
+		const total = count || 0;
+		const pageSize = filters.pageSize || 25;
+		return {
+			data: (data as Application[]) || [],
+			total,
+			page: filters.page || 1,
+			pageSize,
+			totalPages: Math.ceil(total / pageSize),
+		};
 	}
 
 	return (data as Application[]) || [];
@@ -92,7 +124,8 @@ export async function getOrders(filters?: OrdersFilter) {
  * Get order by ID
  */
 export async function getOrderById(id: string) {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('applications')
 		.select('*')
 		.eq('id', id)
@@ -110,7 +143,8 @@ export async function getOrderById(id: string) {
  * Get order by order number
  */
 export async function getOrderByNumber(orderNumber: string) {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('applications')
 		.select('*')
 		.eq('order_number', orderNumber)
@@ -128,7 +162,8 @@ export async function getOrderByNumber(orderNumber: string) {
  * Get order events/history
  */
 export async function getOrderEvents(applicationId: string) {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('application_events')
 		.select('*')
 		.eq('application_id', applicationId)
@@ -150,8 +185,9 @@ export async function updateOrderStatus(
 	status: ApplicationStatus,
 	notes?: string
 ) {
+	const supabaseClient = await createClient();
 	// Update the application
-	const { error: updateError } = await supabase
+	const { error: updateError } = await supabaseClient
 		.from('applications')
 		.update({ status, updated_at: new Date().toISOString() })
 		.eq('id', id);
@@ -162,7 +198,7 @@ export async function updateOrderStatus(
 	}
 
 	// Create an event
-	const { error: eventError } = await supabase
+	const { error: eventError } = await supabaseClient
 		.from('application_events')
 		.insert({
 			application_id: id,
@@ -183,8 +219,10 @@ export async function updateOrderStatus(
  * Get dashboard metrics
  */
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+	const supabaseClient = await createClient();
+	
 	// Get all applications
-	const { data: allOrders, error } = await supabase
+	const { data: allOrders, error } = await supabaseClient
 		.from('applications')
 		.select('status, submitted_at');
 
@@ -219,10 +257,11 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
  * Get orders timeline data for charts (last 7 days)
  */
 export async function getOrdersTimeline() {
+	const supabaseClient = await createClient();
 	const sevenDaysAgo = new Date();
 	sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-	const { data, error } = await supabase
+	const { data, error } = await supabaseClient
 		.from('applications')
 		.select('submitted_at')
 		.gte('submitted_at', sevenDaysAgo.toISOString());
@@ -258,7 +297,8 @@ export async function getOrdersTimeline() {
  * Get orders by service for pie chart
  */
 export async function getOrdersByService() {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('applications')
 		.select('service_slug');
 
@@ -285,7 +325,8 @@ export async function getOrdersByService() {
  * Get status distribution for bar chart
  */
 export async function getStatusDistribution() {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('applications')
 		.select('status');
 
@@ -319,18 +360,67 @@ export interface User {
 	updated_at: string;
 }
 
+export interface UsersFilter {
+	role?: string;
+	search?: string;
+	isActive?: boolean;
+	page?: number;
+	pageSize?: number;
+	sortColumn?: string;
+	sortDirection?: 'asc' | 'desc';
+}
+
 /**
- * Get all users
+ * Get all users with optional filters, sorting, and pagination
  */
-export async function getUsers() {
-	const { data, error} = await supabase
+export async function getUsers(filters?: UsersFilter): Promise<User[]>;
+export async function getUsers(filters?: UsersFilter & { paginated?: false }): Promise<User[]>;
+export async function getUsers(filters?: UsersFilter & { paginated: true }): Promise<PaginatedResult<User>>;
+export async function getUsers(filters?: UsersFilter & { paginated?: boolean }): Promise<User[] | PaginatedResult<User>> {
+	const supabaseClient = await createClient();
+	
+	let query = supabaseClient
 		.from('users')
-		.select('*')
-		.order('created_at', { ascending: false});
+		.select('*', { count: filters?.paginated ? 'exact' : undefined });
+
+	// Build query with search, filters, sorting
+	const queryOptions: QueryOptions = {
+		search: filters?.search,
+		searchFields: ['email', 'name'],
+		filters: {
+			...(filters?.role && { role: filters.role }),
+			...(filters?.isActive !== undefined && { is_active: filters.isActive }),
+		},
+		sortColumn: filters?.sortColumn || 'created_at',
+		sortDirection: filters?.sortDirection || 'desc',
+		page: filters?.page,
+		pageSize: filters?.pageSize,
+	};
+
+	const { query: builtQuery, skip, take } = buildQuery(query, queryOptions);
+
+	// Apply pagination if needed
+	if (filters?.paginated) {
+		builtQuery.range(skip, skip + take - 1);
+	}
+
+	const { data, error, count } = await builtQuery;
 
 	if (error) {
 		console.error('Error fetching users:', error);
 		throw error;
+	}
+
+	if (filters?.paginated) {
+		const total = count || 0;
+		const pageSize = filters.pageSize || 25;
+		return {
+			data: (data as User[]) || [],
+			total,
+			page: filters.page || 1,
+			pageSize,
+			totalPages: Math.ceil(total / pageSize),
+		};
 	}
 
 	return (data as User[]) || [];
@@ -340,7 +430,8 @@ export async function getUsers() {
  * Get users who can be assigned to orders (officers, supervisors, admins)
  */
 export async function getAssignableUsers() {
-	const { data, error } = await supabase
+	const supabaseClient = await createClient();
+	const { data, error } = await supabaseClient
 		.from('users')
 		.select('*')
 		.in('role', ['admin', 'officer', 'supervisor'])
@@ -363,8 +454,9 @@ export async function assignOrder(
 	userId: string | null,
 	assignedByName?: string
 ) {
+	const supabaseClient = await createClient();
 	// Update the application
-	const { error: updateError } = await supabase
+	const { error: updateError } = await supabaseClient
 		.from('applications')
 		.update({ assigned_to: userId, updated_at: new Date().toISOString() })
 		.eq('id', applicationId);
@@ -388,7 +480,7 @@ export async function assignOrder(
 		created_at: new Date().toISOString(),
 	};
 
-	const { error: eventError } = await supabase
+	const { error: eventError } = await supabaseClient
 		.from('application_events')
 		.insert(eventData);
 

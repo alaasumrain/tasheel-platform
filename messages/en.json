@@ -72,6 +72,10 @@
 		"callUsPhone": "+970 2 240 1234",
 		"trackStatus": "Track Status",
 		"notFound": "Service Not Found",
+		"comingSoon": "Coming Soon",
+		"comingSoonTooltip": "This service will be available soon",
+		"availableNow": "Available Now",
+		"startButtonDisabled": "Coming Soon",
 		"breadcrumbs": {
 			"home": "Home",
 			"services": "Services"
@@ -108,6 +112,7 @@
 		"filters": {
 			"heading": "Filter services",
 			"clearAll": "Clear filters",
+			"activeFilters": "Active filters",
 			"allCategories": "All services",
 			"categories": "Categories",
 			"turnaround": "Turnaround",
@@ -143,6 +148,7 @@
 				"dashboard": "Dashboard",
 				"orders": "Orders",
 				"users": "Users",
+				"services": "Services",
 				"seedServices": "Seed Services",
 				"settings": "Settings"
 			},
@@ -589,6 +595,11 @@
 		"trackButton": "Track my order",
 		"printReceipt": "Print receipt",
 		"emailNotice": "A confirmation email has been sent to {email}. Please check your inbox and spam folder.",
+		"createAccount": {
+			"title": "Create an account for easier tracking",
+			"description": "Sign up with your email to track all your orders in one place and receive instant updates.",
+			"button": "Create Account"
+		},
 		"serviceSummaryTitle": "Service summary",
 		"serviceSummaryFallback": "We couldn't load the service data, but our team still received your request.",
 		"pricing": {
@@ -670,7 +681,26 @@
 		"paymentError": "An error occurred during payment. Please try again.",
 		"successTitle": "Payment Successful!",
 		"successDescription": "Your payment has been processed successfully. You will receive a confirmation email shortly.",
-		"done": "Done"
+		"done": "Done",
+		"success": {
+			"title": "Payment Successful",
+			"description": "Your payment for order {orderNumber} has been confirmed.",
+			"orderNumber": "Order Number",
+			"amount": "Amount Paid",
+			"transactionId": "Transaction ID",
+			"viewOrder": "View Order",
+			"goToDashboard": "Go to Dashboard",
+			"confirmationEmail": "A confirmation email has been sent to your email address.",
+			"invalidRequest": "Invalid payment request"
+		},
+		"cancel": {
+			"title": "Payment Cancelled",
+			"description": "Your payment was cancelled. You can retry the payment at any time.",
+			"orderNumber": "Order Number: {orderNumber}",
+			"retryPayment": "Retry Payment",
+			"goToDashboard": "Go to Dashboard",
+			"helpText": "If you need assistance, please contact our support team."
+		}
 	},
 	"WhatsApp": {
 		"openChat": "Chat on WhatsApp",
@@ -915,7 +945,9 @@
 			"validation": {
 				"nameRequired": "Please enter your full name (at least 2 characters)",
 				"emailRequired": "Please enter a valid email address",
+				"emailInvalid": "Please enter a valid email address",
 				"phoneRequired": "Please enter a valid Palestinian mobile number (e.g. 0599123456)",
+				"phoneInvalid": "Please enter a valid Palestinian mobile number",
 				"fieldRequired": "{field} is required",
 				"detailsRequired": "Please provide at least 10 characters of details",
 				"documentsRequired": "Please upload required documents: {documents}",
@@ -934,6 +966,19 @@
 				"formCleared": "Form cleared successfully",
 				"formInitializing": "Form is still initializing. Please wait a moment and try again.",
 				"clearConfirm": "Are you sure you want to clear the form? This will delete all your progress."
+			},
+			"summary": {
+				"progress": "Progress",
+				"step1": "Your Details",
+				"step2": "Service Requirements",
+				"step3": "Review & Submit",
+				"serviceDetails": "Service Details",
+				"uploadedFiles": "Uploaded Files",
+				"noFilesYet": "No files uploaded yet",
+				"contactInfo": "Contact Information",
+				"name": "Name",
+				"email": "Email",
+				"phone": "Phone"
 			}
 		},
 		"sidebar": {

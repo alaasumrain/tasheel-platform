@@ -16,10 +16,10 @@ export default async function Page() {
 		<>
 			<Hero />
 			<WhyUs />
-			<Stats />
 			<ServicesCatalog />
 			<ServiceDetails />
 			<Process />
+			<Stats />
 			<Reviews />
 			<Faq />
 			<HomepageContact />

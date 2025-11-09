@@ -25,6 +25,8 @@ export default function Hero() {
 				display: 'flex',
 				alignItems: 'center',
 				overflow: 'hidden',
+				backgroundColor: '#000',
+				zIndex: 2,
 			}}
 		>
 			{/* Background Image */}

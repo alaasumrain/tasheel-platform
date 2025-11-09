@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 
 import { getAllServices, getServiceCategories } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
+import type { Service as DBService } from '@/lib/types/service';
 import ServicesCatalogWithSearch from './services-catalog-with-search';
 
 export default async function ServicesOverview() {
@@ -25,6 +26,7 @@ export default async function ServicesOverview() {
 	return (
 		<ServicesCatalogWithSearch
 			services={services}
+			originalServices={servicesFromDB}
 			categories={serviceCategories}
 			locale={locale}
 		/>
