@@ -29,7 +29,7 @@ import {
 	IconUserPlus,
 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 
 import { Link, useRouter } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
@@ -80,7 +80,7 @@ export function OrderConfirmation({
 	const router = useRouter();
 	const [copied, setCopied] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-	const supabase = createClientComponentClient();
+	const supabase = createClient();
 
 	// Check if user is logged in
 	useEffect(() => {

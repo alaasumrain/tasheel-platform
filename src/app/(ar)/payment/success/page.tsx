@@ -2,7 +2,7 @@ import { Container, Stack, Typography, Button, Card, CardContent, Box, Alert } f
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
 interface PageProps {

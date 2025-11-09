@@ -2,7 +2,7 @@ import { Container, Stack, Typography, Button, Card, CardContent, Box } from '@m
 import { IconX } from '@tabler/icons-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
 	searchParams: Promise<{ invoice?: string }>;

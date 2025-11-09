@@ -166,45 +166,48 @@ export function OrdersTable({ orders, serviceNames }: OrdersTableProps) {
 			borderRadius={20}
 		>
 			<Box sx={{ height: 'auto', width: '100%' }}>
-				<DataGrid
-					rows={orders}
-					columns={columns}
-					initialState={{
-						pagination: {
-							paginationModel: { pageSize: 25 },
-						},
-						sorting: {
-							sortModel: [{ field: 'submitted_at', sort: 'desc' }],
-						},
-					}}
-					pageSizeOptions={[10, 25, 50, 100]}
-					disableRowSelectionOnClick
-					autoHeight
-					slots={{
-						toolbar: GridToolbar,
-					}}
-					slotProps={{
-						toolbar: {
-							showQuickFilter: true,
-							quickFilterProps: { debounceMs: 500 },
-						},
-					}}
-					sx={{
-						border: 'none',
-						'& .MuiDataGrid-cell': {
-							borderColor: 'divider',
-						},
-						'& .MuiDataGrid-columnHeaders': {
-							backgroundColor: 'background.default',
-							borderBottom: '2px solid',
-							borderColor: 'divider',
-						},
-						'& .MuiDataGrid-footerContainer': {
-							borderTop: '2px solid',
-							borderColor: 'divider',
-						},
-					}}
-				/>
+				{Array.isArray(orders) && orders.length > 0 ? (
+					<DataGrid
+						rows={orders}
+						columns={columns}
+						getRowId={(row) => String(row.id)}
+						initialState={{
+							pagination: {
+								paginationModel: { pageSize: 25 },
+							},
+							sorting: {
+								sortModel: [{ field: 'submitted_at', sort: 'desc' }],
+							},
+						}}
+						pageSizeOptions={[10, 25, 50, 100]}
+						disableRowSelectionOnClick
+						autoHeight
+						slots={{
+							toolbar: GridToolbar,
+						}}
+						slotProps={{
+							toolbar: {
+								showQuickFilter: true,
+								quickFilterProps: { debounceMs: 500 },
+							},
+						}}
+						sx={{
+							border: 'none',
+							'& .MuiDataGrid-cell': {
+								borderColor: 'divider',
+							},
+							'& .MuiDataGrid-columnHeaders': {
+								backgroundColor: 'background.default',
+								borderBottom: '2px solid',
+								borderColor: 'divider',
+							},
+							'& .MuiDataGrid-footerContainer': {
+								borderTop: '2px solid',
+								borderColor: 'divider',
+							},
+						}}
+					/>
+				) : null}
 			</Box>
 		</Card>
 	);

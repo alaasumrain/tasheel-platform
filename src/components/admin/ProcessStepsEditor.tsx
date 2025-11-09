@@ -5,6 +5,7 @@ import { Box, TextField, IconButton, Button, Typography, Divider } from '@mui/ma
 import Grid from '@mui/material/Grid2';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Card } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 
 export interface ProcessStep {
 	number: number;
@@ -21,6 +22,7 @@ interface ProcessStepsEditorProps {
 
 export function ProcessStepsEditor({ value, onChange }: ProcessStepsEditorProps) {
 	const steps = value || [];
+	const t = useTranslations('Common');
 
 	const handleAdd = () => {
 		const newStep: ProcessStep = {
@@ -54,16 +56,16 @@ export function ProcessStepsEditor({ value, onChange }: ProcessStepsEditorProps)
 		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 			<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 				<Typography variant="subtitle1" fontWeight={600}>
-					Process Steps
+					{t('processSteps') || 'Process Steps'}
 				</Typography>
 				<Button startIcon={<AddIcon />} onClick={handleAdd} size="small" variant="outlined">
-					Add Step
+					{t('addStep') || 'Add Step'}
 				</Button>
 			</Box>
 
 			{steps.length === 0 && (
 				<Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-					No steps added. Click "Add Step" to add one.
+					{t('noSteps') || 'No steps added. Click "Add Step" to add one.'}
 				</Typography>
 			)}
 
@@ -77,7 +79,7 @@ export function ProcessStepsEditor({ value, onChange }: ProcessStepsEditorProps)
 					<Box sx={{ p: 2 }}>
 						<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
 							<Typography variant="subtitle2" fontWeight={600}>
-								Step {step.number}
+								{t('step') || 'Step'} {step.number}
 							</Typography>
 							<IconButton onClick={() => handleRemove(index)} color="error" size="small">
 								<DeleteIcon />

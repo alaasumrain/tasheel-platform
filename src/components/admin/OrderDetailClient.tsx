@@ -28,6 +28,7 @@ import { Card } from '@/components/ui/card';
 import { Application, ApplicationEvent, ApplicationStatus, User } from '@/lib/admin-queries';
 import { QuoteCreationCard } from './QuoteCreationCard';
 import { InvoiceCreationCard } from './InvoiceCreationCard';
+import { PipelineVisualization } from './PipelineVisualization';
 import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { getDownloadUrl } from '@/lib/storage';
@@ -242,6 +243,29 @@ export function OrderDetailClient({ order, events, serviceName }: OrderDetailCli
 					{t('submitted')} {formatDate(order.submitted_at, locale)}
 				</Typography>
 			</Box>
+
+			{/* Pipeline Visualization */}
+			{serviceName && (
+			<Box sx={{ mb: 3 }}>
+				<Card
+					backgroundColor={{ light: 'background.paper', dark: 'background.paper' }}
+					borderColor={{ light: 'divider', dark: 'divider' }}
+					borderRadius={20}
+				>
+					<Box sx={{ p: 3 }}>
+						<Typography variant="h6" fontWeight={600} gutterBottom>
+							{t('workflowPipeline') || 'Workflow Pipeline'}
+						</Typography>
+						{(() => {
+							const { getPipelineForService } = require('@/lib/utils/pipelines');
+							// Determine pipeline type from service category (simplified - use default for now)
+							const pipeline = getPipelineForService('government');
+							return <PipelineVisualization pipeline={pipeline} currentStatus={order.status} />;
+						})()}
+					</Box>
+				</Card>
+			</Box>
+			)}
 
 			<Grid container spacing={3}>
 				{/* Left Column */}

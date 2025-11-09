@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
 	Box,
 	Button,
@@ -16,7 +15,6 @@ import {
 import { IconArrowRight } from '@tabler/icons-react';
 
 export default function AdminLoginPage() {
-	const router = useRouter();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
@@ -37,13 +35,14 @@ export default function AdminLoginPage() {
 			const data = await response.json();
 
 			if (response.ok) {
-				router.push('/admin');
+				// Use window.location for full page reload to ensure cookies are sent
+				window.location.href = '/admin';
 			} else {
 				setError(data.error || 'Invalid email or password');
+				setLoading(false);
 			}
 		} catch {
 			setError('An error occurred. Please try again.');
-		} finally {
 			setLoading(false);
 		}
 	};

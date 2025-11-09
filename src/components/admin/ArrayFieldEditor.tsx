@@ -2,6 +2,7 @@
 
 import { Box, TextField, IconButton, Button, Typography } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { useTranslations } from 'next-intl';
 
 interface ArrayFieldEditorProps {
 	label: string;
@@ -12,6 +13,7 @@ interface ArrayFieldEditorProps {
 
 export function ArrayFieldEditor({ label, value, onChange, placeholder }: ArrayFieldEditorProps) {
 	const items = value || [];
+	const t = useTranslations('Common');
 
 	const handleAdd = () => {
 		onChange([...items, '']);
@@ -34,13 +36,13 @@ export function ArrayFieldEditor({ label, value, onChange, placeholder }: ArrayF
 					{label}
 				</Typography>
 				<Button startIcon={<AddIcon />} onClick={handleAdd} size="small" variant="outlined">
-					Add Item
+					{t('addItem') || 'Add Item'}
 				</Button>
 			</Box>
 
 			{items.length === 0 && (
 				<Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-					No items added. Click "Add Item" to add one.
+					{t('noItems') || 'No items added. Click "Add Item" to add one.'}
 				</Typography>
 			)}
 

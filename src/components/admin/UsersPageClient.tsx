@@ -1,7 +1,7 @@
 'use client';
 
-import { Box, Typography, Button } from '@mui/material';
-import { FileDownload as ExportIcon } from '@mui/icons-material';
+import { Box, Typography, Button, Stack } from '@mui/material';
+import { FileDownload as ExportIcon, PersonAdd as AddUserIcon } from '@mui/icons-material';
 import { UsersTable } from '@/components/admin/UsersTable';
 import { AdminSearchBar } from '@/components/admin/AdminSearchBar';
 import { AdminFilterChips, type FilterOption } from '@/components/admin/AdminFilterChips';
@@ -9,6 +9,7 @@ import { exportUsersToCSV } from '@/lib/utils/export';
 import { useToast } from '@/components/admin/ToastProvider';
 import { User } from '@/lib/admin-queries';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 
 interface UsersPageClientProps {
 	users: User[];
@@ -16,6 +17,7 @@ interface UsersPageClientProps {
 
 export function UsersPageClient({ users }: UsersPageClientProps) {
 	const t = useTranslations('Admin.users');
+	const router = useRouter();
 	const { showSuccess, showError } = useToast();
 
 	const handleExport = () => {
@@ -54,15 +56,25 @@ export function UsersPageClient({ users }: UsersPageClientProps) {
 						{t('pageDescription')}
 					</Typography>
 				</Box>
-				<Button
-					variant="outlined"
-					startIcon={<ExportIcon />}
-					onClick={handleExport}
-					size="large"
-					disabled={users.length === 0}
-				>
-					Export CSV
-				</Button>
+				<Stack direction="row" spacing={2}>
+					<Button
+						variant="contained"
+						startIcon={<AddUserIcon />}
+						onClick={() => router.push('/admin/users/new')}
+						size="large"
+					>
+						{t('createUser') || 'Create User'}
+					</Button>
+					<Button
+						variant="outlined"
+						startIcon={<ExportIcon />}
+						onClick={handleExport}
+						size="large"
+						disabled={users.length === 0}
+					>
+						Export CSV
+					</Button>
+				</Stack>
 			</Box>
 
 			{/* Search and Filters */}

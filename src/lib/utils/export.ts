@@ -145,3 +145,65 @@ export function exportUsersToCSV(users: any[]): void {
 	downloadCSV(formattedUsers, `users-${new Date().toISOString().split('T')[0]}`, columns);
 }
 
+/**
+ * Export customers to CSV
+ */
+export function exportCustomersToCSV(customers: any[]): void {
+	const columns = [
+		{ key: 'name', label: 'Name' },
+		{ key: 'email', label: 'Email' },
+		{ key: 'phone', label: 'Phone' },
+		{ key: 'language_preference', label: 'Language' },
+		{ key: 'created_at', label: 'Created At' },
+	];
+
+	const formattedCustomers = customers.map((customer) => ({
+		...customer,
+		created_at: formatDateForExport(customer.created_at),
+	}));
+
+	downloadCSV(formattedCustomers, `customers-${new Date().toISOString().split('T')[0]}`, columns);
+}
+
+/**
+ * Export invoices to CSV
+ */
+export function exportInvoicesToCSV(invoices: any[]): void {
+	const columns = [
+		{ key: 'invoice_number', label: 'Invoice Number' },
+		{ key: 'amount', label: 'Amount' },
+		{ key: 'currency', label: 'Currency' },
+		{ key: 'status', label: 'Status' },
+		{ key: 'created_at', label: 'Created At' },
+		{ key: 'paid_at', label: 'Paid At' },
+	];
+
+	const formattedInvoices = invoices.map((invoice) => ({
+		...invoice,
+		created_at: formatDateForExport(invoice.created_at),
+		paid_at: invoice.paid_at ? formatDateForExport(invoice.paid_at) : '',
+	}));
+
+	downloadCSV(formattedInvoices, `invoices-${new Date().toISOString().split('T')[0]}`, columns);
+}
+
+/**
+ * Export payments to CSV
+ */
+export function exportPaymentsToCSV(payments: any[]): void {
+	const columns = [
+		{ key: 'transaction_id', label: 'Transaction ID' },
+		{ key: 'amount', label: 'Amount' },
+		{ key: 'gateway', label: 'Gateway' },
+		{ key: 'status', label: 'Status' },
+		{ key: 'created_at', label: 'Created At' },
+	];
+
+	const formattedPayments = payments.map((payment) => ({
+		...payment,
+		created_at: formatDateForExport(payment.created_at),
+	}));
+
+	downloadCSV(formattedPayments, `payments-${new Date().toISOString().split('T')[0]}`, columns);
+}
+

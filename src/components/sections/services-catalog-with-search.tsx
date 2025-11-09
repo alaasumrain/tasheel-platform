@@ -349,11 +349,11 @@ export default function ServicesCatalogWithSearch({
 		// Separate available and coming soon services (like "in stock" vs "out of stock")
 		const availableServices = ordered.filter(s => {
 			const originalService = originalServicesMap.get(s.slug);
-			return originalService?.is_available !== false && originalService?.is_active !== false;
+			return originalService?.is_active !== false;
 		});
 		const comingSoonServices = ordered.filter(s => {
 			const originalService = originalServicesMap.get(s.slug);
-			return originalService?.is_available === false || originalService?.is_active === false;
+			return originalService?.is_active === false;
 		});
 		
 		let sortedAvailable = availableServices;

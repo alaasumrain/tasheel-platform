@@ -26,6 +26,10 @@ import {
 	Menu as MenuIcon,
 	Logout as LogoutIcon,
 	Category as ServicesIcon,
+	Person as CustomersIcon,
+	AccountBalance as FinancialsIcon,
+	Assignment as TasksIcon,
+	Schedule as SLAIcon,
 } from '@mui/icons-material';
 import { ToastProvider } from './ToastProvider';
 import { useTranslations } from 'next-intl';
@@ -45,6 +49,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 	const menuItems = [
 		{ label: t('menu.dashboard'), icon: DashboardIcon, href: '/admin' },
 		{ label: t('menu.orders'), icon: OrdersIcon, href: '/admin/orders' },
+		{ label: t('menu.customers'), icon: CustomersIcon, href: '/admin/customers' },
+		{ label: t('menu.financials'), icon: FinancialsIcon, href: '/admin/financials' },
+		{ label: t('menu.tasks'), icon: TasksIcon, href: '/admin/tasks' },
+		{ label: t('menu.sla'), icon: SLAIcon, href: '/admin/sla' },
 		{ label: t('menu.users'), icon: UsersIcon, href: '/admin/users' },
 		{ label: t('menu.services'), icon: ServicesIcon, href: '/admin/services' },
 		{ label: t('menu.settings'), icon: SettingsIcon, href: '/admin/settings' },

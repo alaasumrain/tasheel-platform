@@ -18,6 +18,9 @@ import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import type { User } from '@/lib/admin-queries';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/admin/ToastProvider';
+import { useState } from 'react';
 
 interface UsersTableProps {
 	users: User[];
@@ -33,15 +36,40 @@ const roleColors: Record<User['role'], 'default' | 'primary' | 'success' | 'warn
 
 export function UsersTable({ users }: UsersTableProps) {
 	const t = useTranslations('Admin.users');
+	const router = useRouter();
+	const { showSuccess, showError } = useToast();
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 	
 	const handleEdit = (user: User) => {
-		// TODO: Implement edit user functionality
-		// Edit functionality not yet implemented
+		router.push(`/admin/users/${user.id}/edit`);
 	};
 
-	const handleDelete = (user: User) => {
-		// TODO: Implement delete user functionality
-		// Delete functionality not yet implemented
+	const handleDelete = async (user: User) => {
+		if (!confirm(t('deleteConfirm') || `Are you sure you want to delete ${user.name || user.email}?`)) {
+			return;
+		}
+
+		setDeletingId(user.id);
+
+		try {
+			const response = await fetch(`/api/admin/users/${user.id}`, {
+				method: 'DELETE',
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to delete user');
+			}
+
+			showSuccess(t('deleteSuccess') || 'User deleted successfully!');
+			router.refresh();
+		} catch (error: any) {
+			console.error('Error deleting user:', error);
+			showError(error.message || t('deleteError') || 'Failed to delete user');
+		} finally {
+			setDeletingId(null);
+		}
 	};
 
 	if (users.length === 0) {
@@ -103,7 +131,6 @@ export function UsersTable({ users }: UsersTableProps) {
 										<IconButton 
 											size="small"
 											onClick={() => handleEdit(user)}
-											disabled
 										>
 											<EditIcon fontSize="small" />
 										</IconButton>
@@ -113,7 +140,7 @@ export function UsersTable({ users }: UsersTableProps) {
 											size="small" 
 											color="error"
 											onClick={() => handleDelete(user)}
-											disabled
+											disabled={deletingId === user.id}
 										>
 											<DeleteIcon fontSize="small" />
 										</IconButton>

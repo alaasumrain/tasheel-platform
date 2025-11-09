@@ -43,7 +43,14 @@
 		"tryAgain": "Try Again",
 		"goHome": "Go Home",
 		"errorDescription": "We're sorry, but something unexpected happened. Please try again or return to the homepage.",
-		"errorId": "Error ID"
+		"errorId": "Error ID",
+		"add": "Add",
+		"addStep": "Add Step",
+		"addItem": "Add Item",
+		"noSteps": "No steps added. Click \"Add Step\" to add one.",
+		"noItems": "No items added. Click \"Add Item\" to add one.",
+		"step": "Step",
+		"processSteps": "Process Steps"
 	},
 	"Forms": {
 		"required": "This field is required",
@@ -147,6 +154,10 @@
 			"menu": {
 				"dashboard": "Dashboard",
 				"orders": "Orders",
+				"customers": "Customers",
+				"financials": "Financials",
+				"tasks": "Tasks",
+				"sla": "SLA",
 				"users": "Users",
 				"services": "Services",
 				"seedServices": "Seed Services",
@@ -174,6 +185,21 @@
 			"noOrders": "No orders found",
 			"noOrdersDescription": "Orders will appear here when customers submit quote requests",
 			"orderDetails": "Order Details",
+			"bulkActions": {
+				"selected": "{count} selected",
+				"updateStatus": "Update Status",
+				"clear": "Clear"
+			},
+			"bulkUpdateSuccess": "{count} orders updated successfully!",
+			"bulkUpdateError": "Failed to update orders",
+			"updating": "Updating...",
+			"update": "Update",
+			"cancel": "Cancel",
+			"notesOptional": "Notes (optional)",
+			"notesPlaceholder": "Add notes about this status update...",
+			"updateStatusButton": "Update Status",
+			"workflowPipeline": "Workflow Pipeline",
+			"current": "Current",
 			"submitted": "Submitted",
 			"customerInformation": "Customer Information",
 			"name": "Name",
@@ -187,10 +213,6 @@
 			"noEvents": "No events yet",
 			"updateStatus": "Update Status",
 			"status": "Status",
-			"notesOptional": "Notes (optional)",
-			"notesPlaceholder": "Add notes about this status update...",
-			"updating": "Updating...",
-			"updateStatusButton": "Update Status",
 			"statusUpdateNotification": "Customer will be notified via email about this status change",
 			"statusUpdated": "Status updated successfully",
 			"statusUpdateFailed": "Failed to update status",
@@ -265,6 +287,209 @@
 			"invoiceCreationFailed": "Failed to create invoice",
 			"errorOccurred": "An error occurred"
 		},
+		"customers": {
+			"pageTitle": "All Customers",
+			"pageDescription": "Manage customer accounts and view order history",
+			"table": {
+				"name": "Name",
+				"email": "Email",
+				"phone": "Phone",
+				"language": "Language",
+				"created": "Created",
+				"actions": "Actions",
+				"view": "View",
+				"orderNumber": "Order Number",
+				"service": "Service",
+				"status": "Status",
+				"submitted": "Submitted"
+			},
+			"noCustomers": "No customers found",
+			"searchPlaceholder": "Search customers by name, email, or phone...",
+			"export": "Export CSV",
+			"exportSuccess": "Customers exported successfully!",
+			"exportError": "Failed to export customers",
+			"back": "Back to Customers",
+			"customerDetails": "Customer information and order history",
+			"information": "Customer Information",
+			"email": "Email",
+			"phone": "Phone",
+			"language": "Language Preference",
+			"memberSince": "Member Since",
+			"whatsapp": "WhatsApp",
+			"orderHistory": "Order History",
+			"noOrders": "No orders found for this customer"
+		},
+		"financials": {
+			"pageTitle": "Financial Dashboard",
+			"pageDescription": "View revenue metrics, invoices, and payments",
+			"stats": {
+				"revenueToday": "Revenue Today",
+				"revenueThisWeek": "Revenue This Week",
+				"revenueThisMonth": "Revenue This Month",
+				"revenueAllTime": "Revenue All Time",
+				"outstandingInvoices": "Outstanding Invoices",
+				"paidInvoices": "Paid Invoices",
+				"pendingInvoices": "Pending Invoices"
+			},
+			"table": {
+				"invoiceNumber": "Invoice Number",
+				"amount": "Amount",
+				"status": "Status",
+				"created": "Created",
+				"paidAt": "Paid At",
+				"actions": "Actions",
+				"transactionId": "Transaction ID",
+				"gateway": "Gateway"
+			},
+			"noInvoices": "No invoices found",
+			"noPayments": "No payments found",
+			"export": "Export CSV",
+			"exportSuccess": "Data exported successfully!",
+			"exportError": "Failed to export data",
+			"invoices": "Invoices",
+			"payments": "Payments",
+			"revenueChart": "Revenue Trends",
+			"revenueChartDescription": "Revenue over time",
+			"view": "View"
+		},
+		"tasks": {
+			"pageTitle": "Task Management",
+			"pageDescription": "Manage and track tasks",
+			"createTask": "Create Task",
+			"createTaskDescription": "Create a new task",
+			"editTask": "Edit Task",
+			"editTaskDescription": "Update task information",
+			"kanban": "Kanban",
+			"list": "List",
+			"searchPlaceholder": "Search tasks...",
+			"table": {
+				"title": "Title",
+				"type": "Type",
+				"priority": "Priority",
+				"status": "Status",
+				"dueDate": "Due Date",
+				"actions": "Actions"
+			},
+			"noTasks": "No tasks found",
+			"form": {
+				"title": "Title",
+				"description": "Description",
+				"type": "Type",
+				"priority": "Priority",
+				"status": "Status",
+				"assignedTo": "Assigned To",
+				"assignedToPlaceholder": "Select user...",
+				"dueDate": "Due Date",
+				"timeSpent": "Time Spent (minutes)",
+				"outcomeNotes": "Outcome Notes"
+			},
+			"types": {
+				"call": "Call",
+				"whatsapp": "WhatsApp",
+				"email": "Email",
+				"office_visit": "Office Visit",
+				"ministry": "Ministry",
+				"qa": "QA"
+			},
+			"priorities": {
+				"low": "Low",
+				"normal": "Normal",
+				"high": "High",
+				"urgent": "Urgent"
+			},
+			"statuses": {
+				"open": "Open",
+				"in_progress": "In Progress",
+				"done": "Done",
+				"cancelled": "Cancelled"
+			},
+			"errors": {
+				"titleRequired": "Title is required"
+			},
+			"create": "Create Task",
+			"update": "Update Task",
+			"add": "Add",
+			"saving": "Saving...",
+			"cancel": "Cancel",
+			"createSuccess": "Task created successfully!",
+			"updateSuccess": "Task updated successfully!",
+			"saveError": "Failed to save task",
+			"view": "View"
+		},
+		"sla": {
+			"pageTitle": "SLA Tracking",
+			"pageDescription": "Monitor service level agreements and track compliance",
+			"tracking": "SLA Tracking",
+			"stats": {
+				"onTrack": "On Track",
+				"atRisk": "At Risk",
+				"breached": "Breached",
+				"total": "Total"
+			},
+			"table": {
+				"orderNumber": "Order Number",
+				"service": "Service",
+				"customer": "Customer",
+				"sla": "SLA Status",
+				"actions": "Actions"
+			},
+			"breachedAlert": "{count} requests have breached SLA",
+			"atRiskAlert": "{count} requests are at risk",
+			"allOnTrack": "All requests are on track!",
+			"view": "View",
+			"emptyState": {
+				"noConfigs": {
+					"title": "No SLA Configurations",
+					"description": "Create SLA configurations for your services to start tracking performance. Each service can have its own target completion time.",
+					"createButton": "Create Your First SLA Configuration"
+				},
+				"noOrders": {
+					"title": "No Active Orders",
+					"description": "There are no active orders to track. SLA tracking will appear here once orders are submitted."
+				}
+			},
+			"configs": {
+				"title": "Configurations",
+				"createConfig": "Create SLA Configuration",
+				"editConfig": "Edit SLA Configuration",
+				"createConfigDescription": "Configure SLA tracking for a service",
+				"editConfigDescription": "Update SLA configuration settings",
+				"table": {
+					"service": "Service",
+					"targetHours": "Target Hours",
+					"warningThreshold": "Warning Threshold",
+					"created": "Created",
+					"actions": "Actions"
+				},
+				"noConfigs": "No SLA configurations found",
+				"noConfigsDescription": "Create an SLA configuration for a service to start tracking compliance",
+				"hours": "hours",
+				"edit": "Edit",
+				"delete": "Delete",
+				"deleteConfirm": "Are you sure you want to delete this SLA configuration?",
+				"deleteSuccess": "SLA configuration deleted successfully!",
+				"deleteError": "Failed to delete SLA configuration",
+				"form": {
+					"service": "Service",
+					"targetHours": "Target Hours",
+					"targetHoursHelper": "Business hours to complete the service",
+					"warningThreshold": "Warning Threshold (%)",
+					"warningThresholdHelper": "Percentage threshold for SLA warnings (0-100)"
+				},
+				"errors": {
+					"serviceRequired": "Service is required",
+					"targetHoursRequired": "Target hours must be a positive number",
+					"thresholdInvalid": "Warning threshold must be between 0 and 100"
+				},
+				"create": "Create",
+				"update": "Update",
+				"saving": "Saving...",
+				"cancel": "Cancel",
+				"createSuccess": "SLA configuration created successfully!",
+				"updateSuccess": "SLA configuration updated successfully!",
+				"saveError": "Failed to save SLA configuration"
+			}
+		},
 		"users": {
 			"pageTitle": "User Management",
 			"pageDescription": "Manage admin and staff users",
@@ -280,7 +505,45 @@
 			"active": "Active",
 			"inactive": "Inactive",
 			"edit": "Edit",
-			"delete": "Delete"
+			"delete": "Delete",
+			"createUser": "Create User",
+			"createUserDescription": "Add a new user to the system",
+			"editUser": "Edit User",
+			"editUserDescription": "Update user information",
+			"form": {
+				"email": "Email",
+				"name": "Name",
+				"role": "Role",
+				"status": "Status",
+				"password": "Password",
+				"passwordOptional": "Leave blank to keep current password",
+				"confirmPassword": "Confirm Password"
+			},
+			"roles": {
+				"admin": "Admin",
+				"supervisor": "Supervisor",
+				"officer": "Officer",
+				"intake": "Intake",
+				"auditor": "Auditor"
+			},
+			"errors": {
+				"emailRequired": "Email is required",
+				"emailInvalid": "Invalid email address",
+				"nameRequired": "Name is required",
+				"passwordRequired": "Password is required",
+				"passwordMin": "Password must be at least 6 characters",
+				"passwordMismatch": "Passwords do not match"
+			},
+			"create": "Create User",
+			"update": "Update User",
+			"saving": "Saving...",
+			"cancel": "Cancel",
+			"createSuccess": "User created successfully!",
+			"updateSuccess": "User updated successfully!",
+			"saveError": "Failed to save user",
+			"deleteConfirm": "Are you sure you want to delete this user?",
+			"deleteSuccess": "User deleted successfully!",
+			"deleteError": "Failed to delete user"
 		},
 		"dashboard": {
 			"title": "Dashboard",

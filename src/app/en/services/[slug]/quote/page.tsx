@@ -43,6 +43,7 @@ export default async function QuotePage({ params }: PageProps) {
 	const { setRequestLocale } = await import('next-intl/server');
 	setRequestLocale('en');
 	const t = await getTranslations('Quote');
+	const tServices = await getTranslations('Services');
 	const locale = (await getLocale()) as 'en' | 'ar';
 	
 	const { slug } = await params;
@@ -55,8 +56,8 @@ export default async function QuotePage({ params }: PageProps) {
 	const service = convertToLegacyFormat(serviceFromDB, locale);
 
 	// Check availability from database (like "in stock" / "out of stock")
-	// Check is_available first, fallback to is_active
-	const isAvailable = serviceFromDB?.is_available !== false && serviceFromDB?.is_active !== false;
+	// Check is_active only (is_available doesn't exist in Service type)
+	const isAvailable = serviceFromDB?.is_active !== false;
 	
 	if (!isAvailable) {
 		// Redirect to service detail page with Coming Soon message

@@ -368,3 +368,4 @@ git clone <repo-url> nextjs-supabase-admin
 **Ready to Use Cloned Repos** 🚀
 
 
+

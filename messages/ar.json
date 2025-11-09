@@ -43,7 +43,14 @@
 		"tryAgain": "حاول مرة أخرى",
 		"goHome": "العودة للرئيسية",
 		"errorDescription": "نأسف، لكن حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.",
-		"errorId": "معرف الخطأ"
+		"errorId": "معرف الخطأ",
+		"add": "إضافة",
+		"addStep": "إضافة خطوة",
+		"addItem": "إضافة عنصر",
+		"noSteps": "لم تتم إضافة خطوات. انقر على \"إضافة خطوة\" لإضافة واحدة.",
+		"noItems": "لم تتم إضافة عناصر. انقر على \"إضافة عنصر\" لإضافة واحد.",
+		"step": "خطوة",
+		"processSteps": "خطوات العملية"
 	},
 	"Forms": {
 		"required": "هذا الحقل مطلوب",
@@ -153,7 +160,12 @@
 			"menu": {
 				"dashboard": "لوحة التحكم",
 				"orders": "الطلبات",
+				"customers": "العملاء",
+				"financials": "المالية",
+				"tasks": "المهام",
+				"sla": "SLA",
 				"users": "المستخدمون",
+				"services": "الخدمات",
 				"seedServices": "إضافة الخدمات",
 				"settings": "الإعدادات"
 			},
@@ -179,6 +191,18 @@
 			"noOrders": "لا توجد طلبات",
 			"noOrdersDescription": "ستظهر الطلبات هنا عندما يقدم العملاء طلبات عرض السعر",
 			"orderDetails": "تفاصيل الطلب",
+			"bulkActions": {
+				"selected": "تم تحديد {count}",
+				"updateStatus": "تحديث الحالة",
+				"clear": "مسح"
+			},
+			"bulkUpdateSuccess": "تم تحديث {count} طلبات بنجاح!",
+			"bulkUpdateError": "فشل تحديث الطلبات",
+			"updating": "جاري التحديث...",
+			"update": "تحديث",
+			"cancel": "إلغاء",
+			"workflowPipeline": "خط سير العمل",
+			"current": "الحالي",
 			"submitted": "تم الإرسال",
 			"customerInformation": "معلومات العميل",
 			"name": "الاسم",
@@ -203,6 +227,10 @@
 			"email": "البريد الإلكتروني",
 			"call": "اتصال",
 			"whatsapp": "واتساب",
+			"assignedTo": "معين إلى",
+			"unassigned": "غير معين",
+			"updateAssignment": "تحديث التعيين",
+			"assignmentUpdateNotification": "انقر على \"تحديث التعيين\" لحفظ التغييرات",
 			"statusLabels": {
 				"draft": "مسودة",
 				"submitted": "تم الإرسال",
@@ -270,6 +298,209 @@
 			"invoiceCreationFailed": "فشل إنشاء الفاتورة",
 			"errorOccurred": "حدث خطأ"
 		},
+		"customers": {
+			"pageTitle": "جميع العملاء",
+			"pageDescription": "إدارة حسابات العملاء وعرض سجل الطلبات",
+			"table": {
+				"name": "الاسم",
+				"email": "البريد الإلكتروني",
+				"phone": "الهاتف",
+				"language": "اللغة",
+				"created": "تم الإنشاء",
+				"actions": "الإجراءات",
+				"view": "عرض",
+				"orderNumber": "رقم الطلب",
+				"service": "الخدمة",
+				"status": "الحالة",
+				"submitted": "تم الإرسال"
+			},
+			"noCustomers": "لا يوجد عملاء",
+			"searchPlaceholder": "ابحث عن العملاء بالاسم أو البريد الإلكتروني أو الهاتف...",
+			"export": "تصدير CSV",
+			"exportSuccess": "تم تصدير العملاء بنجاح!",
+			"exportError": "فشل تصدير العملاء",
+			"back": "العودة إلى العملاء",
+			"customerDetails": "معلومات العميل وسجل الطلبات",
+			"information": "معلومات العميل",
+			"email": "البريد الإلكتروني",
+			"phone": "الهاتف",
+			"language": "اللغة المفضلة",
+			"memberSince": "عضو منذ",
+			"whatsapp": "واتساب",
+			"orderHistory": "سجل الطلبات",
+			"noOrders": "لا توجد طلبات لهذا العميل"
+		},
+		"financials": {
+			"pageTitle": "لوحة المعلومات المالية",
+			"pageDescription": "عرض مقاييس الإيرادات والفواتير والمدفوعات",
+			"stats": {
+				"revenueToday": "الإيرادات اليوم",
+				"revenueThisWeek": "الإيرادات هذا الأسبوع",
+				"revenueThisMonth": "الإيرادات هذا الشهر",
+				"revenueAllTime": "الإيرادات الإجمالية",
+				"outstandingInvoices": "الفواتير المعلقة",
+				"paidInvoices": "الفواتير المدفوعة",
+				"pendingInvoices": "الفواتير المعلقة"
+			},
+			"table": {
+				"invoiceNumber": "رقم الفاتورة",
+				"amount": "المبلغ",
+				"status": "الحالة",
+				"created": "تم الإنشاء",
+				"paidAt": "تاريخ الدفع",
+				"actions": "الإجراءات",
+				"transactionId": "معرف المعاملة",
+				"gateway": "البوابة"
+			},
+			"noInvoices": "لا توجد فواتير",
+			"noPayments": "لا توجد مدفوعات",
+			"export": "تصدير CSV",
+			"exportSuccess": "تم تصدير البيانات بنجاح!",
+			"exportError": "فشل تصدير البيانات",
+			"invoices": "الفواتير",
+			"payments": "المدفوعات",
+			"revenueChart": "اتجاهات الإيرادات",
+			"revenueChartDescription": "الإيرادات مع مرور الوقت",
+			"view": "عرض"
+		},
+		"tasks": {
+			"pageTitle": "إدارة المهام",
+			"pageDescription": "إدارة وتتبع المهام",
+			"createTask": "إنشاء مهمة",
+			"createTaskDescription": "إنشاء مهمة جديدة",
+			"editTask": "تعديل المهمة",
+			"editTaskDescription": "تحديث معلومات المهمة",
+			"kanban": "كانبان",
+			"list": "قائمة",
+			"searchPlaceholder": "ابحث عن المهام...",
+			"table": {
+				"title": "العنوان",
+				"type": "النوع",
+				"priority": "الأولوية",
+				"status": "الحالة",
+				"dueDate": "تاريخ الاستحقاق",
+				"actions": "الإجراءات"
+			},
+			"noTasks": "لا توجد مهام",
+			"form": {
+				"title": "العنوان",
+				"description": "الوصف",
+				"type": "النوع",
+				"priority": "الأولوية",
+				"status": "الحالة",
+				"assignedTo": "معين إلى",
+				"assignedToPlaceholder": "اختر مستخدماً...",
+				"dueDate": "تاريخ الاستحقاق",
+				"timeSpent": "الوقت المستغرق (بالدقائق)",
+				"outcomeNotes": "ملاحظات النتيجة"
+			},
+			"types": {
+				"call": "مكالمة",
+				"whatsapp": "واتساب",
+				"email": "بريد إلكتروني",
+				"office_visit": "زيارة مكتب",
+				"ministry": "وزارة",
+				"qa": "ضمان الجودة"
+			},
+			"priorities": {
+				"low": "منخفضة",
+				"normal": "عادية",
+				"high": "عالية",
+				"urgent": "عاجلة"
+			},
+			"statuses": {
+				"open": "مفتوحة",
+				"in_progress": "قيد التنفيذ",
+				"done": "مكتملة",
+				"cancelled": "ملغاة"
+			},
+			"errors": {
+				"titleRequired": "العنوان مطلوب"
+			},
+			"create": "إنشاء مهمة",
+			"update": "تحديث المهمة",
+			"add": "إضافة",
+			"saving": "جاري الحفظ...",
+			"cancel": "إلغاء",
+			"createSuccess": "تم إنشاء المهمة بنجاح!",
+			"updateSuccess": "تم تحديث المهمة بنجاح!",
+			"saveError": "فشل حفظ المهمة",
+			"view": "عرض"
+		},
+		"sla": {
+			"pageTitle": "تتبع SLA",
+			"pageDescription": "مراقبة اتفاقيات مستوى الخدمة وتتبع الامتثال",
+			"tracking": "تتبع SLA",
+			"stats": {
+				"onTrack": "على المسار الصحيح",
+				"atRisk": "في خطر",
+				"breached": "انتهك",
+				"total": "الإجمالي"
+			},
+			"table": {
+				"orderNumber": "رقم الطلب",
+				"service": "الخدمة",
+				"customer": "العميل",
+				"sla": "حالة SLA",
+				"actions": "الإجراءات"
+			},
+			"breachedAlert": "{count} طلبات انتهكت SLA",
+			"atRiskAlert": "{count} طلبات في خطر",
+			"allOnTrack": "جميع الطلبات على المسار الصحيح!",
+			"view": "عرض",
+			"emptyState": {
+				"noConfigs": {
+					"title": "لا توجد تكوينات SLA",
+					"description": "قم بإنشاء تكوينات SLA لخدماتك لبدء تتبع الأداء. يمكن أن يكون لكل خدمة وقت إكمال مستهدف خاص بها.",
+					"createButton": "إنشاء أول تكوين SLA"
+				},
+				"noOrders": {
+					"title": "لا توجد طلبات نشطة",
+					"description": "لا توجد طلبات نشطة للتتبع. سيظهر تتبع SLA هنا بمجرد إرسال الطلبات."
+				}
+			},
+			"configs": {
+				"title": "التكوينات",
+				"createConfig": "إنشاء تكوين SLA",
+				"editConfig": "تعديل تكوين SLA",
+				"createConfigDescription": "تكوين تتبع SLA لخدمة",
+				"editConfigDescription": "تحديث إعدادات تكوين SLA",
+				"table": {
+					"service": "الخدمة",
+					"targetHours": "الساعات المستهدفة",
+					"warningThreshold": "عتبة التحذير",
+					"created": "تم الإنشاء",
+					"actions": "الإجراءات"
+				},
+				"noConfigs": "لا توجد تكوينات SLA",
+				"noConfigsDescription": "قم بإنشاء تكوين SLA لخدمة لبدء تتبع الامتثال",
+				"hours": "ساعات",
+				"edit": "تعديل",
+				"delete": "حذف",
+				"deleteConfirm": "هل أنت متأكد من حذف تكوين SLA هذا؟",
+				"deleteSuccess": "تم حذف تكوين SLA بنجاح!",
+				"deleteError": "فشل حذف تكوين SLA",
+				"form": {
+					"service": "الخدمة",
+					"targetHours": "الساعات المستهدفة",
+					"targetHoursHelper": "ساعات العمل لإكمال الخدمة",
+					"warningThreshold": "عتبة التحذير (%)",
+					"warningThresholdHelper": "نسبة عتبة تحذيرات SLA (0-100)"
+				},
+				"errors": {
+					"serviceRequired": "الخدمة مطلوبة",
+					"targetHoursRequired": "يجب أن تكون الساعات المستهدفة رقماً موجباً",
+					"thresholdInvalid": "يجب أن تكون عتبة التحذير بين 0 و 100"
+				},
+				"create": "إنشاء",
+				"update": "تحديث",
+				"saving": "جاري الحفظ...",
+				"cancel": "إلغاء",
+				"createSuccess": "تم إنشاء تكوين SLA بنجاح!",
+				"updateSuccess": "تم تحديث تكوين SLA بنجاح!",
+				"saveError": "فشل حفظ تكوين SLA"
+			}
+		},
 		"users": {
 			"pageTitle": "إدارة المستخدمين",
 			"pageDescription": "إدارة مستخدمي الإدارة والموظفين",
@@ -285,7 +516,45 @@
 			"active": "نشط",
 			"inactive": "غير نشط",
 			"edit": "تعديل",
-			"delete": "حذف"
+			"delete": "حذف",
+			"createUser": "إنشاء مستخدم",
+			"createUserDescription": "إضافة مستخدم جديد إلى النظام",
+			"editUser": "تعديل المستخدم",
+			"editUserDescription": "تحديث معلومات المستخدم",
+			"form": {
+				"email": "البريد الإلكتروني",
+				"name": "الاسم",
+				"role": "الدور",
+				"status": "الحالة",
+				"password": "كلمة المرور",
+				"passwordOptional": "اتركه فارغاً للاحتفاظ بكلمة المرور الحالية",
+				"confirmPassword": "تأكيد كلمة المرور"
+			},
+			"roles": {
+				"admin": "مدير",
+				"supervisor": "مشرف",
+				"officer": "موظف",
+				"intake": "استقبال",
+				"auditor": "مراجع"
+			},
+			"errors": {
+				"emailRequired": "البريد الإلكتروني مطلوب",
+				"emailInvalid": "عنوان بريد إلكتروني غير صحيح",
+				"nameRequired": "الاسم مطلوب",
+				"passwordRequired": "كلمة المرور مطلوبة",
+				"passwordMin": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+				"passwordMismatch": "كلمات المرور غير متطابقة"
+			},
+			"create": "إنشاء مستخدم",
+			"update": "تحديث المستخدم",
+			"saving": "جاري الحفظ...",
+			"cancel": "إلغاء",
+			"createSuccess": "تم إنشاء المستخدم بنجاح!",
+			"updateSuccess": "تم تحديث المستخدم بنجاح!",
+			"saveError": "فشل حفظ المستخدم",
+			"deleteConfirm": "هل أنت متأكد من حذف هذا المستخدم؟",
+			"deleteSuccess": "تم حذف المستخدم بنجاح!",
+			"deleteError": "فشل حذف المستخدم"
 		},
 		"dashboard": {
 			"title": "لوحة التحكم",
