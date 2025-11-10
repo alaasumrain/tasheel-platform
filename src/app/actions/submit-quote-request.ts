@@ -7,14 +7,27 @@ import { getServiceBySlug } from '@/lib/service-queries';
 import { convertToLegacyFormat } from '@/lib/types/service';
 import { getServiceFields } from '@/lib/service-form-fields';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/utils/logger';
 
-if (!process.env.RESEND_API_KEY || !process.env.CONTACT_EMAIL) {
-	console.log('RESEND_API_KEY or CONTACT_EMAIL is not set');
+// Validate environment variables
+const resendApiKey = process.env.RESEND_API_KEY;
+const contactEmail = process.env.CONTACT_EMAIL;
+const contactPhone = process.env.CONTACT_PHONE || '+970 2 240 1234';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+if (!resendApiKey || resendApiKey === 'DUMMY_KEY') {
+	if (process.env.NODE_ENV === 'production') {
+		throw new Error('RESEND_API_KEY is not configured');
+	}
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY || 'DUMMY_KEY');
-const contactEmail = process.env.CONTACT_EMAIL || null;
-const contactName = process.env.CONTACT_NAME || 'Tasheel';
+if (!contactEmail) {
+	if (process.env.NODE_ENV === 'production') {
+		throw new Error('CONTACT_EMAIL is not configured');
+	}
+}
+
+const resend = resendApiKey && resendApiKey !== 'DUMMY_KEY' ? new Resend(resendApiKey) : null;
 
 export async function submitQuoteRequest(formData: FormData): Promise<{
 	type: 'success' | 'error';
@@ -22,6 +35,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 	orderNumber?: string;
 }> {
 	const locale = (formData.get('locale') as string) || 'en';
+	const serviceSlug = formData.get('service') as string;
 	
 	try {
 		const t = await getTranslations({ locale, namespace: 'Quote.errors' });
@@ -29,14 +43,13 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 		const name = formData.get('name') as string;
 		const email = formData.get('email') as string;
 		const phone = formData.get('phone') as string;
-		const serviceSlug = formData.get('service') as string;
 		const applicationId = formData.get('applicationId') as string; // Draft application ID
 		const urgency = formData.get('urgency') as string;
 		const details = formData.get('details') as string;
 		const additionalNotes = formData.get('message') as string;
 
-		// Validate form data
-		if (!name || !email || !phone || !serviceSlug || !urgency || !details) {
+		// Validate form data (details is optional)
+		if (!name || !email || !phone || !serviceSlug || !urgency) {
 			return {
 				type: 'error',
 				message: t('fillAllFields'),
@@ -99,7 +112,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 				.single();
 
 			if (updateError || !updatedApp) {
-				console.error('Database error updating application:', updateError);
+				logger.error('Database error updating application', updateError, { applicationId, serviceSlug });
 				return {
 					type: 'error',
 					message: t('submitFailed'),
@@ -129,7 +142,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 				.single();
 
 			if (dbError || !newApp) {
-				console.error('Database error:', dbError);
+				logger.error('Database error creating application', dbError, { serviceSlug, email });
 				return {
 					type: 'error',
 					message: t('createFailed'),
@@ -147,6 +160,13 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 			};
 		}
 
+		if (!resend) {
+			return {
+				type: 'error',
+				message: t('emailConfigError'),
+			};
+		}
+
 		// Send email to business owner
 		const attachmentsList = attachments && attachments.length > 0
 			? `<p><strong>Uploaded Documents (${attachments.length}):</strong></p><ul>${attachments.map(att => `<li>${att.file_name} (${(att.file_size / 1024).toFixed(2)} KB)</li>`).join('')}</ul>`
@@ -155,6 +175,8 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 		const serviceSpecificList = Object.keys(serviceSpecificData).length > 0
 			? `<p><strong>Service-Specific Information:</strong></p><ul>${Object.entries(serviceSpecificData).map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`).join('')}</ul>`
 			: '';
+
+		const adminUrl = `${siteUrl}/admin/orders/${application.id}`;
 
 		const adminEmailData = await resend.emails.send({
 			from: contactEmail,
@@ -170,17 +192,21 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
         <p><strong>Service:</strong> ${serviceSlug}</p>
         <p><strong>Urgency:</strong> ${urgency}</p>
         <p><strong>Details:</strong></p>
-        <p>${details}</p>
+        <p>${details || 'N/A'}</p>
         ${additionalNotes ? `<p><strong>Additional Notes:</strong></p><p>${additionalNotes}</p>` : ''}
         ${serviceSpecificList}
         ${attachmentsList}
         <hr>
-        <p><a href="https://tasheel.ps/admin/orders/${application.id}">View in Admin Dashboard</a></p>
+        <p><a href="${adminUrl}">View in Admin Dashboard</a></p>
       `,
 		});
 
 		if (adminEmailData.error) {
-			console.error('Admin email error:', adminEmailData.error);
+			logger.error('Failed to send admin notification email', adminEmailData.error, {
+				orderNumber,
+				applicationId: application.id,
+			});
+			// Email error shouldn't fail the submission
 		}
 
 		// Send confirmation email to customer using React Email template
@@ -190,7 +216,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 				? convertToLegacyFormat(service, 'en').title
 				: serviceSlug;
 
-			const trackingUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/track?order=${orderNumber}`;
+			const trackingUrl = `${siteUrl}/track?order=${orderNumber}`;
 			
 			await sendQuoteRequestReceivedEmail({
 				orderNumber,
@@ -198,7 +224,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 				customerName: name,
 				serviceName,
 				trackingUrl,
-				contactPhone: '+970 2 240 1234',
+				contactPhone,
 			});
 
 			// Send WhatsApp notification if phone number provided
@@ -212,12 +238,19 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 						serviceName,
 					});
 				} catch (whatsappError) {
-					console.log('WhatsApp notification skipped:', whatsappError);
+					// WhatsApp notification failed - log but don't fail submission
+					logger.error('Failed to send WhatsApp notification', whatsappError, {
+						orderNumber,
+						customerPhone: phone,
+					});
 				}
 			}
 		} catch (emailError) {
-			console.error('Error sending quote request received email:', emailError);
-			// Don't fail the submission if email fails
+			// Error sending quote request received email - log but don't fail submission
+			logger.error('Failed to send quote request confirmation email', emailError, {
+				orderNumber,
+				customerEmail: email,
+			});
 		}
 
 		// Log event in application_events
@@ -236,7 +269,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 			orderNumber,
 		};
 	} catch (error) {
-		console.error('Error:', error);
+		logger.error('Error submitting quote request', error, { serviceSlug, locale });
 		const t = await getTranslations({ locale, namespace: 'Quote.errors' });
 		return {
 			type: 'error',

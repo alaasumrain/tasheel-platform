@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import Header from '@/components/sections/header';
 import Footer from '@/components/sections/footer';
 import LocaleHtmlAttributes from '@/components/LocaleHtmlAttributes';
+import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator';
 
 export const metadata: Metadata = {
 	title: 'Tasheel — Government services concierge for Palestine',
@@ -29,6 +30,7 @@ export default async function EnglishLayout({ children }: Props) {
 			<Header />
 			{children}
 			<Footer />
+			<NetworkStatusIndicator />
 		</NextIntlClientProvider>
 	);
 }

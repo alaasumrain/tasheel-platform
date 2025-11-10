@@ -28,9 +28,9 @@ export default async function CreateSLAConfigPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'SLA Tracking', href: '/admin/sla' },
-					{ label: 'Create Configuration' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.sla'), href: '/admin/sla' },
+					{ label: t('create') || 'Create Configuration' },
 				]}
 			/>
 			<SLAConfigForm

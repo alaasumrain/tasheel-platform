@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "validate:production": "node scripts/validate-production.js",
     "build": "next build",
+    "build:production": "npm run validate:production && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",

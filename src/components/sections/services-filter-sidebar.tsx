@@ -148,10 +148,11 @@ export default function ServicesFilterSidebar({
 									onClick={onClearCategories}
 									size="small"
 									sx={(theme) => ({
-										fontSize: '0.75rem',
+										fontSize: inDrawer ? '0.875rem' : '0.75rem',
 										fontWeight: 600,
-										height: 32,
-										px: 1.5,
+										height: inDrawer ? 40 : 32,
+										px: inDrawer ? 2 : 1.5,
+										py: inDrawer ? 1 : 0,
 										bgcolor:
 											selectedCategories.length === 0
 												? 'primary.main'
@@ -183,10 +184,11 @@ export default function ServicesFilterSidebar({
 											size="small"
 											onClick={() => onToggleCategory(category.slug)}
 											sx={(theme) => ({
-												fontSize: '0.75rem',
+												fontSize: inDrawer ? '0.875rem' : '0.75rem',
 												fontWeight: 600,
-												height: 32,
-												px: 1.5,
+												height: inDrawer ? 40 : 32,
+												px: inDrawer ? 2 : 1.5,
+												py: inDrawer ? 1 : 0,
 												bgcolor: isActive ? 'primary.main' : 'transparent',
 												color: isActive ? 'primary.contrastText' : 'text.primary',
 												borderColor: 'divider',
@@ -223,10 +225,11 @@ export default function ServicesFilterSidebar({
 										onClick={() => onTurnaroundChange(option.value)}
 										size="small"
 										sx={(theme) => ({
-											fontSize: '0.75rem',
+											fontSize: inDrawer ? '0.875rem' : '0.75rem',
 											fontWeight: 600,
-											height: 32,
-											px: 1.5,
+											height: inDrawer ? 40 : 32,
+											px: inDrawer ? 2 : 1.5,
+											py: inDrawer ? 1 : 0,
 											bgcolor: turnaroundFilter === option.value ? 'primary.main' : 'transparent',
 											color: turnaroundFilter === option.value ? 'primary.contrastText' : 'text.primary',
 											borderColor: 'divider',
@@ -262,10 +265,11 @@ export default function ServicesFilterSidebar({
 										onClick={() => onPricingChange(option.value)}
 										size="small"
 										sx={(theme) => ({
-											fontSize: '0.75rem',
+											fontSize: inDrawer ? '0.875rem' : '0.75rem',
 											fontWeight: 600,
-											height: 32,
-											px: 1.5,
+											height: inDrawer ? 40 : 32,
+											px: inDrawer ? 2 : 1.5,
+											py: inDrawer ? 1 : 0,
 											bgcolor: pricingFilter === option.value ? 'primary.main' : 'transparent',
 											color: pricingFilter === option.value ? 'primary.contrastText' : 'text.primary',
 											borderColor: 'divider',

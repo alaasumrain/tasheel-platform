@@ -2,7 +2,7 @@ import { Box, Container, Stack, Typography, Card as MuiCard, CardContent } from 
 import { getCurrentUser, getCustomerProfile } from '@/lib/supabase/auth-helpers';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
-import { getOrders } from '@/lib/admin-queries';
+import { getCustomerOrders } from '@/lib/admin-queries';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 
@@ -12,10 +12,9 @@ export default async function DashboardPage() {
 	const user = await getCurrentUser();
 	const customer = await getCustomerProfile();
 
-	// Get customer's orders (filter by customer_id when available)
-	const allOrders = await getOrders();
+	// Get customer's orders (server-side filtering for security)
 	const customerOrders = customer
-		? allOrders.filter((order) => order.applicant_email === customer.email)
+		? await getCustomerOrders(customer.id || customer.email, !customer.id)
 		: [];
 
 	const stats = {

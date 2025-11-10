@@ -47,9 +47,9 @@ let theme = createTheme({
 			light: {
 				palette: {
 					accent: {
-						main: '#0E21A0',
-						light: '#3949B1',
-						dark: '#0A1A7A',
+						main: '#2E6F7F',
+						light: '#4A8FA0',
+						dark: '#1F4A56',
 						contrastText: '#ffffff',
 					},
 					genevaAccent: {
@@ -59,9 +59,9 @@ let theme = createTheme({
 						contrastText: '#ffffff',
 					},
 					primary: {
-						main: 'rgba(14, 33, 160, 1)',
-						light: '#3949B1',
-						dark: '#0A1A7A',
+						main: '#2E6F7F',
+						light: '#4A8FA0',
+						dark: '#1F4A56',
 					},
 					secondary: {
 						main: 'rgba(255, 255, 255, 0.5)',
@@ -82,9 +82,9 @@ let theme = createTheme({
 			dark: {
 				palette: {
 					accent: {
-						main: '#3949B1',
-						light: '#5A6BC8',
-						dark: '#0E21A0',
+						main: '#4A8FA0',
+						light: '#6BA8B8',
+						dark: '#2E6F7F',
 						contrastText: '#ffffff',
 					},
 					genevaAccent: {
@@ -95,7 +95,7 @@ let theme = createTheme({
 					},
 					primary: {
 						main: '#DDDDDD',
-						light: '#0E21A0',
+						light: '#4A8FA0',
 						dark: '#DDDDDD',
 					},
 					secondary: {
@@ -186,7 +186,7 @@ theme = createTheme(theme, {
 					borderRadius: '50vh',
 					textTransform: 'none',
 					'&.MuiButton-containedPrimary:not(.Mui-disabled)': {
-						borderTop: '2px solid #6773C3',
+						borderTop: '2px solid #4A8FA0',
 						...theme.applyStyles('dark', {
 							borderTop: '2px solid #FFF',
 						}),
@@ -332,18 +332,18 @@ theme = createTheme(theme, {
 			styleOverrides: {
 				root: {
 					backgroundColor: 'transparent',
-					borderColor: '#0E21A0',
+					borderColor: '#2E6F7F',
 					borderWidth: 2,
 					boxShadow:
 						'0px 4px 12px 0px rgba(0, 0, 0, 0.10), 0px 24px 40px 0px rgba(0, 0, 0, 0.12)',
 					borderRadius: '50vh',
-					color: '#0E21A0',
+					color: '#2E6F7F',
 					textTransform: 'none',
 					'&.Mui-selected': {
-						backgroundColor: '#0E21A0',
+						backgroundColor: '#2E6F7F',
 						color: '#ffffff',
 						'&:hover': {
-							backgroundColor: '#0E21A0',
+							backgroundColor: '#2E6F7F',
 							color: '#ffffff',
 						},
 					},

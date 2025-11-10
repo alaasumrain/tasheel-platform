@@ -43,8 +43,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Orders' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.orders') },
 				]}
 			/>
 			<OrdersPageClient orders={orders} serviceNames={serviceNames} />

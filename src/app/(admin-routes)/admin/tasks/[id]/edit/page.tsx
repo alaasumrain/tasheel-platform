@@ -32,8 +32,8 @@ export default async function EditTaskPage({
 			<Box>
 				<AdminBreadcrumbs
 					items={[
-						{ label: 'Dashboard', href: '/admin' },
-						{ label: 'Tasks', href: '/admin/tasks' },
+						{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+						{ label: t('breadcrumbs.tasks'), href: '/admin/tasks' },
 						{ label: task.title },
 					]}
 				/>

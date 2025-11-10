@@ -2,6 +2,10 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
+// Note: Environment variable validation should be run before build
+// Use: node scripts/validate-production.js
+// Or set up in your CI/CD pipeline
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: false,
@@ -20,7 +24,7 @@ const nextConfig = {
 		optimizePackageImports: ['@mui/material', '@mui/icons-material'],
 	},
 	// Exclude geneva-template directory from compilation
-	webpack: (config, { isServer }) => {
+	webpack: (config) => {
 		config.watchOptions = {
 			...config.watchOptions,
 			ignored: ['**/node_modules', '**/geneva-template'],

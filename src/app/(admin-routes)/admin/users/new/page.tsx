@@ -13,9 +13,9 @@ export default async function CreateUserPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Users', href: '/admin/users' },
-					{ label: 'Create User' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.users'), href: '/admin/users' },
+					{ label: t('createUser') || 'Create User' },
 				]}
 			/>
 			<Box sx={{ mb: 4 }}>

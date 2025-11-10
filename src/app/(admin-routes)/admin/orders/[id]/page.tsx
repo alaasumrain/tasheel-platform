@@ -41,8 +41,8 @@ export default async function OrderDetailPage({
 			<Box>
 				<AdminBreadcrumbs
 					items={[
-						{ label: 'Dashboard', href: '/admin' },
-						{ label: 'Orders', href: '/admin/orders' },
+						{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+						{ label: t('breadcrumbs.orders'), href: '/admin/orders' },
 						{ label: order.order_number || `Order ${id}` },
 					]}
 				/>

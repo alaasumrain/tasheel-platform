@@ -4,6 +4,9 @@ import { Card } from '@/components/ui/card';
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs';
 import { getTranslations } from 'next-intl/server';
 
+// Force dynamic rendering for admin settings page
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
 	const t = await getTranslations('Admin.settings');
 	
@@ -11,8 +14,8 @@ export default async function SettingsPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Settings' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.settings') },
 				]}
 			/>
 			<Box sx={{ mb: 4 }}>

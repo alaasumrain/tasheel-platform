@@ -28,8 +28,8 @@ export default async function EditUserPage({
 			<Box>
 				<AdminBreadcrumbs
 					items={[
-						{ label: 'Dashboard', href: '/admin' },
-						{ label: 'Users', href: '/admin/users' },
+						{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+						{ label: t('breadcrumbs.users'), href: '/admin/users' },
 						{ label: user.name || user.email },
 					]}
 				/>

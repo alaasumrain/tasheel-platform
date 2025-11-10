@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateOrderStatus, getOrderById, ApplicationStatus } from '@/lib/admin-queries';
 import { sendOrderStatusEmail } from '@/lib/email-notifications';
 import { requireAdminAuthAPI } from '@/lib/admin-auth';
+import { logger } from '@/lib/utils/logger';
+
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic';
 
 export async function PATCH(
 	request: NextRequest,
@@ -28,7 +32,7 @@ export async function PATCH(
 		try {
 			await sendOrderStatusEmail(order);
 		} catch (emailError) {
-			console.error('Failed to send email notification:', emailError);
+			logger.error('Failed to send email notification', emailError, { orderId: id });
 			// Don't fail the request if email fails
 		}
 
@@ -37,7 +41,7 @@ export async function PATCH(
 		if (error.message === 'Unauthorized') {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
-		console.error('Error updating order status:', error);
+		logger.error('Error updating order status', error, { orderId: (await context.params).id });
 		return NextResponse.json(
 			{ error: 'Failed to update status' },
 			{ status: 500 }

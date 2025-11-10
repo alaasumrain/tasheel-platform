@@ -13,9 +13,6 @@ import {
 	Select,
 	Stack,
 	Typography,
-	Stepper,
-	Step,
-	StepLabel,
 	Box,
 	Alert,
 	CircularProgress,
@@ -25,7 +22,7 @@ import {
 	CardContent,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { IconArrowLeft, IconArrowRight, IconCheck, IconRefresh, IconX } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconCheck, IconX, IconCreditCard } from '@tabler/icons-react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -40,11 +37,14 @@ import { Card } from '@/components/ui/card';
 import FilePreview from './FilePreview';
 import RequiredDocumentsChecklist from './RequiredDocumentsChecklist';
 import PricingEstimate from './PricingEstimate';
+import { PaymentFlow } from '@/components/dashboard/PaymentFlow';
+import { useFormAnalytics } from '@/hooks/use-analytics';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { useTranslations, useLocale } from 'next-intl';
-import QuoteOrderSummary from './quote-order-summary';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
+	isCheckoutFlow?: boolean; // New prop
 }
 
 interface FieldErrors {
@@ -60,11 +60,13 @@ interface UploadedAttachment {
 	fileSize: number;
 }
 
-export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps) {
+export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: ServiceQuoteWizardProps) {
 	const router = useRouter();
 	const t = useTranslations('Quote.wizard');
 	const locale = useLocale() as 'en' | 'ar';
 	const isRTL = locale === 'ar';
+	const formAnalytics = useFormAnalytics(`quote_${service.slug}`);
+	const analytics = useAnalytics();
 	const formRef = useRef<HTMLFormElement>(null);
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
@@ -72,17 +74,25 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const [errors, setErrors] = useState<FieldErrors>({});
 	const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
 	const [applicationId, setApplicationId] = useState<string | null>(null);
+	const [invoiceId, setInvoiceId] = useState<string | null>(null);
 	const [uploadedAttachments, setUploadedAttachments] = useState<Record<string, UploadedAttachment>>({});
 	const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
 
 	const serviceFields = getServiceFields(service.slug);
 	const storageKey = `quote_draft_${service.slug}`;
 
-	const steps = [
-		t('steps.step1'),
-		t('steps.step2'),
-		t('steps.step3'),
-	];
+	const steps = isCheckoutFlow 
+		? [
+			t('steps.step1'),
+			t('steps.step2'),
+			t('steps.step3'),
+			t('steps.step4Payment'), // New step
+		]
+		: [
+			t('steps.step1'),
+			t('steps.step2'),
+			t('steps.step3'),
+		];
 
 	// Create draft application on mount
 	useEffect(() => {
@@ -134,25 +144,54 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		setUploadedFiles({});
 	};
 
-	const { mutate: send, isPending } = useMutation({
-		mutationFn: submitQuoteRequest,
-		onSuccess: (result) => {
-			if (result.type === 'error') {
-				toast.error(result.message.toString());
-				return;
-			}
-			toast.success(result.message.toString());
-			resetFormState();
-			const orderNumber = result.orderNumber ?? null;
-			const confirmationUrl = orderNumber
-				? `/confirmation?order=${encodeURIComponent(orderNumber)}`
-				: '/confirmation';
-			router.push(confirmationUrl);
-		},
-		onError(error) {
-			toast.error(error.message.toString());
-		},
-	});
+		const { mutate: send, isPending: isPendingQuote } = useMutation({
+			mutationFn: submitQuoteRequest,
+			onSuccess: (result) => {
+				if (result.type === 'error') {
+					analytics.trackError('submit_error', result.message);
+					toast.error(result.message.toString());
+					return;
+				}
+				formAnalytics.completeForm(); // Track successful form completion
+				toast.success(result.message.toString());
+				resetFormState();
+				const orderNumber = result.orderNumber ?? null;
+				const confirmationUrl = orderNumber
+					? `/confirmation?order=${encodeURIComponent(orderNumber)}`
+					: '/confirmation';
+				router.push(confirmationUrl);
+			},
+			onError(error) {
+				analytics.trackError('submit_error', error.message);
+				toast.error(error.message.toString());
+			},
+		});
+
+		const { mutate: sendCheckout, isPending: isCheckoutPending } = useMutation({
+			mutationFn: async (data: FormData) => {
+				const { submitCheckout } = await import('@/app/actions/submit-checkout');
+				return submitCheckout(data);
+			},
+			onSuccess: (result) => {
+				if (result.type === 'success' && result.invoiceId) {
+					setInvoiceId(result.invoiceId);
+					// Store orderNumber for later use
+					if (result.orderNumber) {
+						setFormData(prev => ({ ...prev, orderNumber: result.orderNumber! }));
+					}
+					// Move to payment step
+					setActiveStep(3);
+					toast.success(result.message);
+				} else {
+					toast.error(result.message);
+				}
+			},
+			onError: (error: Error) => {
+				toast.error(error.message || t('toast.submitFailed'));
+			},
+		});
+
+		const isPending = isCheckoutFlow ? isCheckoutPending : isPendingQuote;
 
 	// Validation functions
 	const validateEmail = (email: string): boolean => {
@@ -163,23 +202,27 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const validatePhone = (phone: string): boolean => {
 		if (!phone || phone.trim().length === 0) return false;
 		
-		const cleaned = phone.replace(/[^+\d]/g, '');
-		if (cleaned.length < 9) return false;
+		// Remove all non-digit characters except + at the start
+		const cleaned = phone.replace(/[^\d+]/g, '');
 		
+		// Check reasonable length (9-13 digits total, including country code)
+		if (cleaned.length < 9 || cleaned.length > 13) return false;
+		
+		// Remove + if present
 		let digits = cleaned.replace(/^\+/, '');
 
-		// Handle +970 prefix
+		// Handle +970 prefix (Palestinian country code)
 		if (digits.startsWith('970')) {
 			digits = digits.slice(3);
 		}
 
-		// Handle 0 prefix
+		// Handle 0 prefix (local format)
 		if (digits.startsWith('0')) {
 			digits = digits.slice(1);
 		}
 
 		// Palestinian mobile numbers: 5[6-9]XXXXXXX (9 digits starting with 56-59)
-		// More lenient: accept 9-10 digits starting with 5
+		// Accept 9-10 digits starting with 5
 		return /^5\d{8,9}$/.test(digits);
 	};
 
@@ -224,10 +267,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				}
 			});
 
-			// Validate standard fields
-			if (!formData.details || formData.details.trim().length < 10) {
-				newErrors.details = t('validation.detailsRequired');
-			}
+			// Details field is optional, so no validation needed
 		} else if (step === 2) {
 			// Step 3: Review - Final validation
 			// Re-validate critical fields
@@ -240,11 +280,9 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 			if (!formData.phone || !validatePhone(formData.phone)) {
 				newErrors.phone = t('validation.phoneRequired');
 			}
-			if (!formData.details || formData.details.trim().length < 10) {
-				newErrors.details = t('validation.detailsRequired');
-			}
+			// Details field is optional, so no validation needed
 			
-			// Check required documents (warning only, not blocking)
+			// Check required documents (blocking validation)
 			if (service.requiredDocuments && service.requiredDocuments.length > 0) {
 				const uploadedFileNames = Object.values(uploadedAttachments).map(att => 
 					att.fileName.toLowerCase()
@@ -257,8 +295,8 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 					);
 				});
 
-				// Only warn if critical documents are missing
-				if (missingDocs.length > 0 && missingDocs.length === service.requiredDocuments.length) {
+				// Block submission if any required documents are missing
+				if (missingDocs.length > 0) {
 					newErrors.requiredDocuments = t('validation.documentsRequired', { 
 						documents: missingDocs.join(', ') 
 					});
@@ -273,11 +311,17 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 	const handleNext = () => {
 		if (validateStep(activeStep)) {
 			if (activeStep < steps.length - 1) {
-				setActiveStep((prev) => prev + 1);
+				const nextStep = activeStep + 1;
+				setActiveStep(nextStep);
 				setErrors({}); // Clear errors when moving to next step
+				formAnalytics.trackStep(nextStep, steps[nextStep]);
 			}
 		} else {
 			toast.error(t('validation.fixErrors'));
+			// Track validation errors
+			Object.keys(errors).forEach(fieldName => {
+				formAnalytics.trackValidationError(fieldName, errors[fieldName]);
+			});
 		}
 	};
 
@@ -288,14 +332,76 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 
 	const handleFieldChange = (name: string, value: string) => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
-		// Clear error for this field when user starts typing
-		if (errors[name]) {
+		
+		// Real-time validation for Step 1 fields
+		if (activeStep === 0) {
 			setErrors((prev) => {
 				const newErrors = { ...prev };
-				delete newErrors[name];
+				
+				if (name === 'name') {
+					if (!value || value.trim().length < 2) {
+						newErrors.name = t('validation.nameRequired');
+					} else {
+						delete newErrors.name;
+					}
+				} else if (name === 'email') {
+					if (!value || !validateEmail(value)) {
+						newErrors.email = t('validation.emailInvalid');
+					} else {
+						delete newErrors.email;
+					}
+				} else if (name === 'phone') {
+					if (!value || !validatePhone(value)) {
+						newErrors.phone = t('validation.phoneInvalid');
+					} else {
+						delete newErrors.phone;
+					}
+				}
+				
 				return newErrors;
 			});
+		} else if (activeStep === 1) {
+			// Real-time validation for Step 2 fields
+			setErrors((prev) => {
+				const newErrors = { ...prev };
+				
+				// Details field is optional, so no validation needed
+				// Remove details from errors if present
+				delete newErrors.details;
+				
+				// For service-specific fields, check if required
+				const field = serviceFields.find(f => f.name === name);
+				if (field && field.required) {
+					if (field.type === 'file') {
+						// File validation handled separately
+					} else {
+						if (!value || (typeof value === 'string' && value.trim().length === 0)) {
+							const fieldLabel = locale === 'ar' && field.label_ar ? field.label_ar : field.label;
+							newErrors[name] = t('validation.fieldRequired', { field: fieldLabel });
+						} else {
+							delete newErrors[name];
+						}
+					}
+				} else {
+					// Clear error if field is not required or has value
+					delete newErrors[name];
+				}
+				
+				return newErrors;
+			});
+		} else {
+			// Clear error for other fields when user starts typing
+			if (errors[name]) {
+				setErrors((prev) => {
+					const newErrors = { ...prev };
+					delete newErrors[name];
+					return newErrors;
+				});
+			}
 		}
+		
+		// Track field interaction
+		formAnalytics.trackFieldFocus(name);
 	};
 
 	const handleFileChange = async (fieldName: string, file: File | null) => {
@@ -334,9 +440,19 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 							...prev,
 							[fieldName]: attachment,
 						}));
+						// Clear any errors for this field
+						setErrors((prev) => {
+							const newErrors = { ...prev };
+							delete newErrors[fieldName];
+							return newErrors;
+						});
 						toast.success(t('toast.fileUploaded', { fileName: file.name }));
+						// Track successful file upload
+						analytics.trackFileUpload(file.name, file.size, true);
 					} else {
 						toast.error(result.message || t('toast.uploadFailed'));
+						// Track failed file upload
+						analytics.trackFileUpload(file.name, file.size, false);
 						setErrors((prev) => ({
 							...prev,
 							[fieldName]: result.message || t('toast.uploadFailed'),
@@ -345,6 +461,8 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				} catch (error) {
 					console.error('Error uploading file:', error);
 					toast.error(t('toast.uploadError'));
+					// Track failed file upload
+					analytics.trackFileUpload(file.name, file.size, false);
 					setErrors((prev) => ({
 						...prev,
 						[fieldName]: t('toast.uploadError'),
@@ -406,6 +524,25 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 			delete newData[fieldName];
 			return newData;
 		});
+		
+		// Set error if field is required (only in Step 2)
+		if (activeStep === 1) {
+			const field = serviceFields.find(f => f.name === fieldName);
+			if (field && field.required) {
+				const fieldLabel = locale === 'ar' && field.label_ar ? field.label_ar : field.label;
+				setErrors((prev) => ({
+					...prev,
+					[fieldName]: t('validation.fieldRequired', { field: fieldLabel }),
+				}));
+			} else {
+				// Clear error if field is not required
+				setErrors((prev) => {
+					const newErrors = { ...prev };
+					delete newErrors[fieldName];
+					return newErrors;
+				});
+			}
+		}
 	};
 
 	const handleClearForm = () => {
@@ -413,6 +550,15 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 			resetFormState();
 			toast.success(t('toast.formCleared'));
 		}
+	};
+
+	const handlePaymentSuccess = () => {
+		// Redirect to confirmation page
+		const orderNumber = formData.orderNumber || null;
+		const confirmationUrl = orderNumber
+			? `/${locale}/confirmation?order=${encodeURIComponent(orderNumber)}`
+			: `/${locale}/confirmation`;
+		router.push(confirmationUrl);
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -460,7 +606,13 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 		// Files are already uploaded, so we don't need to add them to FormData
 		// The server action will fetch attachments using applicationId
 
-		send(data);
+		if (isCheckoutFlow) {
+			// Checkout flow: submit checkout, then move to payment step
+			sendCheckout(data);
+		} else {
+			// Quote flow: submit quote request, then redirect
+			send(data);
+		}
 	};
 
 	const renderStepContent = (step: number) => {
@@ -472,6 +624,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						onChange={handleFieldChange}
 						errors={errors}
 						validatePhone={validatePhone}
+						validateEmail={validateEmail}
 					/>
 				);
 			case 1:
@@ -495,14 +648,32 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						serviceFields={serviceFields}
 						formData={formData}
 						uploadedFiles={uploadedFiles}
+						uploadedAttachments={uploadedAttachments}
+						isCheckoutFlow={isCheckoutFlow}
+						errors={errors}
 					/>
 				);
+			case 3:
+				// Only for checkout flow
+				if (isCheckoutFlow && invoiceId) {
+					return (
+						<Step4PaymentContent
+							invoiceId={invoiceId}
+							amount={service.pricing?.amount || 0}
+							currency="ILS"
+							onPaymentSuccess={handlePaymentSuccess}
+						/>
+					);
+				}
+				return null;
 			default:
 				return null;
 		}
 	};
 
 	const progress = Math.round(((activeStep + 1) / steps.length) * 100);
+	
+	
 	const canContinue =
 		activeStep === 0
 			? Boolean(
@@ -515,9 +686,7 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 				)
 			: activeStep === 1
 				? Boolean(
-					formData.details && 
-					formData.details.trim().length >= 10 &&
-					// Check all required service fields
+					// Check all required service fields (details is optional, so not included)
 					serviceFields.every(field => {
 						if (!field.required) return true;
 						if (field.type === 'file') {
@@ -527,18 +696,152 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 						return value && (typeof value !== 'string' || value.trim().length > 0);
 					})
 				)
-				: true;
+				: activeStep === 3
+					? true // Step 4 (Payment) - PaymentFlow handles its own validation
+					: true;
+
+	const tQuote = useTranslations('Quote');
 
 	return (
-		<form ref={formRef} onSubmit={handleSubmit}>
-			{/* Hidden service field */}
-			<input type="hidden" name="service" value={service.slug} />
-			{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
+		<Box sx={{ 
+			maxWidth: '672px', 
+			mx: 'auto', 
+			p: { xs: 2, sm: 3 },
+			width: '100%'
+		}}>
+			<form ref={formRef} onSubmit={handleSubmit}>
+				{/* Hidden service field */}
+				<input type="hidden" name="service" value={service.slug} />
+				{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
 
-			<Grid container spacing={4} alignItems="flex-start">
-				{/* Form Column */}
-				<Grid size={{ xs: 12, md: 8 }} sx={{ order: locale === 'ar' ? 2 : 1 }}>
-					<Stack spacing={4}>
+				{/* Header Section */}
+				<Box sx={{ mb: { xs: 2, sm: 3 }, direction: isRTL ? 'rtl' : 'ltr' }}>
+					<Stack 
+						direction="row" 
+						justifyContent="space-between" 
+						alignItems={{ xs: 'flex-start', sm: 'center' }}
+						spacing={1}
+						sx={{ mb: 0.5 }}
+					>
+						<Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+							{tQuote('title')}
+						</Typography>
+						<Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, whiteSpace: 'nowrap' }}>
+							{isRTL ? `الخطوة ${activeStep + 1} من ${steps.length}` : `Step ${activeStep + 1} of ${steps.length}`}
+						</Typography>
+					</Stack>
+					{/* Progress bar */}
+					<Box sx={{ mb: 2, position: 'relative' }}>
+						<LinearProgress 
+							variant="determinate" 
+							value={progress} 
+							sx={{ 
+								height: 8, 
+								borderRadius: 2,
+								bgcolor: 'action.disabledBackground',
+								...(isRTL && {
+									transform: 'scaleX(-1)',
+								}),
+								'& .MuiLinearProgress-bar': {
+									borderRadius: 2,
+									background: isRTL 
+										? 'linear-gradient(270deg, primary.main 0%, primary.dark 100%)'
+										: 'linear-gradient(90deg, primary.main 0%, primary.dark 100%)',
+									...(isRTL && {
+										transform: 'scaleX(-1)',
+									}),
+								}
+							}} 
+						/>
+					</Box>
+					{/* Step Indicators */}
+					<Stack direction={isRTL ? 'row-reverse' : 'row'} spacing={1.5} sx={{ justifyContent: 'space-between' }}>
+						{steps.map((label, index) => (
+							<Box
+								key={label}
+								onClick={() => {
+									if (index < activeStep) {
+										setActiveStep(index);
+									}
+								}}
+								sx={{
+									flex: 1,
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'center',
+									cursor: index < activeStep ? 'pointer' : 'default',
+									opacity: index > activeStep ? 0.4 : 1,
+									transition: 'opacity 0.2s',
+								}}
+							>
+								<Box
+									sx={{
+										width: { xs: 32, sm: 36 },
+										height: { xs: 32, sm: 36 },
+										borderRadius: '50%',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										bgcolor: index < activeStep 
+											? 'success.main' 
+											: index === activeStep 
+												? 'primary.main' 
+												: 'action.disabledBackground',
+										color: index <= activeStep ? 'primary.contrastText' : 'text.disabled',
+										fontWeight: 700,
+										fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+										mb: 0.75,
+										transition: 'all 0.3s ease',
+									}}
+								>
+									{index < activeStep ? (
+										<IconCheck size={16} />
+									) : (
+										isRTL ? steps.length - index : index + 1
+									)}
+								</Box>
+								<Typography
+									variant="caption"
+									sx={{
+										fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+										fontWeight: index === activeStep ? 700 : 500,
+										color: index === activeStep ? 'primary.main' : 'text.secondary',
+										textAlign: 'center',
+										lineHeight: 1.3,
+									}}
+								>
+									{label}
+								</Typography>
+							</Box>
+						))}
+					</Stack>
+				</Box>
+
+				{/* Content Card */}
+				<Box sx={{ 
+					p: { xs: 2, sm: 3 }, 
+					mb: 0,
+					borderRadius: 2,
+					boxShadow: 2,
+					bgcolor: 'background.paper',
+					maxHeight: { xs: 'calc(100vh - 380px)', sm: 'calc(100vh - 400px)', md: '600px' },
+					overflowY: 'auto',
+					overflowX: 'hidden',
+					'&::-webkit-scrollbar': {
+						width: '6px',
+					},
+					'&::-webkit-scrollbar-track': {
+						background: 'transparent',
+					},
+					'&::-webkit-scrollbar-thumb': {
+						background: 'rgba(0,0,0,0.2)',
+						borderRadius: '3px',
+						'&:hover': {
+							background: 'rgba(0,0,0,0.3)',
+						},
+					},
+				}}>
+					<Stack spacing={2}>
 						{/* Restored Data Alert */}
 						{restoredData && (
 							<Alert
@@ -555,103 +858,68 @@ export default function ServiceQuoteWizard({ service }: ServiceQuoteWizardProps)
 								{t('draftRestored')}
 							</Alert>
 						)}
-
-						{/* Stepper */}
-						<Box>
-							<Stepper activeStep={activeStep} alternativeLabel>
-								{steps.map((label, index) => (
-									<Step key={label}>
-										<StepLabel
-											onClick={() => {
-												// Allow going back to previous steps
-												if (index < activeStep) {
-													setActiveStep(index);
-												}
-											}}
-											sx={{
-												cursor: index < activeStep ? 'pointer' : 'default',
-												'& .MuiStepLabel-label': {
-													fontSize: { xs: '0.75rem', sm: '0.875rem' }
-												}
-											}}
-										>
-											{label}
-										</StepLabel>
-									</Step>
-								))}
-							</Stepper>
-							<Box sx={{ mt: 2 }}>
-								<LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
-								<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
-									{t('progress', { current: activeStep + 1, total: steps.length, percent: progress })}
-								</Typography>
-							</Box>
-						</Box>
-
 						{/* Step Content */}
-						<Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
-
-						{/* Navigation Buttons */}
-						<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ gap: 1 }}>
-							{activeStep > 0 && (
-								<Button
-									variant="outlined"
-									onClick={handleBack}
-									startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
-									disabled={isPending}
-								>
-									{t('back')}
-								</Button>
-							)}
-							<Button
-								variant="text"
-								color="error"
-								onClick={handleClearForm}
-								startIcon={<IconRefresh size={18} />}
-								disabled={isPending}
-								sx={{ display: { xs: 'none', sm: 'flex' } }}
-							>
-								{t('clearForm')}
-							</Button>
-							<Box sx={{ flexGrow: 1 }} />
-							{activeStep < steps.length - 1 ? (
-								<Button
-									variant="contained"
-									onClick={handleNext}
-									endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
-									size="large"
-									disabled={!canContinue}
-								>
-									{t('continue')}
-								</Button>
-							) : (
-								<Button
-									type="submit"
-									variant="contained"
-									disabled={isPending}
-									startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
-									size="large"
-								>
-									{isPending ? t('submitting') : t('submitRequest')}
-								</Button>
-							)}
-						</Stack>
+						{renderStepContent(activeStep)}
 					</Stack>
-				</Grid>
+				</Box>
 
-				{/* Order Summary Sidebar */}
-				<Grid size={{ xs: 12, md: 4 }} sx={{ order: locale === 'ar' ? 1 : 2 }}>
-					<QuoteOrderSummary
-						service={service}
-						activeStep={activeStep}
-						totalSteps={steps.length}
-						formData={formData}
-						uploadedAttachments={uploadedAttachments}
-						locale={locale}
-					/>
-				</Grid>
-			</Grid>
-		</form>
+				{/* Navigation */}
+				{activeStep !== 3 && ( // Hide navigation on Step 4 (Payment) - PaymentFlow handles its own navigation
+					<Stack
+						direction="row"
+						justifyContent="space-between"
+						alignItems="center"
+						spacing={{ xs: 1, sm: 2 }}
+						sx={{ mt: { xs: 2, sm: 3 } }}
+					>
+						{activeStep > 0 ? (
+							<Button
+								variant="outlined"
+								onClick={handleBack}
+								startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
+								disabled={isPending}
+							>
+								{t('back')}
+							</Button>
+						) : (
+							<Box />
+						)}
+						<Box sx={{ flexGrow: 1 }} />
+						{activeStep < steps.length - 1 ? (
+							<Button
+								variant="contained"
+								onClick={handleNext}
+								endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
+								size="large"
+								disabled={!canContinue}
+							>
+								{t('continue')}
+							</Button>
+						) : activeStep === 2 && isCheckoutFlow ? (
+							<Button
+								type="submit"
+								variant="contained"
+								disabled={isPending}
+								startIcon={<IconCreditCard size={18} />}
+								size="large"
+							>
+								{isPending ? t('checkout.processing') : t('checkout.payNow')}
+							</Button>
+						) : (
+							<Button
+								type="submit"
+								variant="contained"
+								disabled={isPending}
+								startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
+								size="large"
+							>
+								{isPending ? t('submitting') : t('submitRequest')}
+							</Button>
+						)}
+					</Stack>
+				)}
+			</form>
+		</Box>
 	);
 }
 
@@ -661,43 +929,52 @@ function Step1Content({
 	onChange,
 	errors,
 	validatePhone,
+	validateEmail,
 }: {
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
 	errors: FieldErrors;
 	validatePhone: (phone: string) => boolean;
+	validateEmail: (email: string) => boolean;
 }) {
 	const t = useTranslations('Quote.wizard');
 	const locale = useLocale() as 'en' | 'ar';
 	const isRTL = locale === 'ar';
 	
 	return (
-		<Stack spacing={3}>
-			<Typography variant="h5" fontWeight={600}>
-				{t('step1Title')}
-			</Typography>
+		<Stack spacing={2}>
+			<Box>
+				<Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+					{t('step1Title')}
+				</Typography>
+				<Typography variant="body2" color="text.secondary">
+					{t('step1Subtitle') || (locale === 'ar' 
+						? 'نحتاج إلى معلومات الاتصال الخاصة بك للتواصل معك بشأن طلبك'
+						: 'We need your contact information to reach out about your request')}
+				</Typography>
+			</Box>
 
-			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-				<FormControl required fullWidth error={!!errors.name}>
-					<FormLabel htmlFor="name" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
-						{t('fullName')}
-						{formData.name && formData.name.length > 2 && !errors.name && (
-							<Box 
-								component="span" 
-								sx={{ 
-									position: 'absolute',
-									[isRTL ? 'left' : 'right']: 0,
-									top: '50%',
-									transform: 'translateY(-50%)',
-									color: 'success.main',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								<IconCheck size={16} />
-							</Box>
-						)}
-					</FormLabel>
+			<Stack spacing={2}>
+					<FormControl required fullWidth error={!!errors.name}>
+						<FormLabel htmlFor="name" sx={{ position: 'relative', mb: 1, [isRTL ? 'pl' : 'pr']: 3 }}>
+							{t('fullName')}
+							{formData.name && formData.name.trim().length >= 2 && !errors.name && (
+								<Box 
+									component="span" 
+									sx={{ 
+										position: 'absolute',
+										[isRTL ? 'left' : 'right']: 0,
+										top: '50%',
+										transform: 'translateY(-50%)',
+										color: 'success.main',
+										display: 'flex',
+										alignItems: 'center',
+									}}
+								>
+									<IconCheck size={16} />
+								</Box>
+							)}
+						</FormLabel>
 					<OutlinedInput
 						id="name"
 						name="name"
@@ -705,85 +982,103 @@ function Step1Content({
 						onChange={(e) => onChange('name', e.target.value)}
 						error={!!errors.name}
 						autoComplete="name"
+						sx={{ 
+							bgcolor: 'background.paper',
+							'&:hover': {
+								bgcolor: 'action.hover',
+							}
+						}}
 					/>
-					{errors.name && <FormHelperText error>{errors.name}</FormHelperText>}
-				</FormControl>
-			</Stack>
-
-			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-				<FormControl required fullWidth error={!!errors.email}>
-					<FormLabel htmlFor="email" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
-						{t('emailAddress')}
-						{formData.email && formData.email.includes('@') && !errors.email && (
-							<Box 
-								component="span" 
-								sx={{ 
-									position: 'absolute',
-									[isRTL ? 'left' : 'right']: 0,
-									top: '50%',
-									transform: 'translateY(-50%)',
-									color: 'success.main',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								<IconCheck size={16} />
-							</Box>
-						)}
-					</FormLabel>
-					<OutlinedInput
-						id="email"
-						name="email"
-						type="email"
-						value={formData.email || ''}
-						onChange={(e) => onChange('email', e.target.value)}
-						error={!!errors.email}
-						autoComplete="email"
-					/>
-					{errors.email && <FormHelperText error>{errors.email}</FormHelperText>}
+					{errors.name && <FormHelperText error sx={{ mt: 0.5 }}>{errors.name}</FormHelperText>}
 				</FormControl>
 
-				<FormControl required fullWidth error={!!errors.phone}>
-					<FormLabel htmlFor="phone" sx={{ position: 'relative', [isRTL ? 'pl' : 'pr']: 3 }}>
-						{t('phoneNumber')}
-						{formData.phone && validatePhone(formData.phone) && !errors.phone && (
-							<Box 
-								component="span" 
+				<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+					<FormControl required fullWidth error={!!errors.email}>
+						<FormLabel htmlFor="email" sx={{ position: 'relative', mb: 1, [isRTL ? 'pl' : 'pr']: 3 }}>
+							{t('emailAddress')}
+							{formData.email && validateEmail(formData.email) && !errors.email && (
+								<Box 
+									component="span" 
+									sx={{ 
+										position: 'absolute',
+										[isRTL ? 'left' : 'right']: 0,
+										top: '50%',
+										transform: 'translateY(-50%)',
+										color: 'success.main',
+										display: 'flex',
+										alignItems: 'center',
+									}}
+								>
+									<IconCheck size={16} />
+								</Box>
+							)}
+						</FormLabel>
+						<OutlinedInput
+							id="email"
+							name="email"
+							type="email"
+							value={formData.email || ''}
+							onChange={(e) => onChange('email', e.target.value)}
+							error={!!errors.email}
+							autoComplete="email"
+							sx={{ 
+								bgcolor: 'background.paper',
+								'&:hover': {
+									bgcolor: 'action.hover',
+								}
+							}}
+						/>
+						{errors.email && <FormHelperText error sx={{ mt: 0.5 }}>{errors.email}</FormHelperText>}
+					</FormControl>
+
+					<FormControl required fullWidth error={!!errors.phone}>
+						<FormLabel htmlFor="phone" sx={{ position: 'relative', mb: 1, [isRTL ? 'pl' : 'pr']: 3 }}>
+							{t('phoneNumber')}
+							{formData.phone && validatePhone(formData.phone) && !errors.phone && (
+								<Box 
+									component="span" 
+									sx={{ 
+										position: 'absolute',
+										[isRTL ? 'left' : 'right']: 0,
+										top: '50%',
+										transform: 'translateY(-50%)',
+										color: 'success.main',
+										display: 'flex',
+										alignItems: 'center',
+									}}
+								>
+									<IconCheck size={16} />
+								</Box>
+							)}
+						</FormLabel>
+							<OutlinedInput
+								id="phone"
+								name="phone"
+								type="tel"
+								placeholder={locale === 'ar' ? "0592123456 أو +970592123456" : "0592123456 or +970592123456"}
+								value={formData.phone || ''}
+								onChange={(e) => onChange('phone', e.target.value)}
+								error={!!errors.phone}
+								autoComplete="tel"
+								inputMode="tel"
 								sx={{ 
-									position: 'absolute',
-									[isRTL ? 'left' : 'right']: 0,
-									top: '50%',
-									transform: 'translateY(-50%)',
-									color: 'success.main',
-									display: 'flex',
-									alignItems: 'center',
+									bgcolor: 'background.paper',
+									'&:hover': {
+										bgcolor: 'action.hover',
+									}
 								}}
-							>
-								<IconCheck size={16} />
-							</Box>
-						)}
-					</FormLabel>
-					<OutlinedInput
-						id="phone"
-						name="phone"
-						type="tel"
-						placeholder={locale === 'ar' ? "+970 59X XXX XXX" : "+970 59X XXX XXX"}
-						value={formData.phone || ''}
-						onChange={(e) => onChange('phone', e.target.value)}
-						error={!!errors.phone}
-						autoComplete="tel"
-						inputMode="tel"
-					/>
-					{errors.phone ? (
-						<FormHelperText error>{errors.phone}</FormHelperText>
-					) : (
-						<FormHelperText>
-							{locale === 'ar' 
-								? 'مثال: +970 592 123 456 أو 0592123456'
-								: 'Example: +970 592 123 456 or 0592123456'}
-						</FormHelperText>
-					)}
-				</FormControl>
+							/>
+							{errors.phone ? (
+								<FormHelperText error sx={{ mt: 0.5 }}>{errors.phone}</FormHelperText>
+							) : (
+								<FormHelperText sx={{ mt: 0.5 }}>
+									{locale === 'ar' 
+										? 'يمكنك إدخال الرقم مع أو بدون مسافات: 0592123456 أو +970592123456'
+										: 'You can enter the number with or without spaces: 0592123456 or +970592123456'}
+								</FormHelperText>
+							)}
+					</FormControl>
+				</Stack>
 			</Stack>
 		</Stack>
 	);
@@ -812,6 +1107,7 @@ function Step2Content({
 	onRemoveFile: (fieldName: string) => void;
 }) {
 	const t = useTranslations('Quote.wizard');
+	const locale = useLocale() as 'en' | 'ar';
 	
 	const renderField = (field: FormField) => {
 		const commonProps = {
@@ -820,11 +1116,29 @@ function Step2Content({
 			required: field.required ?? false,
 		};
 
+		// Get locale-specific labels and text
+		const fieldLabel = locale === 'ar' && field.label_ar ? field.label_ar : field.label;
+		const fieldPlaceholder = locale === 'ar' && field.placeholder_ar ? field.placeholder_ar : field.placeholder;
+		const fieldHelperText = locale === 'ar' && field.helperText_ar ? field.helperText_ar : field.helperText;
+		const fieldOptions = locale === 'ar' && field.options_ar ? field.options_ar : field.options;
+
+		// Helper function to render label with optional indicator
+		const renderLabel = (label: string, required?: boolean) => {
+			if (required) {
+				return label;
+			}
+			return (
+				<>
+					{label} <Typography component="span" variant="caption" color="text.secondary">({t('optional') || 'Optional'})</Typography>
+				</>
+			);
+		};
+
 		switch (field.type) {
 			case 'select':
 				return (
 					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<Select
 							{...commonProps}
 							value={formData[field.name] || ''}
@@ -834,15 +1148,15 @@ function Step2Content({
 							<MenuItem value="" disabled>
 								{t('selectOption')}
 							</MenuItem>
-							{field.options?.map((option) => (
+							{fieldOptions?.map((option) => (
 								<MenuItem key={option} value={option}>
 									{option}
 								</MenuItem>
 							))}
 						</Select>
 						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
-						{!errors[field.name] && field.helperText && (
-							<FormHelperText>{field.helperText}</FormHelperText>
+						{!errors[field.name] && fieldHelperText && (
+							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
@@ -850,19 +1164,19 @@ function Step2Content({
 			case 'textarea':
 				return (
 					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
 							multiline
 							rows={3}
-							placeholder={field.placeholder}
+							placeholder={fieldPlaceholder}
 							value={formData[field.name] || ''}
 							onChange={(e) => onChange(field.name, e.target.value)}
 							error={!!errors[field.name]}
 						/>
 						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
-						{!errors[field.name] && field.helperText && (
-							<FormHelperText>{field.helperText}</FormHelperText>
+						{!errors[field.name] && fieldHelperText && (
+							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
@@ -873,15 +1187,15 @@ function Step2Content({
 				return (
 					<Box key={field.name}>
 						<FileUploadField
-							label={field.label}
+							label={fieldLabel}
 							name={field.name}
 							value={uploadedFiles[field.name] || null}
 							onChange={(file) => onFileChange(field.name, file)}
 							onRemove={() => onRemoveFile(field.name)}
 							error={errors[field.name]}
-							helperText={field.helperText}
-							accept={field.helperText?.includes('PDF') ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'}
-							maxSize={field.helperText?.includes('5MB') ? 5 * 1024 * 1024 : 10 * 1024 * 1024}
+							helperText={fieldHelperText}
+							accept={fieldHelperText?.includes('PDF') ? '.pdf,.jpg,.jpeg,.png,.doc,.docx' : '.pdf,.jpg,.jpeg,.png,.doc,.docx'}
+							maxSize={fieldHelperText?.includes('5MB') ? 5 * 1024 * 1024 : 10 * 1024 * 1024}
 							required={field.required}
 							disabled={isUploading}
 						/>
@@ -908,7 +1222,7 @@ function Step2Content({
 				return (
 					<LocalizationProvider dateAdapter={AdapterDateFns} key={field.name}>
 						<FormControl fullWidth required={field.required} error={!!errors[field.name]}>
-							<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+							<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 							<DatePicker
 								value={formData[field.name] ? new Date(formData[field.name]) : null}
 								onChange={(newValue) => {
@@ -921,7 +1235,7 @@ function Step2Content({
 								slotProps={{
 									textField: {
 										error: !!errors[field.name],
-										helperText: errors[field.name] || field.helperText,
+										helperText: errors[field.name] || fieldHelperText,
 									},
 								}}
 								sx={{ mt: 1 }}
@@ -933,18 +1247,18 @@ function Step2Content({
 			default:
 				return (
 					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
 							type={field.type}
-							placeholder={field.placeholder}
+							placeholder={fieldPlaceholder}
 							value={formData[field.name] || ''}
 							onChange={(e) => onChange(field.name, e.target.value)}
 							error={!!errors[field.name]}
 						/>
 						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
-						{!errors[field.name] && field.helperText && (
-							<FormHelperText>{field.helperText}</FormHelperText>
+						{!errors[field.name] && fieldHelperText && (
+							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
 					</FormControl>
 				);
@@ -952,57 +1266,78 @@ function Step2Content({
 	};
 
 	return (
-		<Stack spacing={3}>
-			<Typography variant="h5" fontWeight={600}>
-				{t('step2Title')}
-			</Typography>
+		<Stack spacing={2}>
+			<Box>
+				<Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+					{t('step2Title')}
+				</Typography>
+				<Typography variant="body2" color="text.secondary">
+					{t('step2Subtitle') || (locale === 'ar' 
+						? 'يرجى تقديم التفاصيل والمستندات المطلوبة للخدمة'
+						: 'Please provide the required details and documents for the service')}
+				</Typography>
+			</Box>
 
-			{serviceFields.map((field) => renderField(field))}
+			<Stack spacing={2}>
 
-			{/* Standard urgency and details fields */}
-			<FormControl required>
-				<FormLabel htmlFor="urgency">{t('serviceUrgency')}</FormLabel>
-				<Select
-					id="urgency"
-					name="urgency"
-					defaultValue="standard"
-					required
-					value={formData.urgency || 'standard'}
-					onChange={(e) => onChange('urgency', e.target.value)}
-				>
-					<MenuItem value="standard">{t('urgencyOptions.standard')}</MenuItem>
-					<MenuItem value="express">{t('urgencyOptions.express')}</MenuItem>
-					<MenuItem value="urgent">{t('urgencyOptions.urgent')}</MenuItem>
-				</Select>
-			</FormControl>
+				{/* Service-Specific Fields */}
+				{serviceFields.length > 0 && (
+					<>
+						{serviceFields.map((field) => renderField(field))}
+						<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} /> {/* Divider */}
+					</>
+				)}
 
-			<FormControl required error={!!errors.details}>
-				<FormLabel htmlFor="details">{t('additionalDetails')}</FormLabel>
-				<OutlinedInput
-					id="details"
-					name="details"
-					multiline
-					rows={3}
-					placeholder={t('detailsPlaceholder')}
-					value={formData.details || ''}
-					onChange={(e) => onChange('details', e.target.value)}
-					error={!!errors.details}
-				/>
-				{errors.details && <FormHelperText error>{errors.details}</FormHelperText>}
-			</FormControl>
+				{/* Service Urgency */}
+				<FormControl required>
+					<FormLabel htmlFor="urgency">{t('serviceUrgency')}</FormLabel>
+					<Select
+						id="urgency"
+						name="urgency"
+						defaultValue="standard"
+						required
+						value={formData.urgency || 'standard'}
+						onChange={(e) => onChange('urgency', e.target.value)}
+					>
+						<MenuItem value="standard">{t('urgencyOptions.standard')}</MenuItem>
+						<MenuItem value="express">{t('urgencyOptions.express')}</MenuItem>
+						<MenuItem value="urgent">{t('urgencyOptions.urgent')}</MenuItem>
+					</Select>
+				</FormControl>
 
-			<FormControl>
-				<FormLabel htmlFor="message">{t('additionalNotes')}</FormLabel>
-				<OutlinedInput
-					id="message"
-					name="message"
-					multiline
-					rows={2}
-					placeholder={t('notesPlaceholder')}
-					value={formData.message || ''}
-					onChange={(e) => onChange('message', e.target.value)}
-				/>
-			</FormControl>
+				<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} /> {/* Divider for optional fields */}
+
+				{/* Optional Fields */}
+				<FormControl error={!!errors.details}>
+					<FormLabel htmlFor="details">
+						{t('additionalDetails')} <Typography component="span" variant="caption" color="text.secondary">({t('optional') || 'Optional'})</Typography>
+					</FormLabel>
+					<OutlinedInput
+						id="details"
+						name="details"
+						multiline
+						rows={3}
+						placeholder={t('detailsPlaceholder')}
+						value={formData.details || ''}
+						onChange={(e) => onChange('details', e.target.value)}
+						error={!!errors.details}
+					/>
+					{errors.details && <FormHelperText error>{errors.details}</FormHelperText>}
+				</FormControl>
+
+				<FormControl>
+					<FormLabel htmlFor="message">{t('additionalNotes')}</FormLabel>
+					<OutlinedInput
+						id="message"
+						name="message"
+						multiline
+						rows={2}
+						placeholder={t('notesPlaceholder')}
+						value={formData.message || ''}
+						onChange={(e) => onChange('message', e.target.value)}
+					/>
+				</FormControl>
+			</Stack>
 		</Stack>
 	);
 }
@@ -1013,29 +1348,55 @@ function Step3Content({
 	serviceFields,
 	formData,
 	uploadedFiles,
+	uploadedAttachments,
+	isCheckoutFlow = false,
+	errors,
 }: {
 	service: Service;
 	serviceFields: FormField[];
 	formData: Record<string, string>;
 	uploadedFiles: Record<string, File>;
+	uploadedAttachments: Record<string, UploadedAttachment>;
+	isCheckoutFlow?: boolean;
+	errors: FieldErrors;
 }) {
 	const t = useTranslations('Quote.wizard');
+	const tCheckout = useTranslations('Quote.checkout');
 	const locale = useLocale();
 	
-	// Collect all uploaded files into an array
+	// Collect all uploaded files - prefer uploadedAttachments (successfully uploaded) over uploadedFiles (local)
+	const allUploadedAttachments = Object.values(uploadedAttachments);
 	const allUploadedFiles = Object.values(uploadedFiles).filter((file): file is File => file instanceof File);
+	// Use uploadedAttachments count if available, otherwise fall back to uploadedFiles
+	const totalUploadedCount = allUploadedAttachments.length > 0 ? allUploadedAttachments.length : allUploadedFiles.length;
 	const urgency = (formData.urgency || 'standard') as 'standard' | 'express' | 'urgent';
 
 	return (
-		<Stack spacing={4}>
+		<Stack spacing={2}>
 			<Box>
-				<Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
-					{t('step3Title')}
+				<Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+					{isCheckoutFlow ? tCheckout('step3Title') : t('step3Title')}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					{t('reviewSubtitle')}
+					{isCheckoutFlow ? tCheckout('reviewSubtitle') : t('reviewSubtitle')}
 				</Typography>
 			</Box>
+
+			{isCheckoutFlow && (
+				// Show price prominently
+				<Card>
+					<CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+						<Stack spacing={2}>
+							<Typography variant="subtitle2" color="text.secondary">
+								{tCheckout('totalAmount')}
+							</Typography>
+							<Typography variant="h4" fontWeight={700} color="primary.main">
+								₪{service.pricing?.amount?.toFixed(2) || '0.00'}
+							</Typography>
+						</Stack>
+					</CardContent>
+				</Card>
+			)}
 
 			<Alert severity="info" sx={{ borderRadius: 2 }}>
 				{t('reviewAlert')}
@@ -1107,21 +1468,40 @@ function Step3Content({
 			</Card>
 
 			{/* Service Requirements */}
-			{serviceFields.some(field => field.type !== 'file' && formData[field.name]) && (
+			{serviceFields.length > 0 && (
 				<Card>
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={2}>
 							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
 								{t('serviceInfo')}
 							</Typography>
-							<Stack spacing={1.5}>
-								{serviceFields.map((field) => {
-									if (field.type === 'file') return null;
-									const value = formData[field.name];
-									if (!value) return null;
-									return (
+							{serviceFields.some(field => field.type !== 'file' && formData[field.name]) || formData.urgency ? (
+								<Stack spacing={1.5}>
+									{serviceFields.map((field) => {
+										if (field.type === 'file') return null;
+										const value = formData[field.name];
+										if (!value) return null;
+										const fieldLabel = locale === 'ar' && field.label_ar ? field.label_ar : field.label;
+										return (
+											<Box
+												key={field.name}
+												sx={{
+													p: 2,
+													borderRadius: 1,
+													backgroundColor: 'background.default',
+												}}
+											>
+												<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+													{fieldLabel}
+												</Typography>
+												<Typography variant="body2" fontWeight={500}>
+													{value}
+												</Typography>
+											</Box>
+										);
+									})}
+									{formData.urgency && (
 										<Box
-											key={field.name}
 											sx={{
 												p: 2,
 												borderRadius: 1,
@@ -1129,52 +1509,79 @@ function Step3Content({
 											}}
 										>
 											<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-												{field.label}
+												{t('serviceUrgency')}
 											</Typography>
-											<Typography variant="body2" fontWeight={500}>
-												{value}
+											<Typography variant="body2" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
+												{formData.urgency}
 											</Typography>
 										</Box>
-									);
-								})}
-								{formData.urgency && (
-									<Box
-										sx={{
-											p: 2,
-											borderRadius: 1,
-											backgroundColor: 'background.default',
-										}}
-									>
-										<Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-											Urgency Level
-										</Typography>
-										<Typography variant="body2" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
-											{formData.urgency}
-										</Typography>
-									</Box>
-								)}
-							</Stack>
+									)}
+								</Stack>
+							) : (
+								<Typography variant="body2" color="text.secondary">
+									{locale === 'ar' ? 'لم يتم تقديم معلومات إضافية' : 'No additional information provided'}
+								</Typography>
+							)}
 						</Stack>
 					</CardContent>
 				</Card>
 			)}
 
 			{/* Uploaded Documents */}
-			{allUploadedFiles.length > 0 && (
+			{totalUploadedCount > 0 && (
 				<Card>
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={3}>
 							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
-								{t('uploadedDocuments', { count: allUploadedFiles.length })}
+								{t('uploadedDocuments', { count: totalUploadedCount })}
 							</Typography>
 
 							{/* File Previews Grid */}
 							<Grid container spacing={2}>
-								{allUploadedFiles.map((file, index) => (
-									<Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
-										<FilePreview file={file} showRemove={false} />
-									</Grid>
-								))}
+								{allUploadedAttachments.length > 0 ? (
+									// Show uploaded attachments (successfully uploaded files)
+									allUploadedAttachments.map((attachment) => (
+										<Grid size={{ xs: 12, sm: 6, md: 4 }} key={attachment.id}>
+											<Box
+												sx={{
+													border: '1px solid',
+													borderColor: 'divider',
+													borderRadius: 2,
+													p: 2,
+													backgroundColor: 'background.paper',
+												}}
+											>
+												<Stack spacing={1}>
+													<Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+														{attachment.fileName}
+													</Typography>
+													<Typography variant="caption" color="text.secondary">
+														{(attachment.fileSize / 1024).toFixed(2)} KB
+													</Typography>
+													{attachment.storagePath && (
+														<Button
+															size="small"
+															variant="outlined"
+															component="a"
+															href={attachment.storagePath}
+															target="_blank"
+															rel="noopener noreferrer"
+														>
+															View File
+														</Button>
+													)}
+												</Stack>
+											</Box>
+										</Grid>
+									))
+								) : (
+									// Fallback to local files if no attachments yet
+									allUploadedFiles.map((file, index) => (
+										<Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+											<FilePreview file={file} showRemove={false} />
+										</Grid>
+									))
+								)}
 							</Grid>
 
 							{/* Required Documents Checklist */}
@@ -1183,8 +1590,13 @@ function Step3Content({
 									<RequiredDocumentsChecklist
 										requiredDocuments={service.requiredDocuments}
 										uploadedFiles={allUploadedFiles}
-										uploadedFileCount={allUploadedFiles.length}
+										uploadedFileCount={totalUploadedCount}
 									/>
+									{errors.requiredDocuments && (
+										<Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+											{errors.requiredDocuments}
+										</Alert>
+									)}
 								</Box>
 							)}
 						</Stack>
@@ -1221,5 +1633,27 @@ function Step3Content({
 				</Card>
 			)}
 		</Stack>
+	);
+}
+
+// Step 4: Payment (Checkout Flow Only)
+function Step4PaymentContent({
+	invoiceId,
+	amount,
+	currency,
+	onPaymentSuccess,
+}: {
+	invoiceId: string;
+	amount: number;
+	currency: string;
+	onPaymentSuccess: () => void;
+}) {
+	return (
+		<PaymentFlow
+			invoiceId={invoiceId}
+			amount={amount}
+			currency={currency}
+			onPaymentSuccess={onPaymentSuccess}
+		/>
 	);
 }

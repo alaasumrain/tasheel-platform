@@ -13,7 +13,10 @@ export async function generateMetadata() {
 	};
 }
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+	setRequestLocale('en');
+	const t = await getTranslations('Auth.forgotPassword');
+	
 	return (
 		<Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: { xs: 6, md: 12 } }}>
 			<Container maxWidth="sm">
@@ -21,10 +24,10 @@ export default function ForgotPasswordPage() {
 					<Stack spacing={4}>
 						<Stack spacing={2} textAlign="center">
 							<Typography variant="h2" component="h1" fontWeight={700}>
-								Reset Password
+								{t('title')}
 							</Typography>
 							<Typography variant="h6" color="text.secondary">
-								Enter your email to receive a password reset link
+								{t('description')}
 							</Typography>
 						</Stack>
 

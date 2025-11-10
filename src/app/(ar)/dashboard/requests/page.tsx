@@ -1,6 +1,6 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
 import { getCustomerProfile } from '@/lib/supabase/auth-helpers';
-import { getOrders } from '@/lib/admin-queries';
+import { getCustomerOrders } from '@/lib/admin-queries';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 import { CustomerRequestsTable } from '@/components/dashboard/CustomerRequestsTable';
@@ -16,11 +16,8 @@ export default async function MyRequestsPage() {
 		return null;
 	}
 
-	// Get customer's orders (filter by email for now, will use customer_id later)
-	const allOrders = await getOrders();
-	const customerOrders = allOrders.filter(
-		(order) => order.applicant_email === customer.email
-	);
+	// Get customer's orders (server-side filtering for security)
+	const customerOrders = await getCustomerOrders(customer.id || customer.email, !customer.id);
 
 	return (
 		<Container maxWidth="lg">

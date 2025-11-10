@@ -20,6 +20,7 @@ import { Link } from '@/i18n/navigation';
 import GetStarted from '@/components/buttons/get-started-button';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import LanguageSwitcher from '@/components/ui/language-switcher';
+import CurrencySwitcher from '@/components/ui/currency-switcher';
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
@@ -152,20 +153,23 @@ export default function Header() {
 				<Stack
 					alignItems="center"
 					direction="row"
-							spacing={2}
+					spacing={1.5}
 					sx={{ display: { xs: 'none', lg: 'flex' } }}
 				>
-							<IconButton
-								sx={{
-									color: 'text.primary',
-								}}
-							>
-								<IconSearch size={20} />
-							</IconButton>
+					<IconButton
+						sx={{
+							color: 'text.primary',
+						}}
+					>
+						<IconSearch size={16} />
+					</IconButton>
 					<LanguageSwitcher />
+					<Box sx={{ minWidth: 'fit-content' }}>
+						<CurrencySwitcher />
+					</Box>
 					<ThemeToggle />
 					<GetStarted
-								buttonLabel={t('requestService')}
+						buttonLabel={t('requestService')}
 						href="/services"
 						size="medium"
 						sx={{ boxShadow: '0px 8px 16px rgba(0,0,0,0.12)' }}
@@ -241,6 +245,7 @@ export default function Header() {
 							<Container maxWidth="sm">
 								<Stack spacing={2}>
 									<LanguageSwitcher fullWidth />
+									<CurrencySwitcher fullWidth />
 									<GetStarted
 										buttonLabel={t('requestService')}
 										fullWidth

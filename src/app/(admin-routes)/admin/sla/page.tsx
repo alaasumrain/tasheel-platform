@@ -32,8 +32,8 @@ export default async function SLAPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'SLA Tracking' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.sla') },
 				]}
 			/>
 			<SLAPageClient

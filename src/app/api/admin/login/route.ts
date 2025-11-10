@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
 	try {
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
 			},
 		});
 	} catch (error) {
-		console.error('Admin login error:', error);
+		logger.error('Admin login error', error);
 		return NextResponse.json(
 			{ error: 'An error occurred during login' },
 			{ status: 500 }

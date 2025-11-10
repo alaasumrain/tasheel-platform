@@ -583,17 +583,25 @@ export async function getCustomerById(id: string) {
 
 /**
  * Get all orders for a customer
+ * Supports filtering by customer_id or email (for backward compatibility)
  */
-export async function getCustomerOrders(customerId: string) {
+export async function getCustomerOrders(customerIdOrEmail: string, filterByEmail = false) {
 	const supabaseClient = await createClient();
-	const { data, error } = await supabaseClient
+	
+	let query = supabaseClient
 		.from('applications')
-		.select('*')
-		.eq('customer_id', customerId)
-		.order('submitted_at', { ascending: false });
+		.select('*');
+	
+	if (filterByEmail) {
+		query = query.eq('applicant_email', customerIdOrEmail);
+	} else {
+		query = query.eq('customer_id', customerIdOrEmail);
+	}
+	
+	const { data, error } = await query.order('submitted_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching customer orders:', error);
+		// Use proper error logging instead of console.error
 		throw error;
 	}
 

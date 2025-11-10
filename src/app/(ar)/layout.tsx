@@ -6,6 +6,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Header from '@/components/sections/header';
 import Footer from '@/components/sections/footer';
 import LocaleHtmlAttributes from '@/components/LocaleHtmlAttributes';
+import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator';
 
 export const metadata: Metadata = {
 	title: 'تسهيل — خدمات حكومية لفلسطين',
@@ -30,6 +31,7 @@ export default async function ArabicLayout({ children }: Props) {
 			<Header />
 			{children}
 			<Footer />
+			<NetworkStatusIndicator />
 		</NextIntlClientProvider>
 	);
 }

@@ -5,30 +5,35 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { ToastContainer } from '@/components/ui/toast';
+import { CurrencyProvider } from '@/contexts/currency-context';
 
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<Gradient elevation={0}>
-				{children}
-				<Toaster
-					position="top-center"
-					reverseOrder={false}
-					gutter={8}
-					containerClassName=""
-					containerStyle={{}}
-					toastOptions={{
-						duration: 3000,
-						position: 'bottom-center',
-						style: {
-							background: '#363636',
-							color: '#fff',
-						},
-					}}
-				/>
-			</Gradient>
+			<CurrencyProvider>
+				<Gradient elevation={0}>
+					{children}
+					<ToastContainer />
+					<Toaster
+						position="top-center"
+						reverseOrder={false}
+						gutter={8}
+						containerClassName=""
+						containerStyle={{}}
+						toastOptions={{
+							duration: 3000,
+							position: 'bottom-center',
+							style: {
+								background: '#363636',
+								color: '#fff',
+							},
+						}}
+					/>
+				</Gradient>
+			</CurrencyProvider>
 		</QueryClientProvider>
 	);
 }

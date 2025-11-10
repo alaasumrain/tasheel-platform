@@ -45,6 +45,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { trackServicesEvent } from '@/lib/analytics';
 import ServicesFilterSidebar from './services-filter-sidebar';
 import ServiceCard from './service-card';
+import { useCurrency } from '@/contexts/currency-context';
 
 type TurnaroundFilter = 'all' | 'express' | 'standard' | 'extended';
 type PricingFilter = 'all' | 'fixed' | 'starting' | 'quote';
@@ -173,15 +174,16 @@ export default function ServicesCatalogWithSearch({
 	const servicesPerPage = 12; // Show 12 services per page (4 rows x 3 columns)
 	const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+	const { currency } = useCurrency();
 	const currencyFormatter = useMemo(
 		() =>
 			new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 				style: 'currency',
-				currency: 'ILS',
+				currency: currency === 'ILS' ? 'ILS' : currency === 'USD' ? 'USD' : 'EUR',
 				currencyDisplay: 'narrowSymbol',
 				maximumFractionDigits: 0,
 			}),
-		[locale],
+		[locale, currency],
 	);
 
 	const categoryCounts = useMemo(() => {
@@ -837,20 +839,30 @@ const handleSortChange = useCallback((value: SortOption) => {
 
 			{/* Mobile Filter Drawer */}
 			<Drawer
-				anchor={locale === 'ar' ? 'right' : 'left'}
+				anchor="bottom"
 				open={filterDrawerOpen}
 				onClose={() => setFilterDrawerOpen(false)}
 				PaperProps={{
 					sx: {
-						width: { xs: '85%', sm: 320 },
-						p: 2,
+						borderRadius: '24px 24px 0 0',
+						maxHeight: '90vh',
+						paddingBottom: 'env(safe-area-inset-bottom)',
 					},
 				}}
 			>
-				<Stack spacing={2}>
-					<Stack direction="row" justifyContent="space-between" alignItems="center">
-						<Typography variant="h6">{t('filters.heading')}</Typography>
-						<IconButton onClick={() => setFilterDrawerOpen(false)} size="small">
+				<Box sx={{ p: 3, pb: 4 }}>
+					<Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+						<Typography variant="h6" fontWeight={700}>
+							{t('filters.heading')}
+						</Typography>
+						<IconButton 
+							onClick={() => setFilterDrawerOpen(false)} 
+							size="small"
+							sx={{
+								width: 40,
+								height: 40,
+							}}
+						>
 							<IconX size={20} />
 						</IconButton>
 					</Stack>
@@ -872,10 +884,25 @@ const handleSortChange = useCallback((value: SortOption) => {
 						}}
 						activeFiltersCount={activeFiltersCount}
 						resultsCount={sortedServices.length}
-						locale={locale}
+						locale={currentLocale}
 						inDrawer={true}
 					/>
-				</Stack>
+					<Button
+						variant="contained"
+						fullWidth
+						size="large"
+						onClick={() => setFilterDrawerOpen(false)}
+						sx={{
+							mt: 3,
+							py: 1.5,
+							fontSize: '1rem',
+							fontWeight: 600,
+							borderRadius: 2,
+						}}
+					>
+						{t('filters.applyFilters') || 'Apply Filters'}
+					</Button>
+				</Box>
 			</Drawer>
 		</Box>
 	);

@@ -34,8 +34,8 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Tasks' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.tasks') },
 				]}
 			/>
 			<TasksPageClient tasks={tasks} />

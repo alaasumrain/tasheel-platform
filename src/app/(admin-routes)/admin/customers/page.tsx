@@ -30,8 +30,8 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Customers' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.customers') },
 				]}
 			/>
 			<CustomersPageClient customers={customers} />

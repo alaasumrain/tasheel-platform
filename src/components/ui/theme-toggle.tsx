@@ -82,7 +82,7 @@ export default function ThemeToggle() {
 						}),
 				]}
 			>
-				<IconDark size={20} />
+				<IconDark size={16} />
 			</Box>
 			<Box
 				sx={[
@@ -104,7 +104,7 @@ export default function ThemeToggle() {
 						}),
 				]}
 			>
-				<IconLight />
+				<IconLight size={16} />
 			</Box>
 		</Box>
 	);

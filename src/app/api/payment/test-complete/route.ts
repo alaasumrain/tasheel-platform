@@ -1,29 +1,36 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getCustomerProfile } from '@/lib/supabase/auth-helpers';
+import { requireAdminAuthAPI } from '@/lib/admin-auth';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Test Payment Completion API
  * 
- * ⚠️ TESTING MODE ONLY
+ * ⚠️ TESTING MODE ONLY - DISABLED IN PRODUCTION
  * 
  * This endpoint simulates payment completion for testing purposes.
  * In production, this should be replaced with webhook handlers from:
  * - PalPay webhook
  * - PayTabs webhook
  * 
- * TODO: Replace with actual payment gateway webhook:
- * 1. Verify webhook signature/authentication
- * 2. Update invoice status to 'paid'
- * 3. Create payment record in payments table
- * 4. Send confirmation email
- * 5. Update application status if needed
+ * Security: Requires admin authentication even in placeholder mode
  */
 
 export async function POST(request: Request) {
+	// Disable in production
+	if (process.env.NODE_ENV === 'production') {
+		return NextResponse.json(
+			{ error: 'This endpoint is disabled in production' },
+			{ status: 403 }
+		);
+	}
+
 	try {
+		// Require admin authentication even for test endpoint
+		await requireAdminAuthAPI();
+
 		const body = await request.json();
-		const { invoiceId, amount, currency, transactionId, status, isPlaceholder } = body;
+		const { invoiceId, amount, currency, transactionId } = body;
 
 		if (!invoiceId || !amount || !transactionId) {
 			return NextResponse.json(
@@ -34,7 +41,7 @@ export async function POST(request: Request) {
 
 		const supabase = await createClient();
 
-		// Get invoice (for placeholder mode, we don't require auth)
+		// Get invoice
 		const { data: invoice, error: invoiceError } = await supabase
 			.from('invoices')
 			.select('*, applications(id, order_number, applicant_email, customer_name, customer_phone, customer_id)')
@@ -45,17 +52,12 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
 		}
 
-		// For placeholder mode, skip auth check
-		// For real payments, verify customer owns invoice
-		if (!isPlaceholder) {
-			const customer = await getCustomerProfile();
-			if (!customer) {
-				return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-			}
-			const application = invoice.applications as any;
-			if (application?.customer_id && application.customer_id !== customer.id) {
-				return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-			}
+		// Validate amount matches invoice amount
+		if (Math.abs(invoice.amount - amount) > 0.01) {
+			return NextResponse.json(
+				{ error: 'Amount mismatch' },
+				{ status: 400 }
+			);
 		}
 
 		// Update invoice status
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
 			.eq('id', invoiceId);
 
 		if (updateError) {
-			console.error('Error updating invoice:', updateError);
+			logger.error('Error updating invoice in test endpoint', updateError, { invoiceId });
 			return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
 		}
 
@@ -87,7 +89,7 @@ export async function POST(request: Request) {
 		});
 
 		if (paymentError) {
-			console.error('Error creating payment record:', paymentError);
+			logger.error('Error creating payment record in test endpoint', paymentError, { invoiceId });
 			// Don't fail - invoice is already updated
 		}
 
@@ -107,9 +109,9 @@ export async function POST(request: Request) {
 		// Send payment confirmation email
 		try {
 			const { sendPaymentConfirmedEmail } = await import('@/lib/email-notifications');
-			const customerEmail = invoice.applications?.applicant_email || (invoice as any).customer_email;
-			const customerName = invoice.applications?.customer_name || (invoice as any).customer_name;
-			const customerPhone = invoice.applications?.customer_phone || (invoice as any).customer_phone;
+			const customerEmail = invoice.applications?.applicant_email || (invoice as Record<string, unknown>).customer_email as string | undefined;
+			const customerName = invoice.applications?.customer_name || (invoice as Record<string, unknown>).customer_name as string | undefined;
+			const customerPhone = invoice.applications?.customer_phone || (invoice as Record<string, unknown>).customer_phone as string | undefined;
 			
 			if (customerEmail) {
 				const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.application_id}`;
@@ -139,12 +141,12 @@ export async function POST(request: Request) {
 							transactionId: transactionId,
 						});
 					} catch (whatsappError) {
-						console.log('WhatsApp notification skipped:', whatsappError);
+						logger.warn('WhatsApp notification skipped in test endpoint', { whatsappError });
 					}
 				}
 			}
 		} catch (emailError) {
-			console.error('Error sending payment confirmation email:', emailError);
+			logger.error('Error sending payment confirmation email in test endpoint', emailError, { invoiceId });
 			// Don't fail the payment if email fails
 		}
 
@@ -154,7 +156,7 @@ export async function POST(request: Request) {
 			invoiceId,
 		});
 	} catch (error) {
-		console.error('Error in test payment completion:', error);
+		logger.error('Error in test payment completion endpoint', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 	}
 }

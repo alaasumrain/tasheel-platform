@@ -78,7 +78,7 @@ export default async function PaymentSuccessPage({ searchParams }: PageProps) {
 
 						{isPlaceholder && (
 							<Alert severity="info" sx={{ width: '100%', maxWidth: 500 }}>
-								<strong>Placeholder Mode:</strong> Payment gateway not configured. This is a test payment.
+								<strong>{t('testingMode')}:</strong> {t('testingModeDescription')}
 							</Alert>
 						)}
 

@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	Box,
 	Button,
@@ -47,14 +49,13 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 	const whatsappUrl = `https://wa.me/970590000000?text=${whatsappMessage}`;
 
 	return (
-		<Box sx={{ position: 'sticky', top: 100 }}>
-			<Card
-				backgroundColor={{ light: 'background.paper', dark: 'accent.main' }}
-				borderColor={{ light: 'divider', dark: 'accent.light' }}
-				gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
-				gradientOpacity={0.6}
-				borderRadius={24}
-			>
+		<Card
+			backgroundColor={{ light: 'background.paper', dark: 'accent.main' }}
+			borderColor={{ light: 'divider', dark: 'accent.light' }}
+			gradientColor={{ light: 'accent.light', dark: 'accent.light' }}
+			gradientOpacity={0.6}
+			borderRadius={24}
+		>
 			<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 				<Stack spacing={3}>
 					{/* Service Title */}
@@ -190,6 +191,5 @@ export default function ServiceQuoteSidebar({ service }: ServiceQuoteSidebarProp
 				</Stack>
 			</CardContent>
 		</Card>
-		</Box>
 	);
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdminAuthAPI } from '@/lib/admin-auth';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: Request) {
 	try {
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
 			.single();
 
 		if (invoiceError) {
-			console.error('Error creating invoice:', invoiceError);
+			logger.error('Error creating invoice', invoiceError, { application_id, amount, due_date });
 			return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });
 		}
 
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
 		if (error.message === 'Unauthorized') {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
-		console.error('Error in POST /api/admin/invoices:', error);
+		logger.error('Error in POST /api/admin/invoices', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 	}
 }

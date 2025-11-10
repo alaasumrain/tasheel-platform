@@ -29,8 +29,8 @@ export default async function CustomerDetailPage({
 			<Box>
 				<AdminBreadcrumbs
 					items={[
-						{ label: 'Dashboard', href: '/admin' },
-						{ label: 'Customers', href: '/admin/customers' },
+						{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+						{ label: t('breadcrumbs.customers'), href: '/admin/customers' },
 						{ label: customer.name || customer.email || `Customer ${id}` },
 					]}
 				/>

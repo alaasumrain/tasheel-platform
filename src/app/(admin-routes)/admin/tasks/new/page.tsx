@@ -19,9 +19,9 @@ export default async function CreateTaskPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Tasks', href: '/admin/tasks' },
-					{ label: 'Create Task' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.tasks'), href: '/admin/tasks' },
+					{ label: t('createTask') || 'Create Task' },
 				]}
 			/>
 			<Box sx={{ mb: 4 }}>

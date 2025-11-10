@@ -33,6 +33,7 @@ import { createClient } from '@/lib/supabase/client';
 
 import { Link, useRouter } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
+import { CelebrationAnimation, OrderQRCode, AddToCalendarButton, DownloadReceiptButton } from '@/components/order-confirmation/enhanced-features';
 
 type PricingType = 'fixed' | 'quote' | 'starting';
 
@@ -80,7 +81,17 @@ export function OrderConfirmation({
 	const router = useRouter();
 	const [copied, setCopied] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+	const [showCelebration, setShowCelebration] = useState(true);
 	const supabase = createClient();
+
+	// Show celebration animation on mount
+	useEffect(() => {
+		if (orderFound && orderNumber) {
+			setShowCelebration(true);
+			const timer = setTimeout(() => setShowCelebration(false), 3000);
+			return () => clearTimeout(timer);
+		}
+	}, [orderFound, orderNumber]);
 
 	// Check if user is logged in
 	useEffect(() => {
@@ -239,6 +250,7 @@ export function OrderConfirmation({
 
 	return (
 		<Container sx={{ py: { xs: 6, md: 10 } }}>
+			<CelebrationAnimation show={showCelebration} />
 			<Stack spacing={{ xs: 4, md: 6 }}>
 				{/* Success Card */}
 				<Card>
@@ -317,7 +329,18 @@ export function OrderConfirmation({
 												<Button variant="outlined" size="large" onClick={handlePrint} startIcon={<IconPrinter size={20} />}>
 													{t('printReceipt')}
 												</Button>
+												<DownloadReceiptButton
+													orderNumber={orderNumber}
+													customerName={customerName}
+													serviceName={service?.title}
+													submittedAt={submittedAt}
+													locale={locale}
+												/>
 											</Stack>
+										</Grid>
+										{/* QR Code */}
+										<Grid size={{ xs: 12, md: 'auto' }}>
+											<OrderQRCode orderNumber={orderNumber} locale={locale} />
 										</Grid>
 									</Grid>
 								</CardContent>

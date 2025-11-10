@@ -2,53 +2,84 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendPaymentConfirmedEmail } from '@/lib/email-notifications';
 import { sendPaymentConfirmedWhatsApp } from '@/lib/whatsapp-notifications';
+import { verifyWebhookSignature } from '@/lib/utils/webhook-verification';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Payment webhook handler
  * Receives payment status updates from payment gateway
  */
 export async function POST(request: NextRequest) {
+	let gatewayType: 'palpay' | 'paytabs' | 'generic' = 'palpay';
+	let body: Record<string, unknown> | null = null;
+	
 	try {
-		const body = await request.json();
-		const gatewayType = process.env.PAYMENT_GATEWAY_TYPE || 'palpay';
+		gatewayType = (process.env.PAYMENT_GATEWAY_TYPE || 'palpay') as 'palpay' | 'paytabs' | 'generic';
 		const webhookSecret = process.env.PAYMENT_GATEWAY_WEBHOOK_SECRET;
 
-		// Verify webhook signature (if provided)
-		const signature = request.headers.get('x-signature') || request.headers.get('signature');
+		// Get raw body for signature verification (must be done before JSON parsing)
+		const rawBody = await request.text();
+		body = JSON.parse(rawBody) as Record<string, unknown>;
+
+		// Verify webhook signature
+		const signature = request.headers.get('x-signature') || 
+			request.headers.get('signature') ||
+			request.headers.get('x-palpay-signature') ||
+			request.headers.get('x-paytabs-signature');
+		
 		if (webhookSecret && signature) {
-			// TODO: Implement signature verification based on gateway
-			// This is a placeholder - actual implementation depends on gateway
+			const isValid = verifyWebhookSignature(
+				rawBody,
+				signature,
+				webhookSecret,
+				gatewayType
+			);
+
+			if (!isValid) {
+				return NextResponse.json(
+					{ error: 'Invalid webhook signature' },
+					{ status: 401 }
+				);
+			}
+		} else if (process.env.NODE_ENV === 'production') {
+			// In production, require signature verification
+			return NextResponse.json(
+				{ error: 'Webhook signature verification required' },
+				{ status: 401 }
+			);
 		}
 
 		const supabase = await createClient();
 
+		// Parse webhook payload based on gateway type
 		let invoiceId: string;
 		let transactionId: string;
 		let amount: number;
 		let status: 'paid' | 'failed' | 'pending';
-		let customerEmail: string;
-		let orderNumber: string;
-
-		// Parse webhook payload based on gateway type
+		
+		if (!body) {
+			return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
+		}
+		
 		if (gatewayType === 'palpay') {
 			// PalPay webhook format
-			invoiceId = body.metadata?.invoice_id || body.order_id;
-			transactionId = body.transaction_id || body.id;
-			amount = parseFloat(body.amount || body.total_amount);
+			invoiceId = (body.metadata as Record<string, unknown>)?.invoice_id as string || body.order_id as string;
+			transactionId = body.transaction_id as string || body.id as string;
+			amount = parseFloat((body.amount as string) || (body.total_amount as string));
 			status = body.status === 'success' || body.status === 'completed' ? 'paid' : 
 				body.status === 'failed' ? 'failed' : 'pending';
 		} else if (gatewayType === 'paytabs') {
 			// PayTabs webhook format
-			invoiceId = body.cart_id || body.invoice_id;
-			transactionId = body.tran_ref || body.transaction_id;
-			amount = parseFloat(body.cart_amount || body.amount);
-			status = body.payment_result?.response_status === 'A' ? 'paid' :
-				body.payment_result?.response_status === 'D' ? 'failed' : 'pending';
+			invoiceId = body.cart_id as string || body.invoice_id as string;
+			transactionId = body.tran_ref as string || body.transaction_id as string;
+			amount = parseFloat((body.cart_amount as string) || (body.amount as string));
+			status = (body.payment_result as Record<string, unknown>)?.response_status === 'A' ? 'paid' :
+				(body.payment_result as Record<string, unknown>)?.response_status === 'D' ? 'failed' : 'pending';
 		} else {
 			// Generic format (for testing)
-			invoiceId = body.invoice_id || body.invoiceId;
-			transactionId = body.transaction_id || body.transactionId;
-			amount = parseFloat(body.amount);
+			invoiceId = body.invoice_id as string || body.invoiceId as string;
+			transactionId = body.transaction_id as string || body.transactionId as string;
+			amount = parseFloat(body.amount as string);
 			status = body.status === 'paid' || body.status === 'success' ? 'paid' :
 				body.status === 'failed' ? 'failed' : 'pending';
 		}
@@ -65,12 +96,20 @@ export async function POST(request: NextRequest) {
 			.single();
 
 		if (invoiceError || !invoice) {
-			console.error('Invoice not found:', invoiceError);
+			logger.error('Invoice not found in webhook', invoiceError, { invoiceId });
 			return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
 		}
 
-		customerEmail = invoice.applications?.applicant_email || body.customer_email;
-		orderNumber = invoice.applications?.order_number || invoice.invoice_number;
+		// Validate amount matches invoice amount (prevent manipulation)
+		if (Math.abs(invoice.amount - amount) > 0.01) {
+			return NextResponse.json(
+				{ error: 'Amount mismatch' },
+				{ status: 400 }
+			);
+		}
+
+		const customerEmail = invoice.applications?.applicant_email || (body?.customer_email as string);
+		const orderNumber = invoice.applications?.order_number || invoice.invoice_number;
 
 		// Update invoice status
 		const { error: updateError } = await supabase
@@ -84,7 +123,7 @@ export async function POST(request: NextRequest) {
 			.eq('id', invoiceId);
 
 		if (updateError) {
-			console.error('Error updating invoice:', updateError);
+			logger.error('Failed to update invoice status', updateError, { invoiceId, status });
 			return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
 		}
 
@@ -125,7 +164,12 @@ export async function POST(request: NextRequest) {
 						dashboardUrl: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/requests/${invoice.applications?.id}`,
 					});
 				} catch (emailError) {
-					console.error('Error sending payment confirmation email:', emailError);
+					// Log error but don't fail webhook - email failures shouldn't block payment processing
+					logger.error('Failed to send payment confirmation email', emailError, {
+						customerEmail,
+						orderNumber,
+						invoiceId,
+					});
 				}
 			}
 
@@ -141,18 +185,25 @@ export async function POST(request: NextRequest) {
 						transactionId,
 					});
 				} catch (whatsappError) {
-					console.error('Error sending WhatsApp notification:', whatsappError);
+					// Log error but don't fail webhook - WhatsApp failures shouldn't block payment processing
+					logger.error('Failed to send payment confirmation WhatsApp', whatsappError, {
+						customerPhone: invoice.applications.customer_phone,
+						orderNumber,
+						invoiceId,
+					});
 				}
 			}
 		}
 
 		return NextResponse.json({ success: true, status });
-	} catch (error: any) {
-		console.error('Error processing webhook:', error);
+	} catch (error: unknown) {
+		logger.error('Payment webhook error', error, {
+			gatewayType,
+			body: body ? JSON.stringify(body) : 'null',
+		});
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }
 		);
 	}
 }
-

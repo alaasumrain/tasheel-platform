@@ -42,7 +42,7 @@ export default async function AdminDashboardPage() {
 
 	return (
 		<Box>
-			<AdminBreadcrumbs items={[{ label: 'Dashboard' }]} />
+			<AdminBreadcrumbs items={[{ label: t('breadcrumbs.dashboard') || 'Dashboard' }]} />
 			<Box sx={{ mb: 4 }}>
 				<Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
 					{t('title')}

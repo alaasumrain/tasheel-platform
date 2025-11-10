@@ -13,8 +13,13 @@ import {
 	Stack,
 } from '@mui/material';
 import { IconArrowRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+
+// Force dynamic rendering for admin login page
+export const dynamic = 'force-dynamic';
 
 export default function AdminLoginPage() {
+	const t = useTranslations('Admin.login');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
@@ -38,11 +43,11 @@ export default function AdminLoginPage() {
 				// Use window.location for full page reload to ensure cookies are sent
 				window.location.href = '/admin';
 			} else {
-				setError(data.error || 'Invalid email or password');
+				setError(data.error || t('loginFailed') || 'Invalid email or password');
 				setLoading(false);
 			}
 		} catch {
-			setError('An error occurred. Please try again.');
+			setError(t('generic') || 'An error occurred. Please try again.');
 			setLoading(false);
 		}
 	};
@@ -63,10 +68,10 @@ export default function AdminLoginPage() {
 						<Stack spacing={3}>
 							<Box>
 								<Typography variant="h4" component="h1" gutterBottom fontWeight={700}>
-									Admin Login
+									{t('title')}
 								</Typography>
 								<Typography variant="body2" color="text.secondary">
-									Enter your credentials to access the admin dashboard
+									{t('description')}
 								</Typography>
 							</Box>
 
@@ -81,7 +86,7 @@ export default function AdminLoginPage() {
 									<TextField
 										fullWidth
 										type="email"
-										label="Email"
+										label={t('email')}
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
 										required
@@ -91,7 +96,7 @@ export default function AdminLoginPage() {
 									<TextField
 										fullWidth
 										type="password"
-										label="Password"
+										label={t('password')}
 										value={password}
 										onChange={(e) => setPassword(e.target.value)}
 										required
@@ -106,7 +111,7 @@ export default function AdminLoginPage() {
 										endIcon={<IconArrowRight />}
 										sx={{ borderRadius: 2 }}
 									>
-										{loading ? 'Logging in...' : 'Login'}
+										{loading ? t('loggingIn') : t('login')}
 									</Button>
 								</Stack>
 							</form>

@@ -78,7 +78,7 @@ export default async function PaymentSuccessPage({ searchParams }: PageProps) {
 
 						{isPlaceholder && (
 							<Alert severity="info" sx={{ width: '100%', maxWidth: 500 }}>
-								<strong>وضع الاختبار:</strong> بوابة الدفع غير مُكوّنة. هذه عملية دفع تجريبية.
+								<strong>{t('testingMode')}:</strong> {t('testingModeDescription')}
 							</Alert>
 						)}
 

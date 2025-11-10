@@ -35,6 +35,7 @@ const QRCodeSVG = dynamic(
 
 import { Card } from '@/components/ui/card';
 import type { Service } from '@/data/services';
+import { useCurrency } from '@/contexts/currency-context';
 
 interface ServiceDetailSidebarProps {
 	service: Service;
@@ -47,9 +48,10 @@ export default function ServiceDetailSidebar({ service }: ServiceDetailSidebarPr
 	const theme = useTheme();
 	const [qrOpen, setQrOpen] = useState(false);
 
+	const { currency } = useCurrency();
 	const currencyFormatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
 		style: 'currency',
-		currency: 'ILS',
+		currency: currency === 'ILS' ? 'ILS' : currency === 'USD' ? 'USD' : 'EUR',
 		currencyDisplay: 'narrowSymbol',
 		maximumFractionDigits: 0,
 	});

@@ -18,8 +18,8 @@ export default async function FinancialsPage() {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Financials' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.financials') },
 				]}
 			/>
 			<FinancialDashboard metrics={metrics} invoices={invoices} payments={payments} />

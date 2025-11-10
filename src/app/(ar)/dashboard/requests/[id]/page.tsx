@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 import { CustomerRequestDetail } from '@/components/dashboard/CustomerRequestDetail';
 import { createClient } from '@/lib/supabase/server';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 
 export default async function RequestDetailPage({
 	params,
@@ -17,6 +17,7 @@ export default async function RequestDetailPage({
 	params: Promise<{ id: string }>;
 }) {
 	setRequestLocale('ar');
+	const t = await getTranslations('Dashboard.requestDetail.breadcrumbs');
 	const { id } = await params;
 	const customer = await getCustomerProfile();
 
@@ -67,7 +68,7 @@ export default async function RequestDetailPage({
 					<Stack spacing={4}>
 						<Breadcrumbs sx={{ mb: 2 }}>
 							<MuiLink component={Link} href="/dashboard" underline="hover" color="inherit">
-								Dashboard
+								{t('dashboard')}
 							</MuiLink>
 							<MuiLink
 								component={Link}
@@ -75,7 +76,7 @@ export default async function RequestDetailPage({
 								underline="hover"
 								color="inherit"
 							>
-								My Requests
+								{t('myRequests')}
 							</MuiLink>
 							<Typography color="text.primary">{order.order_number}</Typography>
 						</Breadcrumbs>

@@ -1,5 +1,6 @@
 import { setRequestLocale, getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
+import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator';
 
 // Admin routes layout - NO public Header/Footer
 export default async function AdminRoutesLayout({
@@ -16,6 +17,7 @@ export default async function AdminRoutesLayout({
 	return (
 		<NextIntlClientProvider locale="en" messages={messages}>
 			{children}
+			<NetworkStatusIndicator />
 		</NextIntlClientProvider>
 	);
 }

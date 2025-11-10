@@ -36,9 +36,9 @@ export default async function EditSLAConfigPage({
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'SLA Tracking', href: '/admin/sla' },
-					{ label: 'Edit Configuration' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.sla'), href: '/admin/sla' },
+					{ label: t('edit') || 'Edit Configuration' },
 				]}
 			/>
 			<SLAConfigForm

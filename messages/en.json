@@ -65,7 +65,7 @@
 		"viewDetails": "View Details",
 		"requestQuote": "Start Service",
 		"requestQuoteNow": "Start Service Now",
-		"startService": "Upload Documents",
+		"startService": "Start Your Service",
 		"startingPrice": "Pricing",
 		"from": "From",
 		"turnaroundTime": "Turnaround Time",
@@ -148,6 +148,14 @@
 		}
 	},
 	"Admin": {
+		"login": {
+			"title": "Admin Login",
+			"description": "Enter your credentials to access the admin dashboard",
+			"loggingIn": "Logging in...",
+			"login": "Login",
+			"email": "Email",
+			"password": "Password"
+		},
 		"layout": {
 			"title": "Tasheel",
 			"subtitle": "Admin Dashboard",
@@ -290,6 +298,10 @@
 		"customers": {
 			"pageTitle": "All Customers",
 			"pageDescription": "Manage customer accounts and view order history",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"customers": "Customers"
+			},
 			"table": {
 				"name": "Name",
 				"email": "Email",
@@ -322,6 +334,10 @@
 		"financials": {
 			"pageTitle": "Financial Dashboard",
 			"pageDescription": "View revenue metrics, invoices, and payments",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"financials": "Financials"
+			},
 			"stats": {
 				"revenueToday": "Revenue Today",
 				"revenueThisWeek": "Revenue This Week",
@@ -355,6 +371,10 @@
 		"tasks": {
 			"pageTitle": "Task Management",
 			"pageDescription": "Manage and track tasks",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"tasks": "Tasks"
+			},
 			"createTask": "Create Task",
 			"createTaskDescription": "Create a new task",
 			"editTask": "Edit Task",
@@ -419,6 +439,10 @@
 		"sla": {
 			"pageTitle": "SLA Tracking",
 			"pageDescription": "Monitor service level agreements and track compliance",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"sla": "SLA Tracking"
+			},
 			"tracking": "SLA Tracking",
 			"stats": {
 				"onTrack": "On Track",
@@ -493,6 +517,10 @@
 		"users": {
 			"pageTitle": "User Management",
 			"pageDescription": "Manage admin and staff users",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"users": "Users"
+			},
 			"table": {
 				"name": "Name",
 				"email": "Email",
@@ -574,6 +602,10 @@
 		"settings": {
 			"title": "Settings",
 			"description": "Configure your admin dashboard",
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"settings": "Settings"
+			},
 			"adminInfo": {
 				"title": "Admin Information",
 				"description": "Admin dashboard for managing Tasheel orders and customer requests.",
@@ -731,6 +763,10 @@
 			}
 		},
 		"requestDetail": {
+			"breadcrumbs": {
+				"dashboard": "Dashboard",
+				"myRequests": "My Requests"
+			},
 			"requestDetails": "Request Details",
 			"submitted": "Submitted",
 			"serviceDetails": "Service Details",
@@ -954,7 +990,9 @@
 			"viewOrder": "View Order",
 			"goToDashboard": "Go to Dashboard",
 			"confirmationEmail": "A confirmation email has been sent to your email address.",
-			"invalidRequest": "Invalid payment request"
+			"invalidRequest": "Invalid payment request",
+			"testingMode": "Testing Mode",
+			"testingModeDescription": "Payment gateway is not configured. This is a test payment."
 		},
 		"cancel": {
 			"title": "Payment Cancelled",
@@ -975,7 +1013,7 @@
 	"Homepage": {
 		"hero": {
 			"headline": "Your gateway to managing official procedures with ease and confidence",
-			"description": "From driver's license renewals to document legalization—submit online, track progress, and receive completed services. No office visits required.",
+			"description": "From driver's license renewals to document legalization—submit online, track progress, and receive completed services.",
 			"trustedBy": "Trusted by 5,000+ residents and 200+ businesses",
 			"primaryCta": "Our Services",
 			"secondaryCta": "Track Order"
@@ -1158,6 +1196,7 @@
 	},
 	"Quote": {
 		"requestQuote": "Start Service",
+		"bookService": "Book Service",
 		"title": "Get your personalized quote",
 		"description": "Upload the required documents and we'll start processing your request immediately.",
 		"backTo": "Back to",
@@ -1166,23 +1205,42 @@
 		"whatHappensNext2": "We contact you via phone or email with a detailed quote",
 		"whatHappensNext3": "Once approved, we begin processing your order",
 		"whatHappensNext4": "Track your order status anytime at tasheel.ps/track",
+		"checkout": {
+			"step3Title": "Review & Pay",
+			"reviewSubtitle": "Please review your information and proceed to payment",
+			"totalAmount": "Total Amount",
+			"payNow": "Pay Now",
+			"processing": "Processing...",
+			"orderConfirmed": "Order Confirmed",
+			"steps": {
+				"step4Payment": "Payment"
+			}
+		},
 		"wizard": {
 			"steps": {
 				"step1": "Your Details",
 				"step2": "Service Requirements",
-				"step3": "Review & Submit"
+				"step3": "Review & Submit",
+				"step4Payment": "Payment"
 			},
 			"step1Title": "Let's start with your contact information",
+			"step1Subtitle": "We need your contact information to reach out about your request",
 			"step2Title": "Upload Documents",
+			"step2Subtitle": "Please provide the required details and documents for the service",
 			"step3Title": "Review your request",
 			"fullName": "Full Name",
 			"emailAddress": "Email Address",
 			"phoneNumber": "Phone Number",
+			"serviceRequired": "Service Required",
 			"serviceUrgency": "Service Urgency",
 			"additionalDetails": "Additional Details",
 			"additionalNotes": "Additional Notes (Optional)",
+			"optional": "Optional",
 			"detailsPlaceholder": "Any specific requirements or questions...",
+			"detailsHelper": "Please provide details about the document(s) or specific requirements",
 			"notesPlaceholder": "Any other information we should know...",
+			"note": "Note",
+			"submitNote": "After submitting this form, our team will contact you within 2 hours to confirm details and arrange document pickup (if needed) or provide upload instructions.",
 			"urgencyOptions": {
 				"standard": "Standard (Normal processing)",
 				"express": "Express (Faster processing)",
@@ -1295,7 +1353,18 @@
 			"clickToUpload": "Click to upload or drag and drop",
 			"removeFile": "Remove file",
 			"maxSize": "Max {size}MB",
-			"fileSizeError": "File size must be less than {maxSize}MB (current: {currentSize}MB)"
+			"fileSizeError": "File size must be less than {maxSize}MB (current: {currentSize}MB)",
+			"filesSelected": "{count, plural, one {# file selected} other {# files selected}}",
+			"addMoreFiles": "Click to add more files",
+			"maxFiles": "Max {count} files",
+			"takePhoto": "Take Photo",
+			"uploaded": "Uploaded",
+			"failed": "Failed",
+			"retry": "Retry",
+			"remove": "Remove",
+			"close": "Close",
+			"fileTooLarge": "File is too large. Maximum size is {maxSize}",
+			"uploadFailed": "Upload failed. Please try again."
 		},
 		"contact": {
 			"name": "Name",
@@ -1311,6 +1380,9 @@
 			"emailConfigError": "Email configuration error. Please contact support.",
 			"unexpectedError": "An unexpected error occurred. Please try again.",
 			"orderCreated": "Order {orderNumber} created successfully! Check your email for confirmation.",
+			"checkoutCreated": "Checkout created: {orderNumber}. Proceeding to payment...",
+			"serviceNotFound": "Service not found.",
+			"invoiceCreationFailed": "Failed to create invoice.",
 			"initFormFailed": "Failed to initialize form. Please refresh and try again.",
 			"fileUploadFailed": "File upload failed",
 			"saveFileFailed": "Failed to save file record. Please try again.",

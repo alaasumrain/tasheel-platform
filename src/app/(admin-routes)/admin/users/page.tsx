@@ -32,8 +32,8 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
 		<Box>
 			<AdminBreadcrumbs
 				items={[
-					{ label: 'Dashboard', href: '/admin' },
-					{ label: 'Users' },
+					{ label: t('breadcrumbs.dashboard'), href: '/admin' },
+					{ label: t('breadcrumbs.users') },
 				]}
 			/>
 			<UsersPageClient users={users} />

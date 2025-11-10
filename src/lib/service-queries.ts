@@ -24,14 +24,22 @@ export async function getAllServices(): Promise<Service[]> {
 
 /**
  * Get service by slug
+ * In development, allows accessing inactive services for debugging
  */
 export async function getServiceBySlug(slug: string): Promise<Service | null> {
-	const { data, error } = await supabase
+	const isDevelopment = process.env.NODE_ENV === 'development';
+	
+	let query = supabase
 		.from('services')
 		.select('*')
-		.eq('slug', slug)
-		.eq('is_active', true)
-		.single();
+		.eq('slug', slug);
+	
+	// Only filter by is_active in production
+	if (!isDevelopment) {
+		query = query.eq('is_active', true);
+	}
+	
+	const { data, error } = await query.single();
 
 	if (error) {
 		if (error.code === 'PGRST116') {

@@ -65,7 +65,7 @@
 		"viewDetails": "عرض التفاصيل",
 		"requestQuote": "ابدأ الخدمة",
 		"requestQuoteNow": "ابدأ الخدمة الآن",
-		"startService": "رفع المستندات",
+		"startService": "ابدأ خدمتك",
 		"startingPrice": "السعر",
 		"from": "من",
 		"turnaroundTime": "وقت الإنجاز",
@@ -154,6 +154,14 @@
 		}
 	},
 	"Admin": {
+		"login": {
+			"title": "تسجيل دخول الإدارة",
+			"description": "أدخل بيانات الاعتماد الخاصة بك للوصول إلى لوحة تحكم الإدارة",
+			"loggingIn": "جاري تسجيل الدخول...",
+			"login": "تسجيل الدخول",
+			"email": "البريد الإلكتروني",
+			"password": "كلمة المرور"
+		},
 		"layout": {
 			"title": "تسهيل",
 			"subtitle": "لوحة تحكم الإدارة",
@@ -301,6 +309,10 @@
 		"customers": {
 			"pageTitle": "جميع العملاء",
 			"pageDescription": "إدارة حسابات العملاء وعرض سجل الطلبات",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"customers": "العملاء"
+			},
 			"table": {
 				"name": "الاسم",
 				"email": "البريد الإلكتروني",
@@ -333,6 +345,10 @@
 		"financials": {
 			"pageTitle": "لوحة المعلومات المالية",
 			"pageDescription": "عرض مقاييس الإيرادات والفواتير والمدفوعات",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"financials": "المالية"
+			},
 			"stats": {
 				"revenueToday": "الإيرادات اليوم",
 				"revenueThisWeek": "الإيرادات هذا الأسبوع",
@@ -366,6 +382,10 @@
 		"tasks": {
 			"pageTitle": "إدارة المهام",
 			"pageDescription": "إدارة وتتبع المهام",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"tasks": "المهام"
+			},
 			"createTask": "إنشاء مهمة",
 			"createTaskDescription": "إنشاء مهمة جديدة",
 			"editTask": "تعديل المهمة",
@@ -430,6 +450,10 @@
 		"sla": {
 			"pageTitle": "تتبع SLA",
 			"pageDescription": "مراقبة اتفاقيات مستوى الخدمة وتتبع الامتثال",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"sla": "تتبع SLA"
+			},
 			"tracking": "تتبع SLA",
 			"stats": {
 				"onTrack": "على المسار الصحيح",
@@ -504,6 +528,10 @@
 		"users": {
 			"pageTitle": "إدارة المستخدمين",
 			"pageDescription": "إدارة مستخدمي الإدارة والموظفين",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"users": "المستخدمون"
+			},
 			"table": {
 				"name": "الاسم",
 				"email": "البريد الإلكتروني",
@@ -585,6 +613,10 @@
 		"settings": {
 			"title": "الإعدادات",
 			"description": "تكوين لوحة تحكم الإدارة",
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"settings": "الإعدادات"
+			},
 			"adminInfo": {
 				"title": "معلومات الإدارة",
 				"description": "لوحة تحكم الإدارة لإدارة طلبات تسهيل وطلبات العملاء.",
@@ -742,6 +774,10 @@
 			}
 		},
 		"requestDetail": {
+			"breadcrumbs": {
+				"dashboard": "لوحة التحكم",
+				"myRequests": "طلباتي"
+			},
 			"requestDetails": "تفاصيل الطلب",
 			"submitted": "تم الإرسال",
 			"serviceDetails": "تفاصيل الخدمة",
@@ -965,7 +1001,9 @@
 			"viewOrder": "عرض الطلب",
 			"goToDashboard": "الذهاب إلى لوحة التحكم",
 			"confirmationEmail": "تم إرسال رسالة تأكيد إلى عنوان بريدك الإلكتروني.",
-			"invalidRequest": "طلب دفع غير صالح"
+			"invalidRequest": "طلب دفع غير صالح",
+			"testingMode": "وضع الاختبار",
+			"testingModeDescription": "بوابة الدفع غير مُكوّنة. هذه عملية دفع تجريبية."
 		},
 		"cancel": {
 			"title": "تم إلغاء الدفع",
@@ -986,7 +1024,7 @@
 	"Homepage": {
 		"hero": {
 			"headline": "بوابتك لإدارة الإجراءات الرسمية بسهولة وثقة",
-			"description": "من تجديد رخص القيادة إلى تصديق الوثائق—قدم عبر الإنترنت، تتبع التقدم، واستلم الخدمات المكتملة. لا حاجة لزيارة المكاتب.",
+			"description": "من تجديد رخص القيادة إلى تصديق الوثائق—قدم عبر الإنترنت، تتبع التقدم، واستلم الخدمات المكتملة.",
 			"trustedBy": "موثوق به من قبل 5000+ مواطن و200+ شركة",
 			"primaryCta": "خدماتنا",
 			"secondaryCta": "تتبع الطلب"
@@ -1169,6 +1207,7 @@
 	},
 	"Quote": {
 		"requestQuote": "ابدأ الخدمة",
+		"bookService": "احجز الخدمة",
 		"title": "احصل على عرض السعر المخصص",
 		"description": "قم برفع المستندات المطلوبة وسنبدأ معالجة طلبك فوراً.",
 		"backTo": "العودة إلى",
@@ -1177,14 +1216,28 @@
 		"whatHappensNext2": "نتواصل معك عبر الهاتف أو البريد الإلكتروني مع عرض سعر مفصل",
 		"whatHappensNext3": "بمجرد الموافقة، نبدأ معالجة طلبك",
 		"whatHappensNext4": "تتبع حالة طلبك في أي وقت على tasheel.ps/track",
+		"checkout": {
+			"step3Title": "المراجعة والدفع",
+			"reviewSubtitle": "يرجى مراجعة معلوماتك والمتابعة للدفع",
+			"totalAmount": "المبلغ الإجمالي",
+			"payNow": "ادفع الآن",
+			"processing": "جاري المعالجة...",
+			"orderConfirmed": "تم تأكيد الطلب",
+			"steps": {
+				"step4Payment": "الدفع"
+			}
+		},
 		"wizard": {
 			"steps": {
 				"step1": "معلوماتك",
 				"step2": "متطلبات الخدمة",
-				"step3": "المراجعة والإرسال"
+				"step3": "المراجعة والإرسال",
+				"step4Payment": "الدفع"
 			},
 			"step1Title": "لنبدأ بمعلومات الاتصال الخاصة بك",
+			"step1Subtitle": "نحتاج إلى معلومات الاتصال الخاصة بك للتواصل معك بشأن طلبك",
 			"step2Title": "رفع المستندات",
+			"step2Subtitle": "يرجى تقديم التفاصيل والمستندات المطلوبة للخدمة",
 			"step3Title": "راجع طلبك",
 			"fullName": "الاسم الكامل",
 			"emailAddress": "عنوان البريد الإلكتروني",
@@ -1193,6 +1246,7 @@
 			"serviceUrgency": "أولوية الخدمة",
 			"additionalDetails": "تفاصيل إضافية",
 			"additionalNotes": "ملاحظات إضافية (اختياري)",
+			"optional": "اختياري",
 			"detailsPlaceholder": "أي متطلبات أو أسئلة محددة...",
 			"detailsHelper": "يرجى تقديم تفاصيل حول المستند(ات) أو المتطلبات المحددة",
 			"notesPlaceholder": "أي معلومات أخرى يجب أن نعرفها...",
@@ -1310,7 +1364,18 @@
 			"clickToUpload": "انقر للرفع أو اسحب وأفلت",
 			"removeFile": "حذف الملف",
 			"maxSize": "الحد الأقصى {size} ميجابايت",
-			"fileSizeError": "يجب أن يكون حجم الملف أقل من {maxSize} ميجابايت (الحالي: {currentSize} ميجابايت)"
+			"fileSizeError": "يجب أن يكون حجم الملف أقل من {maxSize} ميجابايت (الحالي: {currentSize} ميجابايت)",
+			"filesSelected": "{count, plural, one {تم اختيار ملف واحد} other {تم اختيار # ملفات}}",
+			"addMoreFiles": "انقر لإضافة المزيد من الملفات",
+			"maxFiles": "الحد الأقصى {count} ملف",
+			"takePhoto": "التقاط صورة",
+			"uploaded": "تم الرفع",
+			"failed": "فشل",
+			"retry": "إعادة المحاولة",
+			"remove": "حذف",
+			"close": "إغلاق",
+			"fileTooLarge": "الملف كبير جداً. الحد الأقصى للحجم هو {maxSize}",
+			"uploadFailed": "فشل الرفع. يرجى المحاولة مرة أخرى."
 		},
 		"contact": {
 			"name": "الاسم",
@@ -1326,6 +1391,9 @@
 			"emailConfigError": "خطأ في إعدادات البريد الإلكتروني. يرجى الاتصال بالدعم.",
 			"unexpectedError": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
 			"orderCreated": "تم إنشاء الطلب {orderNumber} بنجاح! تحقق من بريدك الإلكتروني للحصول على التأكيد.",
+			"checkoutCreated": "تم إنشاء الدفع: {orderNumber}. جاري الانتقال إلى الدفع...",
+			"serviceNotFound": "الخدمة غير موجودة.",
+			"invoiceCreationFailed": "فشل إنشاء الفاتورة.",
 			"initFormFailed": "فشل تهيئة النموذج. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
 			"fileUploadFailed": "فشل رفع الملف",
 			"saveFileFailed": "فشل حفظ سجل الملف. يرجى المحاولة مرة أخرى.",
