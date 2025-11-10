@@ -15,9 +15,6 @@ import {
 import { IconArrowRight } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
-// Force dynamic rendering for admin login page
-export const dynamic = 'force-dynamic';
-
 export default function AdminLoginPage() {
 	const t = useTranslations('Admin.login');
 	const [email, setEmail] = useState('');
