@@ -21,6 +21,7 @@ import { IconCheck, IconArrowRight } from '@tabler/icons-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Typography } from '@mui/material';
+import { MFASettings } from './MFASettings';
 
 interface Customer {
 	id: string;
@@ -233,6 +234,11 @@ export function ProfileSettingsForm({ customer }: ProfileSettingsFormProps) {
 					</Button>
 				</Stack>
 			</form>
+
+			<Divider />
+
+			{/* MFA Settings */}
+			<MFASettings />
 		</Stack>
 	);
 }

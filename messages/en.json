@@ -664,18 +664,47 @@
 			"pageSubtitle": "Access your dashboard and manage your requests",
 			"fields": {
 				"email": "Email",
-				"password": "Password"
+				"password": "Password",
+				"phone": "Phone Number"
+			},
+			"methods": {
+				"email": "Email",
+				"phone": "Phone"
 			},
 			"errors": {
 				"fieldsRequired": "Email and password are required",
 				"loginFailed": "Invalid email or password",
+				"phoneRequired": "Phone number is required",
+				"otpSendFailed": "Failed to send OTP. Please try again.",
+				"otpInvalid": "Invalid OTP code. Please try again.",
+				"mfaInvalid": "Invalid MFA code. Please try again.",
 				"generic": "An error occurred. Please try again."
 			},
 			"submit": "Login",
+			"sendOTP": "Send OTP",
+			"otpSent": "OTP sent successfully!",
+			"otpVerified": "OTP verified successfully!",
+			"phoneHelper": "We'll send a verification code via WhatsApp",
+			"mfaTitle": "Two-Factor Authentication",
+			"mfaDescription": "Please enter the code from your authenticator app",
+			"mfaCode": "Verification Code",
+			"mfaVerified": "MFA verified successfully!",
+			"verifying": "Verifying...",
+			"verify": "Verify",
 			"success": "Login successful!",
 			"forgotPassword": "Forgot password?",
 			"noAccount": "Don't have an account?",
 			"registerLink": "Register"
+		},
+		"otp": {
+			"title": "Verify Your Phone",
+			"description": "We've sent a 6-digit code to {phone}. Please enter it below.",
+			"enterCode": "Enter verification code",
+			"verify": "Verify",
+			"verifying": "Verifying...",
+			"didntReceive": "Didn't receive the code?",
+			"resend": "Resend",
+			"resendIn": "Resend in {seconds}s"
 		},
 		"forgotPassword": {
 			"title": "Reset Password",
@@ -834,6 +863,27 @@
 				"passwordMin": "Password must be at least 6 characters",
 				"passwordMismatch": "Passwords do not match",
 				"currentPasswordInvalid": "Current password is incorrect"
+			},
+			"mfa": {
+				"title": "Two-Factor Authentication",
+				"description": "Add an extra layer of security to your account with TOTP authenticator apps",
+				"enabled": "Two-factor authentication is enabled",
+				"notEnabled": "Two-factor authentication is not enabled",
+				"enable": "Enable Two-Factor Authentication",
+				"addAnother": "Add Another Authenticator",
+				"authenticatorApp": "Authenticator App",
+				"enrolledAt": "Enrolled",
+				"remove": "Remove",
+				"enrollTitle": "Set Up Two-Factor Authentication",
+				"scanQR": "Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)",
+				"orEnterSecret": "Or enter this secret manually:",
+				"enterCode": "Enter the 6-digit code from your app",
+				"generatingQR": "Generating QR code...",
+				"verifying": "Verifying...",
+				"verify": "Verify & Enable",
+				"cancel": "Cancel",
+				"enrolledSuccess": "Two-factor authentication enabled successfully!",
+				"unenrolledSuccess": "Two-factor authentication disabled successfully!"
 			}
 		},
 		"fileUpload": {
@@ -1021,7 +1071,7 @@
 		"intro": {
 			"subtitle": "Government Services Concierge",
 			"title": "Skip the queues, get it done online",
-			"description": "Upload documents, track progress, receive approvals—all without visiting an office."
+			"description": "Upload documents, track progress, receive approvals—all online."
 		},
 		"whyUs": {
 			"tagline": "Why us?",
@@ -1120,7 +1170,7 @@
 		},
 		"features": {
 			"feature1Headline": "Government Services Concierge",
-			"feature1Description": "Renew licenses, request permits, and manage official certificates without visiting a service center.",
+			"feature1Description": "Renew licenses, request permits, and manage official certificates online.",
 			"feature2Headline": "Certified Translation Desk",
 			"feature2Description": "Order legal, medical, and academic translations with sworn translators and stamped deliverables.",
 			"feature3Headline": "Legalization & Corporate Support",
@@ -1263,6 +1313,14 @@
 			"reviewSubtitle": "Please review your information before submitting",
 			"reviewAlert": "Our team will contact you within 2 hours to confirm details and provide a detailed quote.",
 			"serviceRequested": "Service Requested",
+			"shippingInformation": "Shipping Information",
+			"shippingLocation": "Shipping Location",
+			"deliveryType": "Delivery Type",
+			"deliveryCount": "Number of Deliveries",
+			"deliveryCountHelper": "Enter the number of deliveries required (minimum 2)",
+			"serviceFee": "Service Fee",
+			"shippingCost": "Shipping Cost",
+			"totalWithShipping": "Total (including shipping)",
 			"validation": {
 				"nameRequired": "Please enter your full name (at least 2 characters)",
 				"emailRequired": "Please enter a valid email address",
@@ -1273,7 +1331,10 @@
 				"detailsRequired": "Please provide at least 10 characters of details",
 				"documentsRequired": "Please upload required documents: {documents}",
 				"fixErrors": "Please fix the errors before continuing",
-				"fixErrorsSubmit": "Please fix the errors before submitting"
+				"fixErrorsSubmit": "Please fix the errors before submitting",
+				"shippingLocationRequired": "Please select a shipping location",
+				"deliveryTypeRequired": "Please select a delivery type",
+				"deliveryCountRequired": "Please enter the number of deliveries (minimum 2)"
 			},
 			"toast": {
 				"initFailed": "Failed to initialize form. Please refresh the page.",
@@ -1383,6 +1444,7 @@
 			"checkoutCreated": "Checkout created: {orderNumber}. Proceeding to payment...",
 			"serviceNotFound": "Service not found.",
 			"invoiceCreationFailed": "Failed to create invoice.",
+			"shippingFieldsRequired": "Shipping location and delivery type are required for checkout.",
 			"initFormFailed": "Failed to initialize form. Please refresh and try again.",
 			"fileUploadFailed": "File upload failed",
 			"saveFileFailed": "Failed to save file record. Please try again.",
@@ -1415,7 +1477,7 @@
 		"description": "Tasheel is your trusted partner for government services, document translation, and legalization. We believe that accessing government services shouldn't require hours of waiting in lines or navigating complex bureaucracy.\n\nOur platform connects you directly with certified professionals who handle everything from driver's license renewals to embassy legalizations—all online, all secure, all transparent.\n\nFounded with a mission to modernize how citizens and businesses interact with government services, Tasheel combines expert knowledge with cutting-edge technology to deliver fast, compliant, and hassle-free service delivery."
 	},
 	"ServicesOverview": {
-		"description": "From driver's license renewals to document attestation—submit online, track progress, and receive completed services. No office visits required.",
+		"description": "From driver's license renewals to document attestation—submit online, track progress, and receive completed services.",
 		"searchLabel": "Search services",
 		"searchPlaceholder": "Search services (e.g. driver's license, attestation)",
 		"clearSearch": "Clear search",

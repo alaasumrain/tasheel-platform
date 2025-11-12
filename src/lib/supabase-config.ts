@@ -2,6 +2,7 @@
 // Gracefully handle missing env vars instead of crashing the entire app
 export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 /**
  * Check if Supabase is properly configured
@@ -35,5 +36,13 @@ export function getSupabaseAnonKey(): string {
 		);
 	}
 	return supabaseAnonKey;
+}
+
+/**
+ * Get Supabase service role key for admin operations
+ * Use this ONLY in server-side API routes, never expose to client
+ */
+export function getSupabaseServiceKey(): string | undefined {
+	return supabaseServiceKey;
 }
 

@@ -13,7 +13,7 @@ export const routing = defineRouting({
 		mode: 'as-needed',
 	},
 
-	// Disable automatic locale detection to prevent /tools being treated as a locale
-	localeDetection: false,
+	// Enable automatic locale detection from browser preferences
+	localeDetection: true,
 });
 

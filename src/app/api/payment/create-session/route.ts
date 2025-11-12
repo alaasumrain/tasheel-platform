@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
 		}
 
+		// Use invoice amount (includes shipping) instead of passed amount
+		const paymentAmount = invoice.amount || amount;
 		const customerEmail = invoice.applications?.applicant_email || '';
 		if (!customerEmail) {
 			return NextResponse.json(
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
 					},
 					body: JSON.stringify({
 						merchant_id: palpayMerchantId,
-						amount: amount,
+						amount: paymentAmount,
 						currency: currency,
 						order_id: invoice.invoice_number || invoiceId,
 						customer_email: customerEmail,
@@ -154,8 +156,8 @@ export async function POST(request: NextRequest) {
 						tran_class: 'ecom',
 						cart_id: invoice.invoice_number || invoiceId,
 						cart_currency: currency,
-						cart_amount: amount,
-						cart_description: `Payment for order ${orderNumber || invoice.invoice_number}`,
+						cart_amount: paymentAmount,
+						cart_description: `Payment for order ${orderNumber || invoice.invoice_number} (includes shipping)`,
 						customer_details: {
 							name: invoice.applications?.customer_name || 'Customer',
 							email: customerEmail,

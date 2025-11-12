@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { getTranslations } from 'next-intl/server';
 import { getServiceFields } from '@/lib/service-form-fields';
 import { getServiceBySlug } from '@/lib/service-queries';
+import { calculateShippingRate, type ShippingLocation, type DeliveryType } from '@/lib/shipping-rates';
 
 export async function submitCheckout(formData: FormData): Promise<{
 	type: 'success' | 'error';
@@ -26,9 +27,20 @@ export async function submitCheckout(formData: FormData): Promise<{
 		const details = formData.get('details') as string;
 		const additionalNotes = formData.get('message') as string;
 
+		// Extract shipping fields
+		const shippingLocation = formData.get('shipping_location') as ShippingLocation | null;
+		const deliveryType = formData.get('delivery_type') as DeliveryType | null;
+		const deliveryCountStr = formData.get('delivery_count') as string | null;
+		const deliveryCount = deliveryCountStr ? parseInt(deliveryCountStr, 10) : 1;
+
 		// Validate
 		if (!name || !email || !phone || !serviceSlug || !urgency || !details) {
 			return { type: 'error', message: t('fillAllFields') };
+		}
+
+		// Validate shipping fields for checkout flow
+		if (!shippingLocation || !deliveryType) {
+			return { type: 'error', message: t('shippingFieldsRequired') || 'Shipping location and delivery type are required' };
 		}
 
 		// Get service to get price
@@ -37,7 +49,17 @@ export async function submitCheckout(formData: FormData): Promise<{
 			return { type: 'error', message: t('serviceNotFound') };
 		}
 
-		const amount = serviceFromDB.pricing.amount;
+		const serviceAmount = serviceFromDB.pricing.amount;
+
+		// Calculate shipping amount
+		const shippingAmount = calculateShippingRate({
+			location: shippingLocation,
+			deliveryType: deliveryType,
+			deliveryCount: deliveryType === 'multiple' ? Math.max(2, deliveryCount) : 1,
+		});
+
+		// Total amount includes service fee + shipping
+		const totalAmount = serviceAmount + shippingAmount;
 
 		// Get uploaded attachments
 		const { data: attachments } = await supabase
@@ -69,11 +91,21 @@ export async function submitCheckout(formData: FormData): Promise<{
 				customer_phone: phone,
 				status: 'submitted',
 				urgency: urgency,
+				shipping_location: shippingLocation,
+				delivery_type: deliveryType,
+				delivery_count: deliveryType === 'multiple' ? Math.max(2, deliveryCount) : 1,
+				shipping_amount: shippingAmount,
 				payload: {
 					urgency,
 					details,
 					additional_notes: additionalNotes,
 					service_specific: serviceSpecificData,
+					shipping: {
+						location: shippingLocation,
+						delivery_type: deliveryType,
+						delivery_count: deliveryType === 'multiple' ? Math.max(2, deliveryCount) : 1,
+						amount: shippingAmount,
+					},
 					attachments: attachments?.map(att => ({
 						id: att.id,
 						file_name: att.file_name,
@@ -111,7 +143,7 @@ export async function submitCheckout(formData: FormData): Promise<{
 			.insert({
 				application_id: applicationId,
 				invoice_number: invoiceNumber,
-				amount: amount,
+				amount: totalAmount, // Include shipping in invoice amount
 				currency: 'ILS',
 				status: 'pending',
 				due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -127,8 +159,8 @@ export async function submitCheckout(formData: FormData): Promise<{
 		await supabase.from('application_events').insert({
 			application_id: applicationId,
 			event_type: 'checkout_submitted',
-			notes: `Checkout submitted: ${orderNumber} - Invoice: ${invoiceNumber}`,
-			data: { invoice_id: invoice.id, amount },
+			notes: `Checkout submitted: ${orderNumber} - Invoice: ${invoiceNumber} - Shipping: ${shippingAmount} NIS`,
+			data: { invoice_id: invoice.id, service_amount: serviceAmount, shipping_amount: shippingAmount, total_amount: totalAmount },
 		});
 
 		return {

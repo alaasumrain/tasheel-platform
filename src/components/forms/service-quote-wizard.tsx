@@ -41,6 +41,7 @@ import { PaymentFlow } from '@/components/dashboard/PaymentFlow';
 import { useFormAnalytics } from '@/hooks/use-analytics';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useTranslations, useLocale } from 'next-intl';
+import { calculateShippingRate, getShippingLocationLabel, getDeliveryTypeLabel, type ShippingLocation, type DeliveryType } from '@/lib/shipping-rates';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -125,6 +126,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				// Invalid saved data, ignore
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [storageKey]);
 
 	// Auto-save to localStorage whenever formData changes
@@ -266,6 +268,22 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					}
 				}
 			});
+
+			// Validate shipping fields for checkout flow
+			if (isCheckoutFlow) {
+				if (!formData.shipping_location) {
+					newErrors.shipping_location = t('validation.shippingLocationRequired');
+				}
+				if (!formData.delivery_type) {
+					newErrors.delivery_type = t('validation.deliveryTypeRequired');
+				}
+				if (formData.delivery_type === 'multiple') {
+					const deliveryCount = parseInt(formData.delivery_count || '0', 10);
+					if (!formData.delivery_count || deliveryCount < 2) {
+						newErrors.delivery_count = t('validation.deliveryCountRequired');
+					}
+				}
+			}
 
 			// Details field is optional, so no validation needed
 		} else if (step === 2) {
@@ -639,6 +657,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						uploadingFiles={uploadingFiles}
 						onFileChange={handleFileChange}
 						onRemoveFile={handleRemoveFile}
+						isCheckoutFlow={isCheckoutFlow}
 					/>
 				);
 			case 2:
@@ -1095,6 +1114,7 @@ function Step2Content({
 	uploadingFiles,
 	onFileChange,
 	onRemoveFile,
+	isCheckoutFlow = false,
 }: {
 	serviceFields: FormField[];
 	formData: Record<string, string>;
@@ -1105,6 +1125,7 @@ function Step2Content({
 	uploadingFiles: Record<string, boolean>;
 	onFileChange: (fieldName: string, file: File | null) => void;
 	onRemoveFile: (fieldName: string) => void;
+	isCheckoutFlow?: boolean;
 }) {
 	const t = useTranslations('Quote.wizard');
 	const locale = useLocale() as 'en' | 'ar';
@@ -1305,6 +1326,79 @@ function Step2Content({
 					</Select>
 				</FormControl>
 
+				{/* Shipping Information - Only in Checkout Flow */}
+				{isCheckoutFlow && (
+					<>
+						<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} />
+						<Typography variant="subtitle2" fontWeight={600} sx={{ mt: 1 }}>
+							{t('shippingInformation')}
+						</Typography>
+						
+						{/* Shipping Location */}
+						<FormControl required error={!!errors.shipping_location}>
+							<FormLabel htmlFor="shipping_location">{t('shippingLocation')}</FormLabel>
+							<Select
+								id="shipping_location"
+								name="shipping_location"
+								required
+								value={formData.shipping_location || ''}
+								onChange={(e) => onChange('shipping_location', e.target.value)}
+								error={!!errors.shipping_location}
+							>
+								<MenuItem value="west_bank">{getShippingLocationLabel('west_bank', locale)}</MenuItem>
+								<MenuItem value="jerusalem">{getShippingLocationLabel('jerusalem', locale)}</MenuItem>
+								<MenuItem value="area_48">{getShippingLocationLabel('area_48', locale)}</MenuItem>
+								<MenuItem value="international">{getShippingLocationLabel('international', locale)}</MenuItem>
+							</Select>
+							{errors.shipping_location && <FormHelperText error>{errors.shipping_location}</FormHelperText>}
+						</FormControl>
+
+						{/* Delivery Type */}
+						<FormControl required error={!!errors.delivery_type}>
+							<FormLabel htmlFor="delivery_type">{t('deliveryType')}</FormLabel>
+							<Select
+								id="delivery_type"
+								name="delivery_type"
+								required
+								value={formData.delivery_type || ''}
+								onChange={(e) => {
+									onChange('delivery_type', e.target.value);
+									// Reset delivery_count when switching to single
+									if (e.target.value === 'single') {
+										onChange('delivery_count', '1');
+									} else if (e.target.value === 'multiple' && !formData.delivery_count) {
+										onChange('delivery_count', '2');
+									}
+								}}
+								error={!!errors.delivery_type}
+							>
+								<MenuItem value="single">{getDeliveryTypeLabel('single', locale)}</MenuItem>
+								<MenuItem value="multiple">{getDeliveryTypeLabel('multiple', locale)}</MenuItem>
+							</Select>
+							{errors.delivery_type && <FormHelperText error>{errors.delivery_type}</FormHelperText>}
+						</FormControl>
+
+						{/* Delivery Count - Only for Multiple Deliveries */}
+						{formData.delivery_type === 'multiple' && (
+							<FormControl required error={!!errors.delivery_count}>
+								<FormLabel htmlFor="delivery_count">{t('deliveryCount')}</FormLabel>
+								<OutlinedInput
+									id="delivery_count"
+									name="delivery_count"
+									type="number"
+									required
+									inputProps={{ min: 2 }}
+									value={formData.delivery_count || '2'}
+									onChange={(e) => onChange('delivery_count', e.target.value)}
+									error={!!errors.delivery_count}
+								/>
+								<FormHelperText>{t('deliveryCountHelper')}</FormHelperText>
+								{errors.delivery_count && <FormHelperText error>{errors.delivery_count}</FormHelperText>}
+							</FormControl>
+						)}
+					</>
+				)}
+
 				<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} /> {/* Divider for optional fields */}
 
 				{/* Optional Fields */}
@@ -1362,7 +1456,7 @@ function Step3Content({
 }) {
 	const t = useTranslations('Quote.wizard');
 	const tCheckout = useTranslations('Quote.checkout');
-	const locale = useLocale();
+	const locale = useLocale() as 'en' | 'ar';
 	
 	// Collect all uploaded files - prefer uploadedAttachments (successfully uploaded) over uploadedFiles (local)
 	const allUploadedAttachments = Object.values(uploadedAttachments);
@@ -1370,6 +1464,18 @@ function Step3Content({
 	// Use uploadedAttachments count if available, otherwise fall back to uploadedFiles
 	const totalUploadedCount = allUploadedAttachments.length > 0 ? allUploadedAttachments.length : allUploadedFiles.length;
 	const urgency = (formData.urgency || 'standard') as 'standard' | 'express' | 'urgent';
+
+	// Calculate shipping costs for checkout flow
+	const shippingAmount = isCheckoutFlow && formData.shipping_location && formData.delivery_type
+		? calculateShippingRate({
+			location: formData.shipping_location as ShippingLocation,
+			deliveryType: formData.delivery_type as DeliveryType,
+			deliveryCount: formData.delivery_type === 'multiple' ? parseInt(formData.delivery_count || '2', 10) : 1,
+		})
+		: 0;
+
+	const serviceAmount = service.pricing?.amount || 0;
+	const totalAmount = serviceAmount + shippingAmount;
 
 	return (
 		<Stack spacing={2}>
@@ -1383,16 +1489,53 @@ function Step3Content({
 			</Box>
 
 			{isCheckoutFlow && (
-				// Show price prominently
+				// Show price breakdown with shipping
 				<Card>
 					<CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
 						<Stack spacing={2}>
 							<Typography variant="subtitle2" color="text.secondary">
 								{tCheckout('totalAmount')}
 							</Typography>
-							<Typography variant="h4" fontWeight={700} color="primary.main">
-								₪{service.pricing?.amount?.toFixed(2) || '0.00'}
-							</Typography>
+							
+							{/* Service Fee */}
+							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<Typography variant="body2" color="text.secondary">
+									{t('serviceFee')}
+								</Typography>
+								<Typography variant="body1" fontWeight={600}>
+									₪{serviceAmount.toFixed(2)}
+								</Typography>
+							</Box>
+
+							{/* Shipping Cost */}
+							{shippingAmount > 0 && (
+								<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+									<Box>
+										<Typography variant="body2" color="text.secondary">
+											{t('shippingCost')}
+										</Typography>
+										<Typography variant="caption" color="text.secondary">
+											{getShippingLocationLabel(formData.shipping_location as ShippingLocation, locale)} • {getDeliveryTypeLabel(formData.delivery_type as DeliveryType, locale)}
+											{formData.delivery_type === 'multiple' && ` (${formData.delivery_count || '2'})`}
+										</Typography>
+									</Box>
+									<Typography variant="body1" fontWeight={600}>
+										₪{shippingAmount.toFixed(2)}
+									</Typography>
+								</Box>
+							)}
+
+							<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} />
+
+							{/* Total */}
+							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<Typography variant="subtitle1" fontWeight={700}>
+									{t('totalWithShipping')}
+								</Typography>
+								<Typography variant="h4" fontWeight={700} color="primary.main">
+									₪{totalAmount.toFixed(2)}
+								</Typography>
+							</Box>
 						</Stack>
 					</CardContent>
 				</Card>

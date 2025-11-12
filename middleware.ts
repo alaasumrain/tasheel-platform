@@ -18,7 +18,8 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
-	// Handle i18n routing for all other routes
+	// Let next-intl handle locale detection and routing
+	// It will automatically detect browser locale and handle routing
 	const response = handleI18nRouting(request);
 
 	// Update Supabase session (handles customer auth cookies)
