@@ -25,7 +25,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
 	const finalOptions = {
 		...queryOptions,
-		searchFields: queryOptions.searchFields || ['name_en', 'name_ar', 'slug', 'short_description_en'],
+		searchFields: queryOptions.searchFields || ['name_en', 'name_ar', 'slug', 'short_description_en', 'short_description_ar'],
 		sortColumn: queryOptions.sortColumn || 'sort_order',
 		sortDirection: queryOptions.sortDirection || 'asc',
 	};

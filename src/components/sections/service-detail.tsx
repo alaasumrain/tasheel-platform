@@ -40,8 +40,8 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 		categoryLabels[service.category] ?? service.category.replace('-', ' ');
 	
 	// Check availability from database (like "in stock" / "out of stock")
-	// Check is_available first, fallback to is_active
-	const isAvailable = originalService?.is_available !== false && originalService?.is_active !== false;
+	// Only is_active field exists in the database schema
+	const isAvailable = originalService?.is_active !== false;
 	const isComingSoon = !isAvailable;
 	
 	// Get service image with fallback
