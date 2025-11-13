@@ -82,7 +82,7 @@ export default function PricingPlans() {
 	const [planType, setPlanType] = useState<'monthly' | 'yearly'>('monthly');
 
 	return (
-		<Container id="pricing" sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container id="pricing" sx={{ py: { xs: 4.5, md: 8 } }}>
 			<Stack spacing={{ xs: 6, md: 8 }}>
 				<Box>
 					<Grid container spacing={{ xs: 4, md: 4 }} alignItems="center">

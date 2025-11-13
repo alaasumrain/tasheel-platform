@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { isEmailVerificationRequired, checkEmailVerification, getEmailVerificationMessage } from '@/lib/utils/email-verification';
+import { createAuditLog, getClientIP, getUserAgent } from '@/lib/utils/audit-logger';
 
 /**
  * Create payment session with payment gateway
@@ -18,6 +20,48 @@ export async function POST(request: NextRequest) {
 
 		const supabase = await createClient();
 
+		// Check authentication
+		const { data: { user }, error: authError } = await supabase.auth.getUser();
+		if (authError || !user) {
+			return NextResponse.json(
+				{ error: 'Authentication required' },
+				{ status: 401 }
+			);
+		}
+
+		// Check email verification (Hybrid approach: required for payments)
+		const requiresVerification = await isEmailVerificationRequired(user, 'payment');
+		if (requiresVerification) {
+			const status = await checkEmailVerification(user);
+			const message = getEmailVerificationMessage(status, 'en');
+			
+			// Log blocked payment attempt
+			await createAuditLog('payment_initiated', {
+				userId: user.id,
+				resourceType: 'invoice',
+				resourceId: invoiceId,
+				details: {
+					blocked: true,
+					reason: 'email_not_verified',
+					email: status.email,
+					isPhoneOnly: status.isPhoneOnly,
+				},
+				context: {
+					ipAddress: getClientIP(request),
+					userAgent: getUserAgent(request),
+				},
+			});
+
+			return NextResponse.json(
+				{ 
+					error: message || 'Email verification required for payments',
+					requiresEmailVerification: true,
+					isPhoneOnly: status.isPhoneOnly,
+				},
+				{ status: 403 }
+			);
+		}
+
 		// Get invoice details
 		const { data: invoice, error: invoiceError } = await supabase
 			.from('invoices')
@@ -27,6 +71,20 @@ export async function POST(request: NextRequest) {
 
 		if (invoiceError || !invoice) {
 			return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+		}
+
+		// Verify user owns this invoice
+		const { data: application } = await supabase
+			.from('applications')
+			.select('customer_id')
+			.eq('id', invoice.applications?.id)
+			.single();
+
+		if (application?.customer_id !== user.id) {
+			return NextResponse.json(
+				{ error: 'Unauthorized access to invoice' },
+				{ status: 403 }
+			);
 		}
 
 		// Use invoice amount (includes shipping) instead of passed amount
@@ -198,6 +256,23 @@ export async function POST(request: NextRequest) {
 				updated_at: new Date().toISOString(),
 			})
 			.eq('id', invoiceId);
+
+		// Log payment session creation
+		await createAuditLog('payment_initiated', {
+			userId: user.id,
+			resourceType: 'invoice',
+			resourceId: invoiceId,
+			details: {
+				amount: paymentAmount,
+				currency,
+				gateway: gatewayType,
+				orderNumber: orderNumber || invoice.applications?.order_number,
+			},
+			context: {
+				ipAddress: getClientIP(request),
+				userAgent: getUserAgent(request),
+			},
+		});
 
 		return NextResponse.json({
 			success: true,

@@ -17,7 +17,7 @@ export default async function MyRequestsPage() {
 	}
 
 	// Get customer's orders (server-side filtering for security)
-	const customerOrders = await getCustomerOrders(customer.id || customer.email, !customer.id);
+	const customerOrders = await getCustomerOrders(customer.id || customer.email || '', !customer.id);
 
 	return (
 		<Container maxWidth="lg">

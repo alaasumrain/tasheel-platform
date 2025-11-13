@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -32,7 +32,7 @@ import { createDraftApplication, uploadFileImmediately, deleteUploadedFile } fro
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
 import type { Service } from '@/data/services';
 import { FileUploadField } from './FileUploadField';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
 import { Card } from '@/components/ui/card';
 import FilePreview from './FilePreview';
 import RequiredDocumentsChecklist from './RequiredDocumentsChecklist';
@@ -42,6 +42,9 @@ import { useFormAnalytics } from '@/hooks/use-analytics';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useTranslations, useLocale } from 'next-intl';
 import { calculateShippingRate, getShippingLocationLabel, getDeliveryTypeLabel, type ShippingLocation, type DeliveryType } from '@/lib/shipping-rates';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
+import { useSearchParams } from 'next/navigation';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -61,11 +64,38 @@ interface UploadedAttachment {
 	fileSize: number;
 }
 
+interface CustomerProfileData {
+	name: string | null;
+	email: string | null;
+	phone: string | null;
+}
+
 export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: ServiceQuoteWizardProps) {
 	const router = useRouter();
 	const t = useTranslations('Quote.wizard');
+	const tErrors = useTranslations('Quote.errors');
+	const tAuthLogin = useTranslations('Auth.login');
+	const tAuthRegister = useTranslations('Auth.register');
 	const locale = useLocale() as 'en' | 'ar';
 	const isRTL = locale === 'ar';
+	const supabase = useMemo(() => createClient(), []);
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const redirectPath = useMemo(() => {
+		const currentPath = pathname || '/';
+		const query = searchParams?.toString();
+		return query ? `${currentPath}?${query}` : currentPath;
+	}, [pathname, searchParams]);
+	const encodedRedirectPath = encodeURIComponent(redirectPath);
+	const loginRedirectUrl = `/login?redirect=${encodedRedirectPath}`;
+	const registerRedirectUrl = `/register?redirect=${encodedRedirectPath}`;
+	const authRequiredMessage = tErrors('authRequired');
+	const signInPromptMessage = tErrors('signInToContinue');
+	const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+	const [authUser, setAuthUser] = useState<User | null>(null);
+	const [authPromptMessage, setAuthPromptMessage] = useState<string | null>(null);
+	const [customerProfile, setCustomerProfile] = useState<CustomerProfileData | null>(null);
+	const [draftInitialized, setDraftInitialized] = useState(false);
 	const formAnalytics = useFormAnalytics(`quote_${service.slug}`);
 	const analytics = useAnalytics();
 	const formRef = useRef<HTMLFormElement>(null);
@@ -95,23 +125,182 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			t('steps.step3'),
 		];
 
-	// Create draft application on mount
+	const fetchCustomerProfile = useCallback(
+		async (userId: string) => {
+			try {
+				const { data, error } = await supabase
+					.from('customers')
+					.select('name, phone, email')
+					.eq('id', userId)
+					.maybeSingle();
+
+				if (error) {
+					console.error('Error fetching customer profile:', error);
+					return;
+				}
+
+				if (data) {
+					const profile = data as CustomerProfileData;
+					setCustomerProfile({
+						name: profile.name ?? null,
+						email: profile.email ?? null,
+						phone: profile.phone ?? null,
+					});
+				} else {
+					setCustomerProfile(null);
+				}
+			} catch (error) {
+				console.error('Error fetching customer profile:', error);
+			}
+		},
+		[supabase]
+	);
+
 	useEffect(() => {
-		let mounted = true;
-		const createDraft = async () => {
-			const result = await createDraftApplication(service.slug, locale);
-			if (mounted && result.type === 'success' && result.applicationId) {
-				setApplicationId(result.applicationId);
-			} else if (mounted && result.type === 'error') {
-				console.error('Failed to create draft application:', result.message);
-				toast.error(t('toast.initFailed'));
+		let isMounted = true;
+
+		const checkAuth = async () => {
+			try {
+				const { data, error } = await supabase.auth.getUser();
+				if (!isMounted) return;
+
+				if (error) {
+					setAuthStatus('unauthenticated');
+					setAuthUser(null);
+					return;
+				}
+
+				if (data.user) {
+					setAuthUser(data.user as User);
+					setAuthStatus('authenticated');
+				} else {
+					setAuthUser(null);
+					setAuthStatus('unauthenticated');
+				}
+			} catch (error) {
+				if (isMounted) {
+					console.error('Error checking auth status:', error);
+					setAuthStatus('unauthenticated');
+					setAuthUser(null);
+				}
 			}
 		};
+
+		checkAuth();
+
+		const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+			if (!isMounted) return;
+
+			if (session?.user) {
+				setAuthUser(session.user as User);
+				setAuthStatus('authenticated');
+			} else {
+				setAuthUser(null);
+				setAuthStatus('unauthenticated');
+			}
+		});
+
+		return () => {
+			isMounted = false;
+			listener?.subscription.unsubscribe();
+		};
+	}, [supabase]);
+
+	useEffect(() => {
+		if (authStatus === 'authenticated') {
+			setAuthPromptMessage(null);
+		} else if (authStatus === 'unauthenticated' && !authPromptMessage) {
+			setAuthPromptMessage(signInPromptMessage);
+		}
+	}, [authStatus, signInPromptMessage, authPromptMessage]);
+
+	useEffect(() => {
+		if (!authUser) {
+			setCustomerProfile(null);
+			return;
+		}
+
+		fetchCustomerProfile(authUser.id);
+	}, [authUser, fetchCustomerProfile]);
+
+	useEffect(() => {
+		if (!authUser && !customerProfile) {
+			return;
+		}
+
+		setFormData((prev) => {
+			let changed = false;
+			const next = { ...prev };
+
+			if (!prev.name && customerProfile?.name) {
+				next.name = customerProfile.name;
+				changed = true;
+			}
+
+			const fallbackEmail = customerProfile?.email || authUser?.email || '';
+			if (!prev.email && fallbackEmail) {
+				next.email = fallbackEmail;
+				changed = true;
+			}
+
+			if (!prev.phone && customerProfile?.phone) {
+				next.phone = customerProfile.phone;
+				changed = true;
+			}
+
+			return changed ? next : prev;
+		});
+	}, [customerProfile, authUser]);
+
+	useEffect(() => {
+		setDraftInitialized(false);
+		setApplicationId(null);
+	}, [service.slug]);
+
+	useEffect(() => {
+		if (authStatus !== 'authenticated') {
+			setApplicationId(null);
+			setDraftInitialized(false);
+		}
+	}, [authStatus]);
+
+	// Create draft application once authenticated
+	useEffect(() => {
+		if (authStatus !== 'authenticated' || draftInitialized) {
+			return;
+		}
+
+		let mounted = true;
+
+		const createDraft = async () => {
+			const result = await createDraftApplication(service.slug, locale);
+
+			if (!mounted) {
+				return;
+			}
+
+			if (result.type === 'success' && result.applicationId) {
+				setApplicationId(result.applicationId);
+				setDraftInitialized(true);
+				if (authUser && !customerProfile) {
+					fetchCustomerProfile(authUser.id);
+				}
+			} else if (result.type === 'error') {
+				if (result.message === authRequiredMessage) {
+					setAuthStatus('unauthenticated');
+					setAuthPromptMessage(result.message);
+				}
+				console.error('Failed to create draft application:', result.message);
+				toast.error(result.message || t('toast.initFailed'));
+			}
+		};
+
 		createDraft();
+
 		return () => {
 			mounted = false;
 		};
-	}, [service.slug, locale]);
+	}, [authStatus, draftInitialized, service.slug, locale, authUser, customerProfile, fetchCustomerProfile, authRequiredMessage, t]);
 
 	// Load saved data from localStorage on mount
 	useEffect(() => {
@@ -144,6 +333,11 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		setRestoredData(false);
 		setErrors({});
 		setUploadedFiles({});
+		setUploadedAttachments({});
+		setUploadingFiles({});
+		setApplicationId(null);
+		setDraftInitialized(false);
+		setInvoiceId(null);
 	};
 
 		const { mutate: send, isPending: isPendingQuote } = useMutation({
@@ -152,6 +346,10 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				if (result.type === 'error') {
 					analytics.trackError('submit_error', result.message);
 					toast.error(result.message.toString());
+					if (result.message === authRequiredMessage) {
+						setAuthStatus('unauthenticated');
+						setAuthPromptMessage(result.message);
+					}
 					return;
 				}
 				formAnalytics.completeForm(); // Track successful form completion
@@ -166,15 +364,27 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			onError(error) {
 				analytics.trackError('submit_error', error.message);
 				toast.error(error.message.toString());
+				if (error.message === authRequiredMessage) {
+					setAuthStatus('unauthenticated');
+					setAuthPromptMessage(error.message);
+				}
 			},
 		});
 
-		const { mutate: sendCheckout, isPending: isCheckoutPending } = useMutation({
+	const { mutate: sendCheckout, isPending: isCheckoutPending } = useMutation({
 			mutationFn: async (data: FormData) => {
 				const { submitCheckout } = await import('@/app/actions/submit-checkout');
 				return submitCheckout(data);
 			},
 			onSuccess: (result) => {
+				if (result.type === 'error') {
+					if (result.message === authRequiredMessage) {
+						setAuthStatus('unauthenticated');
+						setAuthPromptMessage(result.message);
+					}
+					toast.error(result.message);
+					return;
+				}
 				if (result.type === 'success' && result.invoiceId) {
 					setInvoiceId(result.invoiceId);
 					// Store orderNumber for later use
@@ -189,11 +399,59 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				}
 			},
 			onError: (error: Error) => {
-				toast.error(error.message || t('toast.submitFailed'));
+				const message = error.message || t('toast.submitFailed');
+				toast.error(message);
+				if (message === authRequiredMessage) {
+					setAuthStatus('unauthenticated');
+					setAuthPromptMessage(message);
+				}
 			},
 		});
 
 		const isPending = isCheckoutFlow ? isCheckoutPending : isPendingQuote;
+
+	if (authStatus === 'checking') {
+		return (
+			<Card>
+				<CardContent sx={{ py: 6, display: 'flex', justifyContent: 'center' }}>
+					<CircularProgress />
+				</CardContent>
+			</Card>
+		);
+	}
+
+	if (authStatus === 'unauthenticated') {
+		return (
+			<Card>
+				<CardContent>
+					<Stack spacing={3} alignItems="center" textAlign="center">
+						<Typography variant="h5" fontWeight={600}>
+							{t('title')}
+						</Typography>
+						<Alert severity="info" sx={{ width: '100%' }}>
+							{authPromptMessage || signInPromptMessage}
+						</Alert>
+						<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} width="100%">
+							<Button
+								variant="contained"
+								fullWidth
+								onClick={() => router.push(loginRedirectUrl)}
+							>
+								{tAuthLogin('submit')}
+							</Button>
+							<Button
+								variant="outlined"
+								fullWidth
+								onClick={() => router.push(registerRedirectUrl)}
+							>
+								{tAuthRegister('submit')}
+							</Button>
+						</Stack>
+					</Stack>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	// Validation functions
 	const validateEmail = (email: string): boolean => {

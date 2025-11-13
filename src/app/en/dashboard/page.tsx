@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
 	// Get customer's orders (server-side filtering for security)
 	const customerOrders = customer
-		? await getCustomerOrders(customer.id || customer.email, !customer.id)
+		? await getCustomerOrders(customer.id || customer.email || '', !customer.id)
 		: [];
 
 	const stats = {

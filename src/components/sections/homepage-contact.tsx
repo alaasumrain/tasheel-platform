@@ -12,7 +12,7 @@ export default function HomepageContact() {
 	const t = useTranslations('Homepage.contact');
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Card
 					backgroundColor={{

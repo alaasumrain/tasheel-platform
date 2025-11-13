@@ -48,13 +48,15 @@ export default function LanguageSwitcher({ fullWidth = false }: LanguageSwitcher
 				borderColor: outlineBorder,
 				borderRadius: '999px',
 				color: navColor,
-				fontSize: 15,
+				fontSize: 13,
 				fontWeight: 600,
-				px: 3,
-				py: 0.9,
+				px: 1.5,
+				py: 0.25,
 				textTransform: 'none',
 				transition: 'all 0.2s ease',
-				minWidth: fullWidth ? 'auto' : '64px',
+				minWidth: fullWidth ? 'auto' : 'fit-content',
+				minHeight: '32px',
+				height: '32px',
 				'&:hover': {
 					backgroundColor: outlineHoverBg,
 					borderColor: outlineHoverBorder,
@@ -65,4 +67,3 @@ export default function LanguageSwitcher({ fullWidth = false }: LanguageSwitcher
 		</Button>
 	);
 }
-

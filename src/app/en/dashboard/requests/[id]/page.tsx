@@ -87,8 +87,8 @@ export default async function RequestDetailPage({
 							serviceName={serviceName}
 							serviceDetails={serviceDetails}
 							invoice={latestInvoice}
-							customerName={customer.name || order.customer_name}
-							customerEmail={customer.email}
+							customerName={customer.name || order.customer_name || undefined}
+							customerEmail={customer.email || undefined}
 						/>
 					</Stack>
 				</RevealSection>

@@ -72,7 +72,7 @@ export default function Hero() {
 				sx={{
 					position: 'relative',
 					zIndex: 2,
-					py: { xs: 8, md: 12 },
+					py: { xs: 6, md: 9 },
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
@@ -115,7 +115,8 @@ export default function Hero() {
 						<RevealSection delay={0.15}>
 								<Stack
 									direction={{ xs: 'column', sm: 'row' }}
-									spacing={{ xs: 3, sm: 6 }}
+									spacing={{ xs: 2, sm: 2 }}
+									gap={{ xs: 2, sm: 2 }}
 										sx={{
 									alignItems: 'center',
 									justifyContent: 'center',
@@ -124,16 +125,19 @@ export default function Hero() {
 									<Button
 									component={Link}
 										href="/track"
-										size="large"
+										size="medium"
 									variant="outlined"
 										sx={{
 										borderRadius: 2,
-										px: 4,
-										py: 1.5,
+										px: 3,
+										py: 1,
+										minWidth: 140,
+										mr: { xs: 0, sm: 1 },
+										mb: { xs: 2, sm: 0 },
 										borderColor: 'common.white',
 										color: 'common.white',
 											fontWeight: 600,
-										fontSize: '1rem',
+										fontSize: '0.875rem',
 											'&:hover': {
 											borderColor: 'common.white',
 											bgcolor: 'rgba(255, 255, 255, 0.1)',
@@ -145,11 +149,12 @@ export default function Hero() {
 								<GetStarted
 									buttonLabel={t('primaryCta')}
 									href="/services"
-									size="large"
+									size="medium"
 									sx={{
-										px: 4,
-										py: 1.5,
-										fontSize: '1rem',
+										px: 3,
+										py: 1,
+										minWidth: 140,
+										fontSize: '0.875rem',
 										fontWeight: 600,
 										boxShadow: (theme: Theme) =>
 											theme.palette.mode === 'dark'

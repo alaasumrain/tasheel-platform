@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import {
 	Button,
@@ -33,6 +33,13 @@ export default function LoginForm() {
 	const t = useTranslations('Auth.login');
 	const formRef = useRef<HTMLFormElement>(null);
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const redirectParam = searchParams?.get('redirect');
+	const safeRedirect = redirectParam && redirectParam.startsWith('/') ? redirectParam : null;
+	const redirectDestination = safeRedirect || '/dashboard';
+	const encodedRedirect = safeRedirect ? encodeURIComponent(safeRedirect) : null;
+	const redirectQuery = encodedRedirect ? `?redirect=${encodedRedirect}` : '';
+	const redirectQuerySuffix = encodedRedirect ? `&redirect=${encodedRedirect}` : '';
 	const [error, setError] = useState<string>('');
 	const [loginMethod, setLoginMethod] = useState<LoginMethod>('email');
 	const [phone, setPhone] = useState<string>('');
@@ -106,7 +113,7 @@ export default function LoginForm() {
 				// Normal login success
 				toast.success(t('success'));
 				formRef.current?.reset();
-				router.push('/dashboard');
+				router.push(redirectDestination);
 			}
 		},
 		onError: (error: Error) => {
@@ -158,35 +165,23 @@ export default function LoginForm() {
 				throw new Error(data.error || 'Invalid OTP code');
 			}
 
-			// If session tokens are returned, set the session on the client
-			if (data.accessToken && data.refreshToken) {
-				const { error: sessionError } = await supabase.auth.setSession({
-					access_token: data.accessToken,
-					refresh_token: data.refreshToken,
-				});
-
-				if (sessionError) {
-					throw new Error('Failed to create session');
+			// Session is now set in HttpOnly cookies by the server
+			// No need to manually set session - cookies are handled automatically
+			// Verify session exists by checking current user
+			const { data: { user: currentUser } } = await supabase.auth.getUser();
+			
+			if (!currentUser) {
+				// Session might not be immediately available, wait a moment and check again
+				await new Promise(resolve => setTimeout(resolve, 500));
+				const { data: { user: retryUser } } = await supabase.auth.getUser();
+				
+				if (!retryUser) {
+					throw new Error('Session was not created. Please try again.');
 				}
-
-				// Session is set, redirect to dashboard
-				router.push('/dashboard');
-				return data;
 			}
 
-			// If user exists but needs email auth (fallback case)
-			if (data.userId && data.email && data.requiresEmailAuth) {
-				// Prompt user to sign in with email/password or use magic link
-				toast.error(t('errors.emailAuthRequired') || 'Please sign in with your email and password');
-				return data;
-			}
-
-			// If registration needed
-			if (data.requiresRegistration) {
-				router.push(`/register?phone=${encodeURIComponent(phone)}`);
-				return data;
-			}
-
+			// Session is set via cookies, redirect to destination
+			router.push(redirectDestination);
 			return data;
 		},
 		onSuccess: (data) => {
@@ -221,7 +216,7 @@ export default function LoginForm() {
 		onSuccess: () => {
 			toast.success(t('mfaVerified') || 'MFA verified successfully');
 			formRef.current?.reset();
-			router.push('/dashboard');
+			router.push(redirectDestination);
 		},
 		onError: (error: Error) => {
 			setMfaError(error.message || t('errors.mfaInvalid') || 'Invalid MFA code');
@@ -415,4 +410,3 @@ export default function LoginForm() {
 		</form>
 	);
 }
-

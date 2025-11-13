@@ -190,7 +190,7 @@ export function OrderConfirmation({
 
 	if (!orderNumber) {
 		return (
-			<Container sx={{ py: { xs: 6, md: 10 } }}>
+			<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 				<Card>
 					<CardContent sx={{ p: { xs: 4, md: 6 } }}>
 						<Stack spacing={3} alignItems="center" textAlign="center">
@@ -220,7 +220,7 @@ export function OrderConfirmation({
 
 	if (!orderFound) {
 		return (
-			<Container sx={{ py: { xs: 6, md: 10 } }}>
+			<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 				<Card>
 					<CardContent sx={{ p: { xs: 4, md: 6 } }}>
 						<Stack spacing={3} alignItems="center" textAlign="center">
@@ -249,7 +249,7 @@ export function OrderConfirmation({
 	}
 
 	return (
-		<Container sx={{ py: { xs: 6, md: 10 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 			<CelebrationAnimation show={showCelebration} />
 			<Stack spacing={{ xs: 4, md: 6 }}>
 				{/* Success Card */}

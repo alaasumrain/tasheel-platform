@@ -40,7 +40,7 @@ export default function FeaturesGrid() {
 	];
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 			<Grid container spacing={4.5}>
 				<Grid size={12}>
 					<RevealSection delay={0.1}>

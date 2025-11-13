@@ -44,7 +44,7 @@ export default function ServicesCatalog() {
 	];
 	
 	return (
-		<Container id="services" sx={{ py: { xs: 6.25, md: 12.5 }, pb: { xs: 3, md: 6 } }}>
+		<Container id="services" sx={{ py: { xs: 4.5, md: 8 }, pb: { xs: 3, md: 6 } }}>
 			<Stack spacing={{ xs: 3, md: 4 }} sx={{ textAlign: 'center', mb: 6 }}>
 				<Typography color="accent" variant="subtitle1">
 					{t('subtitle')}

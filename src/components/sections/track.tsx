@@ -100,7 +100,7 @@ export default function Track() {
 	}, [searchParams, handleTrack]);
 
 	return (
-		<Container sx={{ pt: { xs: 2, md: 4 }, pb: { xs: 3.25, md: 7.5 } }}>
+		<Container sx={{ pt: { xs: 1.5, md: 3 }, pb: { xs: 2.5, md: 6 } }}>
 			<RevealSection delay={0.1} direction="up">
 				<Grid
 					alignItems={{ md: 'center' }}

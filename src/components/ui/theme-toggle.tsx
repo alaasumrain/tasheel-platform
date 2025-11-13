@@ -31,23 +31,23 @@ export default function ThemeToggle() {
 					cursor: 'pointer',
 					display: 'flex',
 					flexDirection: 'row',
-					height: 56,
+					height: 32,
 					justifyContent: 'space-between',
 					position: 'relative',
-					p: 1,
-					width: 100,
+					p: 0.5,
+					width: 64,
 					zIndex: 2,
 					'&:after': {
 						backgroundColor: 'rgba(255, 255, 255, 0.5)',
 						borderRadius: '50vh',
 						borderTop: '2px solid rgba(255, 255, 255, 1)',
 						content: "''",
-						left: 8,
+						left: 4,
 						position: 'absolute',
-						height: 40,
-						width: 40,
-						top: 8,
-						transform: 'translateX(44px)',
+						height: 24,
+						width: 24,
+						top: 4,
+						transform: 'translateX(32px)',
 						transition: 'transform 0.3s ease-in-out',
 						zIndex: 0,
 					},
@@ -69,11 +69,11 @@ export default function ThemeToggle() {
 						color: 'rgba(75, 75, 101, 1)',
 						cursor: 'pointer',
 						display: 'flex',
-						height: 40,
+					height: 24,
 						justifyContent: 'center',
 						position: 'relative',
 						transition: 'color 0.3s ease-in-out',
-						width: 40,
+					width: 24,
 						zIndex: 1,
 					},
 					(theme) =>
@@ -82,7 +82,7 @@ export default function ThemeToggle() {
 						}),
 				]}
 			>
-				<IconDark size={16} />
+				<IconDark size={14} />
 			</Box>
 			<Box
 				sx={[
@@ -91,11 +91,11 @@ export default function ThemeToggle() {
 						color: '#10101E',
 						cursor: 'pointer',
 						display: 'flex',
-						height: 40,
+					height: 24,
 						justifyContent: 'center',
 						position: 'relative',
 						transition: 'color 0.3s ease-in-out',
-						width: 40,
+					width: 24,
 						zIndex: 1,
 					},
 					(theme) =>
@@ -104,7 +104,7 @@ export default function ThemeToggle() {
 						}),
 				]}
 			>
-				<IconLight size={16} />
+				<IconLight size={14} />
 			</Box>
 		</Box>
 	);

@@ -2,6 +2,12 @@
 
 import { supabase } from '@/lib/supabase';
 import { getTranslations } from 'next-intl/server';
+import {
+	getCurrentUser,
+	getCustomerProfile,
+	createCustomerFromUser,
+} from '@/lib/supabase/auth-helpers';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Create a draft application for file uploads
@@ -14,6 +20,33 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 }> {
 	try {
 		const t = await getTranslations({ locale, namespace: 'Quote.errors' });
+		const user = await getCurrentUser();
+
+		if (!user) {
+			return {
+				type: 'error',
+				message: t('authRequired'),
+			};
+		}
+
+		let customer = await getCustomerProfile(user);
+
+		if (!customer) {
+			customer = await createCustomerFromUser(user, {
+				languagePreference: locale === 'en' ? 'en' : 'ar',
+			});
+		}
+
+		if (!customer) {
+			logger.error('Unable to create customer profile for draft application', null, {
+				userId: user.id,
+				serviceSlug,
+			});
+			return {
+				type: 'error',
+				message: t('unexpectedError'),
+			};
+		}
 		
 		const { data: application, error } = await supabase
 			.from('applications')
@@ -22,6 +55,10 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 				status: 'draft',
 				form_slug: serviceSlug, // Use service slug as form identifier
 				payload: {},
+				customer_id: customer.id,
+				customer_name: customer.name,
+				customer_phone: customer.phone,
+				applicant_email: customer.email || user.email,
 			})
 			.select('id')
 			.single();
@@ -172,4 +209,3 @@ export async function deleteUploadedFile(
 		};
 	}
 }
-

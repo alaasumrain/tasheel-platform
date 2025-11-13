@@ -17,7 +17,7 @@ export default function PerfectJob() {
 				overflow: 'hidden',
 			}}
 		>
-			<Container sx={{ py: { xs: 8, md: 12 } }}>
+			<Container sx={{ py: { xs: 6, md: 9 } }}>
 				<RevealSection delay={0.1}>
 					<Stack spacing={6} sx={{ textAlign: 'center', alignItems: 'center' }}>
 						<Stack spacing={2} sx={{ maxWidth: { md: 800 } }}>

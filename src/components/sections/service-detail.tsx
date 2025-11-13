@@ -248,7 +248,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 			</Container>
 
 			{/* Process Steps */}
-			<Box sx={{ backgroundColor: 'background.default', py: { xs: 6.25, md: 12.5 } }}>
+			<Box sx={{ backgroundColor: 'background.default', py: { xs: 4.5, md: 8 } }}>
 				<Container>
 					<RevealSection delay={0.2} direction="up">
 						<Stack spacing={5} alignItems="center">
@@ -302,7 +302,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 			</Box>
 
 			{/* Required Documents & Features */}
-			<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+			<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 				<RevealSection delay={0.3} direction="up">
 					<Grid container spacing={{ xs: 4, md: 6 }} sx={{ alignItems: 'stretch' }}>
 						{/* Required Documents */}
@@ -400,7 +400,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 			<Box
 				sx={{
 					backgroundColor: 'background.default',
-					py: { xs: 6.25, md: 12.5 },
+					py: { xs: 4.5, md: 8 },
 				}}
 			>
 				<Container>

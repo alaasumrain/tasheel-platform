@@ -3,14 +3,24 @@ import { formatPhoneNumber } from '@/lib/whatsapp';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { getSupabaseUrl, getSupabaseServiceKey, getSupabaseAnonKey } from '@/lib/supabase-config';
 import { findUserByPhone } from '@/lib/auth-helpers';
+import { createClient } from '@/lib/supabase/server';
+import { sanitizeError } from '@/lib/utils/error-handler';
+import { logger } from '@/lib/utils/logger';
+import { createAuditLog, getClientIP, getUserAgent } from '@/lib/utils/audit-logger';
 
 /**
  * Verify OTP code and create Supabase session using Supabase's verifyOtp API
  * Note: We use custom OTP table for WhatsApp delivery, but verify through Supabase Auth
  */
 export async function POST(request: NextRequest) {
+	let phone: string | undefined;
+	let otp: string | undefined;
+	let formattedPhone: string | undefined;
+
 	try {
-		const { phone, otp } = await request.json();
+		const body = await request.json();
+		phone = body.phone;
+		otp = body.otp;
 
 		if (!phone || !otp) {
 			return NextResponse.json(
@@ -19,7 +29,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const formattedPhone = formatPhoneNumber(phone);
+		formattedPhone = formatPhoneNumber(phone);
 
 		// Use service client to verify OTP from our custom table (bypasses RLS)
 		const serviceKey = getSupabaseServiceKey();
@@ -56,10 +66,48 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		// Check if phone is blocked
+		if (otpRecord.blocked_until && new Date(otpRecord.blocked_until) > new Date()) {
+			const blockedUntil = new Date(otpRecord.blocked_until);
+			const minutesRemaining = Math.ceil((blockedUntil.getTime() - Date.now()) / 60000);
+			return NextResponse.json(
+				{ error: `Too many failed attempts. Please request a new code and try again in ${minutesRemaining} minute(s).` },
+				{ status: 429 }
+			);
+		}
+
 		// Verify OTP code
 		if (otpRecord.code !== otp) {
+			// Increment attempts and block if threshold reached
+			const newAttempts = (otpRecord.attempts || 0) + 1;
+			const maxAttempts = 3;
+			const blockDurationMinutes = 60; // Block for 1 hour after 3 failed attempts
+			
+			let blockedUntil: string | null = null;
+			if (newAttempts >= maxAttempts) {
+				blockedUntil = new Date(Date.now() + blockDurationMinutes * 60 * 1000).toISOString();
+			}
+
+			// Update attempts and block status
+			await serviceClient
+				.from('otp_codes')
+				.update({
+					attempts: newAttempts,
+					blocked_until: blockedUntil,
+					last_attempt_at: new Date().toISOString(),
+				})
+				.eq('phone', formattedPhone);
+
+			if (blockedUntil) {
+				return NextResponse.json(
+					{ error: `Too many failed attempts. This phone number is blocked for ${blockDurationMinutes} minutes. Please request a new code after the block expires.` },
+					{ status: 429 }
+				);
+			}
+
+			const remainingAttempts = maxAttempts - newAttempts;
 			return NextResponse.json(
-				{ error: 'Invalid OTP code' },
+				{ error: `Invalid OTP code. ${remainingAttempts} attempt(s) remaining.` },
 				{ status: 400 }
 			);
 		}
@@ -83,11 +131,12 @@ export async function POST(request: NextRequest) {
 				email: userEmail,
 				phone: formattedPhone,
 				phone_confirm: true, // Auto-confirm phone since we verified OTP
-				email_confirm: false, // Email not verified yet (temporary email)
+				email_confirm: false, // Email not verified yet (temporary email - user will need to verify real email later)
 				user_metadata: {
 					phone: formattedPhone,
 					phone_verified: true,
 					is_phone_only: true, // Flag to indicate phone-only account
+					email_verification_required: true, // Flag to prompt user to verify email
 				},
 			});
 
@@ -163,11 +212,11 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Verify OTP using the supported method: verifyOtp with email and token
-		const { createClient: createRegularClient } = await import('@supabase/supabase-js');
-		const regularClient = createRegularClient(getSupabaseUrl(), getSupabaseAnonKey());
+		// Use server client to set session in HttpOnly cookies (secure)
+		const serverClient = await createClient();
 		
 		// Use the supported verifyOtp method with email_otp and type 'magiclink'
-		const { data: verifyData, error: verifyError } = await regularClient.auth.verifyOtp({
+		const { data: verifyData, error: verifyError } = await serverClient.auth.verifyOtp({
 			email: userEmail!,
 			token: emailOtp,
 			type: 'magiclink',
@@ -181,21 +230,38 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Return session tokens to client
+		// Log successful authentication
+		await createAuditLog('phone_verified', {
+			userId: authUserId,
+			details: {
+				phone: formattedPhone,
+				email: userEmail,
+				isNewUser: !authUser,
+			},
+			context: {
+				ipAddress: getClientIP(request),
+				userAgent: getUserAgent(request),
+			},
+		});
+
+		// Session is automatically set in HttpOnly cookies by the server client
+		// Do NOT return tokens in JSON response (security risk)
+		// Return success response without tokens
 		return NextResponse.json({
 			success: true,
 			userId: authUserId,
 			email: userEmail,
 			phone: formattedPhone,
-			accessToken: verifyData.session.access_token,
-			refreshToken: verifyData.session.refresh_token,
 			message: 'OTP verified and session created successfully',
 		});
 	} catch (error: unknown) {
-		console.error('Error verifying OTP:', error);
-		const errorMessage = error instanceof Error ? error.message : 'Failed to verify OTP';
+		// Log full error for debugging (server-side only)
+		logger.error('Error verifying OTP', error, { phone: formattedPhone });
+		
+		// Return sanitized error message to user (no internal details)
+		const sanitizedMessage = sanitizeError(error, 'Failed to verify OTP. Please try again.');
 		return NextResponse.json(
-			{ error: errorMessage },
+			{ error: sanitizedMessage },
 			{ status: 500 }
 		);
 	}

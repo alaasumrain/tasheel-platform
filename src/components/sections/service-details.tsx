@@ -38,7 +38,7 @@ export default function ServiceDetails() {
 	];
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 }, pt: { xs: 0, md: 0 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 }, pt: { xs: 0, md: 0 } }}>
 			<Grid container spacing={{ xs: 3, md: 4 }} sx={{ alignItems: 'stretch' }}>
 				{services.map((service, index) => (
 					<Grid key={service.key} size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>

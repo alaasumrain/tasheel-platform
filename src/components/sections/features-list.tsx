@@ -31,7 +31,7 @@ export default function FeaturesList() {
 		},
 	];
 	return (
-		<Container id="industries" sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container id="industries" sx={{ py: { xs: 4.5, md: 8 } }}>
 			<Stack alignItems="center" spacing={{ xs: 4, md: 8 }}>
 				<RevealSection delay={0.1} direction="up">
 					<Container disableGutters sx={{ maxWidth: '720px !important' }}>

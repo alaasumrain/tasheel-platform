@@ -25,10 +25,10 @@ import { MFASettings } from './MFASettings';
 
 interface Customer {
 	id: string;
-	email: string;
+	email: string | null;
 	name: string | null;
 	phone: string | null;
-	language_preference: string;
+	language_preference?: string;
 }
 
 interface ProfileSettingsFormProps {

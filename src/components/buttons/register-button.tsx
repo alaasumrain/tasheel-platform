@@ -2,23 +2,9 @@
 
 import { Button } from '@mui/material';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
-// Put Button label here
-const label = 'Sign in';
-const defaultHref = '/login';
-const defaultSize: 'small' | 'medium' | 'large' = 'medium';
-const defaultVariant: 'text' | 'outlined' | 'contained' = 'text';
-const defaultColor: 'primary' | 'secondary' | 'inherit' = 'primary';
-
-export default function LoginButton({
-	buttonLabel = label,
-	fullWidth = false,
-	href = defaultHref,
-	size = defaultSize,
-	variant = defaultVariant,
-	color = defaultColor,
-	sx,
-}: {
+interface RegisterButtonProps {
 	buttonLabel?: string;
 	fullWidth?: boolean;
 	href?: string;
@@ -26,7 +12,20 @@ export default function LoginButton({
 	variant?: 'text' | 'outlined' | 'contained';
 	color?: 'primary' | 'secondary' | 'inherit';
 	sx?: object;
-}) {
+}
+
+export default function RegisterButton({
+	buttonLabel,
+	fullWidth = false,
+	href = '/register',
+	size = 'medium',
+	variant = 'contained',
+	color = 'primary',
+	sx,
+}: RegisterButtonProps) {
+	const t = useTranslations('Header');
+	const label = buttonLabel || t('signUp');
+
 	return (
 		<Button
 			color={color}
@@ -42,7 +41,8 @@ export default function LoginButton({
 				...sx,
 			}}
 		>
-			{buttonLabel}
+			{label}
 		</Button>
 	);
 }
+

@@ -46,32 +46,33 @@ export default function CurrencySwitcher({ fullWidth = false }: CurrencySwitcher
 				suppressHydrationWarning
 				onClick={handleClick}
 				fullWidth={fullWidth}
-				endIcon={<IconChevronDown size={14} />}
 				sx={{
 					backgroundColor: 'transparent',
 					border: '1.5px solid',
 					borderColor: outlineBorder,
 					borderRadius: '999px',
 					color: navColor,
-					fontSize: 15,
+					fontSize: 13,
 					fontWeight: 600,
-					px: 3,
-					py: 0.9,
+					px: 1.5,
+					py: 0.25,
 					textTransform: 'none',
 					transition: 'all 0.2s ease',
-					minWidth: fullWidth ? 'auto' : '72px',
+					minWidth: fullWidth ? 'auto' : 'fit-content',
+					minHeight: '32px',
+					height: '32px',
 					whiteSpace: 'nowrap',
-					overflow: 'visible',
+					display: 'flex',
+					alignItems: 'center',
+					gap: 0.5,
 					'&:hover': {
 						backgroundColor: outlineHoverBg,
 						borderColor: outlineHoverBorder,
 					},
-					'& .MuiButton-endIcon': {
-						marginLeft: 0.5,
-					},
 				}}
 			>
 				{currency}
+				<IconChevronDown size={14} style={{ marginLeft: '2px' }} />
 			</Button>
 			<Menu
 				anchorEl={anchorEl}
@@ -112,4 +113,3 @@ export default function CurrencySwitcher({ fullWidth = false }: CurrencySwitcher
 		</>
 	);
 }
-

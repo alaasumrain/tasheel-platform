@@ -37,7 +37,7 @@ export default function Video() {
 	};
 	return (
 		<>
-			<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+			<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 				<Stack spacing={{ xs: 4, md: 8 }}>
 					<RevealSection delay={0.1} direction="up">
 						<Stack spacing={2.5} sx={{ px: { xs: 2, md: 7.5 } }}>

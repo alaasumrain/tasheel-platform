@@ -17,6 +17,11 @@
 		"about": "About Us",
 		"contact": "Contact",
 		"login": "Login",
+		"signUp": "Sign Up",
+		"logout": "Logout",
+		"dashboard": "Dashboard",
+		"myOrders": "My Orders",
+		"profile": "Profile",
 		"requestService": "Request a Service",
 		"faqs": "FAQs",
 		"logoAlt": "Company logo"
@@ -1454,7 +1459,9 @@
 			"fillAllFieldsContact": "Please fill in all fields.",
 			"contactError": "Something went wrong. Please try again later.",
 			"messageSent": "Message sent successfully.",
-			"contactRetry": "Something went wrong. Please try again."
+			"contactRetry": "Something went wrong. Please try again.",
+			"authRequired": "Please sign in to submit a quote request.",
+			"signInToContinue": "Sign in to continue with your quote request."
 		}
 	},
 	"Legal": {

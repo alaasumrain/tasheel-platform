@@ -59,7 +59,7 @@ export default function Stats() {
 	];
 	
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 			<Stack spacing={{ xs: 4, md: 8 }}>
 				<RevealSection delay={0.1} direction="up">
 					<Box sx={{ px: { xs: 3.75, md: 7.5 } }}>

@@ -44,7 +44,7 @@ export default function FeaturesGridRemote() {
 	};
 
 	return (
-		<Container sx={{ py: { xs: 6.25, md: 12.5 } }}>
+		<Container sx={{ py: { xs: 4.5, md: 8 } }}>
 			<Stack spacing={3} sx={{ mb: { xs: 6, md: 8 }, textAlign: 'center' }}>
 				<Typography variant="h4">
 					{t('headline')}

@@ -103,3 +103,73 @@ export function getUserFriendlyError(error: any): string {
 	return formatApiError(error);
 }
 
+/**
+ * Sanitize error messages to prevent information leakage
+ * Removes database errors, stack traces, and internal details
+ */
+export function sanitizeError(error: unknown, defaultMessage: string = 'An unexpected error occurred. Please try again.'): string {
+	// If it's a string, check if it contains sensitive information
+	if (typeof error === 'string') {
+		// Check for database/internal error patterns
+		if (
+			error.includes('relation') ||
+			error.includes('column') ||
+			error.includes('syntax error') ||
+			error.includes('permission denied') ||
+			error.includes('duplicate key') ||
+			error.includes('foreign key') ||
+			error.includes('constraint') ||
+			error.includes('violates') ||
+			error.includes('SQL') ||
+			error.includes('database') ||
+			error.includes('connection') ||
+			error.includes('timeout') ||
+			error.toLowerCase().includes('supabase') ||
+			error.includes('ENOENT') ||
+			error.includes('ECONNREFUSED')
+		) {
+			return defaultMessage;
+		}
+		// Safe user-facing errors (validation, business logic)
+		return error;
+	}
+
+	// If it's an Error object
+	if (error instanceof Error) {
+		const message = error.message;
+		
+		// Check for database/internal error patterns
+		if (
+			message.includes('relation') ||
+			message.includes('column') ||
+			message.includes('syntax error') ||
+			message.includes('permission denied') ||
+			message.includes('duplicate key') ||
+			message.includes('foreign key') ||
+			message.includes('constraint') ||
+			message.includes('violates') ||
+			message.includes('SQL') ||
+			message.includes('database') ||
+			message.includes('connection') ||
+			message.includes('timeout') ||
+			message.toLowerCase().includes('supabase') ||
+			message.includes('ENOENT') ||
+			message.includes('ECONNREFUSED') ||
+			message.includes('ECONNRESET')
+		) {
+			return defaultMessage;
+		}
+
+		// Check error name for known safe errors
+		if (['ValidationError', 'AuthenticationError', 'AuthorizationError'].includes(error.name)) {
+			return message;
+		}
+
+		// For other errors, return default
+		return defaultMessage;
+	}
+
+	// For unknown error types, return default
+	return defaultMessage;
+}
+

@@ -18,9 +18,13 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
+import LoginButton from '@/components/buttons/login-button';
+import RegisterButton from '@/components/buttons/register-button';
+import AccountMenu from '@/components/ui/account-menu';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import LanguageSwitcher from '@/components/ui/language-switcher';
 import CurrencySwitcher from '@/components/ui/currency-switcher';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
@@ -29,6 +33,7 @@ export default function Header() {
 	const locale = useLocale();
 	const pathname = usePathname();
 	const isArabic = locale === 'ar';
+	const { user, loading: authLoading } = useAuth();
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -157,8 +162,27 @@ export default function Header() {
 					sx={{ display: { xs: 'none', lg: 'flex' } }}
 				>
 					<IconButton
+						size="small"
 						sx={{
+							border: '1.5px solid',
+							borderColor: (theme) =>
+								theme.palette.mode === 'dark'
+									? 'rgba(255, 255, 255, 0.28)'
+									: 'rgba(15, 23, 42, 0.16)',
+							borderRadius: '999px',
 							color: 'text.primary',
+							width: 42,
+							height: 42,
+							'&:hover': {
+								backgroundColor: (theme) =>
+									theme.palette.mode === 'dark'
+										? 'rgba(255, 255, 255, 0.12)'
+										: 'rgba(15, 23, 42, 0.04)',
+								borderColor: (theme) =>
+									theme.palette.mode === 'dark'
+										? 'rgba(255, 255, 255, 0.4)'
+										: 'rgba(15, 23, 42, 0.3)',
+							},
 						}}
 					>
 						<IconSearch size={16} />
@@ -168,10 +192,31 @@ export default function Header() {
 						<CurrencySwitcher />
 					</Box>
 					<ThemeToggle />
+					{!authLoading && (
+						<>
+							{user ? (
+								<AccountMenu user={user} />
+							) : (
+								<>
+									<LoginButton
+										buttonLabel={t('login')}
+										variant="text"
+										size="small"
+										sx={{ mr: 0.5 }}
+									/>
+									<RegisterButton
+										variant="outlined"
+										size="small"
+										sx={{ mr: 1 }}
+									/>
+								</>
+							)}
+						</>
+					)}
 					<GetStarted
 						buttonLabel={t('requestService')}
 						href="/services"
-						size="medium"
+						size="small"
 						sx={{ boxShadow: '0px 8px 16px rgba(0,0,0,0.12)' }}
 					/>
 				</Stack>
@@ -246,6 +291,47 @@ export default function Header() {
 								<Stack spacing={2}>
 									<LanguageSwitcher fullWidth />
 									<CurrencySwitcher fullWidth />
+									{!authLoading && (
+										<>
+											{user ? (
+												<>
+													<MuiLink
+														component={Link}
+														href="/dashboard"
+														onClick={() => setOpen(false)}
+														underline="none"
+													>
+														<Typography
+															variant="h6"
+															sx={{
+																textAlign: 'center',
+																py: 2,
+																border: '1px solid',
+																borderColor: 'divider',
+																borderRadius: 2,
+															}}
+														>
+															{t('dashboard')}
+														</Typography>
+													</MuiLink>
+												</>
+											) : (
+												<>
+													<LoginButton
+														buttonLabel={t('login')}
+														variant="outlined"
+														fullWidth
+														size="large"
+													/>
+													<RegisterButton
+														variant="contained"
+														fullWidth
+														size="large"
+													/>
+												</>
+											)}
+										</>
+									)}
 									<GetStarted
 										buttonLabel={t('requestService')}
 										fullWidth
@@ -277,7 +363,11 @@ function LogoWrapper() {
 				component="img"
 				src={logoSrc}
 				alt={t('logoAlt')}
-				sx={{ height: { xs: 56, lg: 68 }, width: 'auto' }}
+				sx={{ 
+					height: { xs: 48, lg: 56 }, 
+					width: 'auto',
+					objectFit: 'contain'
+				}}
 			/>
 		</MuiLink>
 	);

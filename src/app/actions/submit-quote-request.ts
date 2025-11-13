@@ -8,6 +8,11 @@ import { convertToLegacyFormat } from '@/lib/types/service';
 import { getServiceFields } from '@/lib/service-form-fields';
 import { getTranslations } from 'next-intl/server';
 import { logger } from '@/lib/utils/logger';
+import {
+	getCurrentUser,
+	getCustomerProfile,
+	createCustomerFromUser,
+} from '@/lib/supabase/auth-helpers';
 
 // Validate environment variables
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -39,6 +44,14 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 	
 	try {
 		const t = await getTranslations({ locale, namespace: 'Quote.errors' });
+		const user = await getCurrentUser();
+
+		if (!user) {
+			return {
+				type: 'error',
+				message: t('authRequired'),
+			};
+		}
 		
 		const name = formData.get('name') as string;
 		const email = formData.get('email') as string;
@@ -53,6 +66,27 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 			return {
 				type: 'error',
 				message: t('fillAllFields'),
+			};
+		}
+
+		let customer = await getCustomerProfile(user);
+
+		if (!customer) {
+			customer = await createCustomerFromUser(user, {
+				name,
+				phone,
+				email,
+				languagePreference: locale === 'en' ? 'en' : 'ar',
+			});
+		}
+
+		if (!customer) {
+			logger.error('Unable to create or retrieve customer profile', null, {
+				userId: user.id,
+			});
+			return {
+				type: 'error',
+				message: t('unexpectedError'),
 			};
 		}
 
@@ -87,6 +121,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 			const { data: updatedApp, error: updateError } = await supabase
 				.from('applications')
 				.update({
+					customer_id: customer.id,
 					applicant_email: email,
 					customer_name: name,
 					customer_phone: phone,
@@ -125,6 +160,7 @@ export async function submitQuoteRequest(formData: FormData): Promise<{
 				.from('applications')
 				.insert({
 					service_slug: serviceSlug,
+					customer_id: customer.id,
 					applicant_email: email,
 					customer_name: name,
 					customer_phone: phone,
