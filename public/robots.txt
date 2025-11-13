@@ -1,0 +1,43 @@
+# Tasheel Platform - Robots.txt
+# Allow all crawlers to index public pages
+
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /api/*
+
+# Disallow authenticated user areas
+Disallow: /dashboard
+Disallow: /dashboard/*
+
+# Disallow payment pages (no need to index)
+Disallow: /payment/
+Disallow: /payment/*
+
+# Allow service pages
+Allow: /services
+Allow: /services/*
+Allow: /en/services
+Allow: /en/services/*
+
+# Allow public information pages
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /accessibility
+Allow: /security
+Allow: /pricing
+Allow: /track
+
+# Sitemap locations
+Sitemap: https://tasheel.ps/sitemap.xml
+Sitemap: https://tasheel.ps/sitemap-ar.xml
+Sitemap: https://tasheel.ps/sitemap-en.xml
+
+# Crawl delay for polite crawling
+Crawl-delay: 1

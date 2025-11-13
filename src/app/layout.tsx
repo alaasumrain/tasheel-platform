@@ -10,6 +10,7 @@ import { Box } from '@mui/material';
 import { Providers } from '@/providers';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import theme from '@/theme';
+import LocaleHtmlAttributes from '@/components/LocaleHtmlAttributes';
 
 // System font for English
 const systemFont = {
@@ -17,19 +18,9 @@ const systemFont = {
 	className: 'font-sans',
 };
 
-// Tajawal font for Arabic
+// Tajawal font for Arabic - Optimized to load only essential weights
 const tajawal = localFont({
 	src: [
-		{
-			path: '../fonts/tajawal/tajawal-200.ttf',
-			weight: '200',
-			style: 'normal',
-		},
-		{
-			path: '../fonts/tajawal/tajawal-300.ttf',
-			weight: '300',
-			style: 'normal',
-		},
 		{
 			path: '../fonts/tajawal/tajawal-400.ttf',
 			weight: '400',
@@ -45,19 +36,11 @@ const tajawal = localFont({
 			weight: '700',
 			style: 'normal',
 		},
-		{
-			path: '../fonts/tajawal/tajawal-800.ttf',
-			weight: '800',
-			style: 'normal',
-		},
-		{
-			path: '../fonts/tajawal/tajawal-900.ttf',
-			weight: '900',
-			style: 'normal',
-		},
 	],
 	variable: '--font-tajawal',
 	display: 'swap',
+	preload: true,
+	fallback: ['Arial', 'sans-serif'],
 });
 
 export const metadata: Metadata = {
@@ -76,7 +59,8 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="ar" dir="rtl" suppressHydrationWarning>
+		<html suppressHydrationWarning>
+			<LocaleHtmlAttributes />
 			<body className={`${systemFont.variable} ${tajawal.variable} antialiased`}>
 				<AppRouterCacheProvider>
 					<ThemeProvider theme={theme} defaultMode="light">

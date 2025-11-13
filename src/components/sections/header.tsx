@@ -25,6 +25,7 @@ import ThemeToggle from '@/components/ui/theme-toggle';
 import LanguageSwitcher from '@/components/ui/language-switcher';
 import CurrencySwitcher from '@/components/ui/currency-switcher';
 import { useAuth } from '@/hooks/use-auth';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
@@ -360,15 +361,21 @@ function LogoWrapper() {
 	return (
 		<MuiLink component={Link} href="/" underline="none" prefetch>
 			<Box
-				component="img"
-				src={logoSrc}
-				alt={t('logoAlt')}
-				sx={{ 
-					height: { xs: 48, lg: 56 }, 
+				sx={{
+					position: 'relative',
+					height: { xs: 48, lg: 56 },
 					width: 'auto',
-					objectFit: 'contain'
 				}}
-			/>
+			>
+				<OptimizedImage
+					src={logoSrc}
+					alt={t('logoAlt')}
+					height={56}
+					width={200}
+					style={{ height: '100%', width: 'auto', objectFit: 'contain' }}
+					priority
+				/>
+			</Box>
 		</MuiLink>
 	);
 }

@@ -13,6 +13,7 @@ import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
 import RevealSection from '@/components/ui/reveal-section';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 export default function Hero() {
 	const t = useTranslations('Homepage.hero');
@@ -40,16 +41,14 @@ export default function Hero() {
 					zIndex: 0,
 				}}
 			>
-				<Box
-					component="img"
+				<OptimizedImage
 					src="/dark/hero.jpg"
-					alt="Tasheel customer service team"
-					sx={{
-						width: '100%',
-						height: '100%',
-						objectFit: 'cover',
-						display: 'block',
-					}}
+					alt="Tasheel customer service team assisting with government documents"
+					fill
+					priority
+					sizes="100vw"
+					style={{ objectFit: 'cover' }}
+					quality={90}
 				/>
 			</Box>
 			

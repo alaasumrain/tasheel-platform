@@ -1,9 +1,33 @@
 @import 'tailwindcss';
 
+/* Mobile Overflow Fix */
+html,
+body {
+	overflow-x: hidden;
+	max-width: 100vw;
+	position: relative;
+}
+
+* {
+	box-sizing: border-box;
+}
+
 body {
 	font-family: var(--font-mona-sans), Arial, Helvetica, sans-serif;
 	padding: 0;
 	margin: 0;
+}
+
+/* Prevent text size adjustment on iOS */
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
 }
 
 @theme inline {
