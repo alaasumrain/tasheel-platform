@@ -88,6 +88,9 @@ export function ProfileSettingsForm({ customer }: ProfileSettingsFormProps) {
 			}
 
 			// Verify current password by attempting sign-in
+			if (!customer.email) {
+				throw new Error('Email is required');
+			}
 			const { error: signInError } = await supabase.auth.signInWithPassword({
 				email: customer.email,
 				password: currentPassword,
