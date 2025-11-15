@@ -100,7 +100,7 @@ export function useSupabaseMutation<TData = any, TVariables extends { id?: strin
 
 			return response?.data as TData;
 		},
-		onSuccess: (data, variables, context) => {
+		onSuccess: (data, variables, context, mutation) => {
 			// Invalidate relevant queries
 			const invalidateKeys = options?.invalidateQueries 
 				? Array.isArray(options.invalidateQueries) 
@@ -114,7 +114,7 @@ export function useSupabaseMutation<TData = any, TVariables extends { id?: strin
 
 			// Call custom onSuccess if provided
 			if (options?.onSuccess) {
-				options.onSuccess(data, variables, context);
+				options.onSuccess(data, variables, context, mutation);
 			}
 		},
 		onMutate: async (newData) => {
