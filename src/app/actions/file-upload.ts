@@ -295,7 +295,9 @@ export async function uploadFileImmediately(
 		
 		// Verify auth context in Supabase client (this is what RLS uses)
 		// IMPORTANT: Call getUser() to ensure session is established
-		const { data: { user: authUser, session }, error: authError } = await supabase.auth.getUser();
+		const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+		// Get session separately if needed
+		const { data: { session } } = await supabase.auth.getSession();
 		
 		console.log('[FileUpload Server] Auth context:', {
 			hasUser: !!authUser,
