@@ -133,12 +133,12 @@ export function useSupabaseMutation<TData = any, TVariables extends { id?: strin
 			}
 
 			// Return context with previous data for rollback
-			return { previousData };
+			return { previousData } as { previousData: any };
 		},
 		onError: (error, variables, context) => {
 			// Rollback on error
-			if (context && 'previousData' in context && context.previousData) {
-				queryClient.setQueryData([table], context.previousData);
+			if (context && typeof context === 'object' && 'previousData' in context) {
+				queryClient.setQueryData([table], (context as { previousData: any }).previousData);
 			}
 
 			// Call custom onError if provided
