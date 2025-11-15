@@ -303,7 +303,17 @@ export default function Header() {
 								<Stack spacing={2}>
 									<LanguageSwitcher fullWidth />
 									<CurrencySwitcher fullWidth />
-									{!authLoading && (
+									{authLoading ? (
+										// Show login button optimistically while loading
+										<Box onClick={() => setOpen(false)}>
+											<LoginButton
+												buttonLabel={t('login')}
+												variant="outlined"
+												fullWidth
+												size="large"
+											/>
+										</Box>
+									) : (
 										<>
 											{user ? (
 												<>
@@ -328,12 +338,14 @@ export default function Header() {
 													</MuiLink>
 												</>
 											) : (
-												<LoginButton
-													buttonLabel={t('login')}
-													variant="outlined"
-													fullWidth
-													size="large"
-												/>
+												<Box onClick={() => setOpen(false)}>
+													<LoginButton
+														buttonLabel={t('login')}
+														variant="outlined"
+														fullWidth
+														size="large"
+													/>
+												</Box>
 											)}
 										</>
 									)}
