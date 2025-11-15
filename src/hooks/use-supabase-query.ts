@@ -9,7 +9,8 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import type { PostgrestFilterBuilder } from '@supabase/supabase-js';
+// PostgrestFilterBuilder type is not exported, using any for query builder type
+type PostgrestFilterBuilder = any;
 
 const supabase = createClient();
 
