@@ -11,6 +11,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import { useColorScheme } from '@mui/material';
 import { useTranslations, useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { Link as MuiLink } from '@mui/material';
 
@@ -28,7 +29,14 @@ export default function Footer() {
 	const t = useTranslations('Footer');
 	const { mode } = useColorScheme();
 	const locale = useLocale();
+	const pathname = usePathname();
 	const isRTL = locale === 'ar';
+
+	// Hide footer on dashboard routes (dashboard has its own layout)
+	const isDashboardRoute = pathname?.includes('/dashboard');
+	if (isDashboardRoute) {
+		return null;
+	}
 
 	const handleToTop = () => {
 		window.scrollTo({

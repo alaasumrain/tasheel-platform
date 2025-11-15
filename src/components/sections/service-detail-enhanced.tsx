@@ -155,7 +155,9 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 			<Container maxWidth="lg" sx={{ pt: { xs: 3, md: 5 }, pb: { xs: 4, md: 6 } }}>
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={{ xs: 3, md: 4 }}>
-						<PageBreadcrumbs items={breadcrumbs} />
+						<Box sx={{ width: '100%' }}>
+							<PageBreadcrumbs items={breadcrumbs} />
+						</Box>
 						
 						{/* Service Image */}
 						{((service as any).image_light || (service as any).image_dark) && (

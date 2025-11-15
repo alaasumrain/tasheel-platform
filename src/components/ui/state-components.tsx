@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Alert, AlertTitle, Button, Stack, Typography } from '@mui/material';
-import { IconAlertCircle, IconRefresh, IconCircleCheck, IconX } from '@tabler/icons-react';
+import { IconAlertCircle, IconRefresh, IconCircleCheck, IconX, IconFileText, IconSearch } from '@tabler/icons-react';
 import { motion } from 'motion/react';
 
 interface ErrorStateProps {
@@ -70,16 +70,43 @@ export function SuccessState({ title, message, onDismiss }: SuccessStateProps) {
 }
 
 interface EmptyStateProps {
-	title: string;
+	title?: string;
 	description?: string;
 	action?: {
 		label: string;
 		onClick: () => void;
 	};
 	icon?: React.ReactNode;
+	variant?: 'no-orders' | 'no-results' | 'default';
 }
 
-export function EmptyState({ title, description, action, icon }: EmptyStateProps) {
+export function EmptyState({ title, description, action, icon, variant = 'default' }: EmptyStateProps) {
+	// Smart messaging based on variant
+	const getSmartContent = () => {
+		if (variant === 'no-orders') {
+			return {
+				title: title || 'Get Started',
+				description: description || 'Explore our services to get started with your first request.',
+				defaultIcon: <IconFileText size={48} />,
+			};
+		}
+		if (variant === 'no-results') {
+			return {
+				title: title || 'No Results Found',
+				description: description || 'Try adjusting your search or filters to find what you\'re looking for.',
+				defaultIcon: <IconSearch size={48} />,
+			};
+		}
+		return {
+			title: title || 'No Data',
+			description: description,
+			defaultIcon: icon,
+		};
+	};
+
+	const smartContent = getSmartContent();
+	const displayIcon = icon || smartContent.defaultIcon;
+
 	return (
 		<Box
 			sx={{
@@ -92,17 +119,19 @@ export function EmptyState({ title, description, action, icon }: EmptyStateProps
 				textAlign: 'center',
 			}}
 		>
-			{icon && (
+			{displayIcon && (
 				<Box sx={{ mb: 2, color: 'text.secondary' }}>
-					{icon}
+					{displayIcon}
 				</Box>
 			)}
-			<Typography variant="h6" fontWeight={600} gutterBottom>
-				{title}
-			</Typography>
-			{description && (
+			{smartContent.title && (
+				<Typography variant="h6" fontWeight={600} gutterBottom>
+					{smartContent.title}
+				</Typography>
+			)}
+			{smartContent.description && (
 				<Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
-					{description}
+					{smartContent.description}
 				</Typography>
 			)}
 			{action && (

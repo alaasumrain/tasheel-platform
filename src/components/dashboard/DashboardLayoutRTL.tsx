@@ -33,6 +33,8 @@ import {
 	ReceiptLong as InvoicesIcon,
 	Logout as LogoutIcon,
 	Menu as MenuIcon,
+	ChevronLeft as ChevronLeftIcon,
+	ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -163,8 +165,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 						? { mr: { sm: `${drawerWidth}px` } }
 						: { ml: { sm: `${drawerWidth}px` } }
 					),
-					zIndex: (theme) => theme.zIndex.drawer + 1,
-					backgroundColor: 'primary.main',
+					zIndex: theme.zIndex.drawer + 1,
 				}}
 			>
 				<Toolbar>
@@ -218,10 +219,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 						'& .MuiDrawer-paper': {
 							boxSizing: 'border-box',
 							width: drawerWidth,
-							zIndex: (theme) => theme.zIndex.drawer,
-						},
-						'& .MuiBackdrop-root': {
-							zIndex: (theme) => theme.zIndex.drawer - 1,
 						},
 					}}
 				>
@@ -250,17 +247,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 					p: 3,
 					width: { sm: `calc(100% - ${drawerWidth}px)` },
 					mt: 8,
-					// Use direction-aware spacing
-					...(isRTL 
-						? { 
-							mr: { sm: `${drawerWidth}px` },
-							ml: 0,
-						} 
-						: { 
-							ml: { sm: `${drawerWidth}px` },
-							mr: 0,
-						}
-					),
+					// RTL: content on left, LTR: content on right
+					...(isRTL ? {
+						mr: { sm: `${drawerWidth}px` },
+						ml: 0,
+					} : {
+						ml: { sm: `${drawerWidth}px` },
+						mr: 0,
+					}),
 					direction: isRTL ? 'rtl' : 'ltr',
 				}}
 			>

@@ -31,7 +31,7 @@ import OTPVerification from './OTPVerification';
 
 type LoginMethod = 'email' | 'phone';
 
-export default function LoginForm() {
+export default function LoginFormImproved() {
 	const t = useTranslations('Auth.login');
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -75,7 +75,7 @@ export default function LoginForm() {
 			queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
 			queryClient.invalidateQueries({ queryKey: ['user'] });
 			
-			toast.success(t('success'));
+			toast.success(t('success') || 'Welcome back!');
 			router.push(safeRedirect);
 		});
 	};
@@ -104,7 +104,7 @@ export default function LoginForm() {
 					throw new Error(data.error || 'Failed to send OTP');
 				}
 
-				toast.success(t('otpSent'));
+				toast.success(t('otpSent') || 'OTP sent successfully');
 				setOtpSent(true);
 				
 				// Show test OTP in development
@@ -141,7 +141,7 @@ export default function LoginForm() {
 				queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
 				queryClient.invalidateQueries({ queryKey: ['user'] });
 				
-				toast.success(t('otpVerified'));
+				toast.success(t('otpVerified') || 'Login successful');
 				router.push(safeRedirect);
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : t('errors.otpInvalid');
@@ -168,7 +168,7 @@ export default function LoginForm() {
 							throw new Error(data.error || 'Failed to send OTP');
 						}
 
-						toast.success(t('otpSent'));
+						toast.success(t('otpSent') || 'OTP sent successfully');
 						setOtpSent(true);
 						
 						if (process.env.NODE_ENV === 'development' && data.testOtp) {
@@ -200,10 +200,10 @@ export default function LoginForm() {
 			{/* Header */}
 			<Box>
 				<Typography variant="h4" fontWeight={700} gutterBottom>
-					{t('title')}
+					{t('title') || 'Welcome Back'}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					{t('description')}
+					{t('description') || 'Sign in to your account to continue'}
 				</Typography>
 			</Box>
 
@@ -220,7 +220,7 @@ export default function LoginForm() {
 					size="small"
 					startIcon={<IconMail size={18} />}
 				>
-					{t('methods.email')}
+					{t('methods.email') || 'Email'}
 				</Button>
 				<Button
 					fullWidth
@@ -233,7 +233,7 @@ export default function LoginForm() {
 					size="small"
 					startIcon={<IconLock size={18} />}
 				>
-					{t('methods.phone')}
+					{t('methods.phone') || 'Phone'}
 				</Button>
 			</Stack>
 
@@ -260,7 +260,7 @@ export default function LoginForm() {
 									setEmail(e.target.value);
 									setError('');
 								}}
-								placeholder={t('placeholders.email')}
+								placeholder="example@mail.com"
 								disabled={isPending}
 								startAdornment={<IconMail size={20} style={{ marginRight: 8, opacity: 0.5 }} />}
 								autoComplete="email"
@@ -285,7 +285,7 @@ export default function LoginForm() {
 
 						<Stack direction="row" justifyContent="flex-end">
 							<MuiLink component={Link} href="/forgot-password" underline="hover" fontSize="small">
-								{t('forgotPassword')}
+								{t('forgotPassword') || 'Forgot password?'}
 							</MuiLink>
 						</Stack>
 
@@ -297,7 +297,7 @@ export default function LoginForm() {
 							disabled={isPending || !email || !password}
 							endIcon={<IconArrowRight />}
 						>
-							{isPending ? t('signingIn') : t('signIn')}
+							{isPending ? (t('verifying') || 'Signing in...') : (t('submit') || 'Sign In')}
 						</Button>
 					</Stack>
 				</form>
@@ -317,12 +317,12 @@ export default function LoginForm() {
 									setPhone(e.target.value);
 									setOtpError('');
 								}}
-								placeholder={t('placeholders.phone')}
+								placeholder="0599123456"
 								disabled={isPending}
 								autoComplete="tel"
 							/>
 							{otpError && <FormHelperText error>{otpError}</FormHelperText>}
-							<FormHelperText>{t('phoneHelper')}</FormHelperText>
+							<FormHelperText>{t('phoneHelper') || 'We will send you a verification code'}</FormHelperText>
 						</FormControl>
 
 						<Button
@@ -333,7 +333,7 @@ export default function LoginForm() {
 							disabled={isPending || !phone}
 							endIcon={<IconArrowRight />}
 						>
-							{isPending ? t('sending') : t('sendCode')}
+							{isPending ? (t('sending') || 'Sending...') : (t('sendOTP') || 'Send Code')}
 						</Button>
 					</Stack>
 				</form>
@@ -341,7 +341,7 @@ export default function LoginForm() {
 
 			<Divider>
 				<Typography variant="caption" color="text.secondary">
-					{t('noAccount')}
+					{t('noAccount') || "Don't have an account?"}
 				</Typography>
 			</Divider>
 
@@ -352,7 +352,7 @@ export default function LoginForm() {
 				href="/register"
 				disabled={isPending}
 			>
-				{t('registerLink')}
+				{t('registerLink') || 'Create Account'}
 			</Button>
 		</Stack>
 	);

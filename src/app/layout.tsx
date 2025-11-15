@@ -82,7 +82,7 @@ export default function RootLayout({
 					<ThemeProvider theme={theme} defaultMode="light">
 						<InitColorSchemeScript attribute="class" defaultMode="light" />
 						<Providers>
-							<Box sx={{ position: 'relative', zIndex: 2 }}>{children}</Box>
+							<Box component="main" id="main-content" sx={{ position: 'relative', zIndex: 2 }}>{children}</Box>
 						</Providers>
 					</ThemeProvider>
 				</AppRouterCacheProvider>

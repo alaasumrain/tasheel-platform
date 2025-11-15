@@ -31,6 +31,7 @@ declare module '@mui/material/ToggleButtonGroup' {
 }
 
 let theme = createTheme({
+	direction: 'ltr', // Will be overridden by ThemeProvider based on locale
 	cssVariables: {
 		colorSchemeSelector: 'class',
 	},

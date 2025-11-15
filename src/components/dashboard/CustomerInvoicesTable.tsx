@@ -9,37 +9,32 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
+	Paper,
 	Chip,
 	Button,
 	Stack,
 	TextField,
 	InputAdornment,
 } from '@mui/material';
-import { IconSearch, IconEye, IconFileText } from '@tabler/icons-react';
+import { IconSearch, IconEye, IconFileText, IconDownload } from '@tabler/icons-react';
 import { Link } from '@/i18n/navigation';
-import type { Application } from '@/lib/admin-queries';
+import type { Invoice } from '@/lib/admin-queries';
 import { Typography } from '@mui/material';
 import { useTranslations, useLocale } from 'next-intl';
 import { EmptyState } from '@/components/ui/state-components';
 import { Card } from '@/components/ui/card';
 
-interface CustomerRequestsTableProps {
-	orders: Application[];
+interface CustomerInvoicesTableProps {
+	invoices: Invoice[];
 }
 
 const statusColors: Record<
-	Application['status'],
+	Invoice['status'],
 	'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 > = {
-	draft: 'default',
-	submitted: 'info',
-	scoping: 'primary',
-	quote_sent: 'warning',
-	in_progress: 'primary',
-	review: 'warning',
-	completed: 'success',
-	archived: 'default',
-	rejected: 'error',
+	pending: 'warning',
+	paid: 'success',
+	failed: 'error',
 	cancelled: 'default',
 };
 
@@ -55,17 +50,24 @@ function formatDate(dateString: string, locale: string = 'en'): string {
 	}).format(date);
 }
 
-export function CustomerRequestsTable({ orders }: CustomerRequestsTableProps) {
+function formatCurrency(amount: number, currency: string = 'ILS'): string {
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: currency,
+		minimumFractionDigits: 2,
+	}).format(amount);
+}
+
+export function CustomerInvoicesTable({ invoices }: CustomerInvoicesTableProps) {
 	const [searchTerm, setSearchTerm] = useState('');
-	const t = useTranslations('Dashboard.requests');
+	const t = useTranslations('Dashboard.invoices');
 	const locale = useLocale() as 'en' | 'ar';
 
-	const filteredOrders = orders.filter(
-		(order) =>
+	const filteredInvoices = invoices.filter(
+		(invoice) =>
 			!searchTerm ||
-			order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			order.service_slug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			order.status.toLowerCase().includes(searchTerm.toLowerCase())
+			invoice.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			invoice.status.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	return (
@@ -87,22 +89,12 @@ export function CustomerRequestsTable({ orders }: CustomerRequestsTableProps) {
 				/>
 			</Box>
 
-			{filteredOrders.length === 0 ? (
+			{filteredInvoices.length === 0 ? (
 				<EmptyState
 					variant={searchTerm ? 'no-results' : 'no-orders'}
-					title={searchTerm ? t('noResults') : t('noRequests')}
-					description={searchTerm ? t('noResultsDescription') : t('noRequestsDescription')}
+					title={searchTerm ? t('noResults') : t('noInvoices')}
+					description={searchTerm ? t('noResultsDescription') : t('noInvoicesDescription')}
 					icon={<IconFileText size={48} />}
-					action={
-						!searchTerm
-							? {
-									label: t('browseServices'),
-									onClick: () => {
-										window.location.href = '/services';
-									},
-								}
-							: undefined
-					}
 				/>
 			) : (
 				<Card
@@ -114,39 +106,61 @@ export function CustomerRequestsTable({ orders }: CustomerRequestsTableProps) {
 						<Table>
 							<TableHead>
 								<TableRow>
-									<TableCell>{t('table.orderNumber')}</TableCell>
-									<TableCell>{t('table.service')}</TableCell>
+									<TableCell>{t('table.invoiceNumber')}</TableCell>
+									<TableCell>{t('table.amount')}</TableCell>
 									<TableCell>{t('table.status')}</TableCell>
-									<TableCell>{t('table.submitted')}</TableCell>
+									<TableCell>{t('table.created')}</TableCell>
+									<TableCell>{t('table.paidAt')}</TableCell>
 									<TableCell align="right">{t('table.actions')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{filteredOrders.map((order) => (
-									<TableRow key={order.id} hover>
+								{filteredInvoices.map((invoice) => (
+									<TableRow key={invoice.id} hover>
 										<TableCell>
 											<Typography variant="body2" fontWeight={600}>
-												{order.order_number || 'N/A'}
+												{invoice.invoice_number || t('notAvailable')}
 											</Typography>
 										</TableCell>
-										<TableCell>{order.service_slug || 'N/A'}</TableCell>
+										<TableCell>
+											<Typography variant="body2" fontWeight={600}>
+												{formatCurrency(invoice.amount, invoice.currency)}
+											</Typography>
+										</TableCell>
 										<TableCell>
 											<Chip
-												label={t(`statusLabels.${order.status}` as any)}
-												color={statusColors[order.status]}
+												label={t(`statusLabels.${invoice.status}` as any)}
+												color={statusColors[invoice.status]}
 												size="small"
 											/>
 										</TableCell>
 										<TableCell>
 											<Typography variant="body2" color="text.secondary">
-												{formatDate(order.submitted_at, locale)}
+												{formatDate(invoice.created_at, locale)}
+											</Typography>
+										</TableCell>
+										<TableCell>
+											<Typography variant="body2" color="text.secondary">
+												{invoice.paid_at ? formatDate(invoice.paid_at, locale) : '-'}
 											</Typography>
 										</TableCell>
 										<TableCell align="right">
 											<Stack direction="row" spacing={1} justifyContent="flex-end">
+												{invoice.payment_link && invoice.status === 'pending' && (
+													<Button
+														component="a"
+														href={invoice.payment_link}
+														target="_blank"
+														size="small"
+														variant="contained"
+														startIcon={<IconDownload size={18} />}
+													>
+														{t('table.pay')}
+													</Button>
+												)}
 												<Button
 													component={Link}
-													href={`/dashboard/requests/${order.id}`}
+													href={`/dashboard/invoices/${invoice.id}`}
 													size="small"
 													variant="outlined"
 													startIcon={<IconEye size={18} />}

@@ -87,7 +87,9 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 			<Container maxWidth="lg" sx={{ pt: { xs: 3, md: 5 }, pb: { xs: 4, md: 6 } }}>
 				<RevealSection delay={0.1} direction="up">
 					<Stack spacing={{ xs: 3, md: 4 }}>
-						<PageBreadcrumbs items={breadcrumbs} />
+						<Box sx={{ width: '100%' }}>
+							<PageBreadcrumbs items={breadcrumbs} />
+						</Box>
 						
 						{/* Service Image */}
 						{((service as any).image_light || (service as any).image_dark) && (
@@ -200,20 +202,22 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 										</Grid>
 									</Grid>
 
-									<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1.5 }}>
+									<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ pt: 2 }}>
 										<Tooltip title={isComingSoon ? t('comingSoonTooltip') : ''} arrow>
 											<span>
 												<Button
 													component={Link}
 													href={`/services/${service.slug}/quote`}
 													variant="contained"
-													size="medium"
+													size="large"
 													disabled={isComingSoon}
 													sx={{
-														px: 3,
-														py: 1.25,
-														fontSize: '0.9375rem',
-														fontWeight: 600,
+														px: { xs: 4, sm: 5 },
+														py: { xs: 1.75, sm: 2 },
+														fontSize: { xs: '1rem', sm: '1.125rem' },
+														fontWeight: 700,
+														minWidth: { xs: '100%', sm: 200 },
+														borderRadius: 2,
 													}}
 												>
 													{isComingSoon ? t('startButtonDisabled') : t('startService')}
@@ -224,12 +228,18 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 											component={Link}
 											href="/track"
 											variant="outlined"
-											size="medium"
+											size="large"
 											sx={{
-												px: 3,
-												py: 1.25,
-												fontSize: '0.9375rem',
-												fontWeight: 600,
+												px: { xs: 4, sm: 5 },
+												py: { xs: 1.75, sm: 2 },
+												fontSize: { xs: '1rem', sm: '1.125rem' },
+												fontWeight: 700,
+												minWidth: { xs: '100%', sm: 200 },
+												borderRadius: 2,
+												borderWidth: 2,
+												'&:hover': {
+													borderWidth: 2,
+												},
 											}}
 										>
 											{t('trackStatus')}
@@ -423,9 +433,9 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 									</Stack>
 									<Stack
 										direction={{ xs: 'column', sm: 'row' }}
-										spacing={2}
+										spacing={2.5}
 										justifyContent="center"
-										sx={{ width: '100%', maxWidth: 500 }}
+										sx={{ width: '100%', maxWidth: 600 }}
 									>
 										<Tooltip title={isComingSoon ? t('comingSoonTooltip') : ''} arrow>
 											<span>
@@ -437,10 +447,12 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 													disabled={isComingSoon}
 													sx={{
 														flex: { xs: 1, sm: 'none' },
-														px: 4,
-														py: 1.5,
-														fontWeight: 600,
+														px: { xs: 5, sm: 6 },
+														py: { xs: 2, sm: 2.25 },
+														fontSize: { xs: '1.0625rem', sm: '1.125rem' },
+														fontWeight: 700,
 														borderRadius: 2,
+														minWidth: { xs: '100%', sm: 220 },
 													}}
 												>
 													{isComingSoon ? t('startButtonDisabled') : t('startService')}
@@ -454,10 +466,16 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 											size="large"
 											sx={{
 												flex: { xs: 1, sm: 'none' },
-												px: 4,
-												py: 1.5,
-												fontWeight: 600,
+												px: { xs: 5, sm: 6 },
+												py: { xs: 2, sm: 2.25 },
+												fontSize: { xs: '1.0625rem', sm: '1.125rem' },
+												fontWeight: 700,
 												borderRadius: 2,
+												minWidth: { xs: '100%', sm: 220 },
+												borderWidth: 2,
+												'&:hover': {
+													borderWidth: 2,
+												},
 											}}
 										>
 											{t('callUs')} <span dir="ltr">{t('callUsPhone')}</span>

@@ -608,6 +608,50 @@ export async function getCustomerOrders(customerIdOrEmail: string, filterByEmail
 	return (data as Application[]) || [];
 }
 
+/**
+ * Get all invoices for a customer
+ * Fetches invoices through their applications
+ */
+export async function getCustomerInvoices(customerIdOrEmail: string, filterByEmail = false) {
+	const supabaseClient = await createClient();
+	
+	// First, get the customer's application IDs
+	let applicationsQuery = supabaseClient
+		.from('applications')
+		.select('id');
+	
+	if (filterByEmail) {
+		applicationsQuery = applicationsQuery.eq('applicant_email', customerIdOrEmail);
+	} else {
+		applicationsQuery = applicationsQuery.eq('customer_id', customerIdOrEmail);
+	}
+	
+	const { data: applications, error: appsError } = await applicationsQuery;
+	
+	if (appsError) {
+		throw appsError;
+	}
+	
+	if (!applications || applications.length === 0) {
+		return [];
+	}
+	
+	const applicationIds = applications.map(app => app.id);
+	
+	// Get invoices for these applications
+	const { data: invoices, error: invoicesError } = await supabaseClient
+		.from('invoices')
+		.select('*')
+		.in('application_id', applicationIds)
+		.order('created_at', { ascending: false });
+	
+	if (invoicesError) {
+		throw invoicesError;
+	}
+	
+	return (invoices as Invoice[]) || [];
+}
+
 export interface Invoice {
 	id: string;
 	application_id: string;

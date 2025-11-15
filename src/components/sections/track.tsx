@@ -132,7 +132,7 @@ export default function Track() {
 											<TextField
 												fullWidth
 												label={t('orderNumber')}
-												placeholder={`${t('orderNumber')} (e.g., TS-12345)`}
+												placeholder={t('orderNumberPlaceholder')}
 												value={orderNumber}
 												onChange={(e) => setOrderNumber(e.target.value)}
 												onKeyPress={(e) => {
@@ -167,7 +167,7 @@ export default function Track() {
 													py: 1.5,
 												}}
 											>
-												{loading ? t('search') + '...' : t('search')}
+												{loading ? t('searching') : t('search')}
 											</Button>
 
 											{error && (
@@ -227,7 +227,7 @@ export default function Track() {
 																				{t('customer')}
 																			</Typography>
 																			<Typography variant="body2" fontWeight={600}>
-																				{orderData.order.customer_name || 'N/A'}
+																				{orderData.order.customer_name || t('notAvailable')}
 																			</Typography>
 																		</Grid>
 																		<Grid size={{ xs: 12, sm: 6 }}>

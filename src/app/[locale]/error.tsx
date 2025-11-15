@@ -41,11 +41,11 @@ export default function Error({
 						{error.message || t('error')}
 					</Typography>
 					<Typography variant="body1" color="text.secondary">
-						{t('errorDescription') || "We're sorry, but something unexpected happened. Please try again or return to the homepage."}
+						{t('errorDescription')}
 					</Typography>
 					{error.digest && (
 						<Typography variant="caption" color="text.disabled">
-							{t('errorId') || 'Error ID'}: {error.digest}
+							{t('errorId')}: {error.digest}
 						</Typography>
 					)}
 					<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">

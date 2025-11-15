@@ -76,6 +76,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 	const tErrors = useTranslations('Quote.errors');
 	const tAuthLogin = useTranslations('Auth.login');
 	const tAuthRegister = useTranslations('Auth.register');
+	const tQuote = useTranslations('Quote');
 	const locale = useLocale() as 'en' | 'ar';
 	const isRTL = locale === 'ar';
 	const supabase = useMemo(() => createClient(), []);
@@ -459,31 +460,101 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		return emailRegex.test(email);
 	};
 
+	// Enhanced phone validation with detailed error messages
+	const validatePhoneWithMessage = (phone: string): { valid: boolean; error?: string } => {
+		if (!phone || phone.trim().length === 0) {
+			return { valid: false, error: t('validation.phoneRequired') };
+		}
+		
+		// Remove all whitespace and special characters except + and digits
+		const cleaned = phone.replace(/[\s\-\(\)\.]/g, '');
+		
+		// Must have at least some digits
+		if (!/\d/.test(cleaned)) {
+			return { 
+				valid: false, 
+				error: locale === 'ar' 
+					? 'يرجى إدخال أرقام صحيحة' 
+					: 'Please enter valid digits'
+			};
+		}
+		
+		// Extract digits only (for validation)
+		let digitsOnly = cleaned.replace(/\D/g, '');
+		
+		// Check for wrong country code
+		if (cleaned.startsWith('+') && !cleaned.startsWith('+970')) {
+			const countryCode = cleaned.match(/^\+\d{1,3}/)?.[0];
+			return { 
+				valid: false, 
+				error: locale === 'ar'
+					? `رمز الدولة ${countryCode} غير صحيح. يجب أن يكون +970 للفلسطيني`
+					: `Country code ${countryCode} is incorrect. Must be +970 for Palestinian numbers`
+			};
+		}
+		
+		// Handle international format: +970XXXXXXXXX
+		if (cleaned.startsWith('+970')) {
+			digitsOnly = digitsOnly.slice(3); // Remove 970
+		}
+		// Handle local format with country code: 970XXXXXXXXX (without +)
+		else if (digitsOnly.startsWith('970') && digitsOnly.length >= 12) {
+			digitsOnly = digitsOnly.slice(3); // Remove 970
+		}
+		// Handle local format: 0XXXXXXXXX
+		else if (digitsOnly.startsWith('0') && digitsOnly.length >= 10) {
+			digitsOnly = digitsOnly.slice(1); // Remove leading 0
+		}
+		// Handle direct format: 5XXXXXXXXX (already correct)
+		
+		// Check length
+		if (digitsOnly.length < 9) {
+			return { 
+				valid: false, 
+				error: locale === 'ar'
+					? `الرقم قصير جداً (${digitsOnly.length} أرقام). يجب أن يكون 9 أرقام بعد إزالة رمز الدولة`
+					: `Number is too short (${digitsOnly.length} digits). Must be 9 digits after removing country code`
+			};
+		}
+		
+		if (digitsOnly.length > 9) {
+			return { 
+				valid: false, 
+				error: locale === 'ar'
+					? `الرقم طويل جداً (${digitsOnly.length} أرقام). يجب أن يكون 9 أرقام بعد إزالة رمز الدولة`
+					: `Number is too long (${digitsOnly.length} digits). Must be 9 digits after removing country code`
+			};
+		}
+		
+		// Palestinian mobile numbers: Must be 9 digits starting with 5[6-9]
+		// Valid patterns: 56XXXXXXX, 57XXXXXXX, 58XXXXXXX, 59XXXXXXX
+		if (!digitsOnly.startsWith('5')) {
+			return { 
+				valid: false, 
+				error: locale === 'ar'
+					? 'رقم الهاتف الفلسطيني يجب أن يبدأ بـ 5'
+					: 'Palestinian mobile number must start with 5'
+			};
+		}
+		
+		// Check second digit (must be 6, 7, 8, or 9)
+		const secondDigit = parseInt(digitsOnly[1]);
+		if (secondDigit < 6 || secondDigit > 9) {
+			return { 
+				valid: false, 
+				error: locale === 'ar'
+					? `الرقم الثاني (${secondDigit}) غير صحيح. يجب أن يكون بين 6 و 9 (مثال: 56, 57, 58, 59)`
+					: `Second digit (${secondDigit}) is invalid. Must be between 6 and 9 (e.g., 56, 57, 58, 59)`
+			};
+		}
+		
+		// All checks passed
+		return { valid: true };
+	};
+
+	// Simple boolean validation for backward compatibility
 	const validatePhone = (phone: string): boolean => {
-		if (!phone || phone.trim().length === 0) return false;
-		
-		// Remove all non-digit characters except + at the start
-		const cleaned = phone.replace(/[^\d+]/g, '');
-		
-		// Check reasonable length (9-13 digits total, including country code)
-		if (cleaned.length < 9 || cleaned.length > 13) return false;
-		
-		// Remove + if present
-		let digits = cleaned.replace(/^\+/, '');
-
-		// Handle +970 prefix (Palestinian country code)
-		if (digits.startsWith('970')) {
-			digits = digits.slice(3);
-		}
-
-		// Handle 0 prefix (local format)
-		if (digits.startsWith('0')) {
-			digits = digits.slice(1);
-		}
-
-		// Palestinian mobile numbers: 5[6-9]XXXXXXX (9 digits starting with 56-59)
-		// Accept 9-10 digits starting with 5
-		return /^5\d{8,9}$/.test(digits);
+		return validatePhoneWithMessage(phone).valid;
 	};
 
 	const validateStep = (step: number): boolean => {
@@ -899,7 +970,9 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						formData={formData}
 						onChange={handleFieldChange}
 						errors={errors}
+						setErrors={setErrors}
 						validatePhone={validatePhone}
+						validatePhoneWithMessage={validatePhoneWithMessage}
 						validateEmail={validateEmail}
 					/>
 				);
@@ -977,8 +1050,6 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					? true // Step 4 (Payment) - PaymentFlow handles its own validation
 					: true;
 
-	const tQuote = useTranslations('Quote');
-
 	return (
 		<Box sx={{ 
 			maxWidth: '672px', 
@@ -993,20 +1064,6 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 
 				{/* Header Section */}
 				<Box sx={{ mb: { xs: 2, sm: 3 }, direction: isRTL ? 'rtl' : 'ltr' }}>
-					<Stack 
-						direction="row" 
-						justifyContent="space-between" 
-						alignItems={{ xs: 'flex-start', sm: 'center' }}
-						spacing={1}
-						sx={{ mb: 0.5 }}
-					>
-						<Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-							{tQuote('title')}
-						</Typography>
-						<Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, whiteSpace: 'nowrap' }}>
-							{isRTL ? `الخطوة ${activeStep + 1} من ${steps.length}` : `Step ${activeStep + 1} of ${steps.length}`}
-						</Typography>
-					</Stack>
 					{/* Progress bar */}
 					<Box sx={{ mb: 2, position: 'relative' }}>
 						<LinearProgress 
@@ -1032,66 +1089,114 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						/>
 					</Box>
 					{/* Step Indicators */}
-					<Stack direction={isRTL ? 'row-reverse' : 'row'} spacing={1.5} sx={{ justifyContent: 'space-between' }}>
-						{steps.map((label, index) => (
+					<Box sx={{ position: 'relative', width: '100%' }}>
+						{/* Connecting Lines - Behind icons */}
+						<Box
+							sx={{
+								position: 'absolute',
+								top: { xs: 16, sm: 18 },
+								left: 0,
+								right: 0,
+								height: 2,
+								bgcolor: 'divider',
+								zIndex: 0, // Behind the icons
+								...(isRTL && {
+									transform: 'scaleX(-1)',
+								}),
+							}}
+						>
 							<Box
-								key={label}
-								onClick={() => {
-									if (index < activeStep) {
-										setActiveStep(index);
-									}
-								}}
 								sx={{
-									flex: 1,
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									cursor: index < activeStep ? 'pointer' : 'default',
-									opacity: index > activeStep ? 0.4 : 1,
-									transition: 'opacity 0.2s',
+									height: '100%',
+									bgcolor: 'primary.main',
+									width: `${(activeStep / (steps.length - 1)) * 100}%`,
+									transition: 'width 0.3s ease',
+									...(isRTL && {
+										transform: 'scaleX(-1)',
+										marginLeft: 'auto',
+									}),
 								}}
-							>
+							/>
+						</Box>
+						{/* Step Icons - In front of line */}
+						<Stack 
+							direction={isRTL ? 'row-reverse' : 'row'} 
+							spacing={0} 
+							sx={{ 
+								justifyContent: 'space-between',
+								position: 'relative',
+								zIndex: 2, // In front of the line
+							}}
+						>
+							{steps.map((label, index) => (
 								<Box
+									key={label}
+									onClick={() => {
+										if (index <= activeStep) {
+											setActiveStep(index);
+										}
+									}}
 									sx={{
-										width: { xs: 32, sm: 36 },
-										height: { xs: 32, sm: 36 },
-										borderRadius: '50%',
+										flex: 1,
 										display: 'flex',
+										flexDirection: 'column',
 										alignItems: 'center',
-										justifyContent: 'center',
-										bgcolor: index < activeStep 
-											? 'success.main' 
-											: index === activeStep 
-												? 'primary.main' 
-												: 'action.disabledBackground',
-										color: index <= activeStep ? 'primary.contrastText' : 'text.disabled',
-										fontWeight: 700,
-										fontSize: { xs: '0.75rem', sm: '0.8125rem' },
-										mb: 0.75,
-										transition: 'all 0.3s ease',
+										cursor: index <= activeStep ? 'pointer' : 'default',
+										opacity: index > activeStep ? 0.4 : 1,
+										transition: 'opacity 0.2s',
+										position: 'relative',
+										zIndex: 2, // Ensure each icon is in front
 									}}
 								>
-									{index < activeStep ? (
-										<IconCheck size={16} />
-									) : (
-										isRTL ? steps.length - index : index + 1
-									)}
+									<Box
+										sx={{
+											width: { xs: 32, sm: 36 },
+											height: { xs: 32, sm: 36 },
+											borderRadius: '50%',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											bgcolor: index < activeStep 
+												? 'success.main' 
+												: index === activeStep 
+													? 'primary.main' 
+													: 'action.disabledBackground',
+											color: index <= activeStep ? 'primary.contrastText' : 'text.disabled',
+											fontWeight: 700,
+											fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+											mb: 0.75,
+											transition: 'all 0.3s ease',
+											border: index === activeStep ? '3px solid' : 'none',
+											borderColor: index === activeStep ? 'primary.light' : 'transparent',
+											boxShadow: index === activeStep 
+												? '0 0 0 4px rgba(25, 118, 210, 0.1)' 
+												: 'none',
+											position: 'relative',
+											zIndex: 2, // Ensure circle is in front of line
+										}}
+									>
+										{index < activeStep ? (
+											<IconCheck size={16} />
+										) : (
+											index + 1
+										)}
+									</Box>
+									<Typography
+										variant="caption"
+										sx={{
+											fontSize: { xs: '0.6875rem', sm: '0.75rem' },
+											fontWeight: index === activeStep ? 700 : 500,
+											color: index === activeStep ? 'primary.main' : 'text.secondary',
+											textAlign: 'center',
+											lineHeight: 1.3,
+										}}
+									>
+										{label}
+									</Typography>
 								</Box>
-								<Typography
-									variant="caption"
-									sx={{
-										fontSize: { xs: '0.6875rem', sm: '0.75rem' },
-										fontWeight: index === activeStep ? 700 : 500,
-										color: index === activeStep ? 'primary.main' : 'text.secondary',
-										textAlign: 'center',
-										lineHeight: 1.3,
-									}}
-								>
-									{label}
-								</Typography>
-							</Box>
-						))}
-					</Stack>
+							))}
+						</Stack>
+					</Box>
 				</Box>
 
 				{/* Content Card */}
@@ -1205,13 +1310,17 @@ function Step1Content({
 	formData,
 	onChange,
 	errors,
+	setErrors,
 	validatePhone,
+	validatePhoneWithMessage,
 	validateEmail,
 }: {
 	formData: Record<string, string>;
 	onChange: (name: string, value: string) => void;
 	errors: FieldErrors;
+	setErrors: (errors: FieldErrors | ((prev: FieldErrors) => FieldErrors)) => void;
 	validatePhone: (phone: string) => boolean;
+	validatePhoneWithMessage: (phone: string) => { valid: boolean; error?: string };
 	validateEmail: (email: string) => boolean;
 }) {
 	const t = useTranslations('Quote.wizard');
@@ -1332,9 +1441,37 @@ function Step1Content({
 								id="phone"
 								name="phone"
 								type="tel"
-								placeholder={locale === 'ar' ? "0592123456 أو +970592123456" : "0592123456 or +970592123456"}
+								placeholder={locale === 'ar' ? "0592123456" : "0592123456"}
 								value={formData.phone || ''}
-								onChange={(e) => onChange('phone', e.target.value)}
+								onChange={(e) => {
+									const value = e.target.value;
+									onChange('phone', value);
+									
+									// Real-time validation
+									if (value && value.trim().length > 0) {
+										const validation = validatePhoneWithMessage(value);
+										if (!validation.valid && validation.error) {
+											setErrors((prev) => ({
+												...prev,
+												phone: validation.error,
+											}));
+										} else {
+											// Clear error if valid
+											setErrors((prev) => {
+												const newErrors = { ...prev };
+												delete newErrors.phone;
+												return newErrors;
+											});
+										}
+									} else {
+										// Clear error if empty
+										setErrors((prev) => {
+											const newErrors = { ...prev };
+											delete newErrors.phone;
+											return newErrors;
+										});
+									}
+								}}
 								error={!!errors.phone}
 								autoComplete="tel"
 								inputMode="tel"
@@ -1347,11 +1484,17 @@ function Step1Content({
 							/>
 							{errors.phone ? (
 								<FormHelperText error sx={{ mt: 0.5 }}>{errors.phone}</FormHelperText>
+							) : formData.phone && validatePhone(formData.phone) ? (
+								<FormHelperText sx={{ mt: 0.5, color: 'success.main' }}>
+									{locale === 'ar' 
+										? '✓ رقم هاتف صحيح'
+										: '✓ Valid phone number'}
+								</FormHelperText>
 							) : (
 								<FormHelperText sx={{ mt: 0.5 }}>
 									{locale === 'ar' 
-										? 'يمكنك إدخال الرقم مع أو بدون مسافات: 0592123456 أو +970592123456'
-										: 'You can enter the number with or without spaces: 0592123456 or +970592123456'}
+										? 'يمكنك إدخال الرقم مع أو بدون مسافات. مثال: 0592123456 أو +970592123456'
+										: 'You can enter the number with or without spaces. Example: 0592123456 or +970592123456'}
 								</FormHelperText>
 							)}
 					</FormControl>
@@ -1408,7 +1551,7 @@ function Step2Content({
 			}
 			return (
 				<>
-					{label} <Typography component="span" variant="caption" color="text.secondary">({t('optional') || 'Optional'})</Typography>
+					{label} <Typography component="span" variant="caption" color="text.secondary">({t('optional')})</Typography>
 				</>
 			);
 		};

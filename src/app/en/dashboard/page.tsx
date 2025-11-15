@@ -1,10 +1,18 @@
-import { Box, Container, Stack, Typography, CardContent } from '@mui/material';
+import { Box, Container, Stack, Typography, Grid2 } from '@mui/material';
 import { getCurrentUser, getCustomerProfile } from '@/lib/supabase/auth-helpers';
 import { Card } from '@/components/ui/card';
 import RevealSection from '@/components/ui/reveal-section';
 import { getCustomerOrders } from '@/lib/admin-queries';
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
+import { IconFileText, IconClock, IconCheck, IconProgress } from '@tabler/icons-react';
+import StatsCard from '@/components/ui/stats-card';
+import { RequestTimelineChart } from '@/components/dashboard/RequestTimelineChart';
+import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { FeaturedServices } from '@/components/dashboard/FeaturedServices';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { EmptyState } from '@/components/ui/state-components';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function DashboardPage() {
 	setRequestLocale('en');
@@ -17,6 +25,38 @@ export default async function DashboardPage() {
 		? await getCustomerOrders(customer.id || customer.email || '', !customer.id)
 		: [];
 
+	// Get timeline data for charts (last 7 days)
+	const supabase = await createClient();
+	const sevenDaysAgo = new Date();
+	sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+	
+	const { data: timelineData } = await supabase
+		.from('applications')
+		.select('submitted_at')
+		.eq('customer_id', customer?.id || '')
+		.gte('submitted_at', sevenDaysAgo.toISOString())
+		.order('submitted_at', { ascending: true });
+
+	// Group timeline data by date
+	const groupedByDate: Record<string, number> = {};
+	for (let i = 0; i < 7; i++) {
+		const date = new Date();
+		date.setDate(date.getDate() - i);
+		const dateStr = date.toISOString().split('T')[0];
+		groupedByDate[dateStr] = 0;
+	}
+
+	timelineData?.forEach((order) => {
+		const dateStr = order.submitted_at.split('T')[0];
+		if (groupedByDate[dateStr] !== undefined) {
+			groupedByDate[dateStr]++;
+		}
+	});
+
+	const timelineChartData = Object.entries(groupedByDate)
+		.map(([date, count]) => ({ date, count }))
+		.reverse();
+
 	const stats = {
 		total: customerOrders.length,
 		pending: customerOrders.filter((o) => o.status === 'submitted').length,
@@ -24,11 +64,13 @@ export default async function DashboardPage() {
 		completed: customerOrders.filter((o) => o.status === 'completed').length,
 	};
 
+	const hasOrders = customerOrders.length > 0;
+
 	return (
-		<Container maxWidth="lg">
+		<Container maxWidth="lg" sx={{ direction: 'ltr' }}>
 			<Stack spacing={4}>
 				<RevealSection delay={0.1} direction="up">
-					<Stack spacing={2}>
+					<Stack spacing={2} sx={{ textAlign: 'left' }}>
 						<Typography variant="h4" component="h1" fontWeight={700}>
 							{t('welcomeBack', { name: customer?.name || user?.email || '' })}
 						</Typography>
@@ -38,98 +80,85 @@ export default async function DashboardPage() {
 					</Stack>
 				</RevealSection>
 
-				<RevealSection delay={0.2} direction="up">
-					<Box
-						sx={{
-							display: 'grid',
-							gridTemplateColumns: {
-								xs: '1fr',
-								sm: 'repeat(2, 1fr)',
-								md: 'repeat(4, 1fr)',
-							},
-							gap: 3,
-						}}
-					>
-						<Card borderRadius={16}>
-							<CardContent>
-								<Typography variant="h3" fontWeight={700}>
-									{stats.total}
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									{t('totalRequests')}
-								</Typography>
-							</CardContent>
-						</Card>
+				{!hasOrders ? (
+					// New user: Services-first layout
+					<>
+						<RevealSection delay={0.2} direction="up">
+							<Card borderRadius={20}>
+								<Box sx={{ p: 4 }}>
+									<EmptyState
+										variant="no-orders"
+										title={t('getStartedTitle')}
+										description={t('getStartedMessage')}
+									/>
+								</Box>
+							</Card>
+						</RevealSection>
 
-						<Card borderRadius={16}>
-							<CardContent>
-								<Typography variant="h3" fontWeight={700} color="warning.main">
-									{stats.pending}
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									{t('pending')}
-								</Typography>
-							</CardContent>
-						</Card>
+						<FeaturedServices maxItems={8} showTitle={true} />
 
-						<Card borderRadius={16}>
-							<CardContent>
-								<Typography variant="h3" fontWeight={700} color="primary.main">
-									{stats.inProgress}
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									{t('inProgress')}
-								</Typography>
-							</CardContent>
-						</Card>
+						<RevealSection delay={0.5} direction="up">
+							<QuickActions />
+						</RevealSection>
+					</>
+				) : (
+					// Existing user: Hybrid layout
+					<>
+						<RevealSection delay={0.2} direction="up">
+							<Grid2 container spacing={3} sx={{ direction: 'ltr' }}>
+								<Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+									<StatsCard
+										value={stats.total}
+										label={t('totalRequests')}
+										icon={<IconFileText size={32} />}
+										color="primary"
+									/>
+								</Grid2>
+								<Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+									<StatsCard
+										value={stats.pending}
+										label={t('pending')}
+										icon={<IconClock size={32} />}
+										color="warning"
+									/>
+								</Grid2>
+								<Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+									<StatsCard
+										value={stats.inProgress}
+										label={t('inProgress')}
+										icon={<IconProgress size={32} />}
+										color="info"
+									/>
+								</Grid2>
+								<Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+									<StatsCard
+										value={stats.completed}
+										label={t('completed')}
+										icon={<IconCheck size={32} />}
+										color="success"
+									/>
+								</Grid2>
+							</Grid2>
+						</RevealSection>
 
-						<Card borderRadius={16}>
-							<CardContent>
-								<Typography variant="h3" fontWeight={700} color="success.main">
-									{stats.completed}
-								</Typography>
-								<Typography variant="body2" color="text.secondary">
-									{t('completed')}
-								</Typography>
-							</CardContent>
-						</Card>
-					</Box>
-				</RevealSection>
+						<RevealSection delay={0.3} direction="up">
+							<Grid2 container spacing={3} sx={{ direction: 'ltr' }}>
+								<Grid2 size={{ xs: 12, lg: 8 }}>
+									<RequestTimelineChart data={timelineChartData} />
+								</Grid2>
+								<Grid2 size={{ xs: 12, lg: 4 }}>
+									<RecentActivity orders={customerOrders} maxItems={5} />
+								</Grid2>
+							</Grid2>
+						</RevealSection>
 
-				<RevealSection delay={0.3} direction="up">
-					<Card borderRadius={20}>
-						<Box sx={{ p: 3 }}>
-							<Typography variant="h6" fontWeight={600} gutterBottom>
-								{t('recentRequests')}
-							</Typography>
-							{customerOrders.length === 0 ? (
-								<Typography variant="body2" color="text.secondary" sx={{ py: 4 }}>
-									{t('noRequestsYet')}
-								</Typography>
-							) : (
-								<Stack spacing={2} sx={{ mt: 2 }}>
-									{customerOrders.slice(0, 5).map((order) => (
-										<Box
-											key={order.id}
-											sx={{
-												p: 2,
-												bgcolor: 'background.default',
-												borderRadius: 2,
-											}}
-										>
-											<Typography variant="body1" fontWeight={600}>
-												{order.order_number || 'N/A'}
-											</Typography>
-											<Typography variant="body2" color="text.secondary">
-												{t('status')} {order.status}
-											</Typography>
-										</Box>
-									))}
-								</Stack>
-							)}
-						</Box>
-					</Card>
-				</RevealSection>
+						<FeaturedServices maxItems={6} showTitle={true} />
+
+						<RevealSection delay={0.5} direction="up">
+							<QuickActions />
+						</RevealSection>
+					</>
+				)}
 			</Stack>
 		</Container>
 	);

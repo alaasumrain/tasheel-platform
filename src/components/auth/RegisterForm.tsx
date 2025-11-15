@@ -74,7 +74,7 @@ export default function RegisterForm() {
 			return response.json();
 		},
 		onSuccess: () => {
-			toast.success(t('otpSent') || 'OTP sent successfully');
+			toast.success(t('otpSent'));
 		},
 		onError: (error: Error) => {
 			toast.error(error.message);
@@ -195,7 +195,7 @@ export default function RegisterForm() {
 					}}
 					disabled={isVerifyingOTP || isSendingOTP}
 				>
-					{t('back') || 'Back'}
+					{t('back')}
 				</Button>
 			</Stack>
 		);
@@ -221,7 +221,7 @@ export default function RegisterForm() {
 					<OutlinedInput id="phone" name="phone" type="tel" required />
 					{errors.phone && <FormHelperText>{errors.phone}</FormHelperText>}
 					<FormHelperText>
-						{t('phoneVerificationRequired') || 'We will send an OTP to verify your phone number'}
+						{t('phoneVerificationRequired')}
 					</FormHelperText>
 				</FormControl>
 

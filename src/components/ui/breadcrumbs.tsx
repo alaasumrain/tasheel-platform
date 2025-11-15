@@ -27,6 +27,8 @@ export function PageBreadcrumbs({ items, ...props }: BreadcrumbsProps) {
 				'& .MuiBreadcrumbs-separator': {
 					color: 'text.secondary',
 				},
+				width: '100%',
+				...(isRTL ? { justifyContent: 'flex-start' } : { justifyContent: 'flex-start' }),
 			}}
 			{...props}
 		>

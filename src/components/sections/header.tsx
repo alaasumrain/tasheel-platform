@@ -13,13 +13,12 @@ import {
 	useColorScheme,
 } from '@mui/material';
 
-import { IconMenu, IconX as IconClose, IconSearch } from '@tabler/icons-react';
+import { IconMenu, IconX as IconClose } from '@tabler/icons-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 import GetStarted from '@/components/buttons/get-started-button';
 import LoginButton from '@/components/buttons/login-button';
-import RegisterButton from '@/components/buttons/register-button';
 import AccountMenu from '@/components/ui/account-menu';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import LanguageSwitcher from '@/components/ui/language-switcher';
@@ -73,8 +72,54 @@ export default function Header() {
 	return pathname ? (pathname === href || pathname.startsWith(href + '/')) : false;
 	};
 
+	// Hide header on dashboard routes (dashboard has its own AppBar)
+	const isDashboardRoute = pathname?.includes('/dashboard');
+	if (isDashboardRoute) {
+		return null;
+	}
+
 	return (
 		<>
+			<MuiLink
+				href="#main-content"
+				component="a"
+				onClick={(e) => {
+					e.preventDefault();
+					const element = document.getElementById('main-content');
+					if (element) {
+						element.setAttribute('tabIndex', '-1');
+						element.focus();
+						element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						setTimeout(() => {
+							element.removeAttribute('tabIndex');
+						}, 1000);
+					}
+				}}
+				sx={{
+					position: 'absolute',
+					top: '-100px',
+					left: { xs: '50%', lg: isArabic ? 'auto' : '20px', xl: isArabic ? 'auto' : '40px' },
+					right: { xs: 'auto', lg: isArabic ? '20px' : 'auto', xl: isArabic ? '40px' : 'auto' },
+					transform: { xs: 'translateX(-50%)', lg: 'none' },
+					zIndex: 1200,
+					padding: '8px 16px',
+					bgcolor: 'primary.main',
+					color: 'primary.contrastText',
+					textDecoration: 'none',
+					borderRadius: 1,
+					fontSize: '0.875rem',
+					fontWeight: 500,
+					'&:focus': {
+						top: { xs: '10px', lg: '10px' },
+						transition: 'top 0.2s ease-in-out',
+					},
+					'&:not(:focus)': {
+						top: '-100px',
+					},
+				}}
+			>
+				{t('skipToContent')}
+			</MuiLink>
 			<Box
 				sx={{
 					bgcolor: 'background.paper',
@@ -161,32 +206,6 @@ export default function Header() {
 					spacing={1.5}
 					sx={{ display: { xs: 'none', lg: 'flex' } }}
 				>
-					<IconButton
-						size="small"
-						sx={{
-							border: '1.5px solid',
-							borderColor: (theme) =>
-								theme.palette.mode === 'dark'
-									? 'rgba(255, 255, 255, 0.28)'
-									: 'rgba(15, 23, 42, 0.16)',
-							borderRadius: '999px',
-							color: 'text.primary',
-							width: 42,
-							height: 42,
-							'&:hover': {
-								backgroundColor: (theme) =>
-									theme.palette.mode === 'dark'
-										? 'rgba(255, 255, 255, 0.12)'
-										: 'rgba(15, 23, 42, 0.04)',
-								borderColor: (theme) =>
-									theme.palette.mode === 'dark'
-										? 'rgba(255, 255, 255, 0.4)'
-										: 'rgba(15, 23, 42, 0.3)',
-							},
-						}}
-					>
-						<IconSearch size={16} />
-					</IconButton>
 					<LanguageSwitcher />
 					<Box sx={{ minWidth: 'fit-content' }}>
 						<CurrencySwitcher />
@@ -197,19 +216,12 @@ export default function Header() {
 							{user ? (
 								<AccountMenu user={user} />
 							) : (
-								<>
-									<LoginButton
-										buttonLabel={t('login')}
-										variant="text"
-										size="small"
-										sx={{ mr: 0.5 }}
-									/>
-									<RegisterButton
-										variant="outlined"
-										size="small"
-										sx={{ mr: 1 }}
-									/>
-								</>
+								<LoginButton
+									buttonLabel={t('login')}
+									variant="text"
+									size="small"
+									sx={{ mr: 0.5 }}
+								/>
 							)}
 						</>
 					)}
@@ -316,19 +328,12 @@ export default function Header() {
 													</MuiLink>
 												</>
 											) : (
-												<>
-													<LoginButton
-														buttonLabel={t('login')}
-														variant="outlined"
-														fullWidth
-														size="large"
-													/>
-													<RegisterButton
-														variant="contained"
-														fullWidth
-														size="large"
-													/>
-												</>
+												<LoginButton
+													buttonLabel={t('login')}
+													variant="outlined"
+													fullWidth
+													size="large"
+												/>
 											)}
 										</>
 									)}

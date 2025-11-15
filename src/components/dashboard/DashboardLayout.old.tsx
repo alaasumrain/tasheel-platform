@@ -1,15 +1,7 @@
-/**
- * RTL-Aware Dashboard Layout
- * Properly handles RTL/LTR directions
- * Based on Materio patterns but adapted for our needs
- */
-
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
-import { useTranslations } from 'next-intl';
 import {
 	Box,
 	Drawer,
@@ -24,7 +16,6 @@ import {
 	Typography,
 	Divider,
 	Button,
-	useTheme,
 } from '@mui/material';
 import {
 	Dashboard as DashboardIcon,
@@ -35,8 +26,10 @@ import {
 	Menu as MenuIcon,
 } from '@mui/icons-material';
 import { Link } from '@/i18n/navigation';
+import { Link as MuiLink } from '@mui/material';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 const drawerWidth = 260;
 
@@ -49,9 +42,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 	const router = useRouter();
 	const supabase = createClient();
 	const t = useTranslations('Dashboard.layout');
-	const locale = useLocale();
-	const theme = useTheme();
-	const isRTL = locale === 'ar';
 
 	const menuItems = [
 		{ label: t('menu.dashboard'), icon: DashboardIcon, href: '/dashboard' },
@@ -106,29 +96,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 									},
 								}}
 							>
-								<ListItemIcon 
-									sx={{ 
-										minWidth: 40,
-										// RTL: icon on right, LTR: icon on left
-										...(isRTL ? { 
-											marginLeft: 1,
-											marginRight: 0,
-										} : {
-											marginRight: 1,
-											marginLeft: 0,
-										}),
-									}}
-								>
+								<ListItemIcon sx={{ minWidth: 40 }}>
 									<Icon fontSize="small" />
 								</ListItemIcon>
-								<ListItemText 
-									primary={item.label}
-									primaryTypographyProps={{
-										sx: {
-											textAlign: isRTL ? 'right' : 'left',
-										},
-									}}
-								/>
+								<ListItemText primary={item.label} />
 							</ListItemButton>
 						</ListItem>
 					);
@@ -141,8 +112,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 				<Button
 					fullWidth
 					variant="outlined"
-					startIcon={!isRTL ? <LogoutIcon /> : undefined}
-					endIcon={isRTL ? <LogoutIcon /> : undefined}
+					startIcon={<LogoutIcon />}
 					onClick={handleLogout}
 					sx={{ textTransform: 'none' }}
 				>
@@ -153,42 +123,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 	);
 
 	return (
-		<Box sx={{ display: 'flex', minHeight: '100vh', direction: isRTL ? 'rtl' : 'ltr' }}>
+		<Box sx={{ display: 'flex', minHeight: '100vh' }}>
 			<AppBar
 				position="fixed"
 				sx={{
 					width: { sm: `calc(100% - ${drawerWidth}px)` },
-					// RTL: margin on right, LTR: margin on left
-					...(isRTL 
-						? { mr: { sm: `${drawerWidth}px` } }
-						: { ml: { sm: `${drawerWidth}px` } }
-					),
-					zIndex: (theme) => theme.zIndex.drawer + 1,
-					backgroundColor: 'primary.main',
+					ml: { sm: `${drawerWidth}px` },
 				}}
 			>
 				<Toolbar>
 					<IconButton
 						color="inherit"
 						aria-label="open drawer"
-						edge={isRTL ? 'end' : 'start'}
+						edge="start"
 						onClick={handleDrawerToggle}
-						sx={{ 
-							[isRTL ? 'ml' : 'mr']: 2, 
-							display: { sm: 'none' } 
-						}}
+						sx={{ mr: 2, display: { sm: 'none' } }}
 					>
 						<MenuIcon />
 					</IconButton>
-					<Typography 
-						variant="h6" 
-						noWrap 
-						component="div"
-						sx={{ 
-							flexGrow: 1,
-							textAlign: isRTL ? 'right' : 'left',
-						}}
-					>
+					<Typography variant="h6" noWrap component="div">
 						{t('subtitle')}
 					</Typography>
 				</Toolbar>
@@ -196,14 +149,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
 			<Box
 				component="nav"
-				sx={{ 
-					width: { sm: drawerWidth }, 
-					flexShrink: { sm: 0 },
-					// RTL: drawer on right
-					...(isRTL && {
-						order: 2,
-					}),
-				}}
+				sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
 			>
 				<Drawer
 					variant="temporary"
@@ -212,16 +158,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 					ModalProps={{
 						keepMounted: true,
 					}}
-					anchor={isRTL ? 'right' : 'left'}
 					sx={{
 						display: { xs: 'block', sm: 'none' },
 						'& .MuiDrawer-paper': {
 							boxSizing: 'border-box',
 							width: drawerWidth,
-							zIndex: (theme) => theme.zIndex.drawer,
-						},
-						'& .MuiBackdrop-root': {
-							zIndex: (theme) => theme.zIndex.drawer - 1,
 						},
 					}}
 				>
@@ -229,7 +170,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 				</Drawer>
 				<Drawer
 					variant="permanent"
-					anchor={isRTL ? 'right' : 'left'}
 					sx={{
 						display: { xs: 'none', sm: 'block' },
 						'& .MuiDrawer-paper': {
@@ -250,18 +190,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 					p: 3,
 					width: { sm: `calc(100% - ${drawerWidth}px)` },
 					mt: 8,
-					// Use direction-aware spacing
-					...(isRTL 
-						? { 
-							mr: { sm: `${drawerWidth}px` },
-							ml: 0,
-						} 
-						: { 
-							ml: { sm: `${drawerWidth}px` },
-							mr: 0,
-						}
-					),
-					direction: isRTL ? 'rtl' : 'ltr',
 				}}
 			>
 				{children}

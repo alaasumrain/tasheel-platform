@@ -518,9 +518,7 @@ export function OrderConfirmation({
 													{t('statusLabel')}
 												</Typography>
 												<Chip
-													label={t(`statuses.${status}`, {
-														defaultValue: status.replace('_', ' '),
-													})}
+													label={t(`statuses.${status}`) || status.replace('_', ' ')}
 													color="success"
 													variant="outlined"
 												/>

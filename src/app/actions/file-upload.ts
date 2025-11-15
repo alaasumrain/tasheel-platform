@@ -1,6 +1,6 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
 import {
 	getCurrentUser,
@@ -48,6 +48,38 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 			};
 		}
 		
+		// Use server client with user's auth context for RLS
+		// IMPORTANT: customer.id should equal user.id (which equals auth.uid())
+		// This is required for the RLS policy: customer_id = auth.uid()
+		const supabase = await createClient();
+		
+		// Verify the user is authenticated in the Supabase client
+		const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+		if (authError || !authUser) {
+			logger.error('Supabase client not authenticated', authError, {
+				userId: user.id,
+				serviceSlug,
+			});
+			return {
+				type: 'error',
+				message: t('authRequired'),
+			};
+		}
+		
+		// Verify customer.id matches user.id (they should be the same)
+		if (customer.id !== user.id || customer.id !== authUser.id) {
+			logger.error('Customer ID mismatch', null, {
+				userId: user.id,
+				authUserId: authUser.id,
+				customerId: customer.id,
+				serviceSlug,
+			});
+			return {
+				type: 'error',
+				message: t('unexpectedError'),
+			};
+		}
+		
 		const { data: application, error } = await supabase
 			.from('applications')
 			.insert({
@@ -55,7 +87,7 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 				status: 'draft',
 				form_slug: serviceSlug, // Use service slug as form identifier
 				payload: {},
-				customer_id: customer.id,
+				customer_id: user.id, // Use user.id directly (same as customer.id and auth.uid())
 				customer_name: customer.name,
 				customer_phone: customer.phone,
 				applicant_email: customer.email || user.email,
@@ -64,6 +96,13 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 			.single();
 
 		if (error || !application) {
+			logger.error('Error creating draft application', error, {
+				userId: user.id,
+				serviceSlug,
+				customerId: customer.id,
+				errorCode: error?.code,
+				errorMessage: error?.message,
+			});
 			console.error('Error creating draft application:', error);
 			return {
 				type: 'error',
@@ -119,6 +158,10 @@ export async function uploadFileImmediately(
 			};
 		}
 
+		// Use server client with user's auth context for RLS
+		const supabase = await createClient();
+		const user = await getCurrentUser();
+		
 		// Create attachment record
 		const { data: attachment, error: dbError } = await supabase
 			.from('application_attachments')
@@ -128,7 +171,7 @@ export async function uploadFileImmediately(
 				file_name: file.name,
 				content_type: file.type,
 				file_size: file.size,
-				// uploaded_by is null for customer uploads (not authenticated)
+				uploaded_by: user?.id || null,
 			})
 			.select('id, storage_path')
 			.single();
@@ -173,6 +216,9 @@ export async function deleteUploadedFile(
 }> {
 	try {
 		const t = await getTranslations({ locale, namespace: 'Quote.errors' });
+		
+		// Use server client with user's auth context for RLS
+		const supabase = await createClient();
 		
 		// Delete from database
 		const { error: dbError } = await supabase

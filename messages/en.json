@@ -24,7 +24,8 @@
 		"profile": "Profile",
 		"requestService": "Request a Service",
 		"faqs": "FAQs",
-		"logoAlt": "Company logo"
+		"logoAlt": "Company logo",
+		"skipToContent": "Skip to content"
 	},
 	"Common": {
 		"loading": "Loading...",
@@ -647,6 +648,7 @@
 				"password": "Password",
 				"confirmPassword": "Confirm Password"
 			},
+			"phoneVerificationRequired": "We will send an OTP to verify your phone number",
 			"errors": {
 				"nameRequired": "Name must be at least 2 characters",
 				"emailInvalid": "Please enter a valid email address",
@@ -672,10 +674,18 @@
 				"password": "Password",
 				"phone": "Phone Number"
 			},
+			"placeholders": {
+				"email": "example@mail.com",
+				"phone": "0599123456"
+			},
 			"methods": {
 				"email": "Email",
 				"phone": "Phone"
 			},
+			"sending": "Sending...",
+			"signingIn": "Signing in...",
+			"signIn": "Sign In",
+			"sendCode": "Send Code",
 			"errors": {
 				"fieldsRequired": "Email and password are required",
 				"loginFailed": "Invalid email or password",
@@ -744,7 +754,7 @@
 			"passwordUpdated": "Your password has been updated. Redirecting to login..."
 		}
 	},
-	"Dashboard": {
+		"Dashboard": {
 		"page": {
 			"welcomeBack": "Welcome back, {name}!",
 			"description": "Manage your government services requests and track their progress",
@@ -754,7 +764,16 @@
 			"completed": "Completed",
 			"recentRequests": "Recent Requests",
 			"noRequestsYet": "No requests yet. Start by requesting a service!",
-			"status": "Status:"
+			"status": "Status:",
+			"recentActivity": "Recent Activity",
+			"noRecentActivity": "No recent activity",
+			"featuredServices": "Featured Services",
+			"browseAllServices": "Browse All Services",
+			"getStartedTitle": "Get Started",
+			"getStartedMessage": "Explore our services to get started with your first request",
+			"notAvailable": "N/A",
+			"orderNumber": "Order Number",
+			"serviceSlug": "Service"
 		},
 		"layout": {
 			"title": "Tasheel",
@@ -774,7 +793,10 @@
 			"description": "View and track all your service requests",
 			"searchPlaceholder": "Search requests...",
 			"noResults": "No requests found matching your search",
+			"noResultsDescription": "Try adjusting your search terms to find what you're looking for.",
 			"noRequests": "No requests yet. Start by requesting a service!",
+			"noRequestsDescription": "Explore our services to get started with your first request.",
+			"browseServices": "Browse Services",
 			"table": {
 				"orderNumber": "Order Number",
 				"service": "Service",
@@ -793,6 +815,31 @@
 				"completed": "Completed",
 				"archived": "Archived",
 				"rejected": "Rejected",
+				"cancelled": "Cancelled"
+			}
+		},
+		"invoices": {
+			"title": "My Invoices",
+			"description": "View and manage all your invoices and payments",
+			"searchPlaceholder": "Search invoices...",
+			"noResults": "No invoices found matching your search",
+			"noResultsDescription": "Try adjusting your search terms to find what you're looking for.",
+			"noInvoices": "No invoices yet",
+			"noInvoicesDescription": "Invoices will appear here once your service requests are processed.",
+			"table": {
+				"invoiceNumber": "Invoice Number",
+				"amount": "Amount",
+				"status": "Status",
+				"created": "Created",
+				"paidAt": "Paid At",
+				"actions": "Actions",
+				"view": "View",
+				"pay": "Pay Now"
+			},
+			"statusLabels": {
+				"pending": "Pending",
+				"paid": "Paid",
+				"failed": "Failed",
 				"cancelled": "Cancelled"
 			}
 		},
@@ -1215,7 +1262,9 @@
 			"headline": "Check the status of your order",
 			"description": "Enter your order number below to track your request in real-time. You'll see the current status and estimated completion date.",
 			"orderNumber": "Order Number",
+			"orderNumberPlaceholder": "Order Number (e.g., TS-12345)",
 			"search": "Search",
+			"searching": "Searching...",
 			"orderNumberRequired": "Please enter an order number",
 			"noOrderFound": "No order found with this number",
 			"orderNotFound": "Order not found. Please check your order number and try again.",
