@@ -81,47 +81,57 @@ export default function RegisterForm() {
 		},
 	});
 
-	// Mutation to verify OTP and link account
+	// Mutation to verify OTP and create account
 	const { mutate: verifyOTPAndLink, isPending: isVerifyingOTP } = useMutation({
 		mutationFn: async (otp: string) => {
 			if (!formData) throw new Error('Form data missing');
 
-			// Check if a phone-only account exists and link to it (with OTP verification)
-			const linkResponse = await fetch('/api/auth/link-phone-account', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					phone: formData.phone,
-					email: formData.email,
-					password: formData.password,
-					name: formData.name,
-					otp, // SECURITY: Include OTP to prove phone ownership
-				}),
+			// First verify the OTP using Supabase's verifyOtp
+			const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+				email: formData.email,
+				token: otp,
+				type: 'email',
 			});
 
-			const linkData = await linkResponse.json();
-
-			if (!linkResponse.ok) {
-				throw new Error(linkData.error || 'Failed to link account');
+			if (verifyError) {
+				throw new Error(verifyError.message || 'Invalid verification code');
 			}
 
-			if (linkData.linked) {
-				const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+			// If OTP is verified but user doesn't exist yet, create account
+			if (!verifyData.user) {
+				// User doesn't exist, create account with password
+				const { data: authData, error: authError } = await supabase.auth.signUp({
 					email: formData.email,
 					password: formData.password,
+					options: { 
+						data: { name: formData.name, phone: formData.phone },
+						emailRedirectTo: `${window.location.origin}/dashboard`,
+					},
 				});
-				if (signInError) throw signInError;
-				return signInData;
+				if (authError) throw authError;
+				if (!authData.user) throw new Error(t('errors.signupFailed'));
+				return authData;
 			}
 
-			const { data: authData, error: authError } = await supabase.auth.signUp({
+			// User exists - check if we need to link phone or update password
+			// If session exists, user is logged in
+			if (verifyData.session) {
+				// Update user metadata with phone if not set
+				if (formData.phone) {
+					await supabase.auth.updateUser({
+						data: { phone: formData.phone },
+					});
+				}
+				return verifyData;
+			}
+
+			// If no session but user exists, sign in with password
+			const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
 				email: formData.email,
 				password: formData.password,
-				options: { data: { name: formData.name, phone: formData.phone } },
 			});
-			if (authError) throw authError;
-			if (!authData.user) throw new Error(t('errors.signupFailed'));
-			return authData;
+			if (signInError) throw signInError;
+			return signInData;
 		},
 		onSuccess: () => {
 			toast.success(t('success'));
