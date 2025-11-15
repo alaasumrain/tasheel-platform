@@ -29,7 +29,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { submitQuoteRequest } from '@/app/actions/submit-quote-request';
-import { createDraftApplication, uploadFileImmediately, deleteUploadedFile } from '@/app/actions/file-upload';
+import { createDraftApplication, uploadFileImmediately, deleteUploadedFile, saveDraftApplication } from '@/app/actions/file-upload';
 import { getServiceFields, type FormField } from '@/lib/service-form-fields';
 import type { Service } from '@/data/services';
 import { FileUploadField } from './FileUploadField';
@@ -46,6 +46,7 @@ import { calculateShippingRate, getShippingLocationLabel, getDeliveryTypeLabel, 
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { useSearchParams } from 'next/navigation';
+import { validateDocument, checkDuplicateUpload } from '@/lib/utils/document-validation';
 
 interface ServiceQuoteWizardProps {
 	service: Service;
@@ -111,6 +112,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 	const [invoiceId, setInvoiceId] = useState<string | null>(null);
 	const [uploadedAttachments, setUploadedAttachments] = useState<Record<string, UploadedAttachment>>({});
 	const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
+	const [checkoutTriggered, setCheckoutTriggered] = useState(false);
 
 	const serviceFields = getServiceFields(service.slug);
 	const storageKey = `quote_draft_${service.slug}`;
@@ -267,6 +269,14 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		}
 	}, [authStatus]);
 
+	// Prevent accessing step 4 (payment) when not in checkout flow
+	useEffect(() => {
+		if (activeStep === 3 && !isCheckoutFlow) {
+			// Redirect to step 2 (review) if somehow step 4 is accessed without checkout flow
+			setActiveStep(2);
+		}
+	}, [activeStep, isCheckoutFlow]);
+
 	// Create draft application once authenticated
 	useEffect(() => {
 		if (authStatus !== 'authenticated' || draftInitialized) {
@@ -276,6 +286,9 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		let mounted = true;
 
 		const createDraft = async () => {
+			if (process.env.NODE_ENV === 'development') {
+				console.log('[DraftApplication] Creating draft application...');
+			}
 			const result = await createDraftApplication(service.slug, locale);
 
 			if (!mounted) {
@@ -283,6 +296,9 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			}
 
 			if (result.type === 'success' && result.applicationId) {
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[DraftApplication] Draft application created:', result.applicationId);
+				}
 				setApplicationId(result.applicationId);
 				setDraftInitialized(true);
 				if (authUser && !customerProfile) {
@@ -293,7 +309,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					setAuthStatus('unauthenticated');
 					setAuthPromptMessage(result.message);
 				}
-				console.error('Failed to create draft application:', result.message);
+				console.error('[DraftApplication] Failed to create draft application:', result.message);
 				toast.error(result.message || t('toast.initFailed'));
 			}
 		};
@@ -327,6 +343,24 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			localStorage.setItem(storageKey, JSON.stringify(formData));
 		}
 	}, [formData, storageKey]);
+
+	// Auto-save draft to database periodically (every 30 seconds) or when step changes
+	useEffect(() => {
+		if (!applicationId || !draftInitialized || Object.keys(formData).length === 0) {
+			return;
+		}
+
+		// Debounce: save after 2 seconds of no changes
+		const timeoutId = setTimeout(() => {
+			saveDraftApplication(applicationId, formData, activeStep, locale).catch((error) => {
+				if (process.env.NODE_ENV === 'development') {
+					console.error('[DraftSave] Error saving draft:', error);
+				}
+			});
+		}, 2000);
+
+		return () => clearTimeout(timeoutId);
+	}, [applicationId, draftInitialized, formData, activeStep, locale]);
 
 	const resetFormState = () => {
 		localStorage.removeItem(storageKey);
@@ -376,11 +410,39 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 
 	const { mutate: sendCheckout, isPending: isCheckoutPending } = useMutation({
 			mutationFn: async (data: FormData) => {
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[Checkout] Starting checkout submission...');
+				}
 				const { submitCheckout } = await import('@/app/actions/submit-checkout');
-				return submitCheckout(data);
+				const result = await submitCheckout(data);
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[Checkout] Submission result:', {
+						type: result.type,
+						hasInvoiceId: !!result.invoiceId,
+						invoiceId: result.invoiceId,
+						hasOrderNumber: !!result.orderNumber,
+						orderNumber: result.orderNumber,
+					});
+				}
+				return result;
 			},
 			onSuccess: (result) => {
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[Checkout] onSuccess called with:', {
+						type: result.type,
+						hasInvoiceId: !!result.invoiceId,
+						invoiceId: result.invoiceId,
+						hasOrderNumber: !!result.orderNumber,
+					});
+				}
+				
 				if (result.type === 'error') {
+					console.error('[Checkout] Error result:', result.message);
+					setCheckoutTriggered(false); // Reset so user can retry
+					// Move back to step 2 if checkout fails (user needs to fix fields)
+					if (activeStep === 3) {
+						setActiveStep(2);
+					}
 					if (result.message === authRequiredMessage) {
 						setAuthStatus('unauthenticated');
 						setAuthPromptMessage(result.message);
@@ -389,19 +451,35 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					return;
 				}
 				if (result.type === 'success' && result.invoiceId) {
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[Checkout] Setting invoiceId:', result.invoiceId);
+					}
 					setInvoiceId(result.invoiceId);
+					setCheckoutTriggered(false); // Reset after success
 					// Store orderNumber for later use
 					if (result.orderNumber) {
 						setFormData(prev => ({ ...prev, orderNumber: result.orderNumber! }));
 					}
 					// Move to payment step
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[Checkout] Moving to payment step (step 3)');
+					}
 					setActiveStep(3);
 					toast.success(result.message);
 				} else {
-					toast.error(result.message);
+					console.warn('[Checkout] Success but missing invoiceId:', {
+						type: result.type,
+						hasInvoiceId: !!result.invoiceId,
+						invoiceId: result.invoiceId,
+						message: result.message,
+					});
+					setCheckoutTriggered(false); // Reset so user can retry
+					toast.error(result.message || 'Checkout completed but invoice ID is missing');
 				}
 			},
 			onError: (error: Error) => {
+				console.error('[Checkout] onError called:', error);
+				setCheckoutTriggered(false); // Reset so user can retry
 				const message = error.message || t('toast.submitFailed');
 				toast.error(message);
 				if (message === authRequiredMessage) {
@@ -412,6 +490,59 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		});
 
 		const isPending = isCheckoutFlow ? isCheckoutPending : isPendingQuote;
+
+	// Handle missing invoiceId on step 4 - trigger checkout if needed
+	useEffect(() => {
+		if (activeStep === 3 && isCheckoutFlow && !isCheckoutPending && !invoiceId && !checkoutTriggered && applicationId) {
+			// We're on payment step but no invoiceId - trigger checkout
+			if (process.env.NODE_ENV === 'development') {
+				console.log('[Checkout] On payment step without invoiceId - triggering checkout');
+			}
+			setCheckoutTriggered(true);
+			
+			// Get form element and trigger checkout
+			const formElement = formRef.current;
+			if (formElement) {
+				const data = new FormData(formElement);
+				data.set('applicationId', applicationId);
+				data.set('locale', locale);
+				// Add all form data fields (access formData directly, not in dependencies)
+				// eslint-disable-next-line react-hooks/exhaustive-deps
+				Object.keys(formData).forEach(key => {
+					if (formData[key] && key !== 'applicationId') {
+						data.set(key, formData[key]);
+					}
+				});
+				sendCheckout(data);
+			} else {
+				console.error('[Checkout] Form element not found');
+				// Fallback: redirect back to review step
+				setActiveStep(2);
+				setCheckoutTriggered(false);
+				toast.error(t('payment.invoiceMissing') || (locale === 'ar' ? 'خطأ في تحضير الفاتورة. يرجى المحاولة مرة أخرى' : 'Error preparing invoice. Please try again'));
+			}
+		}
+		
+		// Reset checkoutTriggered when invoiceId is set
+		if (invoiceId && checkoutTriggered) {
+			setCheckoutTriggered(false);
+		}
+		// Note: formData is intentionally not in dependencies to avoid infinite loops
+		// We access it directly when needed inside the effect
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeStep, isCheckoutFlow, isCheckoutPending, invoiceId, checkoutTriggered, applicationId, locale, sendCheckout, t]);
+
+	// Log invoiceId changes (development only)
+	useEffect(() => {
+		if (process.env.NODE_ENV === 'development') {
+			console.log('[Checkout] invoiceId state changed:', {
+				invoiceId,
+				isCheckoutPending,
+				activeStep,
+				isCheckoutFlow,
+			});
+		}
+	}, [invoiceId, isCheckoutPending, activeStep, isCheckoutFlow]);
 
 	if (authStatus === 'checking') {
 		return (
@@ -633,7 +764,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			// Details field is optional, so no validation needed
 		} else if (step === 2) {
 			// Step 3: Review - Final validation
-			// Re-validate critical fields
+			// Re-validate critical fields from step 1
 			if (!formData.name || formData.name.trim().length < 2) {
 				newErrors.name = t('validation.nameRequired');
 			}
@@ -643,9 +774,51 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			if (!formData.phone || !validatePhone(formData.phone)) {
 				newErrors.phone = t('validation.phoneRequired');
 			}
-			// Details field is optional, so no validation needed
 			
-			// Check required documents (blocking validation)
+			// Re-validate step 2 fields (service-specific fields) - this should have been caught on step 2, but double-check
+			serviceFields.forEach((field) => {
+				if (field.required) {
+					if (field.type === 'file') {
+						// For file fields, check if uploaded (uploadedAttachments) or selected locally (uploadedFiles)
+						if (!uploadedAttachments[field.name] && !uploadedFiles[field.name]) {
+							// This should have been caught on step 2, but if we're here, redirect back to step 2
+							newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+						}
+					} else {
+						// For other fields, check if value exists
+						const value = formData[field.name];
+						if (!value || (typeof value === 'string' && value.trim().length === 0)) {
+							newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
+						}
+						// Additional validation for specific field types
+						if (field.type === 'email' && value && !validateEmail(value)) {
+							newErrors[field.name] = t('validation.emailInvalid');
+						}
+						if (field.type === 'tel' && value && !validatePhone(value)) {
+							newErrors[field.name] = t('validation.phoneInvalid');
+						}
+					}
+				}
+			});
+			
+			// Validate shipping fields for checkout flow (should have been caught on step 2)
+			if (isCheckoutFlow) {
+				if (!formData.shipping_location) {
+					newErrors.shipping_location = t('validation.shippingLocationRequired');
+				}
+				if (!formData.delivery_type) {
+					newErrors.delivery_type = t('validation.deliveryTypeRequired');
+				}
+				if (formData.delivery_type === 'multiple') {
+					const deliveryCount = parseInt(formData.delivery_count || '0', 10);
+					if (!formData.delivery_count || deliveryCount < 2) {
+						newErrors.delivery_count = t('validation.deliveryCountRequired');
+					}
+				}
+			}
+			
+			// Check required documents (blocking validation) - this is informational, not blocking
+			// The actual file fields should have been validated on step 2
 			if (service.requiredDocuments && service.requiredDocuments.length > 0) {
 				const uploadedFileNames = Object.values(uploadedAttachments).map(att => 
 					att.fileName.toLowerCase()
@@ -658,11 +831,24 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					);
 				});
 
-				// Block submission if any required documents are missing
+				// Only show warning if required documents are missing, but don't block if service-specific file fields are validated
+				// This is a fallback check - the main validation should happen on step 2
 				if (missingDocs.length > 0) {
-					newErrors.requiredDocuments = t('validation.documentsRequired', { 
-						documents: missingDocs.join(', ') 
-					});
+					// Check if any service-specific file fields are missing - if so, this should have been caught on step 2
+					const hasMissingServiceFiles = serviceFields.some(field => 
+						field.required && 
+						field.type === 'file' && 
+						!uploadedAttachments[field.name] && 
+						!uploadedFiles[field.name]
+					);
+					
+					// Only show error if we have missing service files (which should have been caught on step 2)
+					// Otherwise, just show a warning about required documents
+					if (hasMissingServiceFiles) {
+						newErrors.requiredDocuments = t('validation.documentsRequired', { 
+							documents: missingDocs.join(', ') 
+						});
+					}
 				}
 			}
 		}
@@ -674,10 +860,58 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 	};
 
 	const handleNext = () => {
+		// Only validate when user clicks "Next" - this is when we show errors
 		const validationResult = validateStep(activeStep);
+		
+		// Log validation attempt (only when user tries to proceed)
+		if (process.env.NODE_ENV === 'development') {
+			console.log(`[Validation] Step ${activeStep} validation:`, {
+				isValid: validationResult.isValid,
+				errors: Object.keys(validationResult.errors),
+				errorCount: Object.keys(validationResult.errors).length,
+			});
+		}
+		
 		if (validationResult.isValid) {
 			if (activeStep < steps.length - 1) {
 				const nextStep = activeStep + 1;
+				// Prevent going to step 3 (payment) if not in checkout flow
+				if (nextStep === 3 && !isCheckoutFlow) {
+					// This shouldn't happen, but guard against it
+					console.warn('Attempted to access payment step without checkout flow');
+					return;
+				}
+				
+				// If moving to payment step (step 3) in checkout flow, trigger checkout first
+				if (nextStep === 3 && isCheckoutFlow && !invoiceId) {
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[Checkout] Moving to payment step - triggering checkout first');
+					}
+					// Trigger checkout submission instead of moving to next step
+					// The checkout mutation will move to step 3 after invoiceId is set
+					const formElement = formRef.current;
+					if (formElement) {
+						// Create a proper synthetic event for handleSubmit
+						const syntheticEvent = new Event('submit', { bubbles: true, cancelable: true }) as unknown as React.FormEvent<HTMLFormElement>;
+						Object.defineProperty(syntheticEvent, 'target', { value: formElement, writable: false });
+						Object.defineProperty(syntheticEvent, 'currentTarget', { value: formElement, writable: false });
+						handleSubmit(syntheticEvent);
+					} else {
+						// Fallback: trigger checkout directly if form not available
+						const data = new FormData();
+						data.set('applicationId', applicationId || '');
+						data.set('locale', locale);
+						data.set('service', service.slug);
+						Object.keys(formData).forEach(key => {
+							if (formData[key] && key !== 'applicationId') {
+								data.set(key, formData[key]);
+							}
+						});
+						sendCheckout(data);
+					}
+					return;
+				}
+				
 				setActiveStep(nextStep);
 				setErrors({}); // Clear errors when moving to next step
 				formAnalytics.trackStep(nextStep, steps[nextStep]);
@@ -755,7 +989,14 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 	};
 
 	const handleBack = () => {
-		setActiveStep((prev) => prev - 1);
+		setActiveStep((prev) => {
+			const newStep = prev - 1;
+			// Prevent going to step 3 (payment) if not in checkout flow
+			if (newStep === 3 && !isCheckoutFlow) {
+				return 2; // Go to review step instead
+			}
+			return newStep;
+		});
 		setErrors({}); // Clear errors when going back
 	};
 
@@ -835,12 +1076,54 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 
 	const handleFileChange = async (fieldName: string, file: File | null) => {
 		if (file) {
-			// Validate file size
-			if (file.size > MAX_FILE_SIZE) {
+			// Check for duplicate uploads first
+			const duplicateCheck = checkDuplicateUpload(file, uploadedFiles, fieldName);
+			if (duplicateCheck.isDuplicate) {
+				setErrors((prev) => ({
+					...prev,
+					[fieldName]: locale === 'ar' ? duplicateCheck.message_ar : duplicateCheck.message,
+				}));
+				toast.error(locale === 'ar' ? duplicateCheck.message_ar : duplicateCheck.message);
+				return;
+			}
+
+			// Determine expected document type based on field name
+			let expectedType: 'passport' | 'license' | 'photo' = 'passport';
+			if (fieldName === 'license_upload') {
+				expectedType = 'license';
+			} else if (fieldName === 'personal_photo_upload') {
+				expectedType = 'photo';
+			} else if (fieldName === 'passport_upload') {
+				expectedType = 'passport';
+			}
+
+			// Validate document type (quick validation based on file name)
+			const docValidation = validateDocument(file, fieldName, expectedType);
+			
+			// Show warning if document type doesn't match (but allow if confidence is low)
+			if (!docValidation.valid && docValidation.confidence !== 'low') {
+				const errorMessage = locale === 'ar' ? docValidation.message_ar : docValidation.message;
+				setErrors((prev) => ({
+					...prev,
+					[fieldName]: errorMessage,
+				}));
+				toast.error(errorMessage, { duration: 5000 });
+				// Still allow upload but show warning
+			}
+
+			// Validate file size (use document-specific max size)
+			const maxSizeMap: Record<string, number> = {
+				passport_upload: 10 * 1024 * 1024, // 10MB
+				license_upload: 10 * 1024 * 1024, // 10MB
+				personal_photo_upload: 5 * 1024 * 1024, // 5MB
+			};
+			const maxSize = maxSizeMap[fieldName] || MAX_FILE_SIZE;
+			
+			if (file.size > maxSize) {
 				setErrors((prev) => ({
 					...prev,
 					[fieldName]: t('fileUpload.fileSizeError', { 
-						maxSize: (MAX_FILE_SIZE / 1024 / 1024).toFixed(0),
+						maxSize: (maxSize / 1024 / 1024).toFixed(0),
 						currentSize: (file.size / 1024 / 1024).toFixed(2)
 					}),
 				}));
@@ -848,15 +1131,54 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			}
 
 			// Store file locally for preview
-			setUploadedFiles((prev) => ({ ...prev, [fieldName]: file }));
+			if (process.env.NODE_ENV === 'development') {
+				console.log('[FileUpload] Storing file locally:', { fieldName, fileName: file.name, fileSize: file.size });
+			}
+			setUploadedFiles((prev) => {
+				const updated = { ...prev, [fieldName]: file };
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[FileUpload] Updated uploadedFiles:', {
+						fieldName,
+						hasFile: !!updated[fieldName],
+						allKeys: Object.keys(updated),
+					});
+				}
+				return updated;
+			});
 			setFormData((prev) => ({ ...prev, [fieldName]: file.name }));
 
 			// Upload immediately if we have an application ID
 			if (applicationId) {
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[FileUpload] Starting upload for:', { fieldName, applicationId, fileName: file.name });
+				}
 				setUploadingFiles((prev) => ({ ...prev, [fieldName]: true }));
 				
 				try {
-					const result = await uploadFileImmediately(applicationId, fieldName, file, locale);
+					// Convert File to FormData for Server Action compatibility
+					const formData = new FormData();
+					formData.append('applicationId', applicationId);
+					formData.append('fieldName', fieldName);
+					formData.append('file', file);
+					formData.append('locale', locale);
+					
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[FileUpload] Calling uploadFileImmediately...');
+					}
+					
+					// Add timeout to prevent hanging
+					const uploadPromise = uploadFileImmediately(formData);
+					const timeoutPromise = new Promise((_, reject) => 
+						setTimeout(() => reject(new Error('Upload timeout after 60 seconds')), 60000)
+					);
+					
+					const result = await Promise.race([uploadPromise, timeoutPromise]) as Awaited<ReturnType<typeof uploadFileImmediately>>;
+					
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[FileUpload] Upload result:', result);
+						console.log('[FileUpload] Result type:', typeof result);
+						console.log('[FileUpload] Result keys:', result ? Object.keys(result) : 'null/undefined');
+					}
 					
 					if (result.type === 'success' && result.attachmentId && result.storagePath) {
 						const attachment: UploadedAttachment = {
@@ -888,7 +1210,14 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						}));
 					}
 				} catch (error) {
-					console.error('Error uploading file:', error);
+					console.error('[FileUpload] Error uploading file:', error);
+					console.error('[FileUpload] Error details:', {
+						fieldName,
+						fileName: file.name,
+						applicationId,
+						errorMessage: error instanceof Error ? error.message : String(error),
+						errorStack: error instanceof Error ? error.stack : undefined,
+					});
 					toast.error(t('toast.uploadError'));
 					// Track failed file upload
 					analytics.trackFileUpload(file.name, file.size, false);
@@ -896,6 +1225,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						...prev,
 						[fieldName]: t('toast.uploadError'),
 					}));
+					// Keep the file in uploadedFiles even if upload fails - user can retry
 				} finally {
 					setUploadingFiles((prev) => {
 						const newState = { ...prev };
@@ -904,8 +1234,90 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					});
 				}
 			} else {
-				// No application ID yet - wait for it
-				toast.loading(t('toast.initializing'));
+				// No application ID yet - try to create it if user is authenticated
+				if (authStatus === 'authenticated' && !draftInitialized) {
+					if (process.env.NODE_ENV === 'development') {
+						console.log('[FileUpload] No applicationId, but user is authenticated - creating draft application...');
+					}
+					// Trigger draft application creation
+					const createDraft = async () => {
+						const result = await createDraftApplication(service.slug, locale);
+						if (result.type === 'success' && result.applicationId) {
+							setApplicationId(result.applicationId);
+							setDraftInitialized(true);
+							// Now upload the file
+							setUploadingFiles((prev) => ({ ...prev, [fieldName]: true }));
+							try {
+								const formData = new FormData();
+								formData.append('applicationId', result.applicationId);
+								formData.append('fieldName', fieldName);
+								formData.append('file', file);
+								formData.append('locale', locale);
+								
+								const uploadResult = await uploadFileImmediately(formData);
+								if (uploadResult.type === 'success' && uploadResult.attachmentId && uploadResult.storagePath) {
+									const attachment: UploadedAttachment = {
+										id: uploadResult.attachmentId,
+										storagePath: uploadResult.storagePath,
+										fileName: file.name,
+										fileSize: file.size,
+									};
+									setUploadedAttachments((prev) => ({
+										...prev,
+										[fieldName]: attachment,
+									}));
+									setErrors((prev) => {
+										const newErrors = { ...prev };
+										delete newErrors[fieldName];
+										return newErrors;
+									});
+									toast.success(t('toast.fileUploaded', { fileName: file.name }));
+									analytics.trackFileUpload(file.name, file.size, true);
+								} else {
+									toast.error(uploadResult.message || t('toast.uploadFailed'));
+									analytics.trackFileUpload(file.name, file.size, false);
+									setErrors((prev) => ({
+										...prev,
+										[fieldName]: uploadResult.message || t('toast.uploadFailed'),
+									}));
+								}
+							} catch (error) {
+								console.error('[FileUpload] Error uploading file after creating application:', error);
+								toast.error(t('toast.uploadError'));
+								analytics.trackFileUpload(file.name, file.size, false);
+								setErrors((prev) => ({
+									...prev,
+									[fieldName]: t('toast.uploadError'),
+								}));
+							} finally {
+								setUploadingFiles((prev) => {
+									const newState = { ...prev };
+									delete newState[fieldName];
+									return newState;
+								});
+							}
+						} else {
+							if (process.env.NODE_ENV === 'development') {
+								console.warn('[FileUpload] Failed to create draft application:', result.message);
+							}
+							toast.error(result.message || t('toast.initFailed'));
+						}
+					};
+					createDraft();
+				} else {
+					// User not authenticated or draft already being created
+					if (process.env.NODE_ENV === 'development') {
+						console.warn('[FileUpload] No applicationId available, file stored locally only:', { 
+							fieldName, 
+							fileName: file.name,
+							authStatus,
+							draftInitialized,
+						});
+					}
+					if (authStatus === 'authenticated') {
+						toast.loading(t('toast.initializing'));
+					}
+				}
 			}
 
 			// Clear error
@@ -990,22 +1402,69 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		router.push(confirmationUrl);
 	};
 
+	const handlePaymentCancel = () => {
+		// Go back to step 2 (review step) when payment is cancelled
+		setActiveStep(2);
+		toast.error(t('payment.cancelled') || (locale === 'ar' ? 'تم إلغاء الدفع' : 'Payment cancelled'));
+	};
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
 		// Final validation on all steps
 		let isValid = true;
+		let firstErrorStep = -1;
+		const allErrors: FieldErrors = {};
+		
 		for (let step = 0; step < steps.length; step++) {
-			if (!validateStep(step)) {
+			const validationResult = validateStep(step);
+			if (!validationResult.isValid) {
 				isValid = false;
+				// Collect all errors
+				Object.assign(allErrors, validationResult.errors);
 				// Jump to first step with errors
-				setActiveStep(step);
-				break;
+				if (firstErrorStep === -1) {
+					firstErrorStep = step;
+				}
 			}
 		}
 
 		if (!isValid) {
-			toast.error(t('validation.fixErrorsSubmit'));
+			// Set all errors and jump to first step with errors
+			setErrors(allErrors);
+			if (firstErrorStep !== -1) {
+				setActiveStep(firstErrorStep);
+				// Show specific error message
+				const errorFields = Object.keys(allErrors);
+				if (errorFields.length > 0) {
+					const fieldLabels = errorFields.map(fieldName => {
+						if (firstErrorStep === 0) {
+							// Step 1 field labels
+							const labels: Record<string, string> = {
+								name: locale === 'ar' ? 'الاسم' : 'Name',
+								email: locale === 'ar' ? 'البريد الإلكتروني' : 'Email',
+								phone: locale === 'ar' ? 'رقم الهاتف' : 'Phone Number',
+							};
+							return labels[fieldName] || fieldName;
+						} else if (firstErrorStep === 1) {
+							// Step 2 - use field label from serviceFields
+							const field = serviceFields.find(f => f.name === fieldName);
+							return field 
+								? (locale === 'ar' && field.label_ar ? field.label_ar : field.label)
+								: fieldName;
+						}
+						return fieldName;
+					});
+					
+					const errorMessage = locale === 'ar'
+						? `يرجى إكمال الحقول التالية: ${fieldLabels.join('، ')}`
+						: `Please complete the following fields: ${fieldLabels.join(', ')}`;
+					
+					toast.error(errorMessage, { duration: 5000 });
+				} else {
+					toast.error(t('validation.fixErrorsSubmit'));
+				}
+			}
 			return;
 		}
 
@@ -1031,6 +1490,11 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				data.set(key, formData[key]);
 			}
 		});
+		
+		// Ensure urgency is set (default to 'standard' if not provided)
+		if (!data.get('urgency')) {
+			data.set('urgency', 'standard');
+		}
 
 		// Files are already uploaded, so we don't need to add them to FormData
 		// The server action will fetch attachments using applicationId
@@ -1086,36 +1550,69 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 					/>
 				);
 			case 3:
-				// Only for checkout flow
-				if (isCheckoutFlow) {
-					if (invoiceId) {
-						return (
-							<Step4PaymentContent
-								invoiceId={invoiceId}
-								amount={service.pricing?.amount || 0}
-								currency="ILS"
-								onPaymentSuccess={handlePaymentSuccess}
-							/>
-						);
-					} else {
-						// Show loading or error state if invoiceId is not available
-						// Use locale from component scope, not calling useLocale() here
-						return (
-							<Box sx={{ textAlign: 'center', py: 8 }}>
-								<CircularProgress sx={{ mb: 2 }} />
-								<Typography variant="h6" color="text.secondary">
-									{locale === 'ar' ? 'جاري تحضير صفحة الدفع...' : 'Preparing payment page...'}
-								</Typography>
-								<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-									{locale === 'ar' 
-										? 'إذا استمرت هذه المشكلة، يرجى المحاولة مرة أخرى'
-										: 'If this persists, please try again'}
-								</Typography>
-							</Box>
-						);
-					}
+				// Only for checkout flow - if not checkout flow, this step shouldn't exist
+				if (!isCheckoutFlow) {
+					console.warn('[Checkout] Step 4 accessed but not in checkout flow');
+					return null;
 				}
-				return null;
+				
+				if (process.env.NODE_ENV === 'development') {
+					console.log('[Checkout] Rendering step 4 (payment):', {
+						isCheckoutPending,
+						hasInvoiceId: !!invoiceId,
+						invoiceId,
+					});
+				}
+				
+				// If checkout is still processing, show loading state
+				if (isCheckoutPending) {
+					return (
+						<Box sx={{ textAlign: 'center', py: 8 }}>
+							<CircularProgress sx={{ mb: 2 }} />
+							<Typography variant="h6" color="text.secondary">
+								{locale === 'ar' ? 'جاري تحضير صفحة الدفع...' : 'Preparing payment page...'}
+							</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+								{locale === 'ar' 
+									? 'يرجى الانتظار بينما نقوم بإنشاء الفاتورة'
+									: 'Please wait while we create your invoice'}
+							</Typography>
+						</Box>
+					);
+				}
+				
+				// If invoiceId is not available after checkout completed, show loading
+				// The useEffect hook will automatically trigger checkout if needed
+				if (!invoiceId) {
+					if (process.env.NODE_ENV === 'development') {
+						console.warn('[Checkout] No invoiceId available on step 4:', {
+							isCheckoutPending,
+							invoiceId,
+							activeStep,
+							checkoutTriggered,
+						});
+					}
+					
+					// Show loading state while waiting for checkout to complete
+					return (
+						<Box sx={{ textAlign: 'center', py: 8 }}>
+							<CircularProgress sx={{ mb: 2 }} />
+							<Typography variant="h6" color="text.secondary">
+								{locale === 'ar' ? 'جاري تحضير صفحة الدفع...' : 'Preparing payment page...'}
+							</Typography>
+						</Box>
+					);
+				}
+				
+				return (
+					<Step4PaymentContent
+						invoiceId={invoiceId}
+						amount={service.pricing?.amount || 0}
+						currency="ILS"
+						onPaymentSuccess={handlePaymentSuccess}
+						onPaymentCancel={handlePaymentCancel}
+					/>
+				);
 			default:
 				return null;
 		}
@@ -1141,16 +1638,12 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			if (!field.required) return true;
 			if (field.type === 'file') {
 				// Accept file if it's either uploaded (in uploadedAttachments) or selected locally (in uploadedFiles)
-				const hasFile = !!uploadedAttachments[field.name] || !!uploadedFiles[field.name];
+				const hasAttachment = !!uploadedAttachments[field.name];
+				const hasLocalFile = !!uploadedFiles[field.name];
+				const hasFile = hasAttachment || hasLocalFile;
+				
 				if (!hasFile) {
 					missingFields.push(field.name);
-					console.log(`[canContinue] Missing file for field: ${field.name}`, {
-						fieldName: field.name,
-						uploadedAttachments: Object.keys(uploadedAttachments),
-						uploadedFiles: Object.keys(uploadedFiles),
-						hasAttachment: !!uploadedAttachments[field.name],
-						hasLocalFile: !!uploadedFiles[field.name]
-					});
 				}
 				return hasFile;
 			}
@@ -1158,12 +1651,6 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			const isValid = value && (typeof value !== 'string' || value.trim().length > 0);
 			if (!isValid) {
 				missingFields.push(field.name);
-				console.log(`[canContinue] Missing value for field: ${field.name}`, {
-					fieldName: field.name,
-					value: value,
-					type: typeof value,
-					trimmedLength: typeof value === 'string' ? value.trim().length : 'N/A'
-				});
 			}
 			return isValid;
 		});
@@ -1175,31 +1662,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			(formData.delivery_type !== 'multiple' || (formData.delivery_count && parseInt(formData.delivery_count, 10) >= 2))
 		);
 		
-		if (!shippingFieldsValid && isCheckoutFlow) {
-			console.log('[canContinue] Shipping fields invalid:', {
-				shipping_location: formData.shipping_location,
-				delivery_type: formData.delivery_type,
-				delivery_count: formData.delivery_count,
-				isCheckoutFlow: isCheckoutFlow
-			});
-		}
-		
-		const result = Boolean(allServiceFieldsValid && shippingFieldsValid);
-		
-		if (!result) {
-			console.log('[canContinue] Validation failed:', {
-				allServiceFieldsValid,
-				shippingFieldsValid,
-				missingFields,
-				serviceFieldsCount: serviceFields.length,
-				requiredFieldsCount: serviceFields.filter(f => f.required).length,
-				formDataKeys: Object.keys(formData),
-				uploadedAttachmentsKeys: Object.keys(uploadedAttachments),
-				uploadedFilesKeys: Object.keys(uploadedFiles)
-			});
-		}
-		
-		canContinue = result;
+		canContinue = Boolean(allServiceFieldsValid && shippingFieldsValid);
 	} else if (activeStep === 3) {
 		canContinue = true; // Step 4 (Payment) - PaymentFlow handles its own validation
 	} else {
@@ -1208,12 +1671,23 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 
 	return (
 		<Box sx={{ 
-			maxWidth: { xs: '100%', sm: '800px', md: '900px' }, 
+			maxWidth: { xs: '100%', sm: '900px', md: '1100px', lg: '1200px' }, 
 			mx: 'auto', 
-			p: { xs: 2, sm: 3, md: 4 },
+			p: { xs: 2, sm: 3, md: 4, lg: 5 },
 			width: '100%'
 		}}>
-			<form ref={formRef} onSubmit={handleSubmit}>
+			<form 
+				ref={formRef} 
+				onSubmit={(e) => {
+					handleSubmit(e);
+				}}
+				onKeyDown={(e) => {
+					// Prevent form submission on Enter key in file inputs
+					if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type === 'file') {
+						e.preventDefault();
+					}
+				}}
+			>
 				{/* Hidden service field */}
 				<input type="hidden" name="service" value={service.slug} />
 				{applicationId && <input type="hidden" name="applicationId" value={applicationId} />}
@@ -2424,11 +2898,13 @@ function Step4PaymentContent({
 	amount,
 	currency,
 	onPaymentSuccess,
+	onPaymentCancel,
 }: {
 	invoiceId: string;
 	amount: number;
 	currency: string;
 	onPaymentSuccess: () => void;
+	onPaymentCancel?: () => void;
 }) {
 	return (
 		<PaymentFlow
@@ -2436,6 +2912,7 @@ function Step4PaymentContent({
 			amount={amount}
 			currency={currency}
 			onPaymentSuccess={onPaymentSuccess}
+			onPaymentCancel={onPaymentCancel}
 		/>
 	);
 }

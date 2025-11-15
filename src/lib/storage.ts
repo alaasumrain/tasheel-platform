@@ -1,47 +1,16 @@
+'use client';
+
 /**
- * Supabase Storage Utilities
+ * Client-side Supabase Storage Utilities
  * Handles file uploads and downloads for customer documents and completed work
+ * Use this in Client Components only. For Server Actions, use @/lib/storage-server
  */
 
 import { createClient } from './supabase/client';
+import { STORAGE_BUCKETS, getUploadPath } from './storage-shared';
 
-export const STORAGE_BUCKETS = {
-	CUSTOMER_UPLOADS: 'customer-uploads', // Customer-submitted files
-	COMPLETED_WORK: 'completed-work', // Team-uploaded deliverables
-	INVOICES: 'invoices', // Generated PDF invoices
-	TEAM_AVATARS: 'team-avatars', // Staff profile photos
-	SERVICE_IMAGES: 'service-images', // Service catalog images
-} as const;
-
-/**
- * Generate file path for storage
- */
-export function getUploadPath(
-	bucket: keyof typeof STORAGE_BUCKETS,
-	applicationId: string,
-	fileName: string
-): string {
-	const timestamp = Date.now();
-	const sanitized = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-	const now = new Date();
-
-	switch (bucket) {
-		case 'CUSTOMER_UPLOADS':
-			// customer-uploads/2025/01/app-uuid/timestamp-filename.pdf
-			return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${applicationId}/${timestamp}-${sanitized}`;
-
-		case 'COMPLETED_WORK':
-			// completed-work/2025/01/app-uuid/final-timestamp-filename.pdf
-			return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${applicationId}/final-${timestamp}-${sanitized}`;
-
-		case 'INVOICES':
-			// invoices/2025/01/INV-20250122-001.pdf
-			return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/INV-${timestamp}-${sanitized}`;
-
-		default:
-			return `${applicationId}/${timestamp}-${sanitized}`;
-	}
-}
+// Re-export shared constants and utilities
+export { STORAGE_BUCKETS, getUploadPath };
 
 /**
  * Upload file to Supabase Storage

@@ -2,7 +2,7 @@
 
 import { Box, Stack, Typography, Chip } from '@mui/material';
 import { IconCheck, IconAlertTriangle } from '@tabler/icons-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface RequiredDocumentsChecklistProps {
 	requiredDocuments: string[];
@@ -15,25 +15,33 @@ export default function RequiredDocumentsChecklist({
 	uploadedFiles,
 	uploadedFileCount,
 }: RequiredDocumentsChecklistProps) {
+	const locale = useLocale();
 	const t = useTranslations('Quote.requiredDocuments');
 	
 	// Simple heuristic: if user uploaded files, assume they've covered the requirements
 	// In reality, we'd need to map specific fields to required docs
 	const hasUploads = uploadedFileCount > 0;
 
+	// Safe translation with fallback - next-intl returns the key if translation is missing
+	const title = t('title') || (locale === 'ar' ? 'المستندات المطلوبة' : 'Required Documents');
+	const filesUploadedLabel = hasUploads 
+		? (t('filesUploaded', { count: uploadedFileCount }) || `${uploadedFileCount} file${uploadedFileCount !== 1 ? 's' : ''} uploaded`)
+		: (t('noFiles') || 'No files uploaded');
+	const readyLabel = t('ready') || (locale === 'ar' ? 'جاهز' : 'Ready');
+	const requiredLabel = t('required') || (locale === 'ar' ? 'مطلوب' : 'Required');
+	const warningText = t('warning') || (locale === 'ar' 
+		? '⚠️ يرجى رفع المستندات المطلوبة للمتابعة مع طلبك'
+		: '⚠️ Please upload the required documents to proceed with your request');
+
 	return (
 		<Stack spacing={2}>
 			{/* Header with status */}
-			<Stack direction="row" spacing={2} alignItems="center">
+			<Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
 				<Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>
-					{t('title')}
+					{title}
 				</Typography>
 				<Chip
-					label={
-						hasUploads
-							? t('filesUploaded', { count: uploadedFileCount })
-							: t('noFiles')
-					}
+					label={filesUploadedLabel}
 					size="small"
 					color={hasUploads ? 'success' : 'default'}
 					icon={hasUploads ? <IconCheck size={16} /> : <IconAlertTriangle size={16} />}
@@ -77,7 +85,7 @@ export default function RequiredDocumentsChecklist({
 
 						{/* Status badge */}
 						<Chip
-							label={hasUploads ? t('ready') : t('required')}
+							label={hasUploads ? readyLabel : requiredLabel}
 							size="small"
 							variant="outlined"
 							sx={{
@@ -94,7 +102,7 @@ export default function RequiredDocumentsChecklist({
 			{/* Helper message */}
 			{!hasUploads && (
 				<Typography variant="caption" color="warning.main" sx={{ pl: 1 }}>
-					{t('warning')}
+					{warningText}
 				</Typography>
 			)}
 		</Stack>

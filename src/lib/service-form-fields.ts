@@ -562,6 +562,15 @@ export const serviceFormFields: Record<string, FormField[]> = {
 			helperText: 'PDF, JPG, or PNG (Max 10MB). Clear photo of both sides',
 			helperText_ar: 'PDF أو JPG أو PNG (الحد الأقصى 10 ميجابايت). صورة واضحة للوجهين',
 		},
+		{
+			name: 'personal_photo_upload',
+			label: 'Upload Personal Photo',
+			label_ar: 'رفع الصورة الشخصية',
+			type: 'file',
+			required: true,
+			helperText: 'JPG or PNG (Max 5MB). White background preferred',
+			helperText_ar: 'JPG أو PNG (الحد الأقصى 5 ميجابايت). خلفية بيضاء مفضلة',
+		},
 	],
 };
 

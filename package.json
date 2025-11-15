@@ -19,7 +19,8 @@
     "git:preview": "git push origin $(git branch --show-current)",
     "git:status": "git status --short && echo '' && echo 'Current branch:' && git branch --show-current",
     "i18n:translate": "lobe-i18n",
-    "i18n:lint": "lobe-i18n lint"
+    "i18n:lint": "lobe-i18n lint",
+    "setup:storage": "tsx scripts/setup-storage-buckets.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

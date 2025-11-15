@@ -1,0 +1,75 @@
+# Cursor Rules for Tasheel Platform
+
+## Research-First Development Approach
+
+When implementing features or fixing bugs, especially for complex integrations (Supabase, Next.js, etc.), **ALWAYS research first** before implementing:
+
+### 1. Research Tools (in order of preference):
+- **GitHub CLI (`gh`)**: Use `gh` commands to search GitHub repos for working examples. It's free and direct.
+  - Example: `gh search code "nextjs supabase storage upload" language:typescript`
+  - Clone repos: `gh repo clone owner/repo` to study patterns
+- **Web Search**: Use `web_search` for documentation, tutorials, and best practices
+- **Context7**: Use `mcp_context7_get-library-docs` for up-to-date library documentation
+  - First resolve library ID: `mcp_context7_resolve-library-id`
+  - Then get docs: `mcp_context7_get-library-docs`
+- **Firecrawl**: Use for scraping articles, tutorials, and documentation pages
+- **Supabase MCP**: Use Supabase MCP tools for database operations and documentation
+
+### 2. Research Workflow:
+1. **Search for working examples** on GitHub using `gh` CLI
+2. **Read official documentation** using Context7 or web search
+3. **Study similar implementations** in the codebase
+4. **Check Supabase docs** using `mcp_supabase_search_docs` for Supabase-specific features
+5. **Look for tutorials/articles** using Firecrawl or web search
+6. **Clone and study** working examples from GitHub if needed
+
+### 3. Implementation Guidelines:
+- **Don't guess** - if you're unsure about a pattern, research it first
+- **Prefer proven patterns** - use approaches that are documented and widely used
+- **Test with examples** - when possible, test the pattern in isolation before integrating
+- **Document learnings** - if you find a better pattern, note it for future reference
+
+### 4. Common Research Scenarios:
+- **File uploads**: Search for "nextjs server actions supabase storage file upload"
+- **Authentication patterns**: Check Supabase auth docs and Next.js auth examples
+- **Database operations**: Use Supabase MCP to check schema and policies
+- **API integrations**: Research the library's official docs via Context7
+- **Error handling**: Search for common error patterns and solutions
+
+### 5. When to Research:
+- ✅ Before implementing a new feature you haven't done before
+- ✅ When encountering an error you've tried multiple solutions for
+- ✅ When integrating a new library or service
+- ✅ When the current approach isn't working after 2-3 attempts
+- ✅ When you suspect there's a better/more standard way to do something
+
+### 6. Research Output:
+After researching, provide:
+- Links to working examples or documentation
+- Key patterns or approaches found
+- Why the chosen approach is better
+- Any gotchas or important considerations
+
+## Code Style & Patterns
+
+- Use TypeScript strictly - avoid `any` types
+- Prefer server actions for form submissions and mutations
+- Use React Server Components by default, add 'use client' only when needed
+- Follow Next.js 14 App Router patterns
+- Use Supabase SSR patterns with `@supabase/ssr` package
+
+## File Organization
+
+- Server actions: `src/app/actions/`
+- Server-side utilities: `src/lib/*-server.ts`
+- Client-side utilities: `src/lib/*.ts` (with 'use client' if needed)
+- Components: `src/components/`
+- Supabase clients: `src/lib/supabase/` (separate client/server)
+
+## Error Handling
+
+- Always provide detailed error messages in development
+- Log errors with context (user ID, operation, etc.)
+- Return user-friendly error messages in production
+- Clean up resources (files, DB records) on error when possible
+

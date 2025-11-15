@@ -28,6 +28,56 @@ interface FileUploadFieldProps {
 	disabled?: boolean;
 }
 
+// Helper function to convert file extensions to MIME types
+const extensionToMimeType: Record<string, string[]> = {
+	'.pdf': ['application/pdf'],
+	'.jpg': ['image/jpeg'],
+	'.jpeg': ['image/jpeg'],
+	'.png': ['image/png'],
+	'.doc': ['application/msword'],
+	'.docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+	'.gif': ['image/gif'],
+	'.webp': ['image/webp'],
+	'.txt': ['text/plain'],
+	'.csv': ['text/csv'],
+	'.xls': ['application/vnd.ms-excel'],
+	'.xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+};
+
+// Convert accept string (extensions or MIME types) to react-dropzone format
+const parseAccept = (acceptString: string): Record<string, string[]> => {
+	const acceptMap: Record<string, string[]> = {};
+	
+	acceptString.split(',').forEach(item => {
+		const trimmed = item.trim();
+		// If it's already a MIME type (contains '/'), use it directly
+		if (trimmed.includes('/')) {
+			acceptMap[trimmed] = [];
+		} 
+		// If it's a file extension, convert to MIME type(s)
+		else if (trimmed.startsWith('.')) {
+			const mimeTypes = extensionToMimeType[trimmed.toLowerCase()];
+			if (mimeTypes) {
+				mimeTypes.forEach(mimeType => {
+					acceptMap[mimeType] = [];
+				});
+			}
+		}
+		// If it's an extension without dot, add the dot
+		else {
+			const withDot = `.${trimmed}`;
+			const mimeTypes = extensionToMimeType[withDot.toLowerCase()];
+			if (mimeTypes) {
+				mimeTypes.forEach(mimeType => {
+					acceptMap[mimeType] = [];
+				});
+			}
+		}
+	});
+	
+	return acceptMap;
+};
+
 export function FileUploadField({
 	label,
 	name,
@@ -46,27 +96,38 @@ export function FileUploadField({
 	const onDrop = useCallback(
 		(acceptedFiles: File[], rejectedFiles: unknown[]) => {
 			if (disabled) return;
+			
+			// Log rejected files for debugging
 			if (rejectedFiles.length > 0) {
-				// Handle rejection (e.g., file too large)
-				return;
+				console.warn('[FileUploadField] Files rejected:', rejectedFiles);
 			}
+			
 			if (acceptedFiles.length > 0) {
 				const file = acceptedFiles[0];
+				console.log('[FileUploadField] File accepted:', { fileName: file.name, fileSize: file.size, fileType: file.type });
+				
+				// Check file size (react-dropzone also checks this, but double-check)
 				if (file.size > maxSize) {
+					console.warn('[FileUploadField] File too large:', { fileName: file.name, size: file.size, maxSize });
 					return;
 				}
+				
+				// Call onChange to trigger parent handler
 				onChange(file);
 			}
 		},
 		[onChange, maxSize, disabled]
 	);
 
+	const acceptMap = parseAccept(accept);
+	
+	// Always pass accept - if empty, react-dropzone will accept all files
+	// This is better than undefined which might cause issues
+	const dropzoneAccept = Object.keys(acceptMap).length > 0 ? acceptMap : {};
+
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
-		accept: accept.split(',').reduce((acc, ext) => {
-			acc[ext.trim()] = [];
-			return acc;
-		}, {} as Record<string, string[]>),
+		accept: Object.keys(dropzoneAccept).length > 0 ? dropzoneAccept : undefined,
 		maxSize,
 		multiple: false,
 		disabled,
@@ -109,7 +170,11 @@ export function FileUploadField({
 						position: 'relative',
 					}}
 				>
-					<input {...getInputProps()} id={name} name={name} />
+					<input 
+						{...getInputProps()} 
+						id={name} 
+						name={name}
+					/>
 					{value ? (
 						<>
 							<IconFile size={32} />
@@ -130,7 +195,7 @@ export function FileUploadField({
 								{isDragActive ? t('dropFileHere') : t('clickToUpload')}
 							</Typography>
 							<Typography variant="caption" color="text.secondary">
-								{accept} ({t('maxSize', { size: (maxSize / 1024 / 1024).toFixed(0) })})
+								{accept.split(',').map(ext => ext.trim()).join(', ')} ({t('maxSize', { size: (maxSize / 1024 / 1024).toFixed(0) })})
 							</Typography>
 						</>
 					)}

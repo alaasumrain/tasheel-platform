@@ -182,8 +182,25 @@ export function PaymentFlow({
 						</MuiCard>
 
 						<Stack direction="row" spacing={2} justifyContent="flex-end">
-							<Button onClick={handleCancel}>{t('cancel')}</Button>
-							<Button variant="contained" onClick={handleNext}>
+							<Button 
+								onClick={handleCancel}
+								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
+							>
+								{t('cancel')}
+							</Button>
+							<Button 
+								variant="contained" 
+								onClick={handleNext}
+								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
+							>
 								{t('continue')}
 							</Button>
 						</Stack>
@@ -214,14 +231,27 @@ export function PaymentFlow({
 						</MuiCard>
 
 						<Stack direction="row" spacing={2} justifyContent="space-between">
-							<Button onClick={handleBack} disabled={processing}>
+							<Button 
+								onClick={handleBack} 
+								disabled={processing}
+								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
+							>
 								{t('back')}
 							</Button>
 							<Button
 								variant="contained"
 								onClick={handlePayment}
 								disabled={processing}
-								startIcon={processing ? <CircularProgress size={20} /> : <IconCreditCard />}
+								startIcon={processing ? <CircularProgress size={20} color="inherit" /> : <IconCreditCard size={18} />}
+								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
 							>
 								{processing ? t('processing') : t('payNow')}
 							</Button>

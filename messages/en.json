@@ -1356,6 +1356,7 @@
 			"continue": "Continue",
 			"back": "Back",
 			"clearForm": "Clear Form",
+			"clearDraft": "Clear saved draft",
 			"submitRequest": "Submit Request",
 			"submitting": "Submitting...",
 			"draftRestored": "Your previous draft has been restored. Continue where you left off!",
@@ -1391,6 +1392,10 @@
 				"shippingLocationRequired": "Please select a shipping location",
 				"deliveryTypeRequired": "Please select a delivery type",
 				"deliveryCountRequired": "Please enter the number of deliveries (minimum 2)"
+			},
+			"payment": {
+				"invoiceMissing": "Error preparing invoice. Please try again",
+				"cancelled": "Payment cancelled"
 			},
 			"toast": {
 				"initFailed": "Failed to initialize form. Please refresh the page.",
