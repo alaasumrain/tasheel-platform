@@ -17,7 +17,6 @@ import {
 import { IconArrowRight } from '@tabler/icons-react';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
-import OTPVerification from './OTPVerification';
 
 export default function RegisterForm() {
 	const t = useTranslations('Auth.register');
@@ -25,13 +24,8 @@ export default function RegisterForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	const [showOTP, setShowOTP] = useState(false);
-	const [formData, setFormData] = useState<{
-		name: string;
-		email: string;
-		phone: string;
-		password: string;
-	} | null>(null);
+	const [emailSent, setEmailSent] = useState(false);
+	const [sentEmail, setSentEmail] = useState<string | null>(null);
 
 	// Pre-fill form from URL params (e.g., from OTP verification flow)
 	useEffect(() => {
@@ -56,94 +50,6 @@ export default function RegisterForm() {
 	}, [searchParams]);
 
 	const supabase = createClient();
-
-	// Mutation to send OTP
-	const { mutate: sendOTP, isPending: isSendingOTP } = useMutation({
-		mutationFn: async ({ phone, email }: { phone: string; email: string }) => {
-			const response = await fetch('/api/auth/send-otp', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ phone, email }),
-			});
-
-			if (!response.ok) {
-				const data = await response.json();
-				throw new Error(data.error || 'Failed to send OTP');
-			}
-
-			return response.json();
-		},
-		onSuccess: () => {
-			toast.success(t('otpSent'));
-		},
-		onError: (error: Error) => {
-			toast.error(error.message);
-		},
-	});
-
-	// Mutation to verify OTP and create account
-	const { mutate: verifyOTPAndLink, isPending: isVerifyingOTP } = useMutation({
-		mutationFn: async (otp: string) => {
-			if (!formData) throw new Error('Form data missing');
-
-			// First verify the OTP using Supabase's verifyOtp
-			const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-				email: formData.email,
-				token: otp,
-				type: 'email',
-			});
-
-			if (verifyError) {
-				throw new Error(verifyError.message || 'Invalid verification code');
-			}
-
-			// If OTP is verified but user doesn't exist yet, create account
-			if (!verifyData.user) {
-				// User doesn't exist, create account with password
-				const { data: authData, error: authError } = await supabase.auth.signUp({
-					email: formData.email,
-					password: formData.password,
-					options: { 
-						data: { name: formData.name, phone: formData.phone },
-						emailRedirectTo: `${window.location.origin}/dashboard`,
-					},
-				});
-				if (authError) throw authError;
-				if (!authData.user) throw new Error(t('errors.signupFailed'));
-				return authData;
-			}
-
-			// User exists - check if we need to link phone or update password
-			// If session exists, user is logged in
-			if (verifyData.session) {
-				// Update user metadata with phone if not set
-				if (formData.phone) {
-					await supabase.auth.updateUser({
-						data: { phone: formData.phone },
-					});
-				}
-				return verifyData;
-			}
-
-			// If no session but user exists, sign in with password
-			const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-				email: formData.email,
-				password: formData.password,
-			});
-			if (signInError) throw signInError;
-			return signInData;
-		},
-		onSuccess: () => {
-			toast.success(t('success'));
-			formRef.current?.reset();
-			setShowOTP(false);
-			setFormData(null);
-			setTimeout(() => router.push('/dashboard'), 1500);
-		},
-		onError: (error: Error) => {
-			toast.error(error.message || t('errors.generic'));
-		},
-	});
 
 	const { mutate: register, isPending } = useMutation({
 		mutationFn: async (formData: FormData) => {
@@ -177,33 +83,63 @@ export default function RegisterForm() {
 			}
 
 			setErrors({});
-			setFormData({ name, email, phone, password });
-			setShowOTP(true);
-			sendOTP({ phone, email });
+
+			// Sign up with email confirmation
+			const { data, error } = await supabase.auth.signUp({
+				email: email,
+				password: password,
+				options: {
+					data: {
+						name: name,
+						phone: phone,
+					},
+					emailRedirectTo: `${window.location.origin}/dashboard`,
+				},
+			});
+
+			if (error) {
+				throw new Error(error.message || t('errors.signupFailed'));
+			}
+
+			if (!data.user) {
+				throw new Error(t('errors.signupFailed'));
+			}
+
+			return { email };
+		},
+		onSuccess: (data) => {
+			setEmailSent(true);
+			setSentEmail(data.email);
+			toast.success(t('confirmationEmailSent'));
+			formRef.current?.reset();
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || t('errors.generic'));
 		},
 	});
 
-	// Show OTP verification step
-	if (showOTP && formData) {
+	// Show email confirmation message
+	if (emailSent && sentEmail) {
 		return (
 			<Stack spacing={3}>
-				<OTPVerification
-					phone={formData.phone}
-					onVerify={async (otp) => verifyOTPAndLink(otp)}
-					onResend={async () => sendOTP(formData.phone)}
-					isPending={isVerifyingOTP || isSendingOTP}
-				/>
+				<Stack spacing={2} sx={{ textAlign: 'center', py: 4 }}>
+					<h2 style={{ margin: 0, fontSize: '24px', fontWeight: 600 }}>
+						{t('checkYourEmail')}
+					</h2>
+					<p style={{ margin: 0, color: '#6b7280', fontSize: '16px' }}>
+						{t('confirmationEmailMessage', { email: sentEmail })}
+					</p>
+					<p style={{ margin: '16px 0 0', color: '#9ca3af', fontSize: '14px' }}>
+						{t('confirmationEmailNote')}
+					</p>
+				</Stack>
 				<Button
 					variant="outlined"
 					fullWidth
 					onClick={() => {
-						setShowOTP(false);
-						setFormData(null);
+						setEmailSent(false);
+						setSentEmail(null);
 					}}
-					disabled={isVerifyingOTP || isSendingOTP}
 				>
 					{t('back')}
 				</Button>
@@ -231,7 +167,7 @@ export default function RegisterForm() {
 					<OutlinedInput id="phone" name="phone" type="tel" required />
 					{errors.phone && <FormHelperText>{errors.phone}</FormHelperText>}
 					<FormHelperText>
-						{t('phoneVerificationRequired')}
+						{t('emailConfirmationRequired')}
 					</FormHelperText>
 				</FormControl>
 
