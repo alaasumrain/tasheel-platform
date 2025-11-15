@@ -85,6 +85,11 @@ export default function RegisterForm() {
 			setErrors({});
 
 			// Sign up with email confirmation
+			// emailRedirectTo should point to the confirmation handler route
+			const redirectUrl = `${window.location.origin}/api/auth/confirm?next=/dashboard`;
+			
+			console.log('[Register] Signing up user:', { email, redirectUrl });
+			
 			const { data, error } = await supabase.auth.signUp({
 				email: email,
 				password: password,
@@ -93,16 +98,32 @@ export default function RegisterForm() {
 						name: name,
 						phone: phone,
 					},
-					emailRedirectTo: `${window.location.origin}/dashboard`,
+					emailRedirectTo: redirectUrl,
 				},
 			});
 
+			console.log('[Register] Signup response:', { 
+				hasUser: !!data?.user, 
+				hasSession: !!data?.session,
+				userEmail: data?.user?.email,
+				error: error?.message,
+			});
+
 			if (error) {
+				console.error('[Register] Signup error:', error);
 				throw new Error(error.message || t('errors.signupFailed'));
 			}
 
 			if (!data.user) {
+				console.error('[Register] No user returned from signup');
 				throw new Error(t('errors.signupFailed'));
+			}
+
+			// Check if email confirmation is required
+			// If session exists, user is already confirmed (shouldn't happen in production with confirmations enabled)
+			// If no session, confirmation email should have been sent
+			if (!data.session) {
+				console.log('[Register] No session - confirmation email should have been sent');
 			}
 
 			return { email };
