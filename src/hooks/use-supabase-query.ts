@@ -23,7 +23,7 @@ export interface UseSupabaseQueryOptions<T> extends Omit<UseQueryOptions<T[], Er
 	/**
 	 * Optional filter function to apply to the Supabase query
 	 */
-	filters?: (query: PostgrestFilterBuilder<any, any, any>) => PostgrestFilterBuilder<any, any, any>;
+	filters?: (query: any) => any;
 }
 
 /**
