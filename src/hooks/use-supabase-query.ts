@@ -71,7 +71,7 @@ export function useSupabaseQuery<T = any>(
 
 			return (data as T[]) ?? [];
 		},
-		staleTime: options?.cacheTime ?? 0,
+		staleTime: (options as any)?.cacheTime ?? 0,
 		...options,
 	});
 }
@@ -109,7 +109,7 @@ export function useSupabaseQueryById<T = any>(
 
 			return (data as T) ?? null;
 		},
-		staleTime: options?.cacheTime ?? 0,
+		staleTime: (options as any)?.cacheTime ?? 0,
 		...options,
 	});
 }
