@@ -50,7 +50,7 @@ export async function checkEmailVerification(
 	return {
 		isVerified: emailConfirmed,
 		isPhoneOnly: false,
-		email,
+		email: email ?? null,
 		needsVerification: !emailConfirmed && !!email,
 	};
 }
