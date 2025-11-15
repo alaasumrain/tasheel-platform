@@ -227,7 +227,13 @@ export default function RegisterForm() {
 
 				<FormControl disabled={isPending} required error={!!errors.password}>
 					<FormLabel htmlFor="password">{t('fields.password')}</FormLabel>
-					<OutlinedInput id="password" name="password" type="password" required />
+					<OutlinedInput 
+						id="password" 
+						name="password" 
+						type="password" 
+						required 
+						autoComplete="new-password"
+					/>
 					{errors.password && <FormHelperText>{errors.password}</FormHelperText>}
 				</FormControl>
 
@@ -238,6 +244,7 @@ export default function RegisterForm() {
 						name="confirmPassword"
 						type="password"
 						required
+						autoComplete="new-password"
 					/>
 					{errors.confirmPassword && (
 						<FormHelperText>{errors.confirmPassword}</FormHelperText>
