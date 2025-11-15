@@ -65,7 +65,7 @@ export default function LoginForm() {
 		startTransition(async () => {
 			const result = await login({ email, password });
 
-			if (result.error) {
+			if ('error' in result && result.error) {
 				setError(result.error);
 				toast.error(result.error);
 				return;
