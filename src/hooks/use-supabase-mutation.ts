@@ -137,7 +137,7 @@ export function useSupabaseMutation<TData = any, TVariables extends { id?: strin
 		},
 		onError: (error, variables, context) => {
 			// Rollback on error
-			if (context?.previousData) {
+			if (context && 'previousData' in context && context.previousData) {
 				queryClient.setQueryData([table], context.previousData);
 			}
 
