@@ -59,11 +59,11 @@ export default function RegisterForm() {
 
 	// Mutation to send OTP
 	const { mutate: sendOTP, isPending: isSendingOTP } = useMutation({
-		mutationFn: async (phone: string) => {
+		mutationFn: async ({ phone, email }: { phone: string; email: string }) => {
 			const response = await fetch('/api/auth/send-otp', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ phone }),
+				body: JSON.stringify({ phone, email }),
 			});
 
 			if (!response.ok) {
@@ -169,7 +169,7 @@ export default function RegisterForm() {
 			setErrors({});
 			setFormData({ name, email, phone, password });
 			setShowOTP(true);
-			sendOTP(phone);
+			sendOTP({ phone, email });
 		},
 		onError: (error: Error) => {
 			toast.error(error.message || t('errors.generic'));

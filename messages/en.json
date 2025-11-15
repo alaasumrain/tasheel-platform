@@ -650,7 +650,7 @@
 				"password": "Password",
 				"confirmPassword": "Confirm Password"
 			},
-			"phoneVerificationRequired": "We will send an OTP to verify your phone number",
+			"phoneVerificationRequired": "We will send a verification code to your email address",
 			"errors": {
 				"nameRequired": "Name must be at least 2 characters",
 				"emailInvalid": "Please enter a valid email address",
@@ -701,7 +701,7 @@
 			"sendOTP": "Send OTP",
 			"otpSent": "OTP sent successfully!",
 			"otpVerified": "OTP verified successfully!",
-			"phoneHelper": "We'll send a verification code via WhatsApp",
+			"phoneHelper": "We'll send a verification code to your email",
 			"mfaTitle": "Two-Factor Authentication",
 			"mfaDescription": "Please enter the code from your authenticator app",
 			"mfaCode": "Verification Code",
