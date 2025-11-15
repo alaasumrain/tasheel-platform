@@ -348,18 +348,13 @@ export default function ServicesCatalogWithSearch({
 	const sortedServices = useMemo(() => {
 		const ordered = [...filteredServices];
 		
-		// Separate available and coming soon services (like "in stock" vs "out of stock")
+		// Only show active services - filter out inactive/coming soon services
 		const availableServices = ordered.filter(s => {
 			const originalService = originalServicesMap.get(s.slug);
-			return originalService?.is_active !== false;
-		});
-		const comingSoonServices = ordered.filter(s => {
-			const originalService = originalServicesMap.get(s.slug);
-			return originalService?.is_active === false;
+			return originalService?.is_active === true; // Only show if explicitly active
 		});
 		
 		let sortedAvailable = availableServices;
-		let sortedComingSoon = comingSoonServices;
 		
 		if (sortOption === 'speed') {
 			sortedAvailable = [...availableServices].sort((a, b) => {
@@ -367,18 +362,12 @@ export default function ServicesCatalogWithSearch({
 				const bDays = getTurnaroundDays(b.turnaroundTime) ?? Number.POSITIVE_INFINITY;
 				return aDays - bDays;
 			});
-			sortedComingSoon = [...comingSoonServices].sort((a, b) => {
-				const aDays = getTurnaroundDays(a.turnaroundTime) ?? Number.POSITIVE_INFINITY;
-				const bDays = getTurnaroundDays(b.turnaroundTime) ?? Number.POSITIVE_INFINITY;
-				return aDays - bDays;
-			});
 		} else if (sortOption === 'price') {
 			sortedAvailable = [...availableServices].sort((a, b) => getPricingValue(a) - getPricingValue(b));
-			sortedComingSoon = [...comingSoonServices].sort((a, b) => getPricingValue(a) - getPricingValue(b));
 		}
 		
-		// Always show available services first, then coming soon
-		return [...sortedAvailable, ...sortedComingSoon];
+		// Only return active services (no coming soon)
+		return sortedAvailable;
 	}, [filteredServices, sortOption, originalServicesMap]);
 
 	// Pagination logic
