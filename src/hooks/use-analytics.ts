@@ -82,7 +82,8 @@ export function useFormAnalytics(formName: string) {
 			// Only track abandon if form wasn't completed
 			// This would need to be managed by the form component
 		};
-	}, [formName]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [formName]); // analytics is stable, doesn't need to be in deps
 
 	const trackStep = (step: number, stepName?: string) => {
 		analytics.trackEvent('form_step', {

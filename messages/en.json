@@ -89,6 +89,8 @@
 		"comingSoonTooltip": "This service will be available soon",
 		"availableNow": "Available Now",
 		"startButtonDisabled": "Coming Soon",
+		"share": "Share",
+		"bookmark": "Bookmark",
 		"breadcrumbs": {
 			"home": "Home",
 			"services": "Services"

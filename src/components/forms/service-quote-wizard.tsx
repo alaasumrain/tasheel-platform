@@ -20,6 +20,7 @@ import {
 	IconButton,
 	Tooltip,
 	CardContent,
+	Divider,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IconArrowLeft, IconArrowRight, IconCheck, IconX, IconCreditCard } from '@tabler/icons-react';
@@ -103,6 +104,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 	const [activeStep, setActiveStep] = useState(0);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 	const [restoredData, setRestoredData] = useState(false);
+	const [dismissedDraftAlert, setDismissedDraftAlert] = useState<boolean>(false);
 	const [errors, setErrors] = useState<FieldErrors>({});
 	const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
 	const [applicationId, setApplicationId] = useState<string | null>(null);
@@ -479,27 +481,41 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			};
 		}
 		
+		// Check for any letters (should not happen if input is restricted, but double-check)
+		if (/[a-zA-Z]/.test(cleaned)) {
+			return { 
+				valid: false, 
+				error: locale === 'ar' 
+					? 'رقم الهاتف لا يمكن أن يحتوي على أحرف. يرجى إدخال أرقام فقط'
+					: 'Phone number cannot contain letters. Please enter digits only'
+			};
+		}
+		
 		// Extract digits only (for validation)
 		let digitsOnly = cleaned.replace(/\D/g, '');
 		
-		// Check for wrong country code
-		if (cleaned.startsWith('+') && !cleaned.startsWith('+970')) {
+		// Check for wrong country code (only allow +970 or +972)
+		if (cleaned.startsWith('+') && !cleaned.startsWith('+970') && !cleaned.startsWith('+972')) {
 			const countryCode = cleaned.match(/^\+\d{1,3}/)?.[0];
 			return { 
 				valid: false, 
 				error: locale === 'ar'
-					? `رمز الدولة ${countryCode} غير صحيح. يجب أن يكون +970 للفلسطيني`
-					: `Country code ${countryCode} is incorrect. Must be +970 for Palestinian numbers`
+					? `رمز الدولة ${countryCode} غير صحيح. يجب أن يكون +970 أو +972`
+					: `Country code ${countryCode} is incorrect. Must be +970 or +972`
 			};
 		}
 		
-		// Handle international format: +970XXXXXXXXX
+		// Handle international format: +970XXXXXXXXX or +972XXXXXXXXX
 		if (cleaned.startsWith('+970')) {
 			digitsOnly = digitsOnly.slice(3); // Remove 970
+		} else if (cleaned.startsWith('+972')) {
+			digitsOnly = digitsOnly.slice(3); // Remove 972
 		}
-		// Handle local format with country code: 970XXXXXXXXX (without +)
+		// Handle local format with country code: 970XXXXXXXXX or 972XXXXXXXXX (without +)
 		else if (digitsOnly.startsWith('970') && digitsOnly.length >= 12) {
 			digitsOnly = digitsOnly.slice(3); // Remove 970
+		} else if (digitsOnly.startsWith('972') && digitsOnly.length >= 12) {
+			digitsOnly = digitsOnly.slice(3); // Remove 972
 		}
 		// Handle local format: 0XXXXXXXXX
 		else if (digitsOnly.startsWith('0') && digitsOnly.length >= 10) {
@@ -557,7 +573,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 		return validatePhoneWithMessage(phone).valid;
 	};
 
-	const validateStep = (step: number): boolean => {
+	const validateStep = (step: number): { isValid: boolean; errors: FieldErrors } => {
 		const newErrors: FieldErrors = {};
 
 		if (step === 0) {
@@ -577,8 +593,8 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			serviceFields.forEach((field) => {
 				if (field.required) {
 					if (field.type === 'file') {
-						// For file fields, check if uploaded
-						if (!uploadedAttachments[field.name]) {
+						// For file fields, check if uploaded (uploadedAttachments) or selected locally (uploadedFiles)
+						if (!uploadedAttachments[field.name] && !uploadedFiles[field.name]) {
 							newErrors[field.name] = t('validation.fieldRequired', { field: field.label });
 						}
 					} else {
@@ -651,12 +667,15 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 			}
 		}
 
-		setErrors(newErrors);
-		return Object.keys(newErrors).length === 0;
+		return {
+			isValid: Object.keys(newErrors).length === 0,
+			errors: newErrors,
+		};
 	};
 
 	const handleNext = () => {
-		if (validateStep(activeStep)) {
+		const validationResult = validateStep(activeStep);
+		if (validationResult.isValid) {
 			if (activeStep < steps.length - 1) {
 				const nextStep = activeStep + 1;
 				setActiveStep(nextStep);
@@ -664,10 +683,73 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				formAnalytics.trackStep(nextStep, steps[nextStep]);
 			}
 		} else {
-			toast.error(t('validation.fixErrors'));
+			// Set errors to show them in the form
+			setErrors(validationResult.errors);
+			
+			// Scroll to first error field
+			setTimeout(() => {
+				const firstErrorField = Object.keys(validationResult.errors)[0];
+				if (firstErrorField) {
+					// Try multiple selectors to find the error field
+					const errorElement = 
+						document.getElementById(firstErrorField) || 
+						document.getElementById(`field-${firstErrorField}`) ||
+						document.querySelector(`[name="${firstErrorField}"]`) ||
+						document.querySelector(`[id*="${firstErrorField}"]`) ||
+						document.querySelector(`[aria-labelledby*="${firstErrorField}"]`);
+					
+					if (errorElement) {
+						errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						// Focus the field if it's an input
+						if (errorElement instanceof HTMLInputElement || 
+							errorElement instanceof HTMLTextAreaElement ||
+							errorElement instanceof HTMLSelectElement) {
+							errorElement.focus();
+						} else {
+							// Try to find input inside the element
+							const inputInside = errorElement.querySelector('input, textarea, select');
+							if (inputInside instanceof HTMLElement) {
+								inputInside.focus();
+							}
+						}
+					}
+				}
+			}, 150);
+			
+			// Show detailed error message with missing fields
+			const missingFields = Object.keys(validationResult.errors);
+			if (missingFields.length > 0) {
+				const fieldLabels = missingFields.map(fieldName => {
+					if (activeStep === 0) {
+						// Step 1 field labels
+						const labels: Record<string, string> = {
+							name: locale === 'ar' ? 'الاسم' : 'Name',
+							email: locale === 'ar' ? 'البريد الإلكتروني' : 'Email',
+							phone: locale === 'ar' ? 'رقم الهاتف' : 'Phone Number',
+						};
+						return labels[fieldName] || fieldName;
+					} else if (activeStep === 1) {
+						// Step 2 - use field label from serviceFields
+						const field = serviceFields.find(f => f.name === fieldName);
+						return field 
+							? (locale === 'ar' && field.label_ar ? field.label_ar : field.label)
+							: fieldName;
+					}
+					return fieldName;
+				});
+				
+				const errorMessage = locale === 'ar'
+					? `يرجى إكمال الحقول التالية: ${fieldLabels.join('، ')}`
+					: `Please complete the following fields: ${fieldLabels.join(', ')}`;
+				
+				toast.error(errorMessage, { duration: 5000 });
+			} else {
+				toast.error(t('validation.fixErrors'));
+			}
+			
 			// Track validation errors
-			Object.keys(errors).forEach(fieldName => {
-				formAnalytics.trackValidationError(fieldName, errors[fieldName]);
+			Object.keys(validationResult.errors).forEach(fieldName => {
+				formAnalytics.trackValidationError(fieldName, validationResult.errors[fieldName]);
 			});
 		}
 	};
@@ -1005,15 +1087,33 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				);
 			case 3:
 				// Only for checkout flow
-				if (isCheckoutFlow && invoiceId) {
-					return (
-						<Step4PaymentContent
-							invoiceId={invoiceId}
-							amount={service.pricing?.amount || 0}
-							currency="ILS"
-							onPaymentSuccess={handlePaymentSuccess}
-						/>
-					);
+				if (isCheckoutFlow) {
+					if (invoiceId) {
+						return (
+							<Step4PaymentContent
+								invoiceId={invoiceId}
+								amount={service.pricing?.amount || 0}
+								currency="ILS"
+								onPaymentSuccess={handlePaymentSuccess}
+							/>
+						);
+					} else {
+						// Show loading or error state if invoiceId is not available
+						// Use locale from component scope, not calling useLocale() here
+						return (
+							<Box sx={{ textAlign: 'center', py: 8 }}>
+								<CircularProgress sx={{ mb: 2 }} />
+								<Typography variant="h6" color="text.secondary">
+									{locale === 'ar' ? 'جاري تحضير صفحة الدفع...' : 'Preparing payment page...'}
+								</Typography>
+								<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+									{locale === 'ar' 
+										? 'إذا استمرت هذه المشكلة، يرجى المحاولة مرة أخرى'
+										: 'If this persists, please try again'}
+								</Typography>
+							</Box>
+						);
+					}
 				}
 				return null;
 			default:
@@ -1023,38 +1123,94 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 
 	const progress = Math.round(((activeStep + 1) / steps.length) * 100);
 	
-	
-	const canContinue =
-		activeStep === 0
-			? Boolean(
-					formData.name &&
-					formData.name.trim().length >= 2 &&
-					formData.email &&
-					validateEmail(formData.email) &&
-					formData.phone &&
-					validatePhone(formData.phone)
-				)
-			: activeStep === 1
-				? Boolean(
-					// Check all required service fields (details is optional, so not included)
-					serviceFields.every(field => {
-						if (!field.required) return true;
-						if (field.type === 'file') {
-							return !!uploadedAttachments[field.name];
-						}
-						const value = formData[field.name];
-						return value && (typeof value !== 'string' || value.trim().length > 0);
-					})
-				)
-				: activeStep === 3
-					? true // Step 4 (Payment) - PaymentFlow handles its own validation
-					: true;
+	// Compute canContinue - don't use useMemo to avoid hooks order issues
+	let canContinue: boolean;
+	if (activeStep === 0) {
+		canContinue = Boolean(
+			formData.name &&
+			formData.name.trim().length >= 2 &&
+			formData.email &&
+			validateEmail(formData.email) &&
+			formData.phone &&
+			validatePhone(formData.phone)
+		);
+	} else if (activeStep === 1) {
+		// Check all required service fields
+		const missingFields: string[] = [];
+		const allServiceFieldsValid = serviceFields.every(field => {
+			if (!field.required) return true;
+			if (field.type === 'file') {
+				// Accept file if it's either uploaded (in uploadedAttachments) or selected locally (in uploadedFiles)
+				const hasFile = !!uploadedAttachments[field.name] || !!uploadedFiles[field.name];
+				if (!hasFile) {
+					missingFields.push(field.name);
+					console.log(`[canContinue] Missing file for field: ${field.name}`, {
+						fieldName: field.name,
+						uploadedAttachments: Object.keys(uploadedAttachments),
+						uploadedFiles: Object.keys(uploadedFiles),
+						hasAttachment: !!uploadedAttachments[field.name],
+						hasLocalFile: !!uploadedFiles[field.name]
+					});
+				}
+				return hasFile;
+			}
+			const value = formData[field.name];
+			const isValid = value && (typeof value !== 'string' || value.trim().length > 0);
+			if (!isValid) {
+				missingFields.push(field.name);
+				console.log(`[canContinue] Missing value for field: ${field.name}`, {
+					fieldName: field.name,
+					value: value,
+					type: typeof value,
+					trimmedLength: typeof value === 'string' ? value.trim().length : 'N/A'
+				});
+			}
+			return isValid;
+		});
+		
+		// Check shipping fields for checkout flow
+		const shippingFieldsValid = !isCheckoutFlow || (
+			formData.shipping_location &&
+			formData.delivery_type &&
+			(formData.delivery_type !== 'multiple' || (formData.delivery_count && parseInt(formData.delivery_count, 10) >= 2))
+		);
+		
+		if (!shippingFieldsValid && isCheckoutFlow) {
+			console.log('[canContinue] Shipping fields invalid:', {
+				shipping_location: formData.shipping_location,
+				delivery_type: formData.delivery_type,
+				delivery_count: formData.delivery_count,
+				isCheckoutFlow: isCheckoutFlow
+			});
+		}
+		
+		const result = Boolean(allServiceFieldsValid && shippingFieldsValid);
+		
+		if (!result) {
+			console.log('[canContinue] Validation failed:', {
+				allServiceFieldsValid,
+				shippingFieldsValid,
+				missingFields,
+				serviceFieldsCount: serviceFields.length,
+				requiredFieldsCount: serviceFields.filter(f => f.required).length,
+				formDataKeys: Object.keys(formData),
+				uploadedAttachmentsKeys: Object.keys(uploadedAttachments),
+				uploadedFilesKeys: Object.keys(uploadedFiles)
+			});
+		}
+		
+		canContinue = result;
+	} else if (activeStep === 3) {
+		canContinue = true; // Step 4 (Payment) - PaymentFlow handles its own validation
+	} else {
+		canContinue = true;
+	}
 
 	return (
 		<Box sx={{ 
-			maxWidth: '672px', 
+			maxWidth: { xs: '100%', sm: '800px', md: '900px' }, 
 			mx: 'auto', 
-			p: { xs: 2, sm: 3 },
+			p: { xs: 2, sm: 3, md: 4 },
 			width: '100%'
 		}}>
 			<form ref={formRef} onSubmit={handleSubmit}>
@@ -1100,9 +1256,6 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 								height: 2,
 								bgcolor: 'divider',
 								zIndex: 0, // Behind the icons
-								...(isRTL && {
-									transform: 'scaleX(-1)',
-								}),
 							}}
 						>
 							<Box
@@ -1112,23 +1265,28 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 									width: `${(activeStep / (steps.length - 1)) * 100}%`,
 									transition: 'width 0.3s ease',
 									...(isRTL && {
-										transform: 'scaleX(-1)',
 										marginLeft: 'auto',
+										marginRight: 0,
+										transform: 'scaleX(-1)',
 									}),
 								}}
 							/>
 						</Box>
 						{/* Step Icons - In front of line */}
 						<Stack 
-							direction={isRTL ? 'row-reverse' : 'row'} 
+							direction="row" 
 							spacing={0} 
 							sx={{ 
 								justifyContent: 'space-between',
 								position: 'relative',
 								zIndex: 2, // In front of the line
+								flexDirection: isRTL ? 'row-reverse' : 'row',
 							}}
 						>
-							{steps.map((label, index) => (
+							{(isRTL ? [...steps].reverse() : steps).map((label, originalIndex) => {
+								// Calculate the actual index (reverse in RTL)
+								const index = isRTL ? steps.length - 1 - originalIndex : originalIndex;
+								return (
 								<Box
 									key={label}
 									onClick={() => {
@@ -1173,12 +1331,15 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 												: 'none',
 											position: 'relative',
 											zIndex: 2, // Ensure circle is in front of line
+											direction: 'ltr', // Force LTR for numbers to display correctly
 										}}
 									>
 										{index < activeStep ? (
 											<IconCheck size={16} />
 										) : (
-											index + 1
+											<Box component="span" sx={{ direction: 'ltr', display: 'inline-block' }}>
+												{index + 1}
+											</Box>
 										)}
 									</Box>
 									<Typography
@@ -1194,7 +1355,8 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 										{label}
 									</Typography>
 								</Box>
-							))}
+								);
+							})}
 						</Stack>
 					</Box>
 				</Box>
@@ -1225,12 +1387,13 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 				}}>
 					<Stack spacing={2}>
 						{/* Restored Data Alert */}
-						{restoredData && (
+						{restoredData && !dismissedDraftAlert && (
 							<Alert
 								severity="success"
 								sx={{ borderRadius: 2 }}
+								onClose={() => setDismissedDraftAlert(true)}
 								action={
-									<Tooltip title="Clear saved draft">
+									<Tooltip title={t('clearDraft') || "Clear saved draft"}>
 										<IconButton size="small" onClick={handleClearForm}>
 											<IconX size={18} />
 										</IconButton>
@@ -1251,7 +1414,7 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 						direction="row"
 						justifyContent="space-between"
 						alignItems="center"
-						spacing={{ xs: 1, sm: 2 }}
+						spacing={{ xs: 2, sm: 3 }}
 						sx={{ mt: { xs: 2, sm: 3 } }}
 					>
 						{activeStep > 0 ? (
@@ -1259,24 +1422,74 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 								variant="outlined"
 								onClick={handleBack}
 								startIcon={isRTL ? <IconArrowRight size={18} /> : <IconArrowLeft size={18} />}
+								endIcon={isRTL ? undefined : undefined}
 								disabled={isPending}
+								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
 							>
 								{t('back')}
 							</Button>
 						) : (
-							<Box />
+							<Box sx={{ flex: { xs: 0, sm: 'none' } }} />
 						)}
-						<Box sx={{ flexGrow: 1 }} />
+						<Box sx={{ flexGrow: { xs: 0, sm: 1 } }} />
 						{activeStep < steps.length - 1 ? (
-							<Button
-								variant="contained"
-								onClick={handleNext}
-								endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
-								size="large"
-								disabled={!canContinue}
+							<Tooltip 
+								title={
+									!canContinue && activeStep === 1
+										? (locale === 'ar' 
+											? 'يرجى إكمال جميع الحقول المطلوبة'
+											: 'Please complete all required fields')
+										: ''
+								}
+								arrow
 							>
-								{t('continue')}
-							</Button>
+								<span>
+									<Button
+										variant="contained"
+										onClick={() => {
+											if (!canContinue && activeStep === 1) {
+												// Force validation to show errors
+												const validationResult = validateStep(activeStep);
+												if (!validationResult.isValid) {
+													setErrors(validationResult.errors);
+													const missingFields = Object.keys(validationResult.errors);
+													if (missingFields.length > 0) {
+														const fieldLabels = missingFields.map(fieldName => {
+															const field = serviceFields.find(f => f.name === fieldName);
+															return field 
+																? (locale === 'ar' && field.label_ar ? field.label_ar : field.label)
+																: fieldName;
+														});
+														toast.error(
+															locale === 'ar'
+																? `يرجى إكمال الحقول التالية: ${fieldLabels.join('، ')}`
+																: `Please complete: ${fieldLabels.join(', ')}`,
+															{ duration: 5000 }
+														);
+													}
+												}
+											} else {
+												handleNext();
+											}
+										}}
+										endIcon={isRTL ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
+										startIcon={isRTL ? undefined : undefined}
+										size="large"
+										disabled={isPending}
+										sx={{ 
+											minWidth: { xs: 100, sm: 120 },
+											flex: { xs: 1, sm: 'none' },
+											opacity: !canContinue ? 0.6 : 1,
+										}}
+									>
+										{t('continue')}
+									</Button>
+								</span>
+							</Tooltip>
 						) : activeStep === 2 && isCheckoutFlow ? (
 							<Button
 								type="submit"
@@ -1284,6 +1497,10 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 								disabled={isPending}
 								startIcon={<IconCreditCard size={18} />}
 								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
 							>
 								{isPending ? t('checkout.processing') : t('checkout.payNow')}
 							</Button>
@@ -1294,6 +1511,10 @@ export default function ServiceQuoteWizard({ service, isCheckoutFlow = false }: 
 								disabled={isPending}
 								startIcon={isPending ? <CircularProgress size={18} color="inherit" /> : <IconCheck size={18} />}
 								size="large"
+								sx={{ 
+									minWidth: { xs: 100, sm: 120 },
+									flex: { xs: 1, sm: 'none' },
+								}}
 							>
 								{isPending ? t('submitting') : t('submitRequest')}
 							</Button>
@@ -1444,7 +1665,24 @@ function Step1Content({
 								placeholder={locale === 'ar' ? "0592123456" : "0592123456"}
 								value={formData.phone || ''}
 								onChange={(e) => {
-									const value = e.target.value;
+									let value = e.target.value;
+									
+									// Only allow digits, +, spaces, dashes, and parentheses (for formatting)
+									// Remove any letters or other invalid characters
+									value = value.replace(/[^\d+\s\-\(\)]/g, '');
+									
+									// Ensure + only appears at the start
+									if (value.includes('+')) {
+										const plusIndex = value.indexOf('+');
+										if (plusIndex > 0) {
+											// Remove + if it's not at the start
+											value = value.replace(/\+/g, '');
+										} else if (value.length > 1 && value[1] === '+') {
+											// Remove duplicate + at start
+											value = '+' + value.slice(2).replace(/\+/g, '');
+										}
+									}
+									
 									onChange('phone', value);
 									
 									// Real-time validation
@@ -1453,7 +1691,7 @@ function Step1Content({
 										if (!validation.valid && validation.error) {
 											setErrors((prev) => ({
 												...prev,
-												phone: validation.error,
+												phone: validation.error!,
 											}));
 										} else {
 											// Clear error if valid
@@ -1493,8 +1731,8 @@ function Step1Content({
 							) : (
 								<FormHelperText sx={{ mt: 0.5 }}>
 									{locale === 'ar' 
-										? 'يمكنك إدخال الرقم مع أو بدون مسافات. مثال: 0592123456 أو +970592123456'
-										: 'You can enter the number with or without spaces. Example: 0592123456 or +970592123456'}
+										? 'يمكنك إدخال الرقم مع أو بدون مسافات. مثال: 0592123456 أو +970592123456 أو +972592123456'
+										: 'You can enter the number with or without spaces. Example: 0592123456 or +970592123456 or +972592123456'}
 								</FormHelperText>
 							)}
 					</FormControl>
@@ -1559,7 +1797,7 @@ function Step2Content({
 		switch (field.type) {
 			case 'select':
 				return (
-					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]} id={`field-${field.name}`}>
 						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<Select
 							{...commonProps}
@@ -1576,7 +1814,7 @@ function Step2Content({
 								</MenuItem>
 							))}
 						</Select>
-						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{errors[field.name] && <FormHelperText error sx={{ fontWeight: 600 }}>{errors[field.name]}</FormHelperText>}
 						{!errors[field.name] && fieldHelperText && (
 							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
@@ -1585,7 +1823,7 @@ function Step2Content({
 
 			case 'textarea':
 				return (
-					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]} id={`field-${field.name}`}>
 						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
@@ -1596,7 +1834,7 @@ function Step2Content({
 							onChange={(e) => onChange(field.name, e.target.value)}
 							error={!!errors[field.name]}
 						/>
-						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{errors[field.name] && <FormHelperText error sx={{ fontWeight: 600 }}>{errors[field.name]}</FormHelperText>}
 						{!errors[field.name] && fieldHelperText && (
 							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
@@ -1643,7 +1881,7 @@ function Step2Content({
 			case 'date':
 				return (
 					<LocalizationProvider dateAdapter={AdapterDateFns} key={field.name}>
-						<FormControl fullWidth required={field.required} error={!!errors[field.name]}>
+						<FormControl fullWidth required={field.required} error={!!errors[field.name]} id={`field-${field.name}`}>
 							<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 							<DatePicker
 								value={formData[field.name] ? new Date(formData[field.name]) : null}
@@ -1668,7 +1906,7 @@ function Step2Content({
 
 			default:
 				return (
-					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]}>
+					<FormControl required={field.required} fullWidth key={field.name} error={!!errors[field.name]} id={`field-${field.name}`}>
 						<FormLabel htmlFor={field.name}>{renderLabel(fieldLabel, field.required)}</FormLabel>
 						<OutlinedInput
 							{...commonProps}
@@ -1678,7 +1916,7 @@ function Step2Content({
 							onChange={(e) => onChange(field.name, e.target.value)}
 							error={!!errors[field.name]}
 						/>
-						{errors[field.name] && <FormHelperText error>{errors[field.name]}</FormHelperText>}
+						{errors[field.name] && <FormHelperText error sx={{ fontWeight: 600 }}>{errors[field.name]}</FormHelperText>}
 						{!errors[field.name] && fieldHelperText && (
 							<FormHelperText>{fieldHelperText}</FormHelperText>
 						)}
@@ -1736,7 +1974,7 @@ function Step2Content({
 						</Typography>
 						
 						{/* Shipping Location */}
-						<FormControl required error={!!errors.shipping_location}>
+						<FormControl required error={!!errors.shipping_location} id="field-shipping_location">
 							<FormLabel htmlFor="shipping_location">{t('shippingLocation')}</FormLabel>
 							<Select
 								id="shipping_location"
@@ -1751,11 +1989,11 @@ function Step2Content({
 								<MenuItem value="area_48">{getShippingLocationLabel('area_48', locale)}</MenuItem>
 								<MenuItem value="international">{getShippingLocationLabel('international', locale)}</MenuItem>
 							</Select>
-							{errors.shipping_location && <FormHelperText error>{errors.shipping_location}</FormHelperText>}
+							{errors.shipping_location && <FormHelperText error sx={{ fontWeight: 600 }}>{errors.shipping_location}</FormHelperText>}
 						</FormControl>
 
 						{/* Delivery Type */}
-						<FormControl required error={!!errors.delivery_type}>
+						<FormControl required error={!!errors.delivery_type} id="field-delivery_type">
 							<FormLabel htmlFor="delivery_type">{t('deliveryType')}</FormLabel>
 							<Select
 								id="delivery_type"
@@ -1776,12 +2014,12 @@ function Step2Content({
 								<MenuItem value="single">{getDeliveryTypeLabel('single', locale)}</MenuItem>
 								<MenuItem value="multiple">{getDeliveryTypeLabel('multiple', locale)}</MenuItem>
 							</Select>
-							{errors.delivery_type && <FormHelperText error>{errors.delivery_type}</FormHelperText>}
+							{errors.delivery_type && <FormHelperText error sx={{ fontWeight: 600 }}>{errors.delivery_type}</FormHelperText>}
 						</FormControl>
 
 						{/* Delivery Count - Only for Multiple Deliveries */}
 						{formData.delivery_type === 'multiple' && (
-							<FormControl required error={!!errors.delivery_count}>
+							<FormControl required error={!!errors.delivery_count} id="field-delivery_count">
 								<FormLabel htmlFor="delivery_count">{t('deliveryCount')}</FormLabel>
 								<OutlinedInput
 									id="delivery_count"
@@ -1794,7 +2032,7 @@ function Step2Content({
 									error={!!errors.delivery_count}
 								/>
 								<FormHelperText>{t('deliveryCountHelper')}</FormHelperText>
-								{errors.delivery_count && <FormHelperText error>{errors.delivery_count}</FormHelperText>}
+								{errors.delivery_count && <FormHelperText error sx={{ fontWeight: 600 }}>{errors.delivery_count}</FormHelperText>}
 							</FormControl>
 						)}
 					</>
@@ -1879,28 +2117,28 @@ function Step3Content({
 	const totalAmount = serviceAmount + shippingAmount;
 
 	return (
-		<Stack spacing={2}>
+		<Stack spacing={3}>
 			<Box>
-				<Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+				<Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
 					{isCheckoutFlow ? tCheckout('step3Title') : t('step3Title')}
 				</Typography>
-				<Typography variant="body2" color="text.secondary">
+				<Typography variant="body1" color="text.secondary">
 					{isCheckoutFlow ? tCheckout('reviewSubtitle') : t('reviewSubtitle')}
 				</Typography>
 			</Box>
 
 			{isCheckoutFlow && (
 				// Show price breakdown with shipping
-				<Card>
-					<CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-						<Stack spacing={2}>
-							<Typography variant="subtitle2" color="text.secondary">
+				<Card borderRadius={20}>
+					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
+						<Stack spacing={2.5}>
+							<Typography variant="subtitle1" fontWeight={600} color="text.secondary" sx={{ mb: 1 }}>
 								{tCheckout('totalAmount')}
 							</Typography>
 							
 							{/* Service Fee */}
-							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-								<Typography variant="body2" color="text.secondary">
+							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+								<Typography variant="body1" color="text.secondary">
 									{t('serviceFee')}
 								</Typography>
 								<Typography variant="body1" fontWeight={600}>
@@ -1910,9 +2148,9 @@ function Step3Content({
 
 							{/* Shipping Cost */}
 							{shippingAmount > 0 && (
-								<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 1 }}>
 									<Box>
-										<Typography variant="body2" color="text.secondary">
+										<Typography variant="body1" color="text.secondary" sx={{ mb: 0.5 }}>
 											{t('shippingCost')}
 										</Typography>
 										<Typography variant="caption" color="text.secondary">
@@ -1926,11 +2164,11 @@ function Step3Content({
 								</Box>
 							)}
 
-							<Box sx={{ height: 1, bgcolor: 'divider', my: 1 }} />
+							<Divider sx={{ my: 1 }} />
 
 							{/* Total */}
-							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-								<Typography variant="subtitle1" fontWeight={700}>
+							<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
+								<Typography variant="h6" fontWeight={700}>
 									{t('totalWithShipping')}
 								</Typography>
 								<Typography variant="h4" fontWeight={700} color="primary.main">
@@ -1947,7 +2185,7 @@ function Step3Content({
 			</Alert>
 
 			{/* Service & Pricing Estimate */}
-			<Card>
+			<Card borderRadius={20}>
 				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 					<Stack spacing={3}>
 						<Box>
@@ -1969,10 +2207,10 @@ function Step3Content({
 			</Card>
 
 			{/* Contact Information */}
-			<Card>
+			<Card borderRadius={20}>
 				<CardContent sx={{ p: { xs: 3, md: 4 } }}>
-					<Stack spacing={2}>
-						<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+					<Stack spacing={2.5}>
+						<Typography variant="h6" fontWeight={600} sx={{ fontSize: '1.125rem' }}>
 							{t('contactInfo')}
 						</Typography>
 						<Grid container spacing={2}>
@@ -2013,10 +2251,10 @@ function Step3Content({
 
 			{/* Service Requirements */}
 			{serviceFields.length > 0 && (
-				<Card>
+				<Card borderRadius={20}>
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
-						<Stack spacing={2}>
-							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+						<Stack spacing={2.5}>
+							<Typography variant="h6" fontWeight={600} sx={{ fontSize: '1.125rem' }}>
 								{t('serviceInfo')}
 							</Typography>
 							{serviceFields.some(field => field.type !== 'file' && formData[field.name]) || formData.urgency ? (
@@ -2073,10 +2311,10 @@ function Step3Content({
 
 			{/* Uploaded Documents */}
 			{totalUploadedCount > 0 && (
-				<Card>
+				<Card borderRadius={20}>
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
 						<Stack spacing={3}>
-							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+							<Typography variant="h6" fontWeight={600} sx={{ fontSize: '1.125rem' }}>
 								{t('uploadedDocuments', { count: totalUploadedCount })}
 							</Typography>
 
@@ -2150,10 +2388,10 @@ function Step3Content({
 
 			{/* Additional Information */}
 			{(formData.details || formData.message) && (
-				<Card>
+				<Card borderRadius={20}>
 					<CardContent sx={{ p: { xs: 3, md: 4 } }}>
-						<Stack spacing={2}>
-							<Typography variant="h6" sx={{ fontSize: '1.125rem' }}>
+						<Stack spacing={2.5}>
+							<Typography variant="h6" fontWeight={600} sx={{ fontSize: '1.125rem' }}>
 								{t('additionalInformation')}
 							</Typography>
 							{formData.details && (

@@ -80,39 +80,71 @@ export async function createDraftApplication(serviceSlug: string, locale: string
 			};
 		}
 		
-		const { data: application, error } = await supabase
-			.from('applications')
-			.insert({
-				service_slug: serviceSlug,
-				status: 'draft',
-				form_slug: serviceSlug, // Use service slug as form identifier
-				payload: {},
-				customer_id: user.id, // Use user.id directly (same as customer.id and auth.uid())
-				customer_name: customer.name,
-				customer_phone: customer.phone,
-				applicant_email: customer.email || user.email,
-			})
-			.select('id')
-			.single();
+		// Use SECURITY DEFINER function to bypass RLS policy evaluation issues
+		// This function can insert without triggering users table permission checks
+		const { data: applicationId, error: functionError } = await supabase.rpc(
+			'create_draft_application',
+			{
+				p_service_slug: serviceSlug,
+				p_customer_id: user.id,
+				p_customer_name: customer.name,
+				p_customer_phone: customer.phone,
+				p_applicant_email: customer.email || user.email,
+				p_applicant_id: user.id,
+			}
+		);
 
-		if (error || !application) {
-			logger.error('Error creating draft application', error, {
+		if (functionError || !applicationId) {
+			// Fallback to direct insert if function doesn't exist or fails
+			logger.error('Error creating draft application via function', functionError, {
 				userId: user.id,
 				serviceSlug,
 				customerId: customer.id,
-				errorCode: error?.code,
-				errorMessage: error?.message,
+				errorCode: functionError?.code,
+				errorMessage: functionError?.message,
 			});
-			console.error('Error creating draft application:', error);
+			
+			// Try direct insert as fallback
+			const { data: application, error: insertError } = await supabase
+				.from('applications')
+				.insert({
+					service_slug: serviceSlug,
+					status: 'draft',
+					form_slug: serviceSlug,
+					payload: {},
+					customer_id: user.id,
+					customer_name: customer.name,
+					customer_phone: customer.phone,
+					applicant_email: customer.email || user.email,
+					applicant_id: user.id,
+				})
+				.select('id')
+				.single();
+
+			if (insertError || !application) {
+				logger.error('Error creating draft application (fallback)', insertError, {
+					userId: user.id,
+					serviceSlug,
+					customerId: customer.id,
+					errorCode: insertError?.code,
+					errorMessage: insertError?.message,
+				});
+				console.error('Error creating draft application:', insertError);
+				return {
+					type: 'error',
+					message: t('initFormFailed'),
+				};
+			}
+
 			return {
-				type: 'error',
-				message: t('initFormFailed'),
+				type: 'success',
+				applicationId: application.id,
 			};
 		}
 
 		return {
 			type: 'success',
-			applicationId: application.id,
+			applicationId: applicationId as string,
 		};
 	} catch (error) {
 		console.error('Error creating draft application:', error);

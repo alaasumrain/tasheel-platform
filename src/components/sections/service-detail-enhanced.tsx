@@ -193,7 +193,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 										right: 16,
 									}}
 								>
-									<Tooltip title={locale === 'ar' ? 'مشاركة' : 'Share'}>
+									<Tooltip title={t('share')}>
 										<IconButton
 											onClick={handleShare}
 											sx={{
@@ -204,7 +204,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 											<IconShare size={20} />
 										</IconButton>
 									</Tooltip>
-									<Tooltip title={locale === 'ar' ? 'حفظ' : 'Bookmark'}>
+									<Tooltip title={t('bookmark')}>
 										<IconButton
 											onClick={() => setIsBookmarked(!isBookmarked)}
 											sx={{
@@ -235,7 +235,7 @@ export default function ServiceDetail({ service, originalService }: ServiceDetai
 											</Typography>
 											{isComingSoon && (
 												<Chip
-													label={locale === 'ar' ? 'قريباً' : 'Coming Soon'}
+													label={t('comingSoon')}
 													size="small"
 													color="warning"
 													sx={{ fontSize: '0.75rem' }}

@@ -53,7 +53,7 @@ export function getShippingLocationLabel(location: ShippingLocation, locale: 'en
 	const labels: Record<ShippingLocation, { en: string; ar: string }> = {
 		west_bank: { en: 'West Bank', ar: 'الضفة الغربية' },
 		jerusalem: { en: 'Jerusalem', ar: 'القدس' },
-		area_48: { en: '48 Area', ar: 'المناطق المحتلة عام 48' },
+		area_48: { en: '48 Area', ar: 'مناطق الداخل' },
 		international: { en: 'International', ar: 'دولي' },
 	};
 

@@ -1,7 +1,8 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
+import { getCurrentUser, getCustomerProfile, createCustomerFromUser } from '@/lib/supabase/auth-helpers';
 import { getServiceFields } from '@/lib/service-form-fields';
 import { getServiceBySlug } from '@/lib/service-queries';
 import { calculateShippingRate, type ShippingLocation, type DeliveryType } from '@/lib/shipping-rates';
@@ -61,6 +62,14 @@ export async function submitCheckout(formData: FormData): Promise<{
 		// Total amount includes service fee + shipping
 		const totalAmount = serviceAmount + shippingAmount;
 
+		// Use server client with auth context
+		const supabase = await createClient();
+		const user = await getCurrentUser();
+		
+		if (!user) {
+			return { type: 'error', message: t('authRequired') };
+		}
+
 		// Get uploaded attachments
 		const { data: attachments } = await supabase
 			.from('application_attachments')
@@ -106,7 +115,7 @@ export async function submitCheckout(formData: FormData): Promise<{
 						delivery_count: deliveryType === 'multiple' ? Math.max(2, deliveryCount) : 1,
 						amount: shippingAmount,
 					},
-					attachments: attachments?.map(att => ({
+					attachments: attachments?.map((att: any) => ({
 						id: att.id,
 						file_name: att.file_name,
 						storage_path: att.storage_path,

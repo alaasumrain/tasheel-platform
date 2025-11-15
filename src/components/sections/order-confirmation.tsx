@@ -59,13 +59,6 @@ interface OrderConfirmationProps {
 	service?: ServiceSummary | null;
 }
 
-const CATEGORY_LABELS: Record<string, { en: string; ar: string }> = {
-	government: { en: 'Government services', ar: 'الخدمات الحكومية' },
-	translation: { en: 'Translation', ar: 'الترجمة' },
-	legalization: { en: 'Legalization', ar: 'التصديقات' },
-	business: { en: 'Business services', ar: 'خدمات الأعمال' },
-};
-
 export function OrderConfirmation({
 	locale,
 	orderFound,
@@ -78,6 +71,7 @@ export function OrderConfirmation({
 	service,
 }: OrderConfirmationProps) {
 	const t = useTranslations('OrderConfirmation');
+	const tServices = useTranslations('Services');
 	const router = useRouter();
 	const [copied, setCopied] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -180,10 +174,10 @@ export function OrderConfirmation({
 		return t('pricing.customQuote');
 	}, [service, locale, t]);
 
-	const categoryLabel =
-		service && CATEGORY_LABELS[service.category]
-			? CATEGORY_LABELS[service.category][locale]
-			: service?.category ?? null;
+	const categoryLabels = (tServices.raw('categoryLabels') as Record<string, string>) || {};
+	const categoryLabel = service?.category
+		? (categoryLabels[service.category] || service.category)
+		: null;
 
 	const trackHref =
 		orderNumber != null ? `/track?order=${encodeURIComponent(orderNumber)}` : '/track';

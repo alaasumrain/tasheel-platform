@@ -1590,8 +1590,10 @@
       "legalization": "خدمات التصديق",
       "translation": "خدمات الترجمة"
     },
-    "comingSoon": "قيد التطوير",
+    "comingSoon": "قريباً",
     "comingSoonTooltip": "ستكون هذه الخدمة متاحة قريباً",
+    "share": "مشاركة",
+    "bookmark": "حفظ",
     "description": "تصفح فهرسنا الشامل للخدمات الحكومية والترجمات",
     "filters": {
       "activeFilters": "التصفيات النشطة",
@@ -1655,7 +1657,7 @@
       "shareService": "مشاركة رابط الخدمة"
     },
     "simpleProcess": "عملية بسيطة، نتائج احترافية",
-    "startButtonDisabled": "قيد التطوير",
+    "startButtonDisabled": "قريباً",
     "startService": "ابدأ خدمتك",
     "startingPrice": "السعر",
     "title": "خدماتنا",
